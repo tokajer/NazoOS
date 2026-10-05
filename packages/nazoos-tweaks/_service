@@ -1,0 +1,23 @@
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<services>
+  <!-- Paketordner aus GitHub holen und .spec daraus entnehmen -->
+  <service name="obs_scm">
+    <param name="url">https://github.com/tokajer/NazoOS.git</param>
+    <param name="scm">git</param>
+    <param name="revision">main</param>
+    <param name="subdir">packages/nazoos-tweaks</param>
+    <param name="filename">nazoos-tweaks</param>
+    <param name="versionformat">0.1.0+git%cd.%h</param>
+    <param name="extract">nazoos-tweaks.spec</param>
+  </service>
+  <!-- Beim Bauen: Archiv erzeugen, komprimieren, Version in .spec eintragen -->
+  <service name="tar" mode="buildtime"/>
+  <service name="recompress" mode="buildtime">
+    <param name="file">*.tar</param>
+    <param name="compression">xz</param>
+  </service>
+  <service name="set_version" mode="buildtime"/>
+</services>

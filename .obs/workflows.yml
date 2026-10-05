@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# OBS SCM/CI-Integration: Push auf main → Quellen in :devel neu holen und bauen.
+# Doku: https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-scm-ci-workflow-integration
+
+devel_build:
+  steps:
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: nazoos-tweaks
+  filters:
+    event: push
+    branches:
+      only:
+        - main
