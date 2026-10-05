@@ -69,7 +69,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <package name="openSUSE-release-appliance-kvm"/>
   </packages>
 
-  <packages type="image">
+  <!-- plusRecommended: also install Recommends (apps of nazoos-pattern),
+       like a normal zypper install; KIWI default is no Recommends -->
+  <packages type="image" patternType="plusRecommended">
     <!-- Base system -->
     <package name="patterns-base-base"/>
     <package name="kernel-default"/>

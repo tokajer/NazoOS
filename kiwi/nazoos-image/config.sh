@@ -11,7 +11,8 @@ echo nazoos > /etc/hostname
 
 # Services
 systemctl set-default graphical.target
-systemctl enable sddm.service
+# No "enable sddm": Tumbleweed starts it via display-manager-legacy.service,
+# sddm-qt6 registers itself through update-alternatives
 systemctl enable NetworkManager.service
 # wicked would fight NetworkManager over the interfaces
 systemctl disable wicked.service || true
