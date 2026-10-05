@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Disable HDA audio power saving: avoids pops/clicks and the delay
+# when the codec wakes up (costs a little battery on laptops)
+ACTION=="add", SUBSYSTEM=="module", KERNEL=="snd_hda_intel", ATTR{parameters/power_save}="0"

@@ -14,7 +14,8 @@ BuildArch:      noarch
 Requires:       zram-generator
 
 %description
-Default kernel parameters (sysctl) and zram swap configuration
+Default kernel parameters (sysctl), zram swap configuration and
+udev rules (I/O schedulers, audio and SATA power management)
 tuned for gaming and desktop responsiveness on NazoOS.
 
 %prep
@@ -28,15 +29,19 @@ install -Dm0644 sysctl.d/70-nazoos.conf %{buildroot}%{_sysctldir}/70-nazoos.conf
 install -Dm0644 zram-generator.conf.d/70-nazoos.conf \
   %{buildroot}%{_prefix}/lib/systemd/zram-generator.conf.d/70-nazoos.conf
 install -Dm0644 tmpfiles.d/70-nazoos.conf %{buildroot}%{_tmpfilesdir}/nazoos-tweaks.conf
+%{_udevrulesdir}/*-nazoos-*.rules
+install -Dm0644 -t %{buildroot}%{_udevrulesdir} udev/*.rules
 
 %post
 %sysctl_apply 70-nazoos.conf
 %tmpfiles_create nazoos-tweaks.conf
+%udev_rules_update
 
 %files
 %{_sysctldir}/70-nazoos.conf
 %dir %{_prefix}/lib/systemd/zram-generator.conf.d
 %{_prefix}/lib/systemd/zram-generator.conf.d/70-nazoos.conf
 %{_tmpfilesdir}/nazoos-tweaks.conf
+%{_udevrulesdir}/*-nazoos-*.rules
 
 %changelog
