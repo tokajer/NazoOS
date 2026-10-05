@@ -9,6 +9,9 @@ devel_build:
     - trigger_services:
         project: home:Tokajer:nazoos:devel
         package: nazoos-tweaks
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: nazoos-pattern
   filters:
     event: push
     branches:
