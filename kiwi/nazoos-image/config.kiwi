@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<!-- NazoOS test disk image (qcow2) for virtual machines -->
+<image schemaversion="7.5" name="NazoOS">
+  <description type="system">
+    <author>The NazoOS Contributors</author>
+    <contact>https://github.com/tokajer/NazoOS</contact>
+    <specification>NazoOS gaming desktop, test disk image</specification>
+  </description>
+
+  <preferences>
+    <version>0.1.0</version>
+    <packagemanager>zypper</packagemanager>
+    <locale>en_US</locale>
+    <keytable>de-nodeadkeys</keytable>
+    <timezone>Europe/Berlin</timezone>
+    <rpm-excludedocs>true</rpm-excludedocs>
+    <rpm-check-signatures>false</rpm-check-signatures>
+    <!-- Disk image, btrfs root as snapshot 1 so Snapper rollback works -->
+    <type image="oem"
+          format="qcow2"
+          filesystem="btrfs"
+          firmware="uefi"
+          btrfs_root_is_snapshot="true"
+          btrfs_quota_groups="true"
+          bootpartition="false"
+          devicepersistency="by-uuid"
+          kernelcmdline="quiet splash">
+      <bootloader name="grub2" timeout="5"/>
+      <oemconfig>
+        <oem-resize>true</oem-resize>
+      </oemconfig>
+      <!-- Subvolumes like a default Tumbleweed install: excluded from snapshots -->
+      <systemdisk>
+        <volume name="home"/>
+        <volume name="root"/>
+        <volume name="opt"/>
+        <volume name="srv"/>
+        <volume name="tmp"/>
+        <volume name="usr/local"/>
+        <volume name="boot/grub2/x86_64-efi" mountpoint="boot/grub2/x86_64-efi"/>
+        <volume name="var" copy_on_write="false"/>
+      </systemdisk>
+      <!-- Virtual disk size; qcow2 is sparse, so the download stays small -->
+      <size unit="G">30</size>
+    </type>
+  </preferences>
+
+  <!-- Test accounts, password "nazoos": only for VMs, never for releases -->
+  <users>
+    <user name="root" password="nazoos" pwdformat="plain" home="/root" groups="root"/>
+    <user name="nazoos" password="nazoos" pwdformat="plain" home="/home/nazoos" groups="users,wheel"/>
+  </users>
+
+  <!-- Build repos come from the OBS project paths (repository "images") -->
+  <repository type="rpm-md">
+    <source path="obsrepositories:/"/>
+  </repository>
+
+  <packages type="bootstrap">
+    <package name="filesystem"/>
+    <package name="glibc-locale-base"/>
+    <package name="ca-certificates-mozilla"/>
+    <package name="udev"/>
+    <package name="openSUSE-release"/>
+    <package name="openSUSE-release-appliance-kvm"/>
+  </packages>
+
+  <packages type="image">
+    <!-- Base system -->
+    <package name="patterns-base-base"/>
+    <package name="kernel-default"/>
+    <package name="dracut-kiwi-oem-repart"/>
+    <package name="system-group-wheel"/>
+    <package name="sudo"/>
+    <package name="NetworkManager"/>
+    <!-- Boot: UEFI with Secure Boot shim -->
+    <package name="grub2-x86_64-efi"/>
+    <package name="shim"/>
+    <!-- btrfs + Snapper rollback -->
+    <package name="btrfsprogs"/>
+    <package name="snapper"/>
+    <package name="snapper-zypp-plugin"/>
+    <package name="grub2-snapper-plugin"/>
+    <!-- Desktop: Plasma, Wayland only (Xwayland stays for Steam/Proton) -->
+    <package name="patterns-kde-kde_plasma"/>
+    <package name="plasma6-session"/>
+    <package name="sddm-qt6"/>
+    <package name="xwayland"/>
+    <!-- NazoOS -->
+    <package name="nazoos-pattern"/>
+    <package name="nazoos-tweaks"/>
+    <!-- No X11 session (CLAUDE.md: Wayland only) -->
+    <ignore name="plasma6-session-x11"/>
+  </packages>
+</image>
