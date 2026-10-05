@@ -15,9 +15,9 @@ Requires:       zram-generator
 
 %description
 Default kernel parameters (sysctl), zram swap configuration,
-udev rules (I/O schedulers, audio and SATA power management) and
-ntsync module loading for Wine/Proton, tuned for gaming and
-desktop responsiveness on NazoOS.
+udev rules (I/O schedulers, audio and SATA power management),
+ntsync module loading for Wine/Proton and a lower PipeWire default
+latency, tuned for gaming and desktop responsiveness on NazoOS.
 
 %prep
 %autosetup
@@ -32,6 +32,8 @@ install -Dm0644 zram-generator.conf.d/70-nazoos.conf \
 install -Dm0644 tmpfiles.d/70-nazoos.conf %{buildroot}%{_tmpfilesdir}/nazoos-tweaks.conf
 install -Dm0644 -t %{buildroot}%{_udevrulesdir} udev/*.rules
 install -Dm0644 modules-load.d/ntsync.conf %{buildroot}%{_modulesloaddir}/nazoos-ntsync.conf
+install -Dm0644 -t %{buildroot}%{_datadir}/pipewire/pipewire.conf.d \
+  pipewire/pipewire.conf.d/10-nazoos-latency.conf
 
 %post
 %sysctl_apply 70-nazoos.conf
@@ -46,5 +48,8 @@ install -Dm0644 modules-load.d/ntsync.conf %{buildroot}%{_modulesloaddir}/nazoos
 %{_udevrulesdir}/*-nazoos-*.rules
 %dir %{_modulesloaddir}
 %{_modulesloaddir}/nazoos-ntsync.conf
+%dir %{_datadir}/pipewire
+%dir %{_datadir}/pipewire/pipewire.conf.d
+%{_datadir}/pipewire/pipewire.conf.d/10-nazoos-latency.conf
 
 %changelog
