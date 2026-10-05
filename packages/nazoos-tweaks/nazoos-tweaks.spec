@@ -44,6 +44,7 @@ install -Dm0644 modules-load.d/ntsync.conf %{buildroot}%{_modulesloaddir}/nazoos
 %{_prefix}/lib/systemd/zram-generator.conf.d/70-nazoos.conf
 %{_tmpfilesdir}/nazoos-tweaks.conf
 %{_udevrulesdir}/*-nazoos-*.rules
+%dir %{_modulesloaddir}
 %{_modulesloaddir}/nazoos-ntsync.conf
 
 %changelog
