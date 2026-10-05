@@ -25,3 +25,10 @@ path = "kernel/patches/**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 The NazoOS Contributors"
 SPDX-License-Identifier = "GPL-2.0-only"
+
+# Legal notices (documentation, not code)
+[[annotations]]
+path = ["TRADEMARK.md", "DISCLAIMER.md"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 The NazoOS Contributors"
+SPDX-License-Identifier = "CC-BY-SA-4.0"

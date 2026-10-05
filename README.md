@@ -10,6 +10,6 @@ This repository is [REUSE](https://reuse.software) compliant; the mapping lives 
 - Kernel patches (`kernel/patches/`): GPL-2.0-only
 - Documentation (`docs/`): CC-BY-SA-4.0
 
-The name and logo "NazoOS" are not covered by these licenses.
+The name and logo "NazoOS" are not covered by these licenses, see [`TRADEMARK.md`](TRADEMARK.md). Warranty and independence notice: [`DISCLAIMER.md`](DISCLAIMER.md).
 
 ##
