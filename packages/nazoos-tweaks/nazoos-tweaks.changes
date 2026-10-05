@@ -1,0 +1,9 @@
+-------------------------------------------------------------------
+Mon Oct  5 21:55:19 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Initial package: system tweaks for gaming
+  * sysctl defaults (max_map_count, swappiness, dirty bytes, ...)
+  * zram swap via zram-generator, zswap disabled via tmpfiles.d
+  * udev rules for I/O scheduler, audio and SATA power management
+  * Load ntsync module at boot for Wine/Proton
+  * PipeWire default quantum 512
