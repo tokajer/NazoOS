@@ -11,3 +11,5 @@ This repository is [REUSE](https://reuse.software) compliant; the mapping lives 
 - Documentation (`docs/`): CC-BY-SA-4.0
 
 The name and logo "NazoOS" are not covered by these licenses.
+
+##
