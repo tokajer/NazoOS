@@ -14,9 +14,10 @@ BuildArch:      noarch
 Requires:       zram-generator
 
 %description
-Default kernel parameters (sysctl), zram swap configuration and
-udev rules (I/O schedulers, audio and SATA power management)
-tuned for gaming and desktop responsiveness on NazoOS.
+Default kernel parameters (sysctl), zram swap configuration,
+udev rules (I/O schedulers, audio and SATA power management) and
+ntsync module loading for Wine/Proton, tuned for gaming and
+desktop responsiveness on NazoOS.
 
 %prep
 %autosetup
@@ -29,8 +30,8 @@ install -Dm0644 sysctl.d/70-nazoos.conf %{buildroot}%{_sysctldir}/70-nazoos.conf
 install -Dm0644 zram-generator.conf.d/70-nazoos.conf \
   %{buildroot}%{_prefix}/lib/systemd/zram-generator.conf.d/70-nazoos.conf
 install -Dm0644 tmpfiles.d/70-nazoos.conf %{buildroot}%{_tmpfilesdir}/nazoos-tweaks.conf
-%{_udevrulesdir}/*-nazoos-*.rules
 install -Dm0644 -t %{buildroot}%{_udevrulesdir} udev/*.rules
+install -Dm0644 modules-load.d/ntsync.conf %{buildroot}%{_modulesloaddir}/nazoos-ntsync.conf
 
 %post
 %sysctl_apply 70-nazoos.conf
@@ -43,5 +44,6 @@ install -Dm0644 -t %{buildroot}%{_udevrulesdir} udev/*.rules
 %{_prefix}/lib/systemd/zram-generator.conf.d/70-nazoos.conf
 %{_tmpfilesdir}/nazoos-tweaks.conf
 %{_udevrulesdir}/*-nazoos-*.rules
+%{_modulesloaddir}/nazoos-ntsync.conf
 
 %changelog
