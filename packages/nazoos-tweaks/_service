@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 <services>
-  <!-- Paketordner aus GitHub holen und .spec daraus entnehmen -->
+  <!-- Fetch the package directory from GitHub and extract the .spec -->
   <service name="obs_scm">
     <param name="url">https://github.com/tokajer/NazoOS.git</param>
     <param name="scm">git</param>
@@ -13,7 +13,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <param name="versionformat">0.1.0+git%cd.%h</param>
     <param name="extract">nazoos-tweaks.spec</param>
   </service>
-  <!-- Beim Bauen: Archiv erzeugen, komprimieren, Version in .spec eintragen -->
+  <!-- At build time: create tarball, compress, write version into .spec -->
   <service name="tar" mode="buildtime"/>
   <service name="recompress" mode="buildtime">
     <param name="file">*.tar</param>

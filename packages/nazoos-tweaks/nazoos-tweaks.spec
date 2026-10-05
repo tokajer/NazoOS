@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 Name:           nazoos-tweaks
-# Version wird von OBS (set_version) aus dem Git-Stand gesetzt
+# Version is set by OBS (set_version) from the git state
 Version:        0
 Release:        0
 Summary:        System tweaks for gaming performance on NazoOS
@@ -20,7 +20,7 @@ responsiveness on NazoOS.
 %autosetup
 
 %build
-# Nichts zu kompilieren
+# Nothing to compile
 
 %install
 install -Dm0644 sysctl.d/70-nazoos.conf %{buildroot}%{_sysctldir}/70-nazoos.conf

@@ -1,25 +1,25 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Lizenz-Zuordnung für ganze Verzeichnisse (REUSE-Spezifikation 3.3).
-# Spätere Einträge überschreiben frühere, wenn ein Pfad mehrfach passt.
+# License mapping for whole directories (REUSE specification 3.3).
+# If a path matches several entries, the last one wins.
 version = 1
 
-# Standard: eigener Code, Specs, Configs
+# Default: own code, specs, configs
 [[annotations]]
 path = "**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 The NazoOS Contributors"
 SPDX-License-Identifier = "GPL-3.0-or-later"
 
-# Nutzer-Dokumentation
+# User documentation
 [[annotations]]
 path = "docs/**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 The NazoOS Contributors"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
 
-# Kernel-Patches
+# Kernel patches
 [[annotations]]
 path = "kernel/patches/**"
 precedence = "aggregate"

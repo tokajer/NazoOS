@@ -1,3 +1,3 @@
-# NazoOS-Dokumentation
+# NazoOS Documentation
 
-Nutzer-Dokumentation (CC-BY-SA-4.0).
+User documentation (CC-BY-SA-4.0).
