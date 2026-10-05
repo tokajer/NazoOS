@@ -81,6 +81,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <package name="NetworkManager"/>
     <!-- Boot: UEFI with Secure Boot shim -->
     <package name="grub2-x86_64-efi"/>
+    <!-- KIWI needs the BIOS modules on x86_64 even for UEFI images -->
+    <package name="grub2-i386-pc"/>
     <package name="shim"/>
     <!-- btrfs + Snapper rollback -->
     <package name="btrfsprogs"/>
