@@ -50,7 +50,10 @@ install -Dm0644 icons/index.theme %{buildroot}%{_datadir}/icons/default/index.th
 %config(noreplace) %{_sysconfdir}/xdg/kcminputrc
 %config(noreplace) %{_sysconfdir}/xdg/kcm-about-distrorc
 %config(noreplace) %{_sysconfdir}/xdg/kscreenlockerrc
+%dir %{_datadir}/wallpapers
 %{_datadir}/wallpapers/NazoOS
+%dir %{_datadir}/plasma
+%dir %{_datadir}/plasma/look-and-feel
 %{_datadir}/plasma/look-and-feel/org.nazoos.desktop
 %dir %{_datadir}/sddm
 %dir %{_datadir}/sddm/themes
