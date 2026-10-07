@@ -17,6 +17,8 @@ Requires:       zram-generator
 Default kernel parameters (sysctl), zram swap configuration,
 udev rules (I/O schedulers, audio and SATA power management),
 ntsync module loading for Wine/Proton, MGLRU working set protection,
+TCP BBR, transparent huge page defrag tuning, Nvidia driver options,
+a journal size limit,
 larger shader caches, GameMode defaults, a lower PipeWire default
 latency and the SDDM greeter on Wayland, tuned for gaming and desktop
 responsiveness on NazoOS.
@@ -34,6 +36,15 @@ install -Dm0644 zram-generator.conf.d/70-nazoos.conf \
 install -Dm0644 tmpfiles.d/70-nazoos.conf %{buildroot}%{_tmpfilesdir}/nazoos-tweaks.conf
 install -Dm0644 -t %{buildroot}%{_udevrulesdir} udev/*.rules
 install -Dm0644 modules-load.d/ntsync.conf %{buildroot}%{_modulesloaddir}/nazoos-ntsync.conf
+%{_modulesloaddir}/nazoos-bbr.conf
+%dir %{_modprobedir}
+%{_modprobedir}/70-nazoos-nvidia.conf
+%dir %{_prefix}/lib/systemd/journald.conf.d
+%{_prefix}/lib/systemd/journald.conf.d/70-nazoos.conf
+install -Dm0644 modules-load.d/bbr.conf %{buildroot}%{_modulesloaddir}/nazoos-bbr.conf
+install -Dm0644 modprobe.d/nvidia.conf %{buildroot}%{_modprobedir}/70-nazoos-nvidia.conf
+install -Dm0644 journald.conf.d/70-nazoos.conf \
+  %{buildroot}%{_prefix}/lib/systemd/journald.conf.d/70-nazoos.conf
 install -Dm0644 -t %{buildroot}%{_datadir}/pipewire/pipewire.conf.d \
   pipewire/pipewire.conf.d/10-nazoos-latency.conf
 install -Dm0644 -t %{buildroot}%{_unitdir}/display-manager-legacy.service.d \
@@ -57,6 +68,11 @@ install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
 %{_udevrulesdir}/*-nazoos-*.rules
 %dir %{_modulesloaddir}
 %{_modulesloaddir}/nazoos-ntsync.conf
+%{_modulesloaddir}/nazoos-bbr.conf
+%dir %{_modprobedir}
+%{_modprobedir}/70-nazoos-nvidia.conf
+%dir %{_prefix}/lib/systemd/journald.conf.d
+%{_prefix}/lib/systemd/journald.conf.d/70-nazoos.conf
 %dir %{_datadir}/pipewire
 %dir %{_datadir}/pipewire/pipewire.conf.d
 %{_datadir}/pipewire/pipewire.conf.d/10-nazoos-latency.conf

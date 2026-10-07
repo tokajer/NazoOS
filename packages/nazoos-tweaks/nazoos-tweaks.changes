@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Wed Oct  7 18:40:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- TCP BBR + fq qdisc (sysctl, tcp_bbr via modules-load.d)
+- Transparent huge pages: defrag=defer+madvise via tmpfiles.d
+- Nvidia modprobe options: PAT, no memory zeroing, RMIntrLockingMode,
+  nvidia_drm modeset=1 fbdev=1
+- Persistent journal limited to 200 MB
+
+-------------------------------------------------------------------
 Wed Oct  7 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Performance tweaks:
