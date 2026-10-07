@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Oct  7 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- KWin: allow tearing for fullscreen games (lower input latency)
+- Baloo: index file names only (less background I/O)
+
+-------------------------------------------------------------------
 Wed Oct  7 18:02:40 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Initial package: NazoOS desktop defaults

@@ -16,7 +16,8 @@ Requires:       zram-generator
 %description
 Default kernel parameters (sysctl), zram swap configuration,
 udev rules (I/O schedulers, audio and SATA power management),
-ntsync module loading for Wine/Proton, a lower PipeWire default
+ntsync module loading for Wine/Proton, MGLRU working set protection,
+larger shader caches, GameMode defaults, a lower PipeWire default
 latency and the SDDM greeter on Wayland, tuned for gaming and desktop
 responsiveness on NazoOS.
 
@@ -39,6 +40,9 @@ install -Dm0644 -t %{buildroot}%{_unitdir}/display-manager-legacy.service.d \
   systemd/display-manager-legacy.service.d/10-nazoos-tty1.conf
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/sddm/sddm.conf.d \
   sddm/10-nazoos-wayland.conf
+install -Dm0644 -t %{buildroot}%{_prefix}/lib/environment.d \
+  environment.d/70-nazoos-shader-cache.conf
+install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
 
 %post
 %sysctl_apply 70-nazoos.conf
@@ -61,5 +65,8 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/sddm/sddm.conf.d \
 %dir %{_prefix}/lib/sddm
 %dir %{_prefix}/lib/sddm/sddm.conf.d
 %{_prefix}/lib/sddm/sddm.conf.d/10-nazoos-wayland.conf
+%dir %{_prefix}/lib/environment.d
+%{_prefix}/lib/environment.d/70-nazoos-shader-cache.conf
+%config(noreplace) %{_sysconfdir}/gamemode.ini
 
 %changelog

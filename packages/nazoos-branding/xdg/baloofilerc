@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: index file names only, not file contents. Search in the
+# launcher and Dolphin keeps working without heavy background I/O.
+
+[General]
+only basic indexing=true

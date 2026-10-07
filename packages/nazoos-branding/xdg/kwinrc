@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: allow tearing for fullscreen games that ask for it
+# (lower input latency, like VSync off)
+
+[Compositing]
+AllowTearing=true

@@ -22,8 +22,9 @@ Conflicts:      plasma6-branding-openSUSE
 %description
 Desktop defaults for NazoOS: the NazoOS global theme for KDE Plasma
 (Breeze Dark with the NazoOS wallpaper, also on the lock and login
-screen), Breeze cursors (also as system default cursor theme) and the
-NazoOS website in System Settings.
+screen), Breeze cursors (also as system default cursor theme), the
+NazoOS website in System Settings, tearing allowed for fullscreen games
+and file indexing limited to file names.
 
 %prep
 %autosetup
@@ -33,7 +34,8 @@ NazoOS website in System Settings.
 
 %install
 install -Dm0644 -t %{buildroot}%{_sysconfdir}/xdg \
-  xdg/kdeglobals xdg/kcminputrc xdg/kcm-about-distrorc xdg/kscreenlockerrc
+  xdg/kdeglobals xdg/kcminputrc xdg/kcm-about-distrorc xdg/kscreenlockerrc \
+  xdg/kwinrc xdg/baloofilerc
 install -Dm0644 -t %{buildroot}%{_datadir}/wallpapers/NazoOS wallpaper/NazoOS/metadata.json
 install -Dm0644 -t %{buildroot}%{_datadir}/wallpapers/NazoOS/contents/images \
   wallpaper/NazoOS/contents/images/*.png
@@ -50,6 +52,8 @@ install -Dm0644 icons/index.theme %{buildroot}%{_datadir}/icons/default/index.th
 %config(noreplace) %{_sysconfdir}/xdg/kcminputrc
 %config(noreplace) %{_sysconfdir}/xdg/kcm-about-distrorc
 %config(noreplace) %{_sysconfdir}/xdg/kscreenlockerrc
+%config(noreplace) %{_sysconfdir}/xdg/kwinrc
+%config(noreplace) %{_sysconfdir}/xdg/baloofilerc
 %dir %{_datadir}/wallpapers
 %{_datadir}/wallpapers/NazoOS
 %dir %{_datadir}/plasma

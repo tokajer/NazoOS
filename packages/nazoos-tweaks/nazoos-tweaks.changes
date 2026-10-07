@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Wed Oct  7 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Performance tweaks:
+  * MGLRU min_ttl_ms=1000 via tmpfiles.d (protects the working set)
+  * Larger Mesa and Nvidia shader caches via environment.d
+  * GameMode defaults in /etc/gamemode.ini (renice, ioprio,
+    softrealtime, inhibit screensaver)
+
+-------------------------------------------------------------------
 Wed Oct  7 17:43:05 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - SDDM greeter on Wayland (moved from the KIWI config.sh)

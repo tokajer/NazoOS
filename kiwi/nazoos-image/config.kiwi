@@ -19,16 +19,19 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <timezone>Europe/Berlin</timezone>
     <rpm-excludedocs>true</rpm-excludedocs>
     <rpm-check-signatures>false</rpm-check-signatures>
-    <!-- Disk image, btrfs root as snapshot 1 so Snapper rollback works -->
+    <!-- Disk image, btrfs root as snapshot 1 so Snapper rollback works.
+         No quota groups: they stall the system when Snapper deletes
+         snapshots. preempt=full: full preemption via PREEMPT_DYNAMIC -->
     <type image="oem"
           format="qcow2"
           filesystem="btrfs"
           firmware="uefi"
           btrfs_root_is_snapshot="true"
-          btrfs_quota_groups="true"
+          btrfs_quota_groups="false"
+          fsmountoptions="noatime,compress=zstd:1"
           bootpartition="false"
           devicepersistency="by-uuid"
-          kernelcmdline="quiet splash">
+          kernelcmdline="quiet splash preempt=full">
       <bootloader name="grub2" timeout="5"/>
       <oemconfig>
         <oem-resize>true</oem-resize>
