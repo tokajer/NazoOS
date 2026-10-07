@@ -18,18 +18,6 @@ systemctl enable NetworkManager.service
 systemctl disable wicked.service || true
 systemctl enable snapper-timeline.timer snapper-cleanup.timer
 
-# SDDM greeter on Wayland (kwin) instead of Xorg
-# TODO: move into a NazoOS package so Calamares installs get it too
-mkdir -p /etc/sddm.conf.d
-cat > /etc/sddm.conf.d/10-nazoos-wayland.conf <<'EOF'
-[General]
-DisplayServer=wayland
-GreeterEnvironment=QT_WAYLAND_SHELL_INTEGRATION=layer-shell
-
-[Wayland]
-CompositorCommand=kwin_wayland --drm --no-lockscreen --no-global-shortcuts --locale1
-EOF
-
 # Online repos for the finished system; the OBS build repos are not kept
 zypper --non-interactive addrepo -f \
   https://download.opensuse.org/tumbleweed/repo/oss/ repo-oss
