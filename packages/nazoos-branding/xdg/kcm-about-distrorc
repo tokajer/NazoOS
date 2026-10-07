@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: "About this System" page in System Settings
+
+[General]
+Website=https://github.com/tokajer/NazoOS

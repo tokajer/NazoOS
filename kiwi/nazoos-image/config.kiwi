@@ -79,6 +79,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <package name="system-group-wheel"/>
     <package name="sudo"/>
     <package name="NetworkManager"/>
+    <!-- Test image only: VM debugging from the host (virsh, ssh) -->
+    <package name="qemu-guest-agent"/>
+    <package name="openssh-server"/>
     <!-- Boot: UEFI with Secure Boot shim -->
     <package name="grub2-x86_64-efi"/>
     <!-- KIWI needs the BIOS modules on x86_64 even for UEFI images -->
@@ -97,6 +100,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <!-- NazoOS -->
     <package name="nazoos-pattern"/>
     <package name="nazoos-tweaks"/>
+    <package name="nazoos-branding"/>
     <!-- No X11 session (CLAUDE.md: Wayland only) -->
     <ignore name="plasma6-session-x11"/>
   </packages>

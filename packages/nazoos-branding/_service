@@ -1,0 +1,24 @@
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<services>
+  <!-- Fetch the package directory from GitHub and extract .spec and .changes -->
+  <service name="obs_scm">
+    <param name="url">https://github.com/tokajer/NazoOS.git</param>
+    <param name="scm">git</param>
+    <param name="revision">main</param>
+    <param name="subdir">packages/nazoos-branding</param>
+    <param name="filename">nazoos-branding</param>
+    <param name="versionformat">0.1.0+git%cd.%h</param>
+    <param name="extract">nazoos-branding.spec</param>
+    <param name="extract">nazoos-branding.changes</param>
+  </service>
+  <!-- At build time: create tarball, compress, write version into .spec -->
+  <service name="tar" mode="buildtime"/>
+  <service name="recompress" mode="buildtime">
+    <param name="file">*.tar</param>
+    <param name="compression">xz</param>
+  </service>
+  <service name="set_version" mode="buildtime"/>
+</services>

@@ -17,6 +17,7 @@ Provides:       pattern-order() = 1000
 Provides:       pattern-visible()
 # Core: removing it would remove the pattern
 Requires:       nazoos-tweaks
+Requires:       nazoos-branding
 # Apps and extras: installed by default, but users may remove them
 # Gaming
 Recommends:     steam

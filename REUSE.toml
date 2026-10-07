@@ -32,3 +32,10 @@ path = ["TRADEMARK.md", "DISCLAIMER.md"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 The NazoOS Contributors"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# Artwork: wallpaper
+[[annotations]]
+path = "packages/nazoos-branding/wallpaper/**"
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 The NazoOS Contributors"
+SPDX-License-Identifier = "CC-BY-SA-4.0"

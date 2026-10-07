@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: Plasma defaults (global theme NazoOS = Breeze Dark + wallpaper). User changes from System Settings
+# go to ~/.config/kdeglobals and win over this file.
+# Colors and icons are also set here because the look-and-feel defaults
+# are not always applied on first login.
+
+[General]
+BrowserApplication=firefox
+ColorScheme=BreezeDark
+
+[Icons]
+Theme=breeze-dark
+
+[KDE]
+LookAndFeelPackage=org.nazoos.desktop
+widgetStyle=Breeze

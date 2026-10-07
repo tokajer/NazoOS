@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: login screen background. SDDM reads theme.conf.user after the
+# theme's own theme.conf, so this overrides only the background.
+
+[General]
+background=/usr/share/wallpapers/NazoOS/contents/images/3840x2160.png

@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: "default" cursor theme, used where no theme is configured
+# (e.g. kwin in the SDDM greeter)
+
+[Icon Theme]
+Name=Default
+Comment=Default cursor theme
+Inherits=breeze_cursors

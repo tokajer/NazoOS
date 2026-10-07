@@ -1,0 +1,18 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "The NazoOS Contributors"
+            }
+        ],
+        "Description": "NazoOS default desktop: Breeze Dark with the NazoOS wallpaper",
+        "Id": "org.nazoos.desktop",
+        "License": "GPL-3.0-or-later",
+        "Name": "NazoOS",
+        "Version": "1.0",
+        "Website": "https://github.com/tokajer/NazoOS"
+    },
+    "X-Plasma-APIVersion": "2",
+    "X-Plasma-MainScript": "defaults"
+}

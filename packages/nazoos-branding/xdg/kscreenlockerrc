@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: lock screen with the NazoOS wallpaper
+
+[Greeter][Wallpaper][org.kde.image][General]
+Image=/usr/share/wallpapers/NazoOS/

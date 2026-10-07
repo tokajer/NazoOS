@@ -1,0 +1,9 @@
+-------------------------------------------------------------------
+Wed Oct  7 18:02:40 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Initial package: NazoOS desktop defaults
+  * Global theme org.nazoos.desktop: Breeze Dark + NazoOS wallpaper
+    (replaces plasma6-branding-openSUSE)
+  * NazoOS wallpaper, also on lock screen and SDDM login screen
+  * Breeze cursors, also as system default cursor theme
+  * NazoOS website in System Settings "About this System"

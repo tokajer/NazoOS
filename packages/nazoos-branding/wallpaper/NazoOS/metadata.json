@@ -1,0 +1,12 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "The NazoOS Contributors"
+            }
+        ],
+        "Id": "NazoOS",
+        "License": "CC-BY-SA-4.0",
+        "Name": "NazoOS"
+    }
+}

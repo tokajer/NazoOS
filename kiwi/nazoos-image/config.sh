@@ -17,6 +17,9 @@ systemctl enable NetworkManager.service
 # wicked would fight NetworkManager over the interfaces
 systemctl disable wicked.service || true
 systemctl enable snapper-timeline.timer snapper-cleanup.timer
+# Test image only: ssh into the VM (test password!); drop for releases.
+# qemu-guest-agent needs no enable, udev starts it when the VM has the channel
+systemctl enable sshd.service
 
 # Online repos for the finished system; the OBS build repos are not kept
 zypper --non-interactive addrepo -f \
