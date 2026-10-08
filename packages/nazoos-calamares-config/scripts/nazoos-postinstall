@@ -47,7 +47,12 @@ sed -i 's/^DISPLAYMANAGER_AUTOLOGIN=.*/DISPLAYMANAGER_AUTOLOGIN=""/' \
   /etc/sysconfig/displaymanager
 rm -f /etc/dracut.conf.d/02-livecd.conf
 
-# 4. Bootloader: GRUB with shim (Secure Boot) via openSUSE's perl-Bootloader.
+# 4. initrd for the installed system. Must exist before the GRUB config
+#    is generated, otherwise grub2-mkconfig writes entries without initrd
+#    (the live medium keeps its initrd on the ISO, not in /boot)
+dracut --regenerate-all --force
+
+# 5. Bootloader: GRUB with shim (Secure Boot) via openSUSE's perl-Bootloader.
 #    SUSE_BTRFS_SNAPSHOT_BOOTING lets GRUB find /boot in the default
 #    subvolume and offer snapshots in the boot menu (grub2-snapper-plugin).
 cat > /etc/default/grub <<GRUB
@@ -69,8 +74,6 @@ UPDATE_NVRAM="yes"
 BOOT
 update-bootloader --reinit
 
-# 5. initrd for the installed system (the live one boots from the ISO)
-dracut --regenerate-all --force
 
 # 6. This package is live-only too; the running script stays readable
 rpm -e nazoos-calamares-config
