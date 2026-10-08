@@ -15,6 +15,9 @@ devel_build:
     - trigger_services:
         project: home:Tokajer:nazoos:devel
         package: nazoos-branding
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: nazoos-calamares-config
   filters:
     event: push
     branches:

@@ -1,0 +1,43 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS look of the Calamares installer.
+# Docs: https://github.com/calamares/calamares/blob/calamares/src/branding/default/branding.desc
+---
+componentName: nazoos
+
+welcomeStyleCalamares: false
+welcomeExpandingLogo: true
+windowExpanding: normal
+windowSize: 1024px,640px
+windowPlacement: center
+sidebar: widget
+navigation: widget
+
+strings:
+  productName: NazoOS
+  shortProductName: NazoOS
+  version: Rolling
+  shortVersion: Rolling
+  versionedName: NazoOS
+  shortVersionedName: NazoOS
+  bootloaderEntryName: NazoOS
+  productUrl: https://github.com/tokajer/NazoOS
+  supportUrl: https://github.com/tokajer/NazoOS/issues
+  knownIssuesUrl: https://github.com/tokajer/NazoOS/issues
+
+# Logo from nazoos-branding
+images:
+  productLogo: "/usr/share/icons/hicolor/scalable/apps/nazoos-logo.svg"
+  productIcon: "/usr/share/icons/hicolor/scalable/apps/nazoos-logo.svg"
+  productWelcome: "/usr/share/icons/hicolor/scalable/apps/nazoos-logo.svg"
+
+slideshow: "show.qml"
+slideshowAPI: 2
+
+# Colors of the NazoOS logo/wallpaper
+style:
+  SidebarBackground: "#0D1214"
+  SidebarText: "#FFFFFF"
+  SidebarBackgroundCurrent: "#1F7A3A"
+  SidebarTextCurrent: "#FFFFFF"

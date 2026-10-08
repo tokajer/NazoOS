@@ -1,0 +1,66 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: last installer step, runs inside the installed system (chroot).
+# Called by Calamares (modules/shellprocess-nazoos.conf).
+
+set -euxo pipefail
+
+btrfs_opts="noatime,compress=zstd:1"
+root_uuid=$(findmnt -no UUID /)
+
+# 1. / follows the btrfs default subvolume instead of a fixed subvol=/@.
+#    snapper rollback switches the default subvolume, so this is what
+#    makes a rollback take effect on the next boot.
+sed -i -E '\|^\S+\s+/\s+btrfs\s| s#subvol=/@,?##' /etc/fstab
+btrfs subvolume set-default "$(btrfs inspect-internal rootid /)" /
+
+# 2. Snapper config for / (creates the subvolume @/.snapshots).
+#    No timeline snapshots, like openSUSE: zypper takes pre/post snapshots.
+if [ ! -e /etc/snapper/configs/root ]; then
+  snapper --no-dbus -c root create-config /
+fi
+snapper --no-dbus -c root set-config TIMELINE_CREATE=no
+# .snapshots must be mounted explicitly: after a rollback / is a snapshot
+# and no longer contains @/.snapshots
+if ! grep -qE '\s/\.snapshots\s' /etc/fstab; then
+  echo "UUID=$root_uuid /.snapshots btrfs subvol=/@/.snapshots,$btrfs_opts 0 0" >> /etc/fstab
+fi
+
+# 3. Remove live-only packages before the initrd is built
+live_pkgs=()
+for p in calamares calamares-lang dracut-kiwi-live; do
+  rpm -q --quiet "$p" && live_pkgs+=("$p")
+done
+if [ ${#live_pkgs[@]} -gt 0 ]; then
+  rpm -e --nodeps "${live_pkgs[@]}"
+fi
+
+# 4. Bootloader: GRUB with shim (Secure Boot) via openSUSE's perl-Bootloader.
+#    SUSE_BTRFS_SNAPSHOT_BOOTING lets GRUB find /boot in the default
+#    subvolume and offer snapshots in the boot menu (grub2-snapper-plugin).
+cat > /etc/default/grub <<GRUB
+GRUB_DISTRIBUTOR="NazoOS"
+GRUB_DEFAULT=saved
+GRUB_TIMEOUT=5
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash preempt=full"
+GRUB_CMDLINE_LINUX=""
+GRUB_TERMINAL_OUTPUT="gfxterm"
+GRUB_GFXMODE="auto"
+GRUB_DISABLE_OS_PROBER="false"
+SUSE_BTRFS_SNAPSHOT_BOOTING="true"
+GRUB
+cat > /etc/sysconfig/bootloader <<BOOT
+LOADER_TYPE="grub2-efi"
+SECURE_BOOT="yes"
+TRUSTED_BOOT="no"
+UPDATE_NVRAM="yes"
+BOOT
+update-bootloader --reinit
+
+# 5. initrd for the installed system (the live one boots from the ISO)
+dracut --regenerate-all --force
+
+# 6. This package is live-only too; the running script stays readable
+rpm -e nazoos-calamares-config

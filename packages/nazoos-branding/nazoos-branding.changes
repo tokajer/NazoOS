@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct  8 18:25:04 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Add NazoOS logo (hicolor icon nazoos-logo), shown in System Settings
+  "About this System"
+
+-------------------------------------------------------------------
 Wed Oct  7 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - KWin: allow tearing for fullscreen games (lower input latency)

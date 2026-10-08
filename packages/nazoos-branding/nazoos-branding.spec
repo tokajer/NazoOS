@@ -10,6 +10,9 @@ License:        GPL-3.0-or-later
 URL:            https://github.com/tokajer/NazoOS
 Source0:        %{name}-%{version}.tar.xz
 BuildArch:      noarch
+# Owns /usr/share/icons/hicolor/* (build check: no unowned directories)
+BuildRequires:  hicolor-icon-theme
+Requires:       hicolor-icon-theme
 Requires:       breeze6-cursors
 Requires:       breeze6-style
 Requires:       kf6-breeze-icons
@@ -45,6 +48,8 @@ install -Dm0644 -t %{buildroot}%{_datadir}/plasma/look-and-feel/org.nazoos.deskt
   look-and-feel/org.nazoos.desktop/contents/defaults
 install -Dm0644 sddm/theme.conf.user \
   %{buildroot}%{_datadir}/sddm/themes/breeze-openSUSE/theme.conf.user
+install -Dm0644 logo/nazoos-logo.svg \
+  %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/nazoos-logo.svg
 install -Dm0644 icons/index.theme %{buildroot}%{_datadir}/icons/default/index.theme
 
 %files
@@ -63,6 +68,7 @@ install -Dm0644 icons/index.theme %{buildroot}%{_datadir}/icons/default/index.th
 %dir %{_datadir}/sddm/themes
 %dir %{_datadir}/sddm/themes/breeze-openSUSE
 %{_datadir}/sddm/themes/breeze-openSUSE/theme.conf.user
+%{_datadir}/icons/hicolor/scalable/apps/nazoos-logo.svg
 %dir %{_datadir}/icons/default
 %{_datadir}/icons/default/index.theme
 

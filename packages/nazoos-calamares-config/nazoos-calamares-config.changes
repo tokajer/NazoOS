@@ -1,0 +1,9 @@
+-------------------------------------------------------------------
+Thu Oct  8 18:29:36 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Initial package: Calamares configuration for the NazoOS live medium
+  * btrfs only, openSUSE subvolume layout below @, no swap partition
+  * Snapper config, / follows the btrfs default subvolume (rollback)
+  * GRUB with shim via perl-Bootloader, snapshot boot entries
+  * NazoOS installer branding and slideshow
+  * Removes live-only packages and itself from the installed system
