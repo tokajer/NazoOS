@@ -37,6 +37,12 @@ if [ ${#live_pkgs[@]} -gt 0 ]; then
   rpm -e --nodeps "${live_pkgs[@]}"
 fi
 
+# Live session leftovers: autologin of the live user (KIWI live profile)
+# and the live dracut config (also excluded in unpackfs.conf)
+sed -i 's/^DISPLAYMANAGER_AUTOLOGIN=.*/DISPLAYMANAGER_AUTOLOGIN=""/' \
+  /etc/sysconfig/displaymanager
+rm -f /etc/dracut.conf.d/02-livecd.conf
+
 # 4. Bootloader: GRUB with shim (Secure Boot) via openSUSE's perl-Bootloader.
 #    SUSE_BTRFS_SNAPSHOT_BOOTING lets GRUB find /boot in the default
 #    subvolume and offer snapshots in the boot menu (grub2-snapper-plugin).

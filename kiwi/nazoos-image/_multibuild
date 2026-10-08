@@ -1,0 +1,11 @@
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<!-- OBS builds one image per flavor; the flavor is passed to KIWI as the
+     profile (see OBS-Profiles in config.kiwi). Results: nazoos-image:test,
+     nazoos-image:live -->
+<multibuild>
+  <flavor>test</flavor>
+  <flavor>live</flavor>
+</multibuild>

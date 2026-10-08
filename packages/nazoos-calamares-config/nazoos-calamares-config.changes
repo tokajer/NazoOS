@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Thu Oct  8 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Live session: autologin into Plasma, installer starter in the menu
+  and autostart (Calamares via sudo -E, works under Wayland)
+- removeuser module deletes the live user before the real user is created
+- unpackfs: KIWI mounts the live root at /run/overlay/rootfsbase;
+  exclude the live dracut config
+- Post-install: reset live autologin, remove live dracut config
+
+-------------------------------------------------------------------
 Thu Oct  8 18:29:36 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Initial package: Calamares configuration for the NazoOS live medium

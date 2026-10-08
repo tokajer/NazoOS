@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Starts Calamares as root in the live session (menu + autostart).
+# sudo -E keeps WAYLAND_DISPLAY/XDG_RUNTIME_DIR; pkexec drops them and
+# kdesu would ask for the (locked) root password. See live/sudoers.
+[Desktop Entry]
+Type=Application
+Name=Install NazoOS
+Name[de]=NazoOS installieren
+Comment=Install NazoOS on this computer
+Comment[de]=NazoOS auf diesem Computer installieren
+Icon=nazoos-logo
+Exec=sudo -E /usr/bin/calamares
+Terminal=false
+Categories=System;

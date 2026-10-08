@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Live session only: the live user starts Calamares without a password.
+# Removed with nazoos-calamares-config from the installed system.
+live ALL=(ALL) NOPASSWD: ALL

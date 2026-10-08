@@ -3,13 +3,22 @@
 SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
-<!-- NazoOS test disk image (qcow2) for virtual machines -->
+<!-- NazoOS images: test disk image (qcow2) and live ISO with installer.
+     OBS builds one image per flavor in _multibuild; the flavor name
+     selects the KIWI profile. -->
+<!-- OBS-Profiles: @BUILD_FLAVOR@ -->
 <image schemaversion="7.5" name="NazoOS">
   <description type="system">
     <author>The NazoOS Contributors</author>
     <contact>https://github.com/tokajer/NazoOS</contact>
-    <specification>NazoOS gaming desktop, test disk image</specification>
+    <specification>NazoOS gaming desktop</specification>
   </description>
+
+  <!-- Elements without profiles="..." apply to every profile -->
+  <profiles>
+    <profile name="test" description="Disk image (qcow2) for virtual machines"/>
+    <profile name="live" description="Live ISO with the Calamares installer"/>
+  </profiles>
 
   <preferences>
     <version>0.1.0</version>
@@ -19,6 +28,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <timezone>Europe/Berlin</timezone>
     <rpm-excludedocs>true</rpm-excludedocs>
     <rpm-check-signatures>false</rpm-check-signatures>
+  </preferences>
+
+  <preferences profiles="test">
     <!-- Disk image, btrfs root as snapshot 1 so Snapper rollback works.
          No quota groups: they stall the system when Snapper deletes
          snapshots. preempt=full: full preemption via PREEMPT_DYNAMIC -->
@@ -52,10 +64,30 @@ SPDX-License-Identifier: GPL-3.0-or-later
     </type>
   </preferences>
 
+  <preferences profiles="live">
+    <!-- Live ISO (kiwi-live, read-only root + overlay). Calamares copies
+         the read-only root to disk and sets up btrfs/Snapper itself.
+         No mediacheck: it needs the checkmedia package and slows boot -->
+    <type image="iso"
+          firmware="uefi"
+          volid="NAZOOS_LIVE"
+          mediacheck="false"
+          kernelcmdline="quiet splash preempt=full">
+      <bootloader name="grub2" timeout="5"/>
+    </type>
+  </preferences>
+
   <!-- Test accounts, password "nazoos": only for VMs, never for releases -->
-  <users>
+  <users profiles="test">
     <user name="root" password="nazoos" pwdformat="plain" home="/root" groups="root"/>
     <user name="nazoos" password="nazoos" pwdformat="plain" home="/home/nazoos" groups="users,wheel"/>
+  </users>
+
+  <!-- Live session user (autologin). No root password: Calamares runs via
+       sudo (nazoos-calamares-config) and sets the root password on install.
+       The removeuser module deletes this user from the installed system -->
+  <users profiles="live">
+    <user name="live" password="live" pwdformat="plain" home="/home/live" groups="users"/>
   </users>
 
   <!-- Build repos come from the OBS project paths (repository "images") -->
@@ -78,13 +110,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <!-- Base system -->
     <package name="patterns-base-base"/>
     <package name="kernel-default"/>
-    <package name="dracut-kiwi-oem-repart"/>
     <package name="system-group-wheel"/>
     <package name="sudo"/>
     <package name="NetworkManager"/>
-    <!-- Test image only: VM debugging from the host (virsh, ssh) -->
-    <package name="qemu-guest-agent"/>
-    <package name="openssh-server"/>
     <!-- Boot: UEFI with Secure Boot shim -->
     <package name="grub2-x86_64-efi"/>
     <!-- KIWI needs the BIOS modules on x86_64 even for UEFI images -->
@@ -106,5 +134,20 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <package name="nazoos-branding"/>
     <!-- No X11 session (CLAUDE.md: Wayland only) -->
     <ignore name="plasma6-session-x11"/>
+  </packages>
+
+  <packages type="image" profiles="test">
+    <!-- Grows the root partition to the disk size on first boot -->
+    <package name="dracut-kiwi-oem-repart"/>
+    <!-- Test image only: VM debugging from the host (virsh, ssh) -->
+    <package name="qemu-guest-agent"/>
+    <package name="openssh-server"/>
+  </packages>
+
+  <packages type="image" profiles="live">
+    <!-- initrd module that boots the live system from the ISO -->
+    <package name="dracut-kiwi-live"/>
+    <!-- Installer + its NazoOS config (pulls in calamares) -->
+    <package name="nazoos-calamares-config"/>
   </packages>
 </image>
