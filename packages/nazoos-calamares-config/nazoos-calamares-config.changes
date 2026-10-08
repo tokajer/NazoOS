@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct  8 20:37:15 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Post-install: create /etc/mtab if missing (the live base image has
+  none), fixes "snapper create-config: setmntent failed"
+
+-------------------------------------------------------------------
 Thu Oct  8 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Live session: autologin into Plasma, installer starter in the menu

@@ -7,6 +7,10 @@
 
 set -euxo pipefail
 
+# The live medium's base image has no /etc/mtab (systemd creates it at
+# boot); snapper and other tools need it inside the installer chroot
+[ -e /etc/mtab ] || ln -s ../proc/self/mounts /etc/mtab
+
 btrfs_opts="noatime,compress=zstd:1"
 root_uuid=$(findmnt -no UUID /)
 
