@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Oct  9 07:26:47 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- keyboard: convertedKeymapPath is /usr/share/kbd/keymaps/xkb on
+  Tumbleweed; with the wrong path Calamares fell back to classic
+  keymap names (de-latin1-nodeadkeys) that need kbd-legacy
+
+-------------------------------------------------------------------
 Thu Oct  8 20:37:15 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Post-install: create /etc/mtab if missing (the live base image has
