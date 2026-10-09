@@ -38,6 +38,7 @@ Recommends:     goverlay
 # Hardware
 Recommends:     OpenRGB
 Recommends:     lact
+Recommends:     coolercontrol
 Recommends:     fwupd
 Recommends:     power-profiles-daemon
 # Scheduler, toggled by nazoos-welcome (ADR 0002)

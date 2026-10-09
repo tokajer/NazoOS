@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Oct  9 19:58:13 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend coolercontrol (fan/pump control, Tumbleweed oss)
+
+-------------------------------------------------------------------
 Fri Oct  9 18:31:22 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Require acl: udev rules call setfacl (ddcutil i2c access)

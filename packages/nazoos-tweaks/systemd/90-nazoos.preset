@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: services enabled by default when their package is installed.
+# Read before openSUSE's 95-default-SUSE.preset and 99-default.preset
+# (disable *), the first matching line wins. Users can still disable them.
+enable coolercontrold.service

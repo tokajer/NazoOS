@@ -29,7 +29,7 @@ responsiveness on NazoOS.
 %autosetup
 
 %build
-# Nothing to compile; generate the %pre script that creates the i2c group
+# Nothing to compile; generate the pre-install script that creates the i2c group
 %sysusers_generate_pre sysusers.d/nazoos-i2c.conf nazoos-i2c nazoos-i2c.conf
 
 %install
@@ -47,6 +47,7 @@ install -Dm0644 -t %{buildroot}%{_datadir}/pipewire/pipewire.conf.d \
   pipewire/pipewire.conf.d/10-nazoos-latency.conf
 install -Dm0644 -t %{buildroot}%{_unitdir}/display-manager-legacy.service.d \
   systemd/display-manager-legacy.service.d/10-nazoos-tty1.conf
+install -Dm0644 systemd/90-nazoos.preset %{buildroot}%{_presetdir}/90-nazoos.preset
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/sddm/sddm.conf.d \
   sddm/10-nazoos-wayland.conf
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/environment.d \
@@ -79,6 +80,7 @@ install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
 %{_datadir}/pipewire/pipewire.conf.d/10-nazoos-latency.conf
 %dir %{_unitdir}/display-manager-legacy.service.d
 %{_unitdir}/display-manager-legacy.service.d/10-nazoos-tty1.conf
+%{_presetdir}/90-nazoos.preset
 %dir %{_prefix}/lib/sddm
 %dir %{_prefix}/lib/sddm/sddm.conf.d
 %{_prefix}/lib/sddm/sddm.conf.d/10-nazoos-wayland.conf

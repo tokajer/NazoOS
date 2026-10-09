@@ -21,6 +21,9 @@ systemctl enable NetworkManager.service
 # wicked would fight NetworkManager over the interfaces
 systemctl disable wicked.service || true
 systemctl enable snapper-timeline.timer snapper-cleanup.timer
+# Apply our presets (nazoos-tweaks) again: in the image build a service
+# package may be installed before the preset file exists
+systemctl preset coolercontrold.service
 
 if [ "$profile" = test ]; then
   # Test image only: ssh into the VM (test password!).
