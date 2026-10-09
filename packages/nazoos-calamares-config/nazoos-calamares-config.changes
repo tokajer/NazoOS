@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Oct  9 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- users: add the first user to the i2c group (DDC/CI, OpenRGB)
+
+-------------------------------------------------------------------
 Fri Oct  9 07:26:47 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - keyboard: convertedKeymapPath is /usr/share/kbd/keymaps/xkb on

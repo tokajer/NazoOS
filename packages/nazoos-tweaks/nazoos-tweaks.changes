@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Oct  9 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Create system group i2c via sysusers.d (needed by
+  ddcutil-i2c-udev-rules and OpenRGB, no Tumbleweed package creates it)
+
+-------------------------------------------------------------------
 Wed Oct  7 18:40:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - TCP BBR + fq qdisc (sysctl, tcp_bbr via modules-load.d)

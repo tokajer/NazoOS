@@ -10,15 +10,17 @@ License:        GPL-3.0-or-later
 URL:            https://github.com/tokajer/NazoOS
 Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  systemd-rpm-macros
+BuildRequires:  sysuser-tools
 BuildArch:      noarch
 Requires:       zram-generator
+%sysusers_requires
 
 %description
 Default kernel parameters (sysctl), zram swap configuration,
 udev rules (I/O schedulers, audio and SATA power management),
 ntsync module loading for Wine/Proton, MGLRU working set protection,
 TCP BBR, transparent huge page defrag tuning, Nvidia driver options,
-a journal size limit,
+a journal size limit, the i2c group for DDC/CI and RGB devices,
 larger shader caches, GameMode defaults, a lower PipeWire default
 latency and the SDDM greeter on Wayland, tuned for gaming and desktop
 responsiveness on NazoOS.
@@ -27,7 +29,8 @@ responsiveness on NazoOS.
 %autosetup
 
 %build
-# Nothing to compile
+# Nothing to compile; generate the %pre script that creates the i2c group
+%sysusers_generate_pre sysusers.d/nazoos-i2c.conf nazoos-i2c nazoos-i2c.conf
 
 %install
 install -Dm0644 sysctl.d/70-nazoos.conf %{buildroot}%{_sysctldir}/70-nazoos.conf
@@ -48,7 +51,10 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/sddm/sddm.conf.d \
   sddm/10-nazoos-wayland.conf
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/environment.d \
   environment.d/70-nazoos-shader-cache.conf
+install -Dm0644 sysusers.d/nazoos-i2c.conf %{buildroot}%{_sysusersdir}/nazoos-i2c.conf
 install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
+
+%pre -f nazoos-i2c.pre
 
 %post
 %sysctl_apply 70-nazoos.conf
@@ -78,6 +84,7 @@ install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
 %{_prefix}/lib/sddm/sddm.conf.d/10-nazoos-wayland.conf
 %dir %{_prefix}/lib/environment.d
 %{_prefix}/lib/environment.d/70-nazoos-shader-cache.conf
+%{_sysusersdir}/nazoos-i2c.conf
 %config(noreplace) %{_sysconfdir}/gamemode.ini
 
 %changelog
