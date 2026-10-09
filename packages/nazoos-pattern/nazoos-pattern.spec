@@ -21,6 +21,8 @@ Requires:       nazoos-branding
 # Fallback: older Calamares configs wrote classic console keymap names;
 # Tumbleweed's kbd only ships XKB-generated ones, the rest is in kbd-legacy
 Requires:       kbd-legacy
+# setfacl: udev rules (e.g. ddcutil i2c) grant device access via ACLs
+Requires:       acl
 # Apps and extras: installed by default, but users may remove them
 # Gaming
 Recommends:     steam

@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Oct  9 18:31:22 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Require acl: udev rules call setfacl (ddcutil i2c access)
+
+-------------------------------------------------------------------
 Fri Oct  9 07:26:47 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend goverlay (MangoHud/vkBasalt GUI) and kate
