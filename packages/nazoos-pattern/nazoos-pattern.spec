@@ -18,6 +18,9 @@ Provides:       pattern-visible()
 # Core: removing it would remove the pattern
 Requires:       nazoos-tweaks
 Requires:       nazoos-branding
+# Calamares writes classic console keymap names (de-latin1-nodeadkeys);
+# Tumbleweed's kbd only ships XKB-generated ones, the rest is in kbd-legacy
+Requires:       kbd-legacy
 # Apps and extras: installed by default, but users may remove them
 # Gaming
 Recommends:     steam

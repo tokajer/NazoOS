@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Oct  9 06:35:38 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Require kbd-legacy: console keymaps written by Calamares
+  (e.g. de-latin1-nodeadkeys) are missing otherwise and
+  systemd-vconsole-setup fails at boot
+
+-------------------------------------------------------------------
 Wed Oct  7 18:03:13 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Require nazoos-branding (Breeze Dark desktop defaults)
