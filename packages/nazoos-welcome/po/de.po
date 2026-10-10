@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 09:59+0200\n"
+"POT-Creation-Date: 2026-10-10 13:04+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -259,95 +259,95 @@ msgstr "Kabellose Controller, Headsets, Mäuse und Tastaturen"
 msgid "NazoOS Welcome"
 msgstr "NazoOS Willkommen"
 
-#: qml/Main.qml:69 qml/pages/WelcomePage.qml:13
+#: qml/Main.qml:73 qml/pages/WelcomePage.qml:15
 msgid "Welcome"
 msgstr "Willkommen"
 
-#: qml/Main.qml:74 qml/pages/DriversPage.qml:14
+#: qml/Main.qml:78 qml/pages/DriversPage.qml:16
 msgid "Drivers & codecs"
 msgstr "Treiber & Codecs"
 
-#: qml/Main.qml:80 qml/pages/GamingPage.qml:14
+#: qml/Main.qml:84 qml/pages/GamingPage.qml:16
 msgid "Gaming & performance"
 msgstr "Gaming & Leistung"
 
-#: qml/Main.qml:86 qml/pages/AppsPage.qml:25
+#: qml/Main.qml:90 qml/pages/AppsPage.qml:27
 msgid "Apps"
 msgstr "Apps"
 
-#: qml/Main.qml:92 qml/pages/DrivesPage.qml:15
+#: qml/Main.qml:96 qml/pages/DrivesPage.qml:17
 msgid "Drives"
 msgstr "Laufwerke"
 
-#: qml/Main.qml:98 qml/pages/SystemPage.qml:14
+#: qml/Main.qml:102 qml/pages/SystemPage.qml:16
 msgid "System"
 msgstr "System"
 
-#: qml/Main.qml:104 qml/pages/HelpPage.qml:13
+#: qml/Main.qml:108 qml/pages/HelpPage.qml:15
 msgid "Help"
 msgstr "Hilfe"
 
-#: qml/Main.qml:136 qml/Main.qml:198
-msgid "Show details"
-msgstr "Details anzeigen"
-
-#: qml/Main.qml:167
+#: qml/Main.qml:147
 msgid "Continue"
 msgstr "Weiter"
 
-#: qml/Main.qml:175
+#: qml/Main.qml:155
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: qml/Main.qml:185
+#: qml/Main.qml:165
 msgid "That did not work"
 msgstr "Das hat nicht geklappt"
 
-#: qml/Main.qml:189
+#: qml/Main.qml:169
 msgid "Try again"
 msgstr "Erneut versuchen"
 
-#: qml/Main.qml:203 qml/Main.qml:226
+#: qml/Main.qml:178 qml/components/BusyBar.qml:31
+msgid "Show details"
+msgstr "Details anzeigen"
+
+#: qml/Main.qml:183 qml/Main.qml:206
 msgid "Close"
 msgstr "Schließen"
 
-#: qml/Main.qml:212
+#: qml/Main.qml:192
 msgid "Details"
 msgstr "Details"
 
-#: qml/Main.qml:218
+#: qml/Main.qml:198
 msgid "Copy"
 msgstr "Kopieren"
 
-#: qml/Main.qml:222 qml/pages/HelpPage.qml:77
+#: qml/Main.qml:202 qml/pages/HelpPage.qml:79
 msgid "Copied to the clipboard."
 msgstr "In die Zwischenablage kopiert."
 
-#: qml/Main.qml:237
+#: qml/Main.qml:217
 msgid "Nothing has run yet."
 msgstr "Bisher wurde nichts ausgeführt."
 
-#: qml/pages/AppsPage.qml:15
+#: qml/pages/AppsPage.qml:17
 msgid "Chat"
 msgstr "Chat"
 
-#: qml/pages/AppsPage.qml:15
+#: qml/pages/AppsPage.qml:17
 msgid "Gaming"
 msgstr "Gaming"
 
-#: qml/pages/AppsPage.qml:16
+#: qml/pages/AppsPage.qml:18
 msgid "Recording, video and graphics"
 msgstr "Aufnahme, Video und Grafik"
 
-#: qml/pages/AppsPage.qml:17
+#: qml/pages/AppsPage.qml:19
 msgid "Hardware"
 msgstr "Hardware"
 
-#: qml/pages/AppsPage.qml:17
+#: qml/pages/AppsPage.qml:19
 msgid "Office and tools"
 msgstr "Büro und Werkzeuge"
 
-#: qml/pages/AppsPage.qml:59
+#: qml/pages/AppsPage.qml:61
 msgid ""
 "A selection of popular apps. Flatpaks come from Flathub and run in a "
 "sandbox; everything else is in Discover."
@@ -355,47 +355,47 @@ msgstr ""
 "Eine Auswahl beliebter Apps. Flatpaks kommen von Flathub und laufen in einer "
 "Sandbox; alles Weitere finden Sie in Discover."
 
-#: qml/pages/AppsPage.qml:92 qml/pages/DriversPage.qml:85
-#: qml/pages/GamingPage.qml:106
+#: qml/pages/AppsPage.qml:94 qml/pages/DriversPage.qml:87
+#: qml/pages/GamingPage.qml:108
 msgid "Installed"
 msgstr "Installiert"
 
-#: qml/pages/AppsPage.qml:96 qml/pages/DriversPage.qml:53
-#: qml/pages/DriversPage.qml:63 qml/pages/DriversPage.qml:91
-#: qml/pages/GamingPage.qml:113 qml/pages/WelcomePage.qml:67
+#: qml/pages/AppsPage.qml:98 qml/pages/DriversPage.qml:55
+#: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:93
+#: qml/pages/GamingPage.qml:115 qml/pages/WelcomePage.qml:69
 msgid "Install"
 msgstr "Installieren"
 
-#: qml/pages/AppsPage.qml:96 qml/pages/AppsPage.qml:104
+#: qml/pages/AppsPage.qml:98 qml/pages/AppsPage.qml:106
 msgid "Remove"
 msgstr "Entfernen"
 
-#: qml/pages/AppsPage.qml:102
+#: qml/pages/AppsPage.qml:104
 msgid "Remove %1?"
 msgstr "%1 entfernen?"
 
-#: qml/pages/AppsPage.qml:103
+#: qml/pages/AppsPage.qml:105
 msgid "Your settings and files in your home folder are kept."
 msgstr ""
 "Ihre Einstellungen und Dateien im persönlichen Ordner bleiben erhalten."
 
-#: qml/pages/DriversPage.qml:19
+#: qml/pages/DriversPage.qml:21
 msgid "Graphics"
 msgstr "Grafik"
 
-#: qml/pages/DriversPage.qml:23
+#: qml/pages/DriversPage.qml:25
 msgid "Graphics cards in this computer"
 msgstr "Grafikkarten in diesem Computer"
 
-#: qml/pages/DriversPage.qml:25
+#: qml/pages/DriversPage.qml:27
 msgid "No graphics card found."
 msgstr "Keine Grafikkarte gefunden."
 
-#: qml/pages/DriversPage.qml:31
+#: qml/pages/DriversPage.qml:33
 msgid "NVIDIA driver"
 msgstr "NVIDIA-Treiber"
 
-#: qml/pages/DriversPage.qml:32
+#: qml/pages/DriversPage.qml:34
 msgid ""
 "Installs NVIDIA's driver from NVIDIA's repository. Needed for good gaming "
 "performance on NVIDIA cards."
@@ -403,31 +403,31 @@ msgstr ""
 "Installiert den Treiber aus der Paketquelle von NVIDIA. Nötig für gute "
 "Spieleleistung auf NVIDIA-Karten."
 
-#: qml/pages/DriversPage.qml:33 qml/pages/DriversPage.qml:87
+#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:89
 msgid "Not installed"
 msgstr "Nicht installiert"
 
-#: qml/pages/DriversPage.qml:34
+#: qml/pages/DriversPage.qml:36
 msgid "Installed and active"
 msgstr "Installiert und aktiv"
 
-#: qml/pages/DriversPage.qml:35
+#: qml/pages/DriversPage.qml:37
 msgid "Installed – restart the computer to activate it"
 msgstr "Installiert – Computer neu starten, um ihn zu aktivieren"
 
-#: qml/pages/DriversPage.qml:45
+#: qml/pages/DriversPage.qml:47
 msgid "GeForce GTX 16, RTX 20 and newer (recommended)"
 msgstr "GeForce GTX 16, RTX 20 und neuer (empfohlen)"
 
-#: qml/pages/DriversPage.qml:46
+#: qml/pages/DriversPage.qml:48
 msgid "GeForce GTX 750 to GTX 10 series (older cards)"
 msgstr "GeForce GTX 750 bis GTX-10-Serie (ältere Karten)"
 
-#: qml/pages/DriversPage.qml:58
+#: qml/pages/DriversPage.qml:60
 msgid "Install the NVIDIA driver?"
 msgstr "NVIDIA-Treiber installieren?"
 
-#: qml/pages/DriversPage.qml:59
+#: qml/pages/DriversPage.qml:61
 msgid ""
 "This adds NVIDIA's repository. NVIDIA's drivers are subject to NVIDIA's own "
 "license terms. After the installation, restart the computer."
@@ -436,7 +436,7 @@ msgstr ""
 "NVIDIAs eigene Lizenzbedingungen. Starten Sie den Computer nach der "
 "Installation neu."
 
-#: qml/pages/DriversPage.qml:61
+#: qml/pages/DriversPage.qml:63
 msgid ""
 "The driver for older cards is not signed for Secure Boot. If Secure Boot is "
 "on, it will not load."
@@ -444,11 +444,11 @@ msgstr ""
 "Der Treiber für ältere Karten ist nicht für Secure Boot signiert. Ist Secure "
 "Boot eingeschaltet, wird er nicht geladen."
 
-#: qml/pages/DriversPage.qml:73
+#: qml/pages/DriversPage.qml:75
 msgid "AMD and Intel graphics"
 msgstr "AMD- und Intel-Grafik"
 
-#: qml/pages/DriversPage.qml:74
+#: qml/pages/DriversPage.qml:76
 msgid ""
 "The open-source Mesa drivers are already included and kept up to date with "
 "the system. Nothing to do."
@@ -456,19 +456,19 @@ msgstr ""
 "Die quelloffenen Mesa-Treiber sind bereits enthalten und werden mit dem "
 "System aktualisiert. Nichts zu tun."
 
-#: qml/pages/DriversPage.qml:75
+#: qml/pages/DriversPage.qml:77
 msgid "Ready"
 msgstr "Bereit"
 
-#: qml/pages/DriversPage.qml:79
+#: qml/pages/DriversPage.qml:81
 msgid "Multimedia"
 msgstr "Multimedia"
 
-#: qml/pages/DriversPage.qml:83
+#: qml/pages/DriversPage.qml:85
 msgid "Multimedia codecs (Packman)"
 msgstr "Multimedia-Codecs (Packman)"
 
-#: qml/pages/DriversPage.qml:84
+#: qml/pages/DriversPage.qml:86
 msgid ""
 "Full FFmpeg and GStreamer codecs, e.g. for H.264/H.265 videos, streaming and "
 "video editing. They come from Packman, a community repository outside of "
@@ -478,19 +478,19 @@ msgstr ""
 "Streaming und Videoschnitt. Sie stammen von Packman, einer Community-"
 "Paketquelle außerhalb von NazoOS und openSUSE."
 
-#: qml/pages/DriversPage.qml:86
+#: qml/pages/DriversPage.qml:88
 msgid "Packman is enabled, codecs are not installed yet"
 msgstr "Packman ist eingerichtet, die Codecs sind noch nicht installiert"
 
-#: qml/pages/DriversPage.qml:91
+#: qml/pages/DriversPage.qml:93
 msgid "Reinstall"
 msgstr "Neu installieren"
 
-#: qml/pages/DriversPage.qml:94
+#: qml/pages/DriversPage.qml:96
 msgid "Enable Packman codecs?"
 msgstr "Packman-Codecs einrichten?"
 
-#: qml/pages/DriversPage.qml:95
+#: qml/pages/DriversPage.qml:97
 msgid ""
 "Packman is run by an independent community, not by NazoOS or openSUSE. Some "
 "codecs may be subject to software patents in certain countries. You are "
@@ -506,19 +506,19 @@ msgstr ""
 "Bereits installierte Multimedia-Pakete werden auf die Versionen von Packman "
 "umgestellt."
 
-#: qml/pages/DriversPage.qml:96
+#: qml/pages/DriversPage.qml:98
 msgid "Enable"
 msgstr "Einrichten"
 
-#: qml/pages/DriversPage.qml:101
+#: qml/pages/DriversPage.qml:103
 msgid "Firmware"
 msgstr "Firmware"
 
-#: qml/pages/DriversPage.qml:105
+#: qml/pages/DriversPage.qml:107
 msgid "Firmware updates"
 msgstr "Firmware-Updates"
 
-#: qml/pages/DriversPage.qml:106
+#: qml/pages/DriversPage.qml:108
 msgid ""
 "BIOS/UEFI, SSD and device firmware updates from the vendors (LVFS) appear in "
 "Discover together with the other updates."
@@ -526,11 +526,11 @@ msgstr ""
 "Firmware-Updates der Hersteller (LVFS) für BIOS/UEFI, SSDs und Geräte "
 "erscheinen in Discover zusammen mit den anderen Updates."
 
-#: qml/pages/DriversPage.qml:108
+#: qml/pages/DriversPage.qml:110
 msgid "Open Discover"
 msgstr "Discover öffnen"
 
-#: qml/pages/DrivesPage.qml:21
+#: qml/pages/DrivesPage.qml:23
 msgid ""
 "Internal drives that are not part of the system are only mounted when you "
 "open them in Dolphin. Steam needs them mounted at every start for a game "
@@ -541,11 +541,11 @@ msgstr ""
 "jedem Start eingebunden sein. Hier können Sie sie automatisch unter /mnt "
 "einbinden."
 
-#: qml/pages/DrivesPage.qml:29
+#: qml/pages/DrivesPage.qml:31
 msgid "No additional drives found"
 msgstr "Keine weiteren Laufwerke gefunden"
 
-#: qml/pages/DrivesPage.qml:30
+#: qml/pages/DrivesPage.qml:32
 msgid ""
 "Only internal drives with ext4, Btrfs, XFS, NTFS or exFAT are shown. USB "
 "drives keep working through Dolphin."
@@ -553,7 +553,7 @@ msgstr ""
 "Angezeigt werden nur interne Laufwerke mit ext4, Btrfs, XFS, NTFS oder "
 "exFAT. USB-Laufwerke funktionieren weiterhin über Dolphin."
 
-#: qml/pages/DrivesPage.qml:44
+#: qml/pages/DrivesPage.qml:46
 msgid ""
 "NTFS works, but Proton games can have problems on it. A Linux file system "
 "(ext4, Btrfs) is better for a Steam library."
@@ -561,39 +561,39 @@ msgstr ""
 "NTFS funktioniert, aber Proton-Spiele können darauf Probleme haben. Für eine "
 "Steam-Bibliothek ist ein Linux-Dateisystem (ext4, Btrfs) besser."
 
-#: qml/pages/DrivesPage.qml:47
+#: qml/pages/DrivesPage.qml:49
 msgid "Mounted automatically at %1"
 msgstr "Wird automatisch unter %1 eingebunden"
 
-#: qml/pages/DrivesPage.qml:49
+#: qml/pages/DrivesPage.qml:51
 msgid "Mounted only for now at %1"
 msgstr "Nur vorübergehend unter %1 eingebunden"
 
-#: qml/pages/DrivesPage.qml:50
+#: qml/pages/DrivesPage.qml:52
 msgid "Not mounted"
 msgstr "Nicht eingebunden"
 
-#: qml/pages/DrivesPage.qml:54 qml/pages/HelpPage.qml:29
-#: qml/pages/HelpPage.qml:38 qml/pages/HelpPage.qml:47
-#: qml/pages/HelpPage.qml:56 qml/pages/SystemPage.qml:136
-#: qml/pages/WelcomePage.qml:92 qml/pages/WelcomePage.qml:101
-#: qml/pages/WelcomePage.qml:110 qml/pages/WelcomePage.qml:119
+#: qml/pages/DrivesPage.qml:56 qml/pages/HelpPage.qml:31
+#: qml/pages/HelpPage.qml:40 qml/pages/HelpPage.qml:49
+#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:138
+#: qml/pages/WelcomePage.qml:94 qml/pages/WelcomePage.qml:103
+#: qml/pages/WelcomePage.qml:112 qml/pages/WelcomePage.qml:121
 msgid "Open"
 msgstr "Öffnen"
 
-#: qml/pages/DrivesPage.qml:60 qml/pages/DrivesPage.qml:70
+#: qml/pages/DrivesPage.qml:62 qml/pages/DrivesPage.qml:72
 msgid "Mount automatically"
 msgstr "Automatisch einbinden"
 
-#: qml/pages/DrivesPage.qml:60
+#: qml/pages/DrivesPage.qml:62
 msgid "Stop mounting"
 msgstr "Nicht mehr einbinden"
 
-#: qml/pages/DrivesPage.qml:68
+#: qml/pages/DrivesPage.qml:70
 msgid "Mount this drive automatically?"
 msgstr "Dieses Laufwerk automatisch einbinden?"
 
-#: qml/pages/DrivesPage.qml:69
+#: qml/pages/DrivesPage.qml:71
 msgid ""
 "The drive will be mounted at every start under /mnt. A computer still starts "
 "if the drive is missing.\n"
@@ -605,15 +605,15 @@ msgstr ""
 "\n"
 "Auf dem Laufwerk wird nichts verändert oder gelöscht."
 
-#: qml/pages/GamingPage.qml:19
+#: qml/pages/GamingPage.qml:21
 msgid "CPU scheduler"
 msgstr "CPU-Scheduler"
 
-#: qml/pages/GamingPage.qml:23
+#: qml/pages/GamingPage.qml:25
 msgid "sched_ext scheduler (scx)"
 msgstr "sched_ext-Scheduler (scx)"
 
-#: qml/pages/GamingPage.qml:24
+#: qml/pages/GamingPage.qml:26
 msgid ""
 "Replaces the kernel's CPU scheduler with one tuned for games and desktop "
 "latency. Optional: if games stutter or the system behaves oddly, switch it "
@@ -623,43 +623,43 @@ msgstr ""
 "Reaktionszeiten abgestimmt ist. Optional: Wenn Spiele ruckeln oder sich das "
 "System seltsam verhält, schalten Sie ihn wieder ab."
 
-#: qml/pages/GamingPage.qml:26
+#: qml/pages/GamingPage.qml:28
 msgid "Active: %1"
 msgstr "Aktiv: %1"
 
-#: qml/pages/GamingPage.qml:27 qml/pages/SystemPage.qml:80
+#: qml/pages/GamingPage.qml:29 qml/pages/SystemPage.qml:82
 msgid "Enabled, but not running"
 msgstr "Eingeschaltet, läuft aber nicht"
 
-#: qml/pages/GamingPage.qml:28
+#: qml/pages/GamingPage.qml:30
 msgid "Off (kernel scheduler)"
 msgstr "Aus (Kernel-Scheduler)"
 
-#: qml/pages/GamingPage.qml:32
+#: qml/pages/GamingPage.qml:34
 msgid "Scheduler:"
 msgstr "Scheduler:"
 
-#: qml/pages/GamingPage.qml:43
+#: qml/pages/GamingPage.qml:45
 msgid "scx_lavd is the default and works well for most games."
 msgstr "scx_lavd ist der Standard und passt für die meisten Spiele."
 
-#: qml/pages/GamingPage.qml:65
+#: qml/pages/GamingPage.qml:67
 msgid "Kernel options"
 msgstr "Kernel-Optionen"
 
-#: qml/pages/GamingPage.qml:76
+#: qml/pages/GamingPage.qml:78
 msgid "Restart the computer to apply the change"
 msgstr "Computer neu starten, um die Änderung zu übernehmen"
 
-#: qml/pages/GamingPage.qml:77
+#: qml/pages/GamingPage.qml:79
 msgid "On"
 msgstr "Ein"
 
-#: qml/pages/GamingPage.qml:88
+#: qml/pages/GamingPage.qml:90
 msgid "Disable CPU security mitigations?"
 msgstr "CPU-Schutzmaßnahmen abschalten?"
 
-#: qml/pages/GamingPage.qml:89
+#: qml/pages/GamingPage.qml:91
 msgid ""
 "This removes protection against Spectre, Meltdown and similar CPU attacks. "
 "Malicious websites or programs could read data from other programs. Only do "
@@ -669,19 +669,19 @@ msgstr ""
 "Bösartige Webseiten oder Programme könnten Daten anderer Programme auslesen. "
 "Tun Sie das nur, wenn Sie das Risiko kennen."
 
-#: qml/pages/GamingPage.qml:90
+#: qml/pages/GamingPage.qml:92
 msgid "Disable mitigations"
 msgstr "Schutzmaßnahmen abschalten"
 
-#: qml/pages/GamingPage.qml:100
+#: qml/pages/GamingPage.qml:102
 msgid "Handheld"
 msgstr "Handheld"
 
-#: qml/pages/GamingPage.qml:104
+#: qml/pages/GamingPage.qml:106
 msgid "Steam Deck and handheld support"
 msgstr "Steam Deck und Handhelds"
 
-#: qml/pages/GamingPage.qml:105
+#: qml/pages/GamingPage.qml:107
 msgid ""
 "Gamescope session with Steam's gaming mode, controller and fan support for "
 "Steam Deck, Legion Go, ROG Ally and similar devices."
@@ -689,19 +689,19 @@ msgstr ""
 "Gamescope-Sitzung mit Steams Spielmodus, Controller- und Lüfterunterstützung "
 "für Steam Deck, Legion Go, ROG Ally und ähnliche Geräte."
 
-#: qml/pages/GamingPage.qml:108
+#: qml/pages/GamingPage.qml:110
 msgid "Not available yet"
 msgstr "Noch nicht verfügbar"
 
-#: qml/pages/GamingPage.qml:119
+#: qml/pages/GamingPage.qml:121
 msgid "Tools"
 msgstr "Werkzeuge"
 
-#: qml/pages/GamingPage.qml:123
+#: qml/pages/GamingPage.qml:125
 msgid "GPU and cooling"
 msgstr "Grafikkarte und Kühlung"
 
-#: qml/pages/GamingPage.qml:124
+#: qml/pages/GamingPage.qml:126
 msgid ""
 "LACT: GPU clocks, power limit and fan curve. CoolerControl: fans and pumps "
 "of the whole system."
@@ -709,15 +709,15 @@ msgstr ""
 "LACT: Takt, Leistungsgrenze und Lüfterkurve der Grafikkarte. CoolerControl: "
 "Lüfter und Pumpen des ganzen Systems."
 
-#: qml/pages/GamingPage.qml:139
+#: qml/pages/GamingPage.qml:141
 msgid "Steam launch options"
 msgstr "Steam-Startoptionen"
 
-#: qml/pages/GamingPage.qml:140
+#: qml/pages/GamingPage.qml:142
 msgid "In Steam, right-click a game → Properties → Launch options:"
 msgstr "In Steam: Rechtsklick auf ein Spiel → Eigenschaften → Startoptionen:"
 
-#: qml/pages/GamingPage.qml:149
+#: qml/pages/GamingPage.qml:151
 msgid ""
 "GameMode raises the game's priority while it runs; MangoHud shows FPS and "
 "frame times (toggle with Shift+F12)."
@@ -725,84 +725,84 @@ msgstr ""
 "GameMode erhöht die Priorität des Spiels, solange es läuft; MangoHud zeigt "
 "FPS und Frametimes (ein/aus mit Umschalt+F12)."
 
-#: qml/pages/HelpPage.qml:18
+#: qml/pages/HelpPage.qml:20
 msgid "Documentation and support"
 msgstr "Dokumentation und Hilfe"
 
-#: qml/pages/HelpPage.qml:26
+#: qml/pages/HelpPage.qml:28
 msgid "Documentation"
 msgstr "Dokumentation"
 
-#: qml/pages/HelpPage.qml:27
+#: qml/pages/HelpPage.qml:29
 msgid "Guides for NazoOS: rollback, drivers, gaming."
 msgstr "Anleitungen zu NazoOS: Rollback, Treiber, Gaming."
 
-#: qml/pages/HelpPage.qml:35
+#: qml/pages/HelpPage.qml:37
 msgid "Report a problem"
 msgstr "Problem melden"
 
-#: qml/pages/HelpPage.qml:36
+#: qml/pages/HelpPage.qml:38
 msgid "Copy the system information below and add it to your report."
 msgstr ""
 "Kopieren Sie die Systeminformationen unten und fügen Sie sie Ihrem Bericht "
 "hinzu."
 
-#: qml/pages/HelpPage.qml:45
+#: qml/pages/HelpPage.qml:47
 msgid "How well a Windows game runs with Proton, with tips from other players."
 msgstr "Wie gut ein Windows-Spiel mit Proton läuft, mit Tipps anderer Spieler."
 
-#: qml/pages/HelpPage.qml:53
+#: qml/pages/HelpPage.qml:55
 msgid "openSUSE Tumbleweed"
 msgstr "openSUSE Tumbleweed"
 
-#: qml/pages/HelpPage.qml:54
+#: qml/pages/HelpPage.qml:56
 msgid "NazoOS is based on Tumbleweed; most of its documentation applies."
 msgstr ""
 "NazoOS basiert auf Tumbleweed; das meiste aus dessen Dokumentation gilt auch "
 "hier."
 
-#: qml/pages/HelpPage.qml:62
+#: qml/pages/HelpPage.qml:64
 msgid "System information"
 msgstr "Systeminformationen"
 
-#: qml/pages/HelpPage.qml:73
+#: qml/pages/HelpPage.qml:75
 msgid "Copy system information"
 msgstr "Systeminformationen kopieren"
 
-#: qml/pages/HelpPage.qml:81
+#: qml/pages/HelpPage.qml:83
 msgid "About"
 msgstr "Über"
 
-#: qml/pages/HelpPage.qml:84
+#: qml/pages/HelpPage.qml:86
 msgid "NazoOS Welcome %1 – free software under the GNU GPL 3.0 or later."
 msgstr ""
 "NazoOS Willkommen %1 – freie Software unter der GNU GPL 3.0 oder neuer."
 
-#: qml/pages/HelpPage.qml:85
+#: qml/pages/HelpPage.qml:87
 msgid "\"NazoOS\" and the NazoOS logo are trademarks of the NazoOS project."
 msgstr "„NazoOS“ und das NazoOS-Logo sind Marken des NazoOS-Projekts."
 
-#: qml/pages/HelpPage.qml:91
+#: qml/pages/HelpPage.qml:93
 msgid "Source code"
 msgstr "Quellcode"
 
-#: qml/pages/HelpPage.qml:96
+#: qml/pages/HelpPage.qml:98
 msgid "Disclaimer"
 msgstr "Haftungsausschluss"
 
-#: qml/pages/HelpPage.qml:100
+#: qml/pages/HelpPage.qml:102
 msgid "Trademark"
 msgstr "Marke"
 
-#: qml/pages/SystemPage.qml:19
+#: qml/pages/SystemPage.qml:21
 msgid "Updates"
 msgstr "Updates"
 
-#: qml/pages/SystemPage.qml:23
+#: qml/pages/SystemPage.qml:25
 msgid "Update the system"
 msgstr "System aktualisieren"
 
-#: qml/pages/SystemPage.qml:24
+#: qml/pages/SystemPage.qml:26
 msgid ""
 "Installs all system and Flatpak updates. A snapshot is taken before, so you "
 "can go back if something breaks."
@@ -810,15 +810,15 @@ msgstr ""
 "Installiert alle System- und Flatpak-Updates. Vorher wird ein Snapshot "
 "erstellt, damit Sie zurückkehren können, falls etwas kaputtgeht."
 
-#: qml/pages/SystemPage.qml:27
+#: qml/pages/SystemPage.qml:29
 msgid "Update now"
 msgstr "Jetzt aktualisieren"
 
-#: qml/pages/SystemPage.qml:30
+#: qml/pages/SystemPage.qml:32
 msgid "Update the system now?"
 msgstr "System jetzt aktualisieren?"
 
-#: qml/pages/SystemPage.qml:31
+#: qml/pages/SystemPage.qml:33
 msgid ""
 "This can take a while. Keep the computer on and connected until it is done, "
 "then restart it."
@@ -826,19 +826,19 @@ msgstr ""
 "Das kann eine Weile dauern. Lassen Sie den Computer eingeschaltet und "
 "verbunden, bis es fertig ist, und starten Sie ihn dann neu."
 
-#: qml/pages/SystemPage.qml:32
+#: qml/pages/SystemPage.qml:34
 msgid "Update"
 msgstr "Aktualisieren"
 
-#: qml/pages/SystemPage.qml:42
+#: qml/pages/SystemPage.qml:44
 msgid "Snapshots and rollback"
 msgstr "Snapshots und Rollback"
 
-#: qml/pages/SystemPage.qml:46
+#: qml/pages/SystemPage.qml:48
 msgid "Snapshots"
 msgstr "Snapshots"
 
-#: qml/pages/SystemPage.qml:47
+#: qml/pages/SystemPage.qml:49
 msgid ""
 "If the system does not start or misbehaves after an update: restart, choose "
 "\"Start bootloader from a read-only snapshot\" in the boot menu and pick the "
@@ -850,31 +850,31 @@ msgstr ""
 "den Stand vor dem Update auswählen. Wenn alles läuft, machen Sie das mit "
 "Btrfs Assistant dauerhaft (Snapper → Restore)."
 
-#: qml/pages/SystemPage.qml:50
+#: qml/pages/SystemPage.qml:52
 msgid "Create snapshot"
 msgstr "Snapshot erstellen"
 
-#: qml/pages/SystemPage.qml:61
+#: qml/pages/SystemPage.qml:63
 msgid "Services"
 msgstr "Dienste"
 
-#: qml/pages/SystemPage.qml:78
+#: qml/pages/SystemPage.qml:80
 msgid "Not installed – switching on installs it"
 msgstr "Nicht installiert – wird beim Einschalten installiert"
 
-#: qml/pages/SystemPage.qml:79
+#: qml/pages/SystemPage.qml:81
 msgid "Running"
 msgstr "Läuft"
 
-#: qml/pages/SystemPage.qml:94
+#: qml/pages/SystemPage.qml:96
 msgid "Maintenance"
 msgstr "Wartung"
 
-#: qml/pages/SystemPage.qml:98
+#: qml/pages/SystemPage.qml:100
 msgid "Refresh repositories"
 msgstr "Paketquellen aktualisieren"
 
-#: qml/pages/SystemPage.qml:99
+#: qml/pages/SystemPage.qml:101
 msgid ""
 "Reloads the package lists. Helps when Discover or an installation reports "
 "outdated or broken repository data."
@@ -882,15 +882,15 @@ msgstr ""
 "Lädt die Paketlisten neu. Hilft, wenn Discover oder eine Installation "
 "veraltete oder fehlerhafte Paketquellen meldet."
 
-#: qml/pages/SystemPage.qml:102
+#: qml/pages/SystemPage.qml:104
 msgid "Refresh"
 msgstr "Aktualisieren"
 
-#: qml/pages/SystemPage.qml:108
+#: qml/pages/SystemPage.qml:110
 msgid "Clean package cache"
 msgstr "Paket-Cache leeren"
 
-#: qml/pages/SystemPage.qml:109
+#: qml/pages/SystemPage.qml:111
 msgid ""
 "Deletes downloaded package files and cached repository data to free disk "
 "space."
@@ -898,15 +898,15 @@ msgstr ""
 "Löscht heruntergeladene Pakete und zwischengespeicherte Paketquellen-Daten, "
 "um Speicherplatz freizugeben."
 
-#: qml/pages/SystemPage.qml:112
+#: qml/pages/SystemPage.qml:114
 msgid "Clean"
 msgstr "Leeren"
 
-#: qml/pages/SystemPage.qml:118
+#: qml/pages/SystemPage.qml:120
 msgid "Flatpak cleanup"
 msgstr "Flatpak aufräumen"
 
-#: qml/pages/SystemPage.qml:119
+#: qml/pages/SystemPage.qml:121
 msgid ""
 "Removes runtimes no app needs anymore, or repairs a broken Flatpak "
 "installation."
@@ -914,29 +914,29 @@ msgstr ""
 "Entfernt Laufzeitumgebungen, die keine App mehr braucht, oder repariert eine "
 "defekte Flatpak-Installation."
 
-#: qml/pages/SystemPage.qml:122
+#: qml/pages/SystemPage.qml:124
 msgid "Remove unused"
 msgstr "Unbenutzte entfernen"
 
-#: qml/pages/SystemPage.qml:127
+#: qml/pages/SystemPage.qml:129
 msgid "Repair"
 msgstr "Reparieren"
 
-#: qml/pages/SystemPage.qml:133
+#: qml/pages/SystemPage.qml:135
 msgid "System settings"
 msgstr "Systemeinstellungen"
 
-#: qml/pages/SystemPage.qml:134
+#: qml/pages/SystemPage.qml:136
 msgid ""
 "Displays, sound, network, appearance and everything else of the desktop."
 msgstr ""
 "Bildschirme, Ton, Netzwerk, Aussehen und alles Weitere der Arbeitsfläche."
 
-#: qml/pages/WelcomePage.qml:33
+#: qml/pages/WelcomePage.qml:35
 msgid "Welcome to NazoOS"
 msgstr "Willkommen bei NazoOS"
 
-#: qml/pages/WelcomePage.qml:39
+#: qml/pages/WelcomePage.qml:41
 msgid ""
 "You are running NazoOS from the live medium. Try it out, then install it on "
 "your computer."
@@ -944,7 +944,7 @@ msgstr ""
 "Sie nutzen NazoOS gerade vom Live-Medium. Probieren Sie es aus und "
 "installieren Sie es dann auf Ihrem Computer."
 
-#: qml/pages/WelcomePage.qml:40
+#: qml/pages/WelcomePage.qml:42
 msgid ""
 "A gaming desktop based on openSUSE Tumbleweed. This app sets up the rest in "
 "a few clicks: drivers, codecs, apps and gaming tweaks. Everything that needs "
@@ -954,7 +954,7 @@ msgstr ""
 "Rest mit wenigen Klicks ein: Treiber, Codecs, Apps und Gaming-Optimierungen. "
 "Alles, was Administratorrechte braucht, fragt vorher nach Ihrem Passwort."
 
-#: qml/pages/WelcomePage.qml:51
+#: qml/pages/WelcomePage.qml:53
 msgid ""
 "NazoOS is a hobby project, provided \"as is\" without warranty of any kind. "
 "Use it at your own risk and keep backups of your data. NazoOS is independent "
@@ -965,15 +965,15 @@ msgstr ""
 "Daten. NazoOS ist unabhängig und steht in keiner Verbindung zu openSUSE, "
 "SUSE oder anderen Unternehmen."
 
-#: qml/pages/WelcomePage.qml:54
+#: qml/pages/WelcomePage.qml:56
 msgid "Full disclaimer"
 msgstr "Vollständiger Haftungsausschluss"
 
-#: qml/pages/WelcomePage.qml:64
+#: qml/pages/WelcomePage.qml:66
 msgid "Install NazoOS"
 msgstr "NazoOS installieren"
 
-#: qml/pages/WelcomePage.qml:65
+#: qml/pages/WelcomePage.qml:67
 msgid ""
 "Starts the installer. Your data on other drives stays untouched unless you "
 "choose to erase them."
@@ -981,52 +981,52 @@ msgstr ""
 "Startet das Installationsprogramm. Daten auf anderen Laufwerken bleiben "
 "unberührt, sofern Sie diese nicht zum Löschen auswählen."
 
-#: qml/pages/WelcomePage.qml:75
+#: qml/pages/WelcomePage.qml:77
 msgid "First steps"
 msgstr "Erste Schritte"
 
-#: qml/pages/WelcomePage.qml:85
+#: qml/pages/WelcomePage.qml:87
 msgid "1. Drivers & codecs"
 msgstr "1. Treiber & Codecs"
 
-#: qml/pages/WelcomePage.qml:86
+#: qml/pages/WelcomePage.qml:88
 msgid "NVIDIA driver and multimedia codecs for videos and streaming."
 msgstr "NVIDIA-Treiber und Multimedia-Codecs für Videos und Streaming."
 
-#: qml/pages/WelcomePage.qml:88
+#: qml/pages/WelcomePage.qml:90
 msgid "NVIDIA graphics card without driver"
 msgstr "NVIDIA-Grafikkarte ohne Treiber"
 
-#: qml/pages/WelcomePage.qml:98
+#: qml/pages/WelcomePage.qml:100
 msgid "2. Gaming & performance"
 msgstr "2. Gaming & Leistung"
 
-#: qml/pages/WelcomePage.qml:99
+#: qml/pages/WelcomePage.qml:101
 msgid "CPU scheduler, GPU overclocking, handheld mode."
 msgstr "CPU-Scheduler, Grafikkarten-Übertaktung, Handheld-Modus."
 
-#: qml/pages/WelcomePage.qml:107
+#: qml/pages/WelcomePage.qml:109
 msgid "3. Apps"
 msgstr "3. Apps"
 
-#: qml/pages/WelcomePage.qml:108
+#: qml/pages/WelcomePage.qml:110
 msgid "Discord, OBS Studio, Heroic, ProtonUp-Qt and more with one click."
 msgstr "Discord, OBS Studio, Heroic, ProtonUp-Qt und mehr mit einem Klick."
 
-#: qml/pages/WelcomePage.qml:116
+#: qml/pages/WelcomePage.qml:118
 msgid "4. Drives"
 msgstr "4. Laufwerke"
 
-#: qml/pages/WelcomePage.qml:117
+#: qml/pages/WelcomePage.qml:119
 msgid "Mount extra drives automatically, e.g. for a Steam library."
 msgstr ""
 "Weitere Laufwerke automatisch einbinden, z. B. für eine Steam-Bibliothek."
 
-#: qml/pages/WelcomePage.qml:128
+#: qml/pages/WelcomePage.qml:130
 msgid "Something broke after an update?"
 msgstr "Nach einem Update geht etwas nicht mehr?"
 
-#: qml/pages/WelcomePage.qml:129
+#: qml/pages/WelcomePage.qml:131
 msgid ""
 "NazoOS takes a snapshot before every update. Restart, choose \"Start "
 "bootloader from a read-only snapshot\" in the boot menu and pick the last "
@@ -1036,10 +1036,10 @@ msgstr ""
 "„Start bootloader from a read-only snapshot“ wählen und den letzten "
 "funktionierenden Stand auswählen."
 
-#: qml/pages/WelcomePage.qml:131
+#: qml/pages/WelcomePage.qml:133
 msgid "Learn more"
 msgstr "Mehr erfahren"
 
-#: qml/pages/WelcomePage.qml:138
+#: qml/pages/WelcomePage.qml:140
 msgid "Show this window at login"
 msgstr "Dieses Fenster bei der Anmeldung anzeigen"

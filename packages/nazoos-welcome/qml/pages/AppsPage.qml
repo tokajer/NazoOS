@@ -10,6 +10,8 @@ import "../components"
 Kirigami.ScrollablePage {
     id: page
     property var app
+
+    footer: BusyBar { app: page.app }
     readonly property var st: app.st
     readonly property var categoryNames: ({
         gaming: L.tr("Gaming"), social: L.tr("Chat"),

@@ -163,9 +163,7 @@ def flathub_ensure():
     run(FLATPAK + ["remote-add", "--if-not-exists", "flathub", FLATHUB_URL])
 
 
-def flatpak_resolve(refs):
-    """Pick the newest branch for ids that exist in several branches
-    (e.g. Vulkan layers per runtime version); install fails otherwise."""
+def flatpak_branches():
     listing = output(FLATPAK + ["remote-ls", "flathub",
                                 "--columns=application,branch"])
     branches = {}
@@ -173,30 +171,42 @@ def flatpak_resolve(refs):
         parts = line.split("\t")
         if len(parts) == 2:
             branches.setdefault(parts[0], set()).add(parts[1])
+    return branches
 
-    def key(b):
-        return [int(x) if x.isdigit() else -1 for x in re.split(r"[.]", b)]
 
-    resolved = []
-    for ref in refs:
-        found = branches.get(ref, set())
-        if len(found) > 1:
-            resolved.append(f"{ref}//{max(found, key=key)}")
-        else:
-            resolved.append(ref)
-    return resolved
+def runtime_branch(app_ref):
+    """Branch of the runtime an installed app uses, e.g. "25.08"."""
+    runtime = output(FLATPAK + ["info", "--show-runtime", app_ref]).strip()
+    return runtime.rsplit("/", 1)[-1] if runtime.count("/") == 2 else ""
 
 
 def app_install(args):
     app = catalog.by_id(catalog.APPS, arg(args, 0))
     if app is None:
         raise Fail("unknown app")
-    if app["kind"] == "flatpak":
-        flathub_ensure()
-        run(FLATPAK + ["install", "--noninteractive", "-y", "flathub"]
-            + flatpak_resolve(app["refs"]))
-    else:
+    if app["kind"] != "flatpak":
         run(ZYPPER_IN + app["refs"])
+        return
+    flathub_ensure()
+    # Extensions like Vulkan layers exist once per runtime version and
+    # cannot be installed without a branch. Install the app first, then
+    # pick the branch of the runtime it uses (newest as fallback).
+    branches = flatpak_branches()
+    single = [r for r in app["refs"] if len(branches.get(r, ())) <= 1]
+    multi = [r for r in app["refs"] if len(branches.get(r, ())) > 1]
+    run(FLATPAK + ["install", "--noninteractive", "-y", "flathub"] + single)
+    if multi:
+        wanted = runtime_branch(app["refs"][0])
+
+        def key(b):
+            return [int(x) if x.isdigit() else -1 for x in b.split(".")]
+
+        refs = []
+        for ref in multi:
+            found = branches[ref]
+            branch = wanted if wanted in found else max(found, key=key)
+            refs.append(f"{ref}//{branch}")
+        run(FLATPAK + ["install", "--noninteractive", "-y", "flathub"] + refs)
 
 
 def app_remove(args):
@@ -204,10 +214,12 @@ def app_remove(args):
     if app is None:
         raise Fail("unknown app")
     if app["kind"] == "flatpak":
-        installed = output(FLATPAK + ["list", "--columns=application"]).split()
-        refs = [r for r in app["refs"] if r in installed]
-        if refs:
-            run(FLATPAK + ["uninstall", "--noninteractive", "-y"] + refs)
+        # One by one: removing the app also removes its own extensions
+        for ref in app["refs"]:
+            installed = output(FLATPAK + ["list",
+                                          "--columns=application"]).split()
+            if ref in installed:
+                run(FLATPAK + ["uninstall", "--noninteractive", "-y", ref])
     else:
         run(ZYPPER + ["remove", "--clean-deps"] + app["refs"])
 

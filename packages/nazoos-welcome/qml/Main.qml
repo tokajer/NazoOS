@@ -37,6 +37,10 @@ Kirigami.ApplicationWindow {
         confirmDialog.open()
     }
 
+    function showLog() {
+        logDialog.open()
+    }
+
     function openUrl(url) {
         Qt.openUrlExternally(url)
     }
@@ -115,30 +119,6 @@ Kirigami.ApplicationWindow {
     Component { id: drivesPage; DrivesPage { app: root } }
     Component { id: systemPage; SystemPage { app: root } }
     Component { id: helpPage; HelpPage { app: root } }
-
-    // --- progress bar while the helper runs ----------------------------------
-
-    footer: QQC2.ToolBar {
-        visible: backend.busy
-        contentItem: RowLayout {
-            spacing: Kirigami.Units.largeSpacing
-            QQC2.BusyIndicator {
-                running: backend.busy
-                Layout.preferredHeight: Kirigami.Units.iconSizes.medium
-                Layout.preferredWidth: Kirigami.Units.iconSizes.medium
-            }
-            QQC2.Label {
-                text: backend.task + " …"
-                elide: Text.ElideRight
-                Layout.fillWidth: true
-            }
-            QQC2.Button {
-                text: L.tr("Show details")
-                icon.name: "view-list-text"
-                onClicked: logDialog.open()
-            }
-        }
-    }
 
     Connections {
         target: backend

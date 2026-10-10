@@ -10,6 +10,8 @@ import "../components"
 Kirigami.ScrollablePage {
     id: page
     property var app
+
+    footer: BusyBar { app: page.app }
     readonly property var st: app.st
     title: L.tr("Drivers & codecs")
 

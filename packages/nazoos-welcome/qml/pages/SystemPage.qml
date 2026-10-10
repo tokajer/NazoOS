@@ -10,6 +10,8 @@ import "../components"
 Kirigami.ScrollablePage {
     id: page
     property var app
+
+    footer: BusyBar { app: page.app }
     readonly property var st: app.st
     title: L.tr("System")
 
@@ -78,7 +80,7 @@ Kirigami.ScrollablePage {
                 status: !sst.installed ? L.tr("Not installed – switching on installs it")
                         : sst.active ? L.tr("Running")
                         : sst.enabled ? L.tr("Enabled, but not running") : ""
-                statusType: sst.active ? 1 : sst.enabled ? 3 : 0
+                statusType: sst.active ? 1 : sst.enabled ? 2 : 0
                 QQC2.Switch {
                     enabled: !backend.busy
                     checked: sst.enabled === true

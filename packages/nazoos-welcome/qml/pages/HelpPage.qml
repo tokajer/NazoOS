@@ -10,6 +10,8 @@ import "../components"
 Kirigami.ScrollablePage {
     id: page
     property var app
+
+    footer: BusyBar { app: page.app }
     title: L.tr("Help")
 
     ColumnLayout {
