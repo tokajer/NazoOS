@@ -142,7 +142,17 @@ git -C "$src" -c user.name="NazoOS" -c user.email="nazoos@localhost" \
 # --- 4. OBS package ---------------------------------------------------------
 out=$WORK/kernel-source-$FLAVOR
 (cd "$src" && scripts/tar-up --dir="$out" -a x86_64 -f "$FLAVOR")
+# kernel-source builds the other specs as _multibuild flavors. We only need
+# the kernel and kernel-syms (KMPs build against it); docs, the OBS
+# build-VM kernel and the QA package would cost hours of build time
+cat > "$out/_multibuild" <<MB
+<multibuild>
+	<package>kernel-$FLAVOR</package>
+	<package>kernel-syms</package>
+</multibuild>
+MB
+rm -f "$out"/kernel-docs.spec "$out"/kernel-obs-build.spec "$out"/kernel-obs-qa.spec
 echo
 echo "OBS package files: $out"
-echo "Next: copy them into an osc checkout of home:Tokajer:nazoos:devel/kernel-source,"
+echo "Next: copy them into an osc checkout of home:Tokajer:nazoos:kernel/kernel-source,"
 echo "      osc addremove && osc commit (see NazoOS/kernel/README.md)"

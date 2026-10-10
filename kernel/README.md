@@ -37,12 +37,12 @@ One time:
 
 ```sh
 osc meta prj -e home:Tokajer:nazoos:kernel   # repository openSUSE_Tumbleweed,
-                                             # path openSUSE:Factory/standard, arch x86_64
+                                             # path openSUSE:Factory/snapshot, arch x86_64,
+                                             # debuginfo disabled
 osc co home:Tokajer:nazoos:kernel && cd home:Tokajer:nazoos:kernel
 osc mkpac kernel-source
-# kernel-nazoos and kernel-syms build from the same sources
-osc linkpac home:Tokajer:nazoos:kernel kernel-source home:Tokajer:nazoos:kernel kernel-nazoos
-osc linkpac home:Tokajer:nazoos:kernel kernel-source home:Tokajer:nazoos:kernel kernel-syms
+# No links needed: kernel-source carries a _multibuild (written by
+# make-obs-package.sh) that builds kernel-nazoos and kernel-syms as flavors
 # Kernel modules: built for every flavor in kernel-syms -> *-kmp-nazoos
 osc linkpac openSUSE:Factory nvidia-open-driver-G07-signed home:Tokajer:nazoos:kernel
 osc linkpac openSUSE:Factory xone home:Tokajer:nazoos:kernel
@@ -57,6 +57,9 @@ cd home:Tokajer:nazoos:kernel/kernel-source && osc up
 rsync -a --delete --exclude .osc ~/nazoos-kernel/kernel-source-nazoos/ .
 osc addremove && osc ci -m "Update to $(sed -n 's/^SRCVERSION=//p' config.sh)"
 ```
+
+The KMPs stay "unresolvable" (`nothing provides kernel-nazoos-devel`) until
+the kernel build has finished; then OBS builds them on its own.
 
 The spec carries `# needssslcertforbuild`: OBS signs the kernel with the
 project's certificate. The certificate ends up in `/etc/uefi/certs/` and
