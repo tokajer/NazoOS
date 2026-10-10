@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 10 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend all Mesa drivers incl. 32-bit (radeon, intel, nouveau
+  Vulkan, DRI, VA-API, device-select): modalias supplements do not
+  match in a GPU-less image build
+
+-------------------------------------------------------------------
 Sat Oct 10 15:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend nazoos-update (update notifications, rollback) and

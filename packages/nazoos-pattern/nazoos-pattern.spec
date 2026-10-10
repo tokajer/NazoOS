@@ -35,6 +35,23 @@ Recommends:     wine
 Recommends:     protontricks
 Recommends:     winetricks
 Recommends:     goverlay
+# Graphics: all Mesa drivers regardless of hardware. Tumbleweed only pulls
+# the Vulkan drivers via modalias supplements, which do not match in an
+# image built without a GPU (KIWI/OBS) and are bound to kernel-default.
+# 32-bit variants for 32-bit games under Proton/Wine and the Steam client
+Recommends:     Mesa-dri
+Recommends:     Mesa-dri-32bit
+Recommends:     Mesa-libGL1-32bit
+Recommends:     Mesa-libva
+Recommends:     Mesa-vulkan-device-select
+Recommends:     Mesa-vulkan-device-select-32bit
+Recommends:     libvulkan_radeon
+Recommends:     libvulkan_radeon-32bit
+Recommends:     libvulkan_intel
+Recommends:     libvulkan_intel-32bit
+# NVK: Vulkan on NVIDIA before the proprietary driver is installed
+Recommends:     libvulkan_nouveau
+Recommends:     libvulkan_nouveau-32bit
 # Hardware
 Recommends:     OpenRGB
 Recommends:     lact
