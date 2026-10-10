@@ -1,0 +1,19 @@
+Subject: [PATCH] hwmon: (nct6775) add ROG Ally (RC71L) to the ASUS board list
+
+NazoOS: from Nobara's ROG-ALLY-NCT6775-PLATFORM.patch
+(Nobara-Project/rpm-sources 93742e4b, baseos/kernel/mainline/7.2), which
+has no header. Context refreshed for Kernel:stable 7.2.9 (ProArt
+X870E-CREATOR WIFI was added above). Lets nct6775 reach the Super I/O of
+the ROG Ally through the ASUS WMI method: fan and sensor readings.
+---
+diff --git a/drivers/hwmon/nct6775-platform.c b/drivers/hwmon/nct6775-platform.c
+--- a/drivers/hwmon/nct6775-platform.c
++++ b/drivers/hwmon/nct6775-platform.c
+@@ -1370,6 +1370,7 @@ static const char * const asus_msi_boards[] = {
+ 	"ProArt X870E-CREATOR WIFI",
+ 	"ProArt Z690-CREATOR WIFI",
+ 	"ProArt Z790-CREATOR WIFI",
++	"RC71L",
+ 	"ROG CROSSHAIR X670E EXTREME",
+ 	"ROG CROSSHAIR X670E GENE",
+ 	"ROG CROSSHAIR X670E HERO",

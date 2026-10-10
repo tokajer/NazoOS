@@ -1,0 +1,25 @@
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<services>
+  <!-- Take .spec and .changes from our GitHub repo -->
+  <service name="obs_scm">
+    <param name="url">https://github.com/tokajer/NazoOS.git</param>
+    <param name="scm">git</param>
+    <param name="revision">main</param>
+    <param name="subdir">packages/dmemcg-booster</param>
+    <param name="filename">dmemcg-booster-packaging</param>
+    <param name="extract">dmemcg-booster.spec</param>
+    <param name="extract">dmemcg-booster.changes</param>
+  </service>
+  <!-- Upstream release tarball: downloaded from the Source0 URL of the spec -->
+  <service name="download_files"/>
+  <!-- Rust crates for the offline build (OBS has no network while building):
+       vendor.tar.zst. update=false keeps the versions of Cargo.lock -->
+  <service name="cargo_vendor">
+    <param name="src">dmemcg-booster-0.1.3.tar.gz</param>
+    <param name="compression">zst</param>
+    <param name="update">false</param>
+  </service>
+</services>

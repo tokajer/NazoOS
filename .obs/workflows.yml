@@ -30,6 +30,12 @@ devel_build:
     - trigger_services:
         project: home:Tokajer:nazoos:devel
         package: nazoos-kernel-only
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: dmemcg-booster
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: plasma-foreground-booster
   filters:
     event: push
     branches:

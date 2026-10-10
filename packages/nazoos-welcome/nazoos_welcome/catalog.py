@@ -120,7 +120,8 @@ SERVICES = [
      "summary": "Keeps browser profiles in RAM: faster, less disk wear"},
 ]
 
-# Kernel command line options, written to GRUB_CMDLINE_LINUX_DEFAULT
+# Kernel command line options, written to GRUB_CMDLINE_LINUX_DEFAULT.
+# "gpu"/"cpu": only shown on matching hardware (GamingPage.qml)
 KERNEL_PARAMS = [
     {"id": "amdgpu-oc", "param": "amdgpu.ppfeaturemask=0xffffffff",
      "gpu": "amd", "warning": False, "name": "AMD GPU overclocking",
@@ -129,6 +130,15 @@ KERNEL_PARAMS = [
      "gpu": None, "warning": True, "name": "Disable CPU mitigations",
      "summary": "A few percent more performance on older CPUs, "
                 "but removes protection against Spectre-type attacks"},
+    # kernel-nazoos only (0008-0014 patches); kernel-default ignores it.
+    # Shown on CPUs without the tsc_adjust flag (most AMD CPUs incl. the
+    # Steam Deck). Not on by default: it writes the TSC directly
+    {"id": "tsc-directsync", "param": "tsc=directsync",
+     "gpu": None, "cpu": "no-tsc-adjust", "warning": False,
+     "name": "Stable CPU clock after standby",
+     "summary": "Helps when games stutter after waking up or the system "
+                "clock falls back to HPET (Steam Deck, some AMD systems). "
+                "Needs the NazoOS kernel"},
 ]
 
 # sched_ext schedulers offered in the UI (ADR 0002), default first

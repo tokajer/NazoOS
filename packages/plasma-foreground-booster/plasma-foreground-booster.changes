@@ -1,0 +1,5 @@
+-------------------------------------------------------------------
+Sat Oct 10 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- First package for NazoOS: kcgroups branch dmemcg (d106f1c, linked
+  statically) and plasma-foreground-booster (386ccfe), ADR 0013

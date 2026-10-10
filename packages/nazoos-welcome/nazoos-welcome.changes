@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 10 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Kernel option tsc=directsync ("Stable CPU clock after standby"),
+  shown on CPUs without tsc_adjust; takes effect with kernel-nazoos
+
+-------------------------------------------------------------------
 Sat Oct 10 20:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Repair page (ADR 0012): system check without root rights finds a

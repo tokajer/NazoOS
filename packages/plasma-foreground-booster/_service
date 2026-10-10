@@ -1,0 +1,18 @@
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<services>
+  <!-- Take .spec and .changes from our GitHub repo -->
+  <service name="obs_scm">
+    <param name="url">https://github.com/tokajer/NazoOS.git</param>
+    <param name="scm">git</param>
+    <param name="revision">main</param>
+    <param name="subdir">packages/plasma-foreground-booster</param>
+    <param name="filename">plasma-foreground-booster-packaging</param>
+    <param name="extract">plasma-foreground-booster.spec</param>
+    <param name="extract">plasma-foreground-booster.changes</param>
+  </service>
+  <!-- Upstream sources: downloaded from the Source0/Source1 URLs of the spec -->
+  <service name="download_files"/>
+</services>

@@ -260,6 +260,9 @@ def collect():
         "gpus": gpu_list,
         "hasAmd": "amd" in vendors,
         "hasNvidia": "nvidia" in vendors,
+        # CPU can sync its TSC itself; without it tsc=directsync helps
+        "tscAdjust": re.search(r"^flags\s*:.*\btsc_adjust\b",
+                               _read("/proc/cpuinfo"), re.M) is not None,
         "nvidiaDriver": nvidia_variant,
         "nvidiaLoaded": Path("/sys/module/nvidia").exists(),
         "rocm": catalog.ROCM_PACKAGES[0] in rpms,

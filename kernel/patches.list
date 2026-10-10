@@ -14,19 +14,70 @@
 
 # BORE scheduler (Burst-Oriented Response Enhancer), plain variant
 # without the CachyOS base patch
-0001-bore.patch                  https://raw.githubusercontent.com/CachyOS/kernel-patches/master/7.2/sched/0001-bore.patch
+0001-bore.patch                    https://raw.githubusercontent.com/CachyOS/kernel-patches/master/7.2/sched/0001-bore.patch
 # BBRv3 TCP congestion control (branch 7.2/bbr3)
-0002-tcp-bbr3.patch              https://github.com/CachyOS/linux/commit/af253e921d6f.patch
-0003-tcp-bbr3-name.patch         https://github.com/CachyOS/linux/commit/7235d70addc6.patch
+0002-tcp-bbr3.patch                https://github.com/CachyOS/linux/commit/af253e921d6f.patch
+0003-tcp-bbr3-name.patch           https://github.com/CachyOS/linux/commit/7235d70addc6.patch
 # ACS override (pcie_acs_override=), for PCI passthrough to VMs (branch 7.2/cachy)
-0004-pci-acs-override.patch      https://github.com/CachyOS/linux/commit/a9689a07cd0a.patch
+0004-pci-acs-override.patch        https://github.com/CachyOS/linux/commit/a9689a07cd0a.patch
 # v4l2loopback in-tree, as module (branch 7.2/cachy: add + update to 0.15.4)
-0005-v4l2loopback.patch          https://github.com/CachyOS/linux/commit/bc0047b275d8.patch
-0006-v4l2loopback-0.15.4.patch   https://github.com/CachyOS/linux/commit/a72155249381.patch
+0005-v4l2loopback.patch            https://github.com/CachyOS/linux/commit/bc0047b275d8.patch
+0006-v4l2loopback-0.15.4.patch     https://github.com/CachyOS/linux/commit/a72155249381.patch
 # Handheld support: panel orientation, MSI Claw, Zotac Zone, Ayaneo/GPD/
 # OneXPlayer audio and fan quirks, Steam Deck backlight (branch 7.2/handheld).
 # "local": refreshed by us, fetch-patches.sh keeps the file. Upstream:
 # https://raw.githubusercontent.com/CachyOS/kernel-patches/master/7.2/misc/0001-handheld.patch
 # Change: drivers/hid/Makefile hunk adapted (CachyOS' tree has Apple T2
 # lines that SUSE's tree does not have)
-0007-handheld.patch              local
+0007-handheld.patch                local
+# tsc=directsync: CPUs without IA32_TSC_ADJUST (Steam Deck, Zen 2 APUs)
+# sync their TSCs by writing the TSC directly and restore it after sleep,
+# so the TSC stays a stable clocksource after resume. Only active with the
+# boot option tsc=directsync (nazoos-welcome, Gaming page). From Valve's
+# Steam Deck kernel, carried in branch 7.2/cachy
+0008-tsc-directsync.patch          https://github.com/CachyOS/linux/commit/fdcdef08df6c.patch
+0009-tsc-watchdog.patch            https://github.com/CachyOS/linux/commit/31e0d63ebe87.patch
+0010-tsc-save-restore.patch        https://github.com/CachyOS/linux/commit/126fbb2ff4ed.patch
+0011-tsc-restore-only.patch        https://github.com/CachyOS/linux/commit/f851975b9a36.patch
+0012-tsc-no-random-warps.patch     https://github.com/CachyOS/linux/commit/2c30d51f14f9.patch
+0013-tsc-revert-extra-time.patch   https://github.com/CachyOS/linux/commit/5dfdf70a9292.patch
+0014-tsc-directsync-fixup.patch    https://github.com/CachyOS/linux/commit/3ca0f5018d7f.patch
+# dmem cgroup: TTM evicts other buffers to keep a protected cgroup's
+# buffers in VRAM (dmem.low/min). With dmemcg-booster and
+# plasma-foreground-booster the focused game keeps its VRAM instead of
+# spilling into slow system memory (ADR 0013). Natalie Vock (Valve),
+# series v8 for upstream, branch 7.2/cgroup-vram
+0015-dmem-protection-queries.patch https://github.com/CachyOS/linux/commit/0aab69c09f87.patch
+0016-dmem-common-ancestor.patch    https://github.com/CachyOS/linux/commit/96f80ccc18bb.patch
+0017-ttm-extract-alloc-place.patch https://github.com/CachyOS/linux/commit/2ade74aa1383.patch
+0018-ttm-split-charge-alloc.patch  https://github.com/CachyOS/linux/commit/585d17b683de.patch
+0019-ttm-aggressive-below-low.patch https://github.com/CachyOS/linux/commit/8b3c4015c8ba.patch
+0020-ttm-ancestor-limit-pool.patch https://github.com/CachyOS/linux/commit/70911e30c534.patch
+# Nobara 7.2 patches (Nobara-Project/rpm-sources, pinned to commit
+# 93742e4b, dir baseos/kernel/mainline/7.2), not in 7.2 or Kernel:stable.
+# HDMI 2.1 VRR (HDMI Forum VRR: TVs and monitors without FreeSync, more
+# DP-to-HDMI adapters) for amdgpu; FreeSync over HDMI (AMD VSDB) is
+# upstream already. Branch 7.2/hdmi (Tomasz Pakuła) as one diff from its
+# base (Linux 7.2-rc1) to the branch head.
+# "local": context of one amdgpu_dm_helpers.c hunk adapted (Kernel:stable
+# sets qs_bit there). Upstream:
+# https://github.com/CachyOS/linux/compare/dc59e4fea9d83f03bad6bddf3fa2e52491777482...143e44f57bf81227e40bd280aaea84435301b634.diff
+0021-amdgpu-hdmi-vrr.patch         local
+# Poll rate per USB device: usbcore.interrupt_interval_override=VID:PID:ms
+# (e.g. wired PS4/PS5 controllers at 1000 Hz). "local": context of the
+# kernel-parameters.txt hunk adapted (new usbcore quirk flag in 7.2).
+# Upstream: https://github.com/KarsMulder/Linux-Pollrate-Patch, via
+# https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/0001-Allow-to-set-custom-USB-pollrate-for-specific-device.patch
+0022-usb-pollrate-override.patch   local
+# Hardware quirks: ROG Ally sensors (nct6775 board RC71L), Logitech G923
+# PlayStation version, Bluetooth ID 13d3:3503 (QCA9377), ASUS laptop
+# keyboards (usbhid), RDNA1/RDNA2 dGPU suspend (amdgpu gfx10 CSIB), ASUS
+# I226-V rev 6 on one board (1043:8867) drops off the bus (igc, ASPM L1)
+# 0023 "local": context refreshed for 7.2.9. Upstream:
+# https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/ROG-ALLY-NCT6775-PLATFORM.patch
+0023-nct6775-rog-ally.patch        local
+0024-hid-logitech-g923-ps.patch    https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/ps-logitech-wheel.patch
+0025-btusb-qca9377.patch           https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/add-QCA9377.patch
+0026-usbhid-skip-polling.patch     https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/0001-skip-interrupt-in-polling-for-devices.patch
+0027-amdgpu-gfx10-csib.patch       https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/drm-amdgpu-restore-csib-submission-on-gfx10-dgpus.patch
+0028-igc-i226v-aspm.patch          https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/igc-disable-aspm-l1-asus-i226-v.patch

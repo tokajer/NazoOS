@@ -9,9 +9,26 @@ NazoOS starts with the openSUSE kernel (`kernel-default`). It works everywhere, 
 - **ACS override** (`pcie_acs_override=`) for passing GPUs to virtual machines
 - **v4l2loopback**: virtual cameras, e.g. for OBS Studio
 - **Handheld drivers**: Steam Deck, ROG Ally, MSI Claw, Zotac Zone, Ayaneo, GPD, OneXPlayer (screen rotation, buttons, sound, fans)
+- **VRAM for the game in front**: when graphics memory runs short, other programs give way and the focused game keeps its data in fast VRAM (AMD graphics cards, not NVIDIA yet; see below)
+- **Stable CPU clock after standby** (`tsc=directsync`): for the Steam Deck and AMD systems whose games stutter after waking up. Off by default; switch it on in **NazoOS Welcome → Gaming → Kernel options** (the switch only appears on CPUs that can use it)
+- **HDMI 2.1 VRR for AMD**: variable refresh rate over HDMI also on TVs and monitors without FreeSync, and with more DisplayPort-to-HDMI adapters. It turns on by itself when the screen supports it
+- **Waydroid** (Android apps) works: the needed Binder driver is built in. The openSUSE kernel does not have it
+- **Controller poll rate**: wired controllers can be polled faster, e.g. PS4/PS5 controllers at 1000 Hz. For now only for advanced users as boot option `usbcore.interrupt_interval_override=054c:09cc:1` (vendor ID:product ID:milliseconds, see `lsusb`)
+- **Hardware fixes**: ROG Ally fan and sensor readings, Logitech G923 (PlayStation version), some Bluetooth adapters, ASUS laptop keyboards, RX 5000/6000 series (RDNA1/RDNA2) standby, the Intel I226-V network chip on some ASUS X870 mainboards
 - 1000 Hz timer and full preemption (same as the openSUSE kernel today)
 
 `uname -r` ends with `-nazoos`.
+
+## VRAM for the game in front
+
+Two background services come with NazoOS: *dmemcg-booster* and *plasma-foreground-booster*. They mark the window you are using as important. With the NazoOS kernel, the graphics driver then moves other programs' data out of VRAM before the game's data, which helps most on graphics cards with 8 GB or less. With the openSUSE kernel the protection is weaker, but the services do no harm.
+
+To switch the foreground booster off, put this into `~/.config/kcgroupsrc` and log in again:
+
+```ini
+[Foreground Booster]
+autostart=false
+```
 
 ## Step 1: install
 

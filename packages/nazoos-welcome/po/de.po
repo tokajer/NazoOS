@@ -1519,3 +1519,15 @@ msgstr "Mehr erfahren"
 #: qml/pages/WelcomePage.qml:140
 msgid "Show this window at login"
 msgstr "Dieses Fenster bei der Anmeldung anzeigen"
+
+#: nazoos_welcome/catalog.py
+msgid "Stable CPU clock after standby"
+msgstr "Stabiler CPU-Takt nach dem Standby"
+
+#: nazoos_welcome/catalog.py
+msgid ""
+"Helps when games stutter after waking up or the system clock falls back to "
+"HPET (Steam Deck, some AMD systems). Needs the NazoOS kernel"
+msgstr ""
+"Hilft, wenn Spiele nach dem Aufwachen ruckeln oder die Systemuhr auf HPET "
+"zurückfällt (Steam Deck, manche AMD-Systeme). Braucht den NazoOS-Kernel"

@@ -52,12 +52,21 @@ Recommends:     libvulkan_intel-32bit
 # NVK: Vulkan on NVIDIA before the proprietary driver is installed
 Recommends:     libvulkan_nouveau
 Recommends:     libvulkan_nouveau-32bit
+# Xbox controllers: wireless dongle (xone) and Bluetooth (xpadneo). The
+# base packages require the generic xone-kmp/xpadneo-kmp, provided by
+# -kmp-default and -kmp-nazoos alike (ADR 0008 stage 2 keeps working)
+Recommends:     xone
+Recommends:     xpadneo
 # Hardware
 Recommends:     OpenRGB
 Recommends:     lact
 Recommends:     coolercontrol
 Recommends:     fwupd
 Recommends:     power-profiles-daemon
+# VRAM for the focused game (dmem cgroup, ADR 0013): full effect with
+# kernel-nazoos, plain dmem protection with kernel-default
+Recommends:     dmemcg-booster
+Recommends:     plasma-foreground-booster
 # Scheduler, toggled by nazoos-welcome (ADR 0002)
 Recommends:     scx
 # Audio

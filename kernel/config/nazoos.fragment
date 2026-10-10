@@ -36,8 +36,18 @@ CONFIG_SCHED_CLASS_EXT=y
 CONFIG_LRU_GEN=y
 CONFIG_LRU_GEN_ENABLED=y
 
+# dmem cgroup controller (VRAM protection, 0015-0020 patches, ADR 0013).
+# Already on in openSUSE's default config, listed as a guard
+CONFIG_CGROUP_DMEM=y
+
 # ntsync for Wine/Proton
 CONFIG_NTSYNC=m
+
+# Binder for Waydroid (Android apps), off in openSUSE's config. Built in
+# like Nobara/CachyOS: binderfs provides the devices, no module to load
+CONFIG_ANDROID_BINDER_IPC=y
+CONFIG_ANDROID_BINDERFS=y
+CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder"
 
 # Handheld drivers (0007-handheld.patch), all as modules: Steam Deck MFD
 # and LEDs, Asus ROG Ally, MSI Claw, Zotac Zone, aw87xxx amplifier

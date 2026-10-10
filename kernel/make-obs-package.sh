@@ -82,9 +82,12 @@ cat >> "$src/rpm/package-descriptions" <<'DESC'
 The NazoOS Gaming Kernel
 
 The openSUSE kernel with gaming patches for NazoOS: BORE scheduler,
-1000 Hz timer, full preemption, BBRv3, ACS override, v4l2loopback and
+1000 Hz timer, full preemption, BBRv3, ACS override, v4l2loopback,
 handheld drivers (Steam Deck, ROG Ally, MSI Claw, Zotac Zone, Ayaneo,
-GPD, OneXPlayer). Installed next to kernel-default.
+GPD, OneXPlayer), tsc=directsync for handhelds, VRAM protection for
+the foreground game (dmem cgroup), HDMI 2.1 VRR for AMD, USB poll
+rate override, Binder for Waydroid and hardware quirks from Nobara.
+Installed next to kernel-default.
 DESC
 
 # Linux tarball for sequence-patch/tar-up (with signature, they check it)
@@ -107,12 +110,13 @@ patched=$(ls -d "$tree"/linux-*-*/ | head -1)
 # New options added by the patches: take their defaults, keep the rest.
 # Same as SUSE's scripts/run_oldconfig: the dummy tools report a fixed
 # "everything supported" toolchain, so the config does not depend on the
-# local gcc
+# local gcc. RUSTC=/nothing/nowhere: no Rust, as in SUSE's run_oldconfig
+# (otherwise a local rustc fills in CONFIG_RUSTC_VERSION etc.)
 chmod 755 "$patched"/scripts/dummy-tools/*
 cp "$cfg" "$patched/.config"
 make -s -C "$patched" ARCH=x86_64 CROSS_COMPILE=scripts/dummy-tools/ \
   PAHOLE=scripts/dummy-tools/pahole OPENSSL=scripts/dummy-tools/openssl \
-  olddefconfig
+  RUSTC=/nothing/nowhere olddefconfig
 python3 - "$cfg" "$patched/.config" <<'PY'
 import sys
 old, new = sys.argv[1], sys.argv[2]

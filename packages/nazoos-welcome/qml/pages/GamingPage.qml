@@ -67,7 +67,8 @@ Kirigami.ScrollablePage {
         SectionHeader { text: L.tr("Kernel options") }
 
         Repeater {
-            model: backend.catalog.kparams.filter(k => k.gpu !== "amd" || page.st.hasAmd)
+            model: backend.catalog.kparams.filter(k => (k.gpu !== "amd" || page.st.hasAmd)
+                                                      && (k.cpu !== "no-tsc-adjust" || page.st.tscAdjust === false))
             delegate: SettingCard {
                 required property var modelData
                 readonly property var kst: (page.st.kparams || {})[modelData.id] || {}
