@@ -78,6 +78,33 @@ Kirigami.ScrollablePage {
             statusType: 1
         }
 
+        SettingCard {
+            visible: page.st.hasAmd === true
+            iconName: "cpu"
+            title: L.tr("ROCm for AMD graphics (optional)")
+            subtitle: L.tr("Lets programs compute on the graphics card: Blender (HIP), DaVinci Resolve (OpenCL) and local AI tools. Not needed for games. Officially supported are Radeon RX 6000 (RDNA 2) and newer.")
+            status: page.st.rocm ? L.tr("Installed") : ""
+            statusType: page.st.rocm ? 1 : 0
+            QQC2.Button {
+                visible: !page.st.rocm
+                enabled: !backend.busy
+                text: L.tr("Install")
+                icon.name: "download"
+                onClicked: page.app.runAction("rocm-install", [])
+            }
+            QQC2.Button {
+                visible: page.st.rocm === true
+                enabled: !backend.busy
+                text: L.tr("Remove")
+                icon.name: "edit-delete"
+                onClicked: page.app.confirm(
+                    L.tr("Remove ROCm?"),
+                    L.tr("Programs that compute on the graphics card fall back to the CPU. Games are not affected."),
+                    L.tr("Remove"),
+                    () => page.app.runAction("rocm-remove", []))
+            }
+        }
+
         SectionHeader { text: L.tr("Multimedia") }
 
         SettingCard {

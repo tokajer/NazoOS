@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 14:35+0200\n"
+"POT-Creation-Date: 2026-10-10 20:04+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,23 +16,24 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: nazoos_welcome/backend.py:192
-msgid "pkexec could not be started."
-msgstr "pkexec konnte nicht gestartet werden."
-
-#: nazoos_welcome/backend.py:200 nazoos_welcome/backend.py:241
+#: nazoos_welcome/backend.py:217 nazoos_welcome/backend.py:278
+#: nazoos_welcome/backend.py:321
 msgid "Done."
 msgstr "Fertig."
 
-#: nazoos_welcome/backend.py:205
+#: nazoos_welcome/backend.py:270
+msgid "pkexec could not be started."
+msgstr "pkexec konnte nicht gestartet werden."
+
+#: nazoos_welcome/backend.py:283
 msgid "Cancelled: no administrator password was given."
 msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
 
-#: nazoos_welcome/backend.py:209
+#: nazoos_welcome/backend.py:287
 msgid "Something went wrong."
 msgstr "Etwas ist schiefgelaufen."
 
-#: nazoos_welcome/backend.py:270
+#: nazoos_welcome/backend.py:350
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
@@ -51,6 +52,10 @@ msgstr ""
 #: nazoos_welcome/catalog.py
 msgid "AMD GPU overclocking"
 msgstr "AMD-Grafikkarte übertakten"
+
+#: nazoos_welcome/catalog.py
+msgid "Adding Flathub"
+msgstr "Flathub wird hinzugefügt"
 
 #: nazoos_welcome/catalog.py
 msgid "Adding drive"
@@ -125,6 +130,10 @@ msgid "Fan curves and cooling devices"
 msgstr "Lüfterkurven und Kühlung"
 
 #: nazoos_welcome/catalog.py
+msgid "Freeing disk space"
+msgstr "Speicherplatz wird freigegeben"
+
+#: nazoos_welcome/catalog.py
 msgid "Image editor"
 msgstr "Bildbearbeitung"
 
@@ -136,6 +145,14 @@ msgstr ""
 #: nazoos_welcome/catalog.py
 msgid "Installing"
 msgstr "Wird installiert"
+
+#: nazoos_welcome/catalog.py
+msgid "Installing ROCm"
+msgstr "ROCm wird installiert"
+
+#: nazoos_welcome/catalog.py
+msgid "Installing missing dependencies"
+msgstr "Fehlende Abhängigkeiten werden installiert"
 
 #: nazoos_welcome/catalog.py
 msgid "Installing multimedia codecs"
@@ -204,8 +221,20 @@ msgid "Profile-sync-daemon"
 msgstr "Profile-sync-daemon"
 
 #: nazoos_welcome/catalog.py
+msgid "Rebuilding boot files"
+msgstr "Startdateien werden neu erstellt"
+
+#: nazoos_welcome/catalog.py
+msgid "Rebuilding the package database"
+msgstr "Paketdatenbank wird neu aufgebaut"
+
+#: nazoos_welcome/catalog.py
 msgid "Refreshing repositories"
 msgstr "Paketquellen werden aktualisiert"
+
+#: nazoos_welcome/catalog.py
+msgid "Reinstalling the NVIDIA kernel module"
+msgstr "NVIDIA-Kernelmodul wird neu installiert"
 
 #: nazoos_welcome/catalog.py
 msgid "Remote login from other computers (advanced)"
@@ -214,6 +243,10 @@ msgstr "Fernzugriff von anderen Computern (für Fortgeschrittene)"
 #: nazoos_welcome/catalog.py
 msgid "Removing"
 msgstr "Wird entfernt"
+
+#: nazoos_welcome/catalog.py
+msgid "Removing ROCm"
+msgstr "ROCm wird entfernt"
 
 #: nazoos_welcome/catalog.py
 msgid "Removing drive"
@@ -236,6 +269,14 @@ msgid "Repairing Flatpak"
 msgstr "Flatpak wird repariert"
 
 #: nazoos_welcome/catalog.py
+msgid "Repairing repositories"
+msgstr "Paketquellen werden repariert"
+
+#: nazoos_welcome/catalog.py
+msgid "Restarting failed services"
+msgstr "Fehlgeschlagene Dienste werden neu gestartet"
+
+#: nazoos_welcome/catalog.py
 msgid "Run Windows programs in managed Wine prefixes"
 msgstr "Windows-Programme in verwalteten Wine-Umgebungen ausführen"
 
@@ -254,6 +295,10 @@ msgstr "Streaming und Aufnahme, mit Vulkan-Spielaufnahme"
 #: nazoos_welcome/catalog.py
 msgid "Switching back to the openSUSE kernel"
 msgstr "Zurück zum openSUSE-Kernel"
+
+#: nazoos_welcome/catalog.py
+msgid "Switching codecs to Packman"
+msgstr "Codecs werden auf Packman umgestellt"
 
 #: nazoos_welcome/catalog.py
 msgid "Unlocks clock and voltage controls in LACT"
@@ -307,47 +352,52 @@ msgstr "Laufwerke"
 msgid "System"
 msgstr "System"
 
-#: qml/Main.qml:114 qml/pages/HelpPage.qml:15
+#: qml/Main.qml:114 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:28
+#: qml/pages/RepairPage.qml:147 qml/pages/SystemPage.qml:100
+msgid "Repair"
+msgstr "Reparieren"
+
+#: qml/Main.qml:120 qml/pages/HelpPage.qml:15
 msgid "Help"
 msgstr "Hilfe"
 
-#: qml/Main.qml:154
+#: qml/Main.qml:162
 msgid "Continue"
 msgstr "Weiter"
 
-#: qml/Main.qml:162
+#: qml/Main.qml:170
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: qml/Main.qml:172
+#: qml/Main.qml:180
 msgid "That did not work"
 msgstr "Das hat nicht geklappt"
 
-#: qml/Main.qml:176
+#: qml/Main.qml:184
 msgid "Try again"
 msgstr "Erneut versuchen"
 
-#: qml/Main.qml:185 qml/components/BusyBar.qml:31
+#: qml/Main.qml:193 qml/components/BusyBar.qml:31
 msgid "Show details"
 msgstr "Details anzeigen"
 
-#: qml/Main.qml:190 qml/Main.qml:213
+#: qml/Main.qml:198 qml/Main.qml:221
 msgid "Close"
 msgstr "Schließen"
 
-#: qml/Main.qml:199
+#: qml/Main.qml:207
 msgid "Details"
 msgstr "Details"
 
-#: qml/Main.qml:205
+#: qml/Main.qml:213
 msgid "Copy"
 msgstr "Kopieren"
 
-#: qml/Main.qml:209 qml/pages/HelpPage.qml:79
+#: qml/Main.qml:217 qml/pages/HelpPage.qml:79
 msgid "Copied to the clipboard."
 msgstr "In die Zwischenablage kopiert."
 
-#: qml/Main.qml:224
+#: qml/Main.qml:232
 msgid "Nothing has run yet."
 msgstr "Bisher wurde nichts ausgeführt."
 
@@ -379,19 +429,21 @@ msgstr ""
 "Eine Auswahl beliebter Apps. Flatpaks kommen von Flathub und laufen in einer "
 "Sandbox; alles Weitere finden Sie in Discover."
 
-#: qml/pages/AppsPage.qml:94 qml/pages/DriversPage.qml:87
-#: qml/pages/GamingPage.qml:108
+#: qml/pages/AppsPage.qml:94 qml/pages/DriversPage.qml:86
+#: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:108
 msgid "Installed"
 msgstr "Installiert"
 
 #: qml/pages/AppsPage.qml:98 qml/pages/DriversPage.qml:55
-#: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:93
-#: qml/pages/GamingPage.qml:115 qml/pages/KernelPage.qml:41
-#: qml/pages/KernelPage.qml:47 qml/pages/WelcomePage.qml:69
+#: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
+#: qml/pages/DriversPage.qml:120 qml/pages/GamingPage.qml:115
+#: qml/pages/KernelPage.qml:41 qml/pages/KernelPage.qml:47
+#: qml/pages/WelcomePage.qml:69
 msgid "Install"
 msgstr "Installieren"
 
 #: qml/pages/AppsPage.qml:98 qml/pages/AppsPage.qml:106
+#: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
 #: qml/pages/KernelPage.qml:61 qml/pages/KernelPage.qml:66
 #: qml/pages/KernelPage.qml:90
 msgid "Remove"
@@ -430,7 +482,7 @@ msgstr ""
 "Installiert den Treiber aus der Paketquelle von NVIDIA. Nötig für gute "
 "Spieleleistung auf NVIDIA-Karten."
 
-#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:89
+#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:116
 msgid "Not installed"
 msgstr "Nicht installiert"
 
@@ -487,15 +539,36 @@ msgstr ""
 msgid "Ready"
 msgstr "Bereit"
 
-#: qml/pages/DriversPage.qml:81
+#: qml/pages/DriversPage.qml:84
+msgid "ROCm for AMD graphics (optional)"
+msgstr "ROCm für AMD-Grafik (optional)"
+
+#: qml/pages/DriversPage.qml:85
+msgid ""
+"Lets programs compute on the graphics card: Blender (HIP), DaVinci Resolve "
+"(OpenCL) and local AI tools. Not needed for games. Officially supported are "
+"Radeon RX 6000 (RDNA 2) and newer."
+msgstr "Lässt Programme auf der Grafikkarte rechnen: Blender (HIP), DaVinci Resolve (OpenCL) und lokale KI-Werkzeuge. Für Spiele nicht nötig. Offiziell unterstützt werden Radeon RX 6000 (RDNA 2) und neuer."
+
+#: qml/pages/DriversPage.qml:101
+msgid "Remove ROCm?"
+msgstr "ROCm entfernen?"
+
+#: qml/pages/DriversPage.qml:102
+msgid ""
+"Programs that compute on the graphics card fall back to the CPU. Games are "
+"not affected."
+msgstr "Programme, die auf der Grafikkarte rechnen, nutzen dann den Prozessor. Spiele sind nicht betroffen."
+
+#: qml/pages/DriversPage.qml:108
 msgid "Multimedia"
 msgstr "Multimedia"
 
-#: qml/pages/DriversPage.qml:85
+#: qml/pages/DriversPage.qml:112
 msgid "Multimedia codecs (Packman)"
 msgstr "Multimedia-Codecs (Packman)"
 
-#: qml/pages/DriversPage.qml:86
+#: qml/pages/DriversPage.qml:113
 msgid ""
 "Full FFmpeg and GStreamer codecs, e.g. for H.264/H.265 videos, streaming and "
 "video editing. They come from Packman, a community repository outside of "
@@ -505,19 +578,19 @@ msgstr ""
 "Streaming und Videoschnitt. Sie stammen von Packman, einer Community-"
 "Paketquelle außerhalb von NazoOS und openSUSE."
 
-#: qml/pages/DriversPage.qml:88
+#: qml/pages/DriversPage.qml:115
 msgid "Packman is enabled, codecs are not installed yet"
 msgstr "Packman ist eingerichtet, die Codecs sind noch nicht installiert"
 
-#: qml/pages/DriversPage.qml:93
+#: qml/pages/DriversPage.qml:120 qml/pages/RepairPage.qml:37
 msgid "Reinstall"
 msgstr "Neu installieren"
 
-#: qml/pages/DriversPage.qml:96
+#: qml/pages/DriversPage.qml:123
 msgid "Enable Packman codecs?"
 msgstr "Packman-Codecs einrichten?"
 
-#: qml/pages/DriversPage.qml:97
+#: qml/pages/DriversPage.qml:124
 msgid ""
 "Packman is run by an independent community, not by NazoOS or openSUSE. Some "
 "codecs may be subject to software patents in certain countries. You are "
@@ -533,19 +606,19 @@ msgstr ""
 "Bereits installierte Multimedia-Pakete werden auf die Versionen von Packman "
 "umgestellt."
 
-#: qml/pages/DriversPage.qml:98
+#: qml/pages/DriversPage.qml:125
 msgid "Enable"
 msgstr "Einrichten"
 
-#: qml/pages/DriversPage.qml:103
+#: qml/pages/DriversPage.qml:130
 msgid "Firmware"
 msgstr "Firmware"
 
-#: qml/pages/DriversPage.qml:107
+#: qml/pages/DriversPage.qml:134
 msgid "Firmware updates"
 msgstr "Firmware-Updates"
 
-#: qml/pages/DriversPage.qml:108
+#: qml/pages/DriversPage.qml:135
 msgid ""
 "BIOS/UEFI, SSD and device firmware updates from the vendors (LVFS) appear in "
 "Discover together with the other updates."
@@ -553,7 +626,7 @@ msgstr ""
 "Firmware-Updates der Hersteller (LVFS) für BIOS/UEFI, SSDs und Geräte "
 "erscheinen in Discover zusammen mit den anderen Updates."
 
-#: qml/pages/DriversPage.qml:110
+#: qml/pages/DriversPage.qml:137
 msgid "Open Discover"
 msgstr "Discover öffnen"
 
@@ -602,9 +675,10 @@ msgstr "Nicht eingebunden"
 
 #: qml/pages/DrivesPage.qml:56 qml/pages/HelpPage.qml:31
 #: qml/pages/HelpPage.qml:40 qml/pages/HelpPage.qml:49
-#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:138
-#: qml/pages/WelcomePage.qml:94 qml/pages/WelcomePage.qml:103
-#: qml/pages/WelcomePage.qml:112 qml/pages/WelcomePage.qml:121
+#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:103
+#: qml/pages/SystemPage.qml:112 qml/pages/WelcomePage.qml:94
+#: qml/pages/WelcomePage.qml:103 qml/pages/WelcomePage.qml:112
+#: qml/pages/WelcomePage.qml:121
 msgid "Open"
 msgstr "Öffnen"
 
@@ -720,7 +794,7 @@ msgstr ""
 msgid "Not available yet"
 msgstr "Noch nicht verfügbar"
 
-#: qml/pages/GamingPage.qml:121
+#: qml/pages/GamingPage.qml:121 qml/pages/RepairPage.qml:114
 msgid "Tools"
 msgstr "Werkzeuge"
 
@@ -984,6 +1058,264 @@ msgstr "Schlüssel nicht eingetragen"
 msgid "Enroll key"
 msgstr "Schlüssel eintragen"
 
+#: qml/pages/RepairPage.qml:23
+msgid "Package database is damaged"
+msgstr "Paketdatenbank ist beschädigt"
+
+#: qml/pages/RepairPage.qml:24
+msgid ""
+"The list of installed packages cannot be read. Rebuilding it fixes most "
+"cases."
+msgstr "Die Liste der installierten Pakete kann nicht gelesen werden. Ein Neuaufbau behebt das meistens."
+
+#: qml/pages/RepairPage.qml:25 qml/pages/RepairPage.qml:158
+#: qml/pages/RepairPage.qml:168 qml/pages/RepairPage.qml:172
+msgid "Rebuild"
+msgstr "Neu aufbauen"
+
+#: qml/pages/RepairPage.qml:26
+msgid "Standard repositories missing or disabled"
+msgstr "Standard-Paketquellen fehlen oder sind ausgeschaltet"
+
+#: qml/pages/RepairPage.qml:27
+msgid ""
+"Without them there are no updates. The missing ones are added again and all "
+"are switched on."
+msgstr "Ohne sie gibt es keine Updates. Fehlende werden wieder hinzugefügt und alle eingeschaltet."
+
+#: qml/pages/RepairPage.qml:29
+msgid "Packages with missing dependencies"
+msgstr "Pakete mit fehlenden Abhängigkeiten"
+
+#: qml/pages/RepairPage.qml:30
+msgid ""
+"Something these packages need is not installed. The missing parts are "
+"installed. If that needs a decision, Myrlyn shows the choices."
+msgstr "Etwas, das diese Pakete brauchen, ist nicht installiert. Die fehlenden Teile werden installiert. Falls dafür eine Entscheidung nötig ist, zeigt Myrlyn die Möglichkeiten."
+
+#: qml/pages/RepairPage.qml:31
+msgid "Install missing"
+msgstr "Fehlendes installieren"
+
+#: qml/pages/RepairPage.qml:32
+msgid "Mixed multimedia packages"
+msgstr "Gemischte Multimedia-Pakete"
+
+#: qml/pages/RepairPage.qml:33
+msgid ""
+"Some codec libraries come from openSUSE, others from Packman. That breaks "
+"video playback. All of them are switched to Packman."
+msgstr "Einige Codec-Bibliotheken stammen von openSUSE, andere von Packman. Dadurch funktioniert die Videowiedergabe nicht. Alle werden auf Packman umgestellt."
+
+#: qml/pages/RepairPage.qml:34
+msgid "Switch to Packman"
+msgstr "Auf Packman umstellen"
+
+#: qml/pages/RepairPage.qml:35
+msgid "NVIDIA driver missing for this kernel"
+msgstr "NVIDIA-Treiber fehlt für diesen Kernel"
+
+#: qml/pages/RepairPage.qml:36
+msgid ""
+"The NVIDIA kernel module is not built for the running kernel, so the desktop "
+"runs without the NVIDIA driver. It is installed again; restart afterwards."
+msgstr "Das NVIDIA-Kernelmodul fehlt für den laufenden Kernel, deshalb läuft der Desktop ohne NVIDIA-Treiber. Es wird neu installiert; starten Sie danach den Computer neu."
+
+#: qml/pages/RepairPage.qml:38
+msgid "Services that failed to start"
+msgstr "Dienste, die nicht starten konnten"
+
+#: qml/pages/RepairPage.qml:39
+msgid ""
+"These background services stopped with an error. They are restarted. If one "
+"keeps failing, create a bug report below."
+msgstr "Diese Hintergrunddienste wurden mit einem Fehler beendet. Sie werden neu gestartet. Falls einer weiter fehlschlägt, erstellen Sie unten einen Fehlerbericht."
+
+#: qml/pages/RepairPage.qml:40
+msgid "Restart"
+msgstr "Neu starten"
+
+#: qml/pages/RepairPage.qml:41
+msgid "Little free disk space"
+msgstr "Wenig freier Speicherplatz"
+
+#: qml/pages/RepairPage.qml:42
+msgid ""
+"Updates can fail when the disk is full. Old snapshots, the package cache and "
+"unused Flatpak runtimes are removed."
+msgstr "Updates können fehlschlagen, wenn die Festplatte voll ist. Alte Snapshots, der Paket-Cache und ungenutzte Flatpak-Laufzeitumgebungen werden entfernt."
+
+#: qml/pages/RepairPage.qml:43
+msgid "Free space"
+msgstr "Platz freigeben"
+
+#: qml/pages/RepairPage.qml:44
+msgid "Flathub is missing"
+msgstr "Flathub fehlt"
+
+#: qml/pages/RepairPage.qml:45
+msgid "Discover cannot show Flatpak apps without Flathub. It is added again."
+msgstr "Ohne Flathub kann Discover keine Flatpak-Apps anzeigen. Es wird wieder hinzugefügt."
+
+#: qml/pages/RepairPage.qml:46
+msgid "Add Flathub"
+msgstr "Flathub hinzufügen"
+
+#: qml/pages/RepairPage.qml:47
+msgid "The check itself failed"
+msgstr "Die Prüfung selbst ist fehlgeschlagen"
+
+#: qml/pages/RepairPage.qml:48
+msgid "Please create a bug report below."
+msgstr "Bitte erstellen Sie unten einen Fehlerbericht."
+
+#: qml/pages/RepairPage.qml:66
+msgid "Check"
+msgstr "Prüfung"
+
+#: qml/pages/RepairPage.qml:72
+msgid "Checking the system …"
+msgstr "System wird geprüft …"
+
+#: qml/pages/RepairPage.qml:73
+msgid "System check"
+msgstr "Systemprüfung"
+
+#: qml/pages/RepairPage.qml:74
+msgid "No known problems found"
+msgstr "Keine bekannten Probleme gefunden"
+
+#: qml/pages/RepairPage.qml:75
+msgid "Problems found: %1"
+msgstr "Gefundene Probleme: %1"
+
+#: qml/pages/RepairPage.qml:76
+msgid ""
+"Looks for common problems: package database, repositories, missing "
+"dependencies, codec mix, NVIDIA module, failed services, disk space and "
+"Flathub."
+msgstr "Sucht nach häufigen Problemen: Paketdatenbank, Paketquellen, fehlende Abhängigkeiten, Codec-Mischung, NVIDIA-Modul, fehlgeschlagene Dienste, Speicherplatz und Flathub."
+
+#: qml/pages/RepairPage.qml:83
+msgid "Check again"
+msgstr "Erneut prüfen"
+
+#: qml/pages/RepairPage.qml:118
+msgid "Refresh repositories"
+msgstr "Paketquellen aktualisieren"
+
+#: qml/pages/RepairPage.qml:119
+msgid ""
+"Reloads the package lists. Helps when Discover or an installation reports "
+"outdated or broken repository data."
+msgstr ""
+"Lädt die Paketlisten neu. Hilft, wenn Discover oder eine Installation "
+"veraltete oder fehlerhafte Paketquellen meldet."
+
+#: qml/pages/RepairPage.qml:122
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+#: qml/pages/RepairPage.qml:128
+msgid "Clean package cache"
+msgstr "Paket-Cache leeren"
+
+#: qml/pages/RepairPage.qml:129
+msgid ""
+"Deletes downloaded package files and cached repository data to free disk "
+"space."
+msgstr ""
+"Löscht heruntergeladene Pakete und zwischengespeicherte Paketquellen-Daten, "
+"um Speicherplatz freizugeben."
+
+#: qml/pages/RepairPage.qml:132
+msgid "Clean"
+msgstr "Leeren"
+
+#: qml/pages/RepairPage.qml:138
+msgid "Flatpak cleanup"
+msgstr "Flatpak aufräumen"
+
+#: qml/pages/RepairPage.qml:139
+msgid ""
+"Removes runtimes no app needs anymore, or repairs a broken Flatpak "
+"installation."
+msgstr ""
+"Entfernt Laufzeitumgebungen, die keine App mehr braucht, oder repariert eine "
+"defekte Flatpak-Installation."
+
+#: qml/pages/RepairPage.qml:142
+msgid "Remove unused"
+msgstr "Unbenutzte entfernen"
+
+#: qml/pages/RepairPage.qml:154
+msgid "Rebuild package database"
+msgstr "Paketdatenbank neu aufbauen"
+
+#: qml/pages/RepairPage.qml:155
+msgid "Helps when installing or updating stops with an \"rpmdb\" error."
+msgstr "Hilft, wenn Installation oder Update mit einem „rpmdb“-Fehler abbricht."
+
+#: qml/pages/RepairPage.qml:164
+msgid "Rebuild boot files"
+msgstr "Startdateien neu erstellen"
+
+#: qml/pages/RepairPage.qml:165
+msgid ""
+"Creates the initramfs of every kernel and the boot menu again. Helps when "
+"the system hangs at startup or a driver is missing after a kernel update."
+msgstr "Erstellt die Initramfs aller Kernel und das Bootmenü neu. Hilft, wenn das System beim Start hängt oder nach einem Kernel-Update ein Treiber fehlt."
+
+#: qml/pages/RepairPage.qml:170
+msgid "Rebuild boot files?"
+msgstr "Startdateien neu erstellen?"
+
+#: qml/pages/RepairPage.qml:171
+msgid "This takes a minute or two. Restart the computer afterwards."
+msgstr "Das dauert ein bis zwei Minuten. Starten Sie den Computer danach neu."
+
+#: qml/pages/RepairPage.qml:178
+msgid "Go back to an earlier state"
+msgstr "Zu einem früheren Zustand zurückkehren"
+
+#: qml/pages/RepairPage.qml:179
+msgid ""
+"If nothing here helps: restart, choose \"Start bootloader from a read-only "
+"snapshot\" in the boot menu and pick the state before the problem. NazoOS "
+"Update then offers to make that state permanent."
+msgstr "Wenn hier nichts hilft: Neu starten, im Bootmenü „Start bootloader from a read-only snapshot“ wählen und den Zustand vor dem Problem auswählen. NazoOS Update bietet dann an, diesen Zustand dauerhaft zu übernehmen."
+
+#: qml/pages/RepairPage.qml:187
+msgid "Get help"
+msgstr "Hilfe bekommen"
+
+#: qml/pages/RepairPage.qml:191
+msgid "Bug report"
+msgstr "Fehlerbericht"
+
+#: qml/pages/RepairPage.qml:192
+msgid ""
+"Saves system information, errors since startup, repositories and recent "
+"updates to a text file in your home folder. Look through it before you share "
+"it: it contains device names and your user name."
+msgstr "Speichert Systeminformationen, Fehler seit dem Start, Paketquellen und die letzten Updates in einer Textdatei in Ihrem Persönlichen Ordner. Sehen Sie sie vor dem Teilen durch: Sie enthält Gerätenamen und Ihren Benutzernamen."
+
+#: qml/pages/RepairPage.qml:194
+msgid "Create report"
+msgstr "Bericht erstellen"
+
+#: qml/pages/RepairPage.qml:200
+msgid "Saved: %1"
+msgstr "Gespeichert: %1"
+
+#: qml/pages/RepairPage.qml:201
+msgid "Show"
+msgstr "Anzeigen"
+
+#: qml/pages/RepairPage.qml:206
+msgid "Report on GitHub"
+msgstr "Auf GitHub melden"
+
 #: qml/pages/SystemPage.qml:21
 msgid "Updates"
 msgstr "Updates"
@@ -1060,63 +1392,17 @@ msgstr "Läuft"
 msgid "Maintenance"
 msgstr "Wartung"
 
-#: qml/pages/SystemPage.qml:100
-msgid "Refresh repositories"
-msgstr "Paketquellen aktualisieren"
-
 #: qml/pages/SystemPage.qml:101
 msgid ""
-"Reloads the package lists. Helps when Discover or an installation reports "
-"outdated or broken repository data."
-msgstr ""
-"Lädt die Paketlisten neu. Hilft, wenn Discover oder eine Installation "
-"veraltete oder fehlerhafte Paketquellen meldet."
+"Checks the system for common problems and fixes them. Also: refresh "
+"repositories, clean caches, repair Flatpak, bug report."
+msgstr "Prüft das System auf häufige Probleme und behebt sie. Außerdem: Paketquellen aktualisieren, Caches leeren, Flatpak reparieren, Fehlerbericht."
 
-#: qml/pages/SystemPage.qml:104
-msgid "Refresh"
-msgstr "Aktualisieren"
-
-#: qml/pages/SystemPage.qml:110
-msgid "Clean package cache"
-msgstr "Paket-Cache leeren"
-
-#: qml/pages/SystemPage.qml:111
-msgid ""
-"Deletes downloaded package files and cached repository data to free disk "
-"space."
-msgstr ""
-"Löscht heruntergeladene Pakete und zwischengespeicherte Paketquellen-Daten, "
-"um Speicherplatz freizugeben."
-
-#: qml/pages/SystemPage.qml:114
-msgid "Clean"
-msgstr "Leeren"
-
-#: qml/pages/SystemPage.qml:120
-msgid "Flatpak cleanup"
-msgstr "Flatpak aufräumen"
-
-#: qml/pages/SystemPage.qml:121
-msgid ""
-"Removes runtimes no app needs anymore, or repairs a broken Flatpak "
-"installation."
-msgstr ""
-"Entfernt Laufzeitumgebungen, die keine App mehr braucht, oder repariert eine "
-"defekte Flatpak-Installation."
-
-#: qml/pages/SystemPage.qml:124
-msgid "Remove unused"
-msgstr "Unbenutzte entfernen"
-
-#: qml/pages/SystemPage.qml:129
-msgid "Repair"
-msgstr "Reparieren"
-
-#: qml/pages/SystemPage.qml:135
+#: qml/pages/SystemPage.qml:109
 msgid "System settings"
 msgstr "Systemeinstellungen"
 
-#: qml/pages/SystemPage.qml:136
+#: qml/pages/SystemPage.qml:110
 msgid ""
 "Displays, sound, network, appearance and everything else of the desktop."
 msgstr ""

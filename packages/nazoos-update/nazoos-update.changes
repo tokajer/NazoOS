@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 10 20:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Error dialog: "Repair" button opens the repair page of
+  NazoOS Welcome (ADR 0012)
+- German translation completed
+
+-------------------------------------------------------------------
 Sat Oct 10 15:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - First version of NazoOS Update (Python, PySide6, Kirigami):

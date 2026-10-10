@@ -49,7 +49,7 @@ Kirigami.ApplicationWindow {
         const comps = {
             welcome: welcomePage, drivers: driversPage, gaming: gamingPage,
             kernel: kernelPage, apps: appsPage, drives: drivesPage,
-            system: systemPage, help: helpPage
+            system: systemPage, repair: repairPage, help: helpPage
         }
         if (!(name in comps)) name = "welcome"
         if (name === currentPage) return
@@ -111,6 +111,12 @@ Kirigami.ApplicationWindow {
                 onTriggered: root.showPage("system")
             },
             Kirigami.Action {
+                text: L.tr("Repair"); icon.name: "tools-wizard"
+                visible: !root.live
+                checkable: true; checked: root.currentPage === "repair"
+                onTriggered: root.showPage("repair")
+            },
+            Kirigami.Action {
                 text: L.tr("Help"); icon.name: "help-about"
                 checkable: true; checked: root.currentPage === "help"
                 onTriggered: root.showPage("help")
@@ -125,6 +131,7 @@ Kirigami.ApplicationWindow {
     Component { id: appsPage; AppsPage { app: root } }
     Component { id: drivesPage; DrivesPage { app: root } }
     Component { id: systemPage; SystemPage { app: root } }
+    Component { id: repairPage; RepairPage { app: root } }
     Component { id: helpPage; HelpPage { app: root } }
 
     Connections {
@@ -134,7 +141,8 @@ Kirigami.ApplicationWindow {
                 root.showPassiveNotification(message)
             } else {
                 errorDialog.subtitle = message
-                errorDialog.canRetry = root.lastRun !== null && action !== "launch"
+                errorDialog.canRetry = root.lastRun !== null
+                                      && action !== "launch" && action !== "report"
                 errorDialog.open()
             }
         }

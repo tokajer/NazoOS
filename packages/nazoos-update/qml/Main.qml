@@ -266,6 +266,12 @@ Kirigami.ApplicationWindow {
         standardButtons: Kirigami.Dialog.NoButton
         customFooterActions: [
             Kirigami.Action {
+                text: L.tr("Repair")
+                icon.name: "tools-wizard"
+                visible: backend.canRepair
+                onTriggered: { errorDialog.close(); backend.launch("repair") }
+            },
+            Kirigami.Action {
                 text: L.tr("Show details")
                 icon.name: "view-list-text"
                 onTriggered: { errorDialog.close(); logDialog.open() }

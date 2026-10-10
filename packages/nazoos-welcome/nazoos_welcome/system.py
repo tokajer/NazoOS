@@ -211,6 +211,7 @@ def collect():
                   "nazoos-update", "btrfs-assistant", "plasma-discover",
                   "discover6", "myrlyn", "lact", "coolercontrol"]
                  + [p for v in catalog.NVIDIA_DRIVERS.values() for p in v]
+                 + catalog.ROCM_PACKAGES
                  + [s["package"] for s in catalog.SERVICES]
                  + [r for a in catalog.APPS if a["kind"] == "rpm"
                     for r in a["refs"]])
@@ -261,6 +262,7 @@ def collect():
         "hasNvidia": "nvidia" in vendors,
         "nvidiaDriver": nvidia_variant,
         "nvidiaLoaded": Path("/sys/module/nvidia").exists(),
+        "rocm": catalog.ROCM_PACKAGES[0] in rpms,
         "packmanRepo": repo_present("/packman/"),
         "codecs": "packman" in rpms.get("ffmpeg", "").lower()
                   or "packman" in rpms.get("libavcodec-full", "").lower(),

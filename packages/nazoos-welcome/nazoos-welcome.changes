@@ -1,4 +1,19 @@
 -------------------------------------------------------------------
+Sat Oct 10 20:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Repair page (ADR 0012): system check without root rights finds a
+  damaged package database, missing or disabled standard repos,
+  missing dependencies, Packman/openSUSE codec mix, missing NVIDIA
+  module for the running kernel, failed services, low disk space and
+  a missing Flathub remote; one "fix" button per finding
+- Repair tools: rebuild package database, rebuild initramfs and boot
+  menu; repo refresh, cache clean and Flatpak cleanup moved here from
+  the System page
+- Bug report: text file in the home folder (system info, repos,
+  failed units, errors since boot, recent packages)
+- Drivers page: optional ROCm (HIP, OpenCL) for AMD graphics
+
+-------------------------------------------------------------------
 Sat Oct 10 15:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Kernel page (ADR 0008): install the NazoOS kernel next to the

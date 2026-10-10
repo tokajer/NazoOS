@@ -71,7 +71,29 @@ def repo_with_url(fragment):
     return None
 
 
+def repo_with_path(path):
+    """Alias of an opensuse.org repo by URL path (any mirror host)."""
+    for f in Path("/etc/zypp/repos.d").glob("*.repo"):
+        alias = None
+        for line in f.read_text(errors="replace").splitlines():
+            m = re.match(r"\[(.+)\]\s*$", line)
+            if m:
+                alias = m.group(1)
+            m = re.match(r"baseurl\s*=\s*(\S+)", line)
+            if (m and alias and "opensuse.org" in m.group(1)
+                    and catalog.repo_path(m.group(1)) == path):
+                return alias
+    return None
+
+
 # --- Drivers and codecs ---------------------------------------------------
+
+def packman_switch(alias):
+    """Switch installed multimedia packages to Packman's builds."""
+    run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+    run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses", "--from",
+                  alias, "--allow-vendor-change", "--allow-downgrade"])
+
 
 def codecs_install(_args):
     alias = repo_with_url("/packman/") or catalog.PACKMAN_ALIAS
@@ -79,10 +101,7 @@ def codecs_install(_args):
         run(ZYPPER + ["addrepo", "--refresh", "--priority",
                       catalog.PACKMAN_PRIORITY, "--name", "Packman",
                       catalog.PACKMAN_URL, alias])
-    run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
-    # Switch already installed multimedia packages to Packman's builds
-    run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses", "--from",
-                  alias, "--allow-vendor-change", "--allow-downgrade"])
+    packman_switch(alias)
     run(ZYPPER_IN + ["--from", alias] + catalog.PACKMAN_CODECS)
     run(ZYPPER_IN + catalog.OSS_CODECS)
 
@@ -96,6 +115,17 @@ def nvidia_install(args):
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
     run(ZYPPER_IN + catalog.NVIDIA_DRIVERS[variant])
     print("Restart the computer to load the NVIDIA driver.", flush=True)
+
+
+def rocm_install(_args):
+    run(ZYPPER_IN + catalog.ROCM_PACKAGES)
+    print("Restart programs like Blender so they find the GPU.", flush=True)
+
+
+def rocm_remove(_args):
+    pkgs = [p for p in catalog.ROCM_PACKAGES if rpm_installed(p)]
+    if pkgs:
+        run(ZYPPER + ["remove", "--clean-deps"] + pkgs)
 
 
 # --- Performance -----------------------------------------------------------
@@ -145,11 +175,15 @@ def kparam(args):
     line = 'GRUB_CMDLINE_LINUX_DEFAULT="' + " ".join(opts) + '"'
     GRUB_DEFAULT.write_text(text[:m.start()] + line + text[m.end():])
     print(line, flush=True)
+    grub_refresh()
+    print("The change takes effect after a restart.", flush=True)
+
+
+def grub_refresh():
     if Path("/usr/sbin/update-bootloader").exists():
         run(["update-bootloader", "--refresh"])
     else:
         run(["grub2-mkconfig", "-o", "/boot/grub2/grub.cfg"])
-    print("The change takes effect after a restart.", flush=True)
 
 
 def deck_install(_args):
@@ -362,6 +396,87 @@ def snapshot(_args):
          "--description", "nazoos-welcome: manual snapshot"])
 
 
+# --- Repair (ADR 0012) -------------------------------------------------------
+# Every action finds the broken parts itself; the caller only picks the action.
+
+def repair_repos(_args):
+    for repo in catalog.STANDARD_REPOS:
+        alias = repo_with_path(catalog.repo_path(repo["url"]))
+        if alias is None:
+            run(ZYPPER + ["addrepo", "--refresh", repo["url"],
+                          repo["alias"]])
+        else:
+            run(ZYPPER + ["modifyrepo", "--enable", "--refresh", alias])
+    run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+
+
+def repair_rpmdb(_args):
+    run(["rpm", "--rebuilddb"])
+
+
+def repair_deps(_args):
+    run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    # Installs what is missing; never picks a conflict solution on its own
+    run(ZYPPER + ["verify", "--no-recommends"])
+
+
+def repair_packman(_args):
+    alias = repo_with_url("/packman/")
+    if alias is None:
+        raise Fail("Packman is not set up; install the codecs first")
+    packman_switch(alias)
+
+
+def repair_nvidia(_args):
+    release = os.uname().release
+    flavor = release.rsplit("-", 1)[-1]
+    if rpm_installed("nvidia-video-G07"):
+        kmp = f"nvidia-open-driver-G07-signed-kmp-{flavor}"
+    elif rpm_installed("nvidia-video-G06"):
+        kmp = f"nvidia-driver-G06-kmp-{flavor}"
+    else:
+        raise Fail("no NVIDIA driver is installed")
+    run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    run(ZYPPER_IN + ["--force", kmp])
+    run(["dracut", "--force", "--kver", release])
+    print("Restart the computer to load the NVIDIA driver.", flush=True)
+
+
+def failed_units():
+    return [line.split()[0] for line in output(
+        ["systemctl", "list-units", "--failed", "--plain",
+         "--no-legend"]).splitlines() if line.strip()]
+
+
+def repair_units(_args):
+    units = failed_units()
+    for unit in units:
+        if unit.endswith((".service", ".mount", ".socket")):
+            run(["systemctl", "restart", unit], check=False)
+    run(["systemctl", "reset-failed"])
+    still = failed_units()
+    if still:
+        raise Fail("still failing: " + ", ".join(still))
+
+
+def repair_space(_args):
+    run(["snapper", "-c", "root", "cleanup", "number"], check=False)
+    run(["snapper", "-c", "root", "cleanup", "empty-pre-post"], check=False)
+    run(ZYPPER + ["clean", "--all"])
+    if Path("/usr/bin/flatpak").exists():
+        run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"])
+
+
+def repair_flathub(_args):
+    flathub_ensure()
+
+
+def repair_boot(_args):
+    run(["dracut", "--force", "--regenerate-all"])
+    grub_refresh()
+    print("The change takes effect after a restart.", flush=True)
+
+
 # --- Drives --------------------------------------------------------------------
 
 def lsblk():
@@ -458,6 +573,8 @@ ACTIONS = {
     "scx-enable": scx_enable,
     "scx-disable": scx_disable,
     "kparam": kparam,
+    "rocm-install": rocm_install,
+    "rocm-remove": rocm_remove,
     "deck-install": deck_install,
     "kernel-install": kernel_install,
     "kernel-only": kernel_only,
@@ -473,6 +590,15 @@ ACTIONS = {
     "flatpak-unused": flatpak_unused,
     "flatpak-repair": flatpak_repair,
     "snapshot": snapshot,
+    "repair-repos": repair_repos,
+    "repair-rpmdb": repair_rpmdb,
+    "repair-deps": repair_deps,
+    "repair-packman": repair_packman,
+    "repair-nvidia": repair_nvidia,
+    "repair-units": repair_units,
+    "repair-space": repair_space,
+    "repair-flathub": repair_flathub,
+    "repair-boot": repair_boot,
     "automount-add": automount_add,
     "automount-remove": automount_remove,
 }

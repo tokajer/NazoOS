@@ -96,38 +96,12 @@ Kirigami.ScrollablePage {
         SectionHeader { text: L.tr("Maintenance") }
 
         SettingCard {
-            iconName: "view-refresh"
-            title: L.tr("Refresh repositories")
-            subtitle: L.tr("Reloads the package lists. Helps when Discover or an installation reports outdated or broken repository data.")
+            iconName: "tools-wizard"
+            title: L.tr("Repair")
+            subtitle: L.tr("Checks the system for common problems and fixes them. Also: refresh repositories, clean caches, repair Flatpak, bug report.")
             QQC2.Button {
-                enabled: !backend.busy
-                text: L.tr("Refresh")
-                onClicked: page.app.runAction("repo-refresh", [])
-            }
-        }
-        SettingCard {
-            iconName: "edit-clear-all"
-            title: L.tr("Clean package cache")
-            subtitle: L.tr("Deletes downloaded package files and cached repository data to free disk space.")
-            QQC2.Button {
-                enabled: !backend.busy
-                text: L.tr("Clean")
-                onClicked: page.app.runAction("cache-clean", [])
-            }
-        }
-        SettingCard {
-            iconName: "flatpak-discover"
-            title: L.tr("Flatpak cleanup")
-            subtitle: L.tr("Removes runtimes no app needs anymore, or repairs a broken Flatpak installation.")
-            QQC2.Button {
-                enabled: !backend.busy
-                text: L.tr("Remove unused")
-                onClicked: page.app.runAction("flatpak-unused", [])
-            }
-            QQC2.Button {
-                enabled: !backend.busy
-                text: L.tr("Repair")
-                onClicked: page.app.runAction("flatpak-repair", [])
+                text: L.tr("Open")
+                onClicked: page.app.showPage("repair")
             }
         }
         SettingCard {

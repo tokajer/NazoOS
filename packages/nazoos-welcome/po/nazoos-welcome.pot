@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 14:35+0200\n"
+"POT-Creation-Date: 2026-10-10 20:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,23 +17,24 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: nazoos_welcome/backend.py:192
-msgid "pkexec could not be started."
-msgstr ""
-
-#: nazoos_welcome/backend.py:200 nazoos_welcome/backend.py:241
+#: nazoos_welcome/backend.py:217 nazoos_welcome/backend.py:278
+#: nazoos_welcome/backend.py:321
 msgid "Done."
 msgstr ""
 
-#: nazoos_welcome/backend.py:205
+#: nazoos_welcome/backend.py:270
+msgid "pkexec could not be started."
+msgstr ""
+
+#: nazoos_welcome/backend.py:283
 msgid "Cancelled: no administrator password was given."
 msgstr ""
 
-#: nazoos_welcome/backend.py:209
+#: nazoos_welcome/backend.py:287
 msgid "Something went wrong."
 msgstr ""
 
-#: nazoos_welcome/backend.py:270
+#: nazoos_welcome/backend.py:350
 msgid "This program is not installed."
 msgstr ""
 
@@ -49,6 +50,10 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "AMD GPU overclocking"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Adding Flathub"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -124,6 +129,10 @@ msgid "Fan curves and cooling devices"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
+msgid "Freeing disk space"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
 msgid "Image editor"
 msgstr ""
 
@@ -133,6 +142,14 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "Installing"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Installing ROCm"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Installing missing dependencies"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -200,7 +217,19 @@ msgid "Profile-sync-daemon"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
+msgid "Rebuilding boot files"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Rebuilding the package database"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
 msgid "Refreshing repositories"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Reinstalling the NVIDIA kernel module"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -209,6 +238,10 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "Removing"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Removing ROCm"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -232,6 +265,14 @@ msgid "Repairing Flatpak"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
+msgid "Repairing repositories"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Restarting failed services"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
 msgid "Run Windows programs in managed Wine prefixes"
 msgstr ""
 
@@ -249,6 +290,10 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "Switching back to the openSUSE kernel"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Switching codecs to Packman"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -303,47 +348,52 @@ msgstr ""
 msgid "System"
 msgstr ""
 
-#: qml/Main.qml:114 qml/pages/HelpPage.qml:15
+#: qml/Main.qml:114 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:28
+#: qml/pages/RepairPage.qml:147 qml/pages/SystemPage.qml:100
+msgid "Repair"
+msgstr ""
+
+#: qml/Main.qml:120 qml/pages/HelpPage.qml:15
 msgid "Help"
 msgstr ""
 
-#: qml/Main.qml:154
+#: qml/Main.qml:162
 msgid "Continue"
 msgstr ""
 
-#: qml/Main.qml:162
+#: qml/Main.qml:170
 msgid "Cancel"
 msgstr ""
 
-#: qml/Main.qml:172
+#: qml/Main.qml:180
 msgid "That did not work"
 msgstr ""
 
-#: qml/Main.qml:176
+#: qml/Main.qml:184
 msgid "Try again"
 msgstr ""
 
-#: qml/Main.qml:185 qml/components/BusyBar.qml:31
+#: qml/Main.qml:193 qml/components/BusyBar.qml:31
 msgid "Show details"
 msgstr ""
 
-#: qml/Main.qml:190 qml/Main.qml:213
+#: qml/Main.qml:198 qml/Main.qml:221
 msgid "Close"
 msgstr ""
 
-#: qml/Main.qml:199
+#: qml/Main.qml:207
 msgid "Details"
 msgstr ""
 
-#: qml/Main.qml:205
+#: qml/Main.qml:213
 msgid "Copy"
 msgstr ""
 
-#: qml/Main.qml:209 qml/pages/HelpPage.qml:79
+#: qml/Main.qml:217 qml/pages/HelpPage.qml:79
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: qml/Main.qml:224
+#: qml/Main.qml:232
 msgid "Nothing has run yet."
 msgstr ""
 
@@ -373,19 +423,21 @@ msgid ""
 "sandbox; everything else is in Discover."
 msgstr ""
 
-#: qml/pages/AppsPage.qml:94 qml/pages/DriversPage.qml:87
-#: qml/pages/GamingPage.qml:108
+#: qml/pages/AppsPage.qml:94 qml/pages/DriversPage.qml:86
+#: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:108
 msgid "Installed"
 msgstr ""
 
 #: qml/pages/AppsPage.qml:98 qml/pages/DriversPage.qml:55
-#: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:93
-#: qml/pages/GamingPage.qml:115 qml/pages/KernelPage.qml:41
-#: qml/pages/KernelPage.qml:47 qml/pages/WelcomePage.qml:69
+#: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
+#: qml/pages/DriversPage.qml:120 qml/pages/GamingPage.qml:115
+#: qml/pages/KernelPage.qml:41 qml/pages/KernelPage.qml:47
+#: qml/pages/WelcomePage.qml:69
 msgid "Install"
 msgstr ""
 
 #: qml/pages/AppsPage.qml:98 qml/pages/AppsPage.qml:106
+#: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
 #: qml/pages/KernelPage.qml:61 qml/pages/KernelPage.qml:66
 #: qml/pages/KernelPage.qml:90
 msgid "Remove"
@@ -421,7 +473,7 @@ msgid ""
 "performance on NVIDIA cards."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:89
+#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:116
 msgid "Not installed"
 msgstr ""
 
@@ -471,34 +523,55 @@ msgstr ""
 msgid "Ready"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:81
-msgid "Multimedia"
+#: qml/pages/DriversPage.qml:84
+msgid "ROCm for AMD graphics (optional)"
 msgstr ""
 
 #: qml/pages/DriversPage.qml:85
+msgid ""
+"Lets programs compute on the graphics card: Blender (HIP), DaVinci Resolve "
+"(OpenCL) and local AI tools. Not needed for games. Officially supported are "
+"Radeon RX 6000 (RDNA 2) and newer."
+msgstr ""
+
+#: qml/pages/DriversPage.qml:101
+msgid "Remove ROCm?"
+msgstr ""
+
+#: qml/pages/DriversPage.qml:102
+msgid ""
+"Programs that compute on the graphics card fall back to the CPU. Games are "
+"not affected."
+msgstr ""
+
+#: qml/pages/DriversPage.qml:108
+msgid "Multimedia"
+msgstr ""
+
+#: qml/pages/DriversPage.qml:112
 msgid "Multimedia codecs (Packman)"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:86
+#: qml/pages/DriversPage.qml:113
 msgid ""
 "Full FFmpeg and GStreamer codecs, e.g. for H.264/H.265 videos, streaming and "
 "video editing. They come from Packman, a community repository outside of "
 "NazoOS and openSUSE."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:88
+#: qml/pages/DriversPage.qml:115
 msgid "Packman is enabled, codecs are not installed yet"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:93
+#: qml/pages/DriversPage.qml:120 qml/pages/RepairPage.qml:37
 msgid "Reinstall"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:96
+#: qml/pages/DriversPage.qml:123
 msgid "Enable Packman codecs?"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:97
+#: qml/pages/DriversPage.qml:124
 msgid ""
 "Packman is run by an independent community, not by NazoOS or openSUSE. Some "
 "codecs may be subject to software patents in certain countries. You are "
@@ -507,25 +580,25 @@ msgid ""
 "Installed multimedia packages will be switched to Packman's versions."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:98
+#: qml/pages/DriversPage.qml:125
 msgid "Enable"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:103
+#: qml/pages/DriversPage.qml:130
 msgid "Firmware"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:107
+#: qml/pages/DriversPage.qml:134
 msgid "Firmware updates"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:108
+#: qml/pages/DriversPage.qml:135
 msgid ""
 "BIOS/UEFI, SSD and device firmware updates from the vendors (LVFS) appear in "
 "Discover together with the other updates."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:110
+#: qml/pages/DriversPage.qml:137
 msgid "Open Discover"
 msgstr ""
 
@@ -566,9 +639,10 @@ msgstr ""
 
 #: qml/pages/DrivesPage.qml:56 qml/pages/HelpPage.qml:31
 #: qml/pages/HelpPage.qml:40 qml/pages/HelpPage.qml:49
-#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:138
-#: qml/pages/WelcomePage.qml:94 qml/pages/WelcomePage.qml:103
-#: qml/pages/WelcomePage.qml:112 qml/pages/WelcomePage.qml:121
+#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:103
+#: qml/pages/SystemPage.qml:112 qml/pages/WelcomePage.qml:94
+#: qml/pages/WelcomePage.qml:103 qml/pages/WelcomePage.qml:112
+#: qml/pages/WelcomePage.qml:121
 msgid "Open"
 msgstr ""
 
@@ -672,7 +746,7 @@ msgstr ""
 msgid "Not available yet"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:121
+#: qml/pages/GamingPage.qml:121 qml/pages/RepairPage.qml:114
 msgid "Tools"
 msgstr ""
 
@@ -899,6 +973,258 @@ msgstr ""
 msgid "Enroll key"
 msgstr ""
 
+#: qml/pages/RepairPage.qml:23
+msgid "Package database is damaged"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:24
+msgid ""
+"The list of installed packages cannot be read. Rebuilding it fixes most "
+"cases."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:25 qml/pages/RepairPage.qml:158
+#: qml/pages/RepairPage.qml:168 qml/pages/RepairPage.qml:172
+msgid "Rebuild"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:26
+msgid "Standard repositories missing or disabled"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:27
+msgid ""
+"Without them there are no updates. The missing ones are added again and all "
+"are switched on."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:29
+msgid "Packages with missing dependencies"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:30
+msgid ""
+"Something these packages need is not installed. The missing parts are "
+"installed. If that needs a decision, Myrlyn shows the choices."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:31
+msgid "Install missing"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:32
+msgid "Mixed multimedia packages"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:33
+msgid ""
+"Some codec libraries come from openSUSE, others from Packman. That breaks "
+"video playback. All of them are switched to Packman."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:34
+msgid "Switch to Packman"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:35
+msgid "NVIDIA driver missing for this kernel"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:36
+msgid ""
+"The NVIDIA kernel module is not built for the running kernel, so the desktop "
+"runs without the NVIDIA driver. It is installed again; restart afterwards."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:38
+msgid "Services that failed to start"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:39
+msgid ""
+"These background services stopped with an error. They are restarted. If one "
+"keeps failing, create a bug report below."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:40
+msgid "Restart"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:41
+msgid "Little free disk space"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:42
+msgid ""
+"Updates can fail when the disk is full. Old snapshots, the package cache and "
+"unused Flatpak runtimes are removed."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:43
+msgid "Free space"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:44
+msgid "Flathub is missing"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:45
+msgid "Discover cannot show Flatpak apps without Flathub. It is added again."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:46
+msgid "Add Flathub"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:47
+msgid "The check itself failed"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:48
+msgid "Please create a bug report below."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:66
+msgid "Check"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:72
+msgid "Checking the system …"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:73
+msgid "System check"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:74
+msgid "No known problems found"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:75
+msgid "Problems found: %1"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:76
+msgid ""
+"Looks for common problems: package database, repositories, missing "
+"dependencies, codec mix, NVIDIA module, failed services, disk space and "
+"Flathub."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:83
+msgid "Check again"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:118
+msgid "Refresh repositories"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:119
+msgid ""
+"Reloads the package lists. Helps when Discover or an installation reports "
+"outdated or broken repository data."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:122
+msgid "Refresh"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:128
+msgid "Clean package cache"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:129
+msgid ""
+"Deletes downloaded package files and cached repository data to free disk "
+"space."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:132
+msgid "Clean"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:138
+msgid "Flatpak cleanup"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:139
+msgid ""
+"Removes runtimes no app needs anymore, or repairs a broken Flatpak "
+"installation."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:142
+msgid "Remove unused"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:154
+msgid "Rebuild package database"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:155
+msgid "Helps when installing or updating stops with an \"rpmdb\" error."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:164
+msgid "Rebuild boot files"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:165
+msgid ""
+"Creates the initramfs of every kernel and the boot menu again. Helps when "
+"the system hangs at startup or a driver is missing after a kernel update."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:170
+msgid "Rebuild boot files?"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:171
+msgid "This takes a minute or two. Restart the computer afterwards."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:178
+msgid "Go back to an earlier state"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:179
+msgid ""
+"If nothing here helps: restart, choose \"Start bootloader from a read-only "
+"snapshot\" in the boot menu and pick the state before the problem. NazoOS "
+"Update then offers to make that state permanent."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:187
+msgid "Get help"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:191
+msgid "Bug report"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:192
+msgid ""
+"Saves system information, errors since startup, repositories and recent "
+"updates to a text file in your home folder. Look through it before you share "
+"it: it contains device names and your user name."
+msgstr ""
+
+#: qml/pages/RepairPage.qml:194
+msgid "Create report"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:200
+msgid "Saved: %1"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:201
+msgid "Show"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:206
+msgid "Report on GitHub"
+msgstr ""
+
 #: qml/pages/SystemPage.qml:21
 msgid "Updates"
 msgstr ""
@@ -967,57 +1293,17 @@ msgstr ""
 msgid "Maintenance"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:100
-msgid "Refresh repositories"
-msgstr ""
-
 #: qml/pages/SystemPage.qml:101
 msgid ""
-"Reloads the package lists. Helps when Discover or an installation reports "
-"outdated or broken repository data."
+"Checks the system for common problems and fixes them. Also: refresh "
+"repositories, clean caches, repair Flatpak, bug report."
 msgstr ""
 
-#: qml/pages/SystemPage.qml:104
-msgid "Refresh"
-msgstr ""
-
-#: qml/pages/SystemPage.qml:110
-msgid "Clean package cache"
-msgstr ""
-
-#: qml/pages/SystemPage.qml:111
-msgid ""
-"Deletes downloaded package files and cached repository data to free disk "
-"space."
-msgstr ""
-
-#: qml/pages/SystemPage.qml:114
-msgid "Clean"
-msgstr ""
-
-#: qml/pages/SystemPage.qml:120
-msgid "Flatpak cleanup"
-msgstr ""
-
-#: qml/pages/SystemPage.qml:121
-msgid ""
-"Removes runtimes no app needs anymore, or repairs a broken Flatpak "
-"installation."
-msgstr ""
-
-#: qml/pages/SystemPage.qml:124
-msgid "Remove unused"
-msgstr ""
-
-#: qml/pages/SystemPage.qml:129
-msgid "Repair"
-msgstr ""
-
-#: qml/pages/SystemPage.qml:135
+#: qml/pages/SystemPage.qml:109
 msgid "System settings"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:136
+#: qml/pages/SystemPage.qml:110
 msgid ""
 "Displays, sound, network, appearance and everything else of the desktop."
 msgstr ""

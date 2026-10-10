@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 14:08+0200\n"
+"POT-Creation-Date: 2026-10-10 20:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,23 +30,23 @@ msgstr ""
 msgid "Making the snapshot permanent"
 msgstr ""
 
-#: nazoos_update/backend.py:136
+#: nazoos_update/backend.py:143
 msgid "pkexec could not be started."
 msgstr ""
 
-#: nazoos_update/backend.py:140
+#: nazoos_update/backend.py:147
 msgid "Done."
 msgstr ""
 
-#: nazoos_update/backend.py:143
+#: nazoos_update/backend.py:150
 msgid "Cancelled: no administrator password was given."
 msgstr ""
 
-#: nazoos_update/backend.py:145
+#: nazoos_update/backend.py:152
 msgid "Something went wrong."
 msgstr ""
 
-#: nazoos_update/backend.py:182
+#: nazoos_update/backend.py:189
 msgid "This program is not installed."
 msgstr ""
 
@@ -64,41 +64,51 @@ msgstr ""
 msgid "Restart required"
 msgstr ""
 
-#: nazoos_update/notify.py:100
+#: nazoos_update/notify.py:100 nazoos_update/notify.py:107
 msgid "Open"
 msgstr ""
 
-#: nazoos_update/notify.py:106
+#: nazoos_update/notify.py:104
+msgid "NazoOS kernel runs stable"
+msgstr ""
+
+#: nazoos_update/notify.py:105
+msgid ""
+"The NazoOS kernel started cleanly several times in a row. Remove the "
+"openSUSE kernel now?"
+msgstr ""
+
+#: nazoos_update/notify.py:115
 msgid "Update needs your decision"
 msgstr ""
 
-#: nazoos_update/notify.py:107
+#: nazoos_update/notify.py:116
 msgid ""
 "The update cannot be installed automatically because of a package conflict."
 msgstr ""
 
-#: nazoos_update/notify.py:109 nazoos_update/notify.py:115
+#: nazoos_update/notify.py:118 nazoos_update/notify.py:124
 msgid "Fix"
 msgstr ""
 
-#: nazoos_update/notify.py:112
+#: nazoos_update/notify.py:121
 msgid "Update check does not work"
 msgstr ""
 
-#: nazoos_update/notify.py:113
+#: nazoos_update/notify.py:122
 msgid ""
 "NazoOS could not check for updates for several days. Is the computer "
 "connected to the internet?"
 msgstr ""
 
-#: nazoos_update/notify.py:119
+#: nazoos_update/notify.py:128
 #, python-format
 msgid "%d update is ready to install."
 msgid_plural "%d updates are ready to install."
 msgstr[0] ""
 msgstr[1] ""
 
-#: nazoos_update/notify.py:121
+#: nazoos_update/notify.py:130
 msgid "Updates available"
 msgstr ""
 
@@ -140,11 +150,11 @@ msgstr ""
 msgid "Check now"
 msgstr ""
 
-#: qml/Main.qml:45 qml/Main.qml:283
+#: qml/Main.qml:45 qml/Main.qml:289
 msgid "Details"
 msgstr ""
 
-#: qml/Main.qml:56 qml/Main.qml:269
+#: qml/Main.qml:56 qml/Main.qml:275
 msgid "Show details"
 msgstr ""
 
@@ -264,18 +274,22 @@ msgstr ""
 msgid "That did not work"
 msgstr ""
 
-#: qml/Main.qml:274 qml/Main.qml:297
+#: qml/Main.qml:269
+msgid "Repair"
+msgstr ""
+
+#: qml/Main.qml:280 qml/Main.qml:303
 msgid "Close"
 msgstr ""
 
-#: qml/Main.qml:289
+#: qml/Main.qml:295
 msgid "Copy"
 msgstr ""
 
-#: qml/Main.qml:293
+#: qml/Main.qml:299
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: qml/Main.qml:307
+#: qml/Main.qml:313
 msgid "Nothing has run yet."
 msgstr ""

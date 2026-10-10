@@ -168,6 +168,11 @@ NVIDIA_DRIVERS = {
                "nvidia-compute-utils-G06"],
 }
 
+# ROCm: AMD GPU compute (HIP, OpenCL) for Blender, DaVinci Resolve and local
+# AI tools, not needed for games. All from Tumbleweed oss (ADR 0012).
+# /dev/kfd gets systemd's uaccess tag: no "render" group for the user.
+ROCM_PACKAGES = ["rocm-hip", "rocm-opencl", "rocminfo", "amdsmi"]
+
 # Handheld / Steam Deck pattern (separate package, may not exist yet)
 DECK_PATTERN = "nazoos-deck"
 
@@ -196,6 +201,32 @@ KERNEL_STABLE_BOOTS = 3
 AUTOMOUNT_FS = ["ext4", "btrfs", "xfs", "ntfs", "exfat"]
 FSTAB_MARKER = "# nazoos-welcome automount"
 MOUNT_BASE = "/mnt"
+
+# Repair page (ADR 0012): repos every NazoOS system needs, same aliases and
+# URLs as kiwi/nazoos-image/config.sh
+STANDARD_REPOS = [
+    {"alias": "repo-oss",
+     "url": "https://download.opensuse.org/tumbleweed/repo/oss/"},
+    {"alias": "repo-non-oss",
+     "url": "https://download.opensuse.org/tumbleweed/repo/non-oss/"},
+    {"alias": "repo-update",
+     "url": "https://download.opensuse.org/update/tumbleweed/"},
+]
+
+
+def repo_path(url):
+    """URL path without host: download. and cdn.opensuse.org match."""
+    return "/" + url.split("://", 1)[-1].split("/", 1)[-1].rstrip("/") + "/"
+
+
+# Packages Packman rebuilds with full codecs. A mix of Packman and openSUSE
+# builds of these breaks video playback after an update.
+PACKMAN_FAMILY = (r"(ffmpeg-\d+|lib(avcodec|avdevice|avfilter|avformat|avutil"
+                  r"|postproc|swresample|swscale)\d+"
+                  r"|gstreamer-plugins-(bad|ugly|libav))(-32bit)?")
+# Free space below which the repair page warns (whichever is larger)
+SPACE_MIN_GB = 5
+SPACE_MIN_PERCENT = 5
 
 
 def by_id(items, item_id):

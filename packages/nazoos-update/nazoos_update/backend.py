@@ -30,6 +30,7 @@ LAUNCHERS = {
                         ["btrfs-assistant-launcher"]),
     "myrlyn": (["*myrlyn*sudo*.desktop", "*myrlyn*.desktop"], ["myrlyn"]),
     "discover": (["org.kde.discover.desktop"], ["plasma-discover"]),
+    "repair": ([], ["nazoos-welcome", "--page", "repair"]),
 }
 
 
@@ -89,6 +90,12 @@ class Backend(QObject):
         return self._reboot or bool(self._state.get("needs_reboot"))
 
     rebootNeeded = Property(bool, _get_reboot, notify=stateChanged)
+
+    def _get_can_repair(self):
+        # Repair page of nazoos-welcome (ADR 0012)
+        return shutil.which("nazoos-welcome") is not None
+
+    canRepair = Property(bool, _get_can_repair, constant=True)
 
     @Slot()
     def refresh(self):

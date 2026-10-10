@@ -13,7 +13,7 @@ from PySide6.QtCore import (Property, QObject, QProcess, QProcessEnvironment,
                             Signal, Slot)
 from PySide6.QtGui import QGuiApplication
 
-from . import catalog, system
+from . import catalog, repair, system
 
 HELPER = os.environ.get("NAZOOS_WELCOME_HELPER",
                         "/usr/libexec/nazoos-welcome/nazoos-welcome-helper")
@@ -39,6 +39,8 @@ ACTION_LABELS = {
     "scx-enable": "Enabling the scheduler",
     "scx-disable": "Disabling the scheduler",
     "kparam": "Changing kernel options",
+    "rocm-install": "Installing ROCm",
+    "rocm-remove": "Removing ROCm",
     "deck-install": "Installing the handheld pattern",
     "kernel-install": "Installing the NazoOS kernel",
     "kernel-only": "Removing the openSUSE kernel",
@@ -54,6 +56,15 @@ ACTION_LABELS = {
     "flatpak-unused": "Removing unused Flatpak runtimes",
     "flatpak-repair": "Repairing Flatpak",
     "snapshot": "Creating a snapshot",
+    "repair-repos": "Repairing repositories",
+    "repair-rpmdb": "Rebuilding the package database",
+    "repair-deps": "Installing missing dependencies",
+    "repair-packman": "Switching codecs to Packman",
+    "repair-nvidia": "Reinstalling the NVIDIA kernel module",
+    "repair-units": "Restarting failed services",
+    "repair-space": "Freeing disk space",
+    "repair-flathub": "Adding Flathub",
+    "repair-boot": "Rebuilding boot files",
     "automount-add": "Adding drive",
     "automount-remove": "Removing drive",
 }
@@ -79,6 +90,8 @@ class Backend(QObject):
     # action, success, message (already translated)
     actionFinished = Signal(str, bool, str)
     _stateReady = Signal(object)
+    findingsChanged = Signal()
+    _findingsReady = Signal(object)
 
     def __init__(self, translator):
         super().__init__()
@@ -91,6 +104,10 @@ class Backend(QObject):
         self._pending_user_service = None
         self._refreshing = False
         self._stateReady.connect(self._set_state)
+        # Repair page: None = not checked yet
+        self._findings = None
+        self._checking = False
+        self._findingsReady.connect(self._set_findings)
 
     # --- properties ---------------------------------------------------------
 
@@ -113,6 +130,21 @@ class Backend(QObject):
         return self._log
 
     log = Property(str, _get_log, notify=logChanged)
+
+    def _get_findings(self):
+        return self._findings if self._findings is not None else []
+
+    findings = Property("QVariantList", _get_findings, notify=findingsChanged)
+
+    def _get_checked(self):
+        return self._findings is not None
+
+    checked = Property(bool, _get_checked, notify=findingsChanged)
+
+    def _get_checking(self):
+        return self._checking
+
+    checking = Property(bool, _get_checking, notify=findingsChanged)
 
     def _get_catalog(self):
         return {
@@ -146,6 +178,52 @@ class Backend(QObject):
         self._refreshing = False
         self._state = st
         self.stateChanged.emit()
+
+    # --- repair page (ADR 0012) ----------------------------------------------
+
+    @Slot()
+    def checkSystem(self):
+        if self._checking:
+            return
+        self._checking = True
+        self.findingsChanged.emit()
+
+        def work():
+            try:
+                found = repair.check()
+            except Exception as e:  # a broken probe is a finding too
+                found = [{"id": "error", "items": [str(e)], "fix": "",
+                          "userOnly": False}]
+            self._findingsReady.emit(found)
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def _set_findings(self, found):
+        self._checking = False
+        self._findings = found
+        self.findingsChanged.emit()
+
+    @Slot(str)
+    def fix(self, action):
+        """Fix one finding. Failed user units need no password."""
+        if self._busy:
+            return
+        if action in ("repair-units", ""):
+            self._append(repair.restart_user_units())
+        if action:
+            self.run(action, [])
+        else:
+            self.actionFinished.emit("repair-units", True,
+                                     self._tr.gettext("Done."))
+            self.checkSystem()
+
+    @Slot(result=str)
+    def saveReport(self):
+        try:
+            return repair.report(self._state, self._findings, self._log)
+        except OSError as e:
+            self.actionFinished.emit("report", False, str(e))
+            return ""
 
     # --- root actions ---------------------------------------------------------
 
@@ -217,6 +295,8 @@ class Backend(QObject):
         self.busyChanged.emit()
         self.actionFinished.emit(action, ok, message)
         self.refresh()
+        if action.startswith("repair-") and self._findings is not None:
+            self.checkSystem()
 
     # --- user-level actions -----------------------------------------------------
 
