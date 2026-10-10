@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Installed as /etc/xdg/autostart/nazoos-welcome.desktop. "Show this window
+# at login" writes ~/.config/autostart/nazoos-welcome.desktop with
+# Hidden=true, which overrides this file. --autostart quits on the live medium.
+[Desktop Entry]
+Type=Application
+Name=NazoOS Welcome
+Name[de]=NazoOS Willkommen
+Icon=nazoos-logo
+Exec=nazoos-welcome --autostart
+Terminal=false
+NoDisplay=true
+X-KDE-autostart-phase=2

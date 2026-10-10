@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+[Desktop Entry]
+Type=Application
+Name=NazoOS Welcome
+Name[de]=NazoOS Willkommen
+GenericName=First steps
+GenericName[de]=Erste Schritte
+Comment=Drivers, codecs, apps and gaming tweaks
+Comment[de]=Treiber, Codecs, Apps und Gaming-Optimierungen
+Icon=nazoos-logo
+Exec=nazoos-welcome
+Terminal=false
+Categories=Qt;KDE;System;
+Keywords=nvidia;codecs;packman;flatpak;drivers;scx;gaming;
+Keywords[de]=nvidia;codecs;packman;flatpak;treiber;scx;gaming;laufwerke;

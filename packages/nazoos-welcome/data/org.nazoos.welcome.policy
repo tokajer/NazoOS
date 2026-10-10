@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+
+Allows nazoos-welcome to start its root helper via pkexec. The helper
+only accepts fixed actions (see nazoos-welcome-helper).
+Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
+-->
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>NazoOS</vendor>
+  <vendor_url>https://github.com/tokajer/NazoOS</vendor_url>
+  <icon_name>nazoos-logo</icon_name>
+
+  <action id="org.nazoos.welcome.helper">
+    <description>Change system settings with NazoOS Welcome</description>
+    <description xml:lang="de">Systemeinstellungen mit NazoOS Willkommen ändern</description>
+    <message>NazoOS Welcome needs administrator rights to change the system.</message>
+    <message xml:lang="de">NazoOS Willkommen benötigt Administratorrechte, um das System zu ändern.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <!-- Password is remembered for a few minutes -->
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper</annotate>
+  </action>
+</policyconfig>

@@ -1,0 +1,392 @@
+#!/usr/bin/python3
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Root part of nazoos-welcome, started via pkexec.
+
+Only fixed actions with ids from catalog.py are accepted. Package names,
+paths and commands never come from the caller. The last output line
+"@@error <text>" carries a message for the user.
+"""
+
+import json
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+# pkexec clears PYTHONPATH; load catalog.py from the installed location
+# (or from the source tree when run from a git checkout)
+for base in (Path("/usr/share/nazoos-welcome"),
+             Path(__file__).resolve().parent.parent):
+    if (base / "nazoos_welcome" / "catalog.py").is_file():
+        sys.path.insert(0, str(base))
+        break
+from nazoos_welcome import catalog  # noqa: E402
+
+ZYPPER = ["zypper", "--non-interactive"]
+ZYPPER_IN = ZYPPER + ["install", "--auto-agree-with-licenses"]
+FLATPAK = ["flatpak", "--system"]
+FLATHUB_URL = "https://dl.flathub.org/repo/flathub.flatpakrepo"
+GRUB_DEFAULT = Path("/etc/default/grub")
+FSTAB = Path("/etc/fstab")
+SCX_DEFAULT = Path("/etc/default/scx")
+
+
+class Fail(Exception):
+    pass
+
+
+def run(cmd, check=True):
+    print("$ " + " ".join(cmd), flush=True)
+    rc = subprocess.run(cmd, stdin=subprocess.DEVNULL).returncode
+    if check and rc != 0:
+        raise Fail(f"'{cmd[0]}' failed (exit code {rc})")
+    return rc
+
+
+def output(cmd):
+    return subprocess.run(cmd, capture_output=True, text=True).stdout
+
+
+def rpm_installed(name):
+    return subprocess.run(["rpm", "-q", "--quiet", name]).returncode == 0
+
+
+def arg(args, i, allowed=None):
+    if len(args) <= i:
+        raise Fail("missing argument")
+    if allowed is not None and args[i] not in allowed:
+        raise Fail(f"invalid argument: {args[i]}")
+    return args[i]
+
+
+def repo_with_url(fragment):
+    for f in Path("/etc/zypp/repos.d").glob("*.repo"):
+        text = f.read_text(errors="replace")
+        if fragment in text:
+            m = re.search(r"^\[(.+)\]", text, re.M)
+            if m:
+                return m.group(1)
+    return None
+
+
+# --- Drivers and codecs ---------------------------------------------------
+
+def codecs_install(_args):
+    alias = repo_with_url("/packman/") or catalog.PACKMAN_ALIAS
+    if not repo_with_url("/packman/"):
+        run(ZYPPER + ["addrepo", "--refresh", "--priority",
+                      catalog.PACKMAN_PRIORITY, "--name", "Packman",
+                      catalog.PACKMAN_URL, alias])
+    run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+    # Switch already installed multimedia packages to Packman's builds
+    run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses", "--from",
+                  alias, "--allow-vendor-change", "--allow-downgrade"])
+    run(ZYPPER_IN + ["--from", alias] + catalog.PACKMAN_CODECS)
+    run(ZYPPER_IN + catalog.OSS_CODECS)
+
+
+def nvidia_install(args):
+    variant = arg(args, 0, catalog.NVIDIA_DRIVERS)
+    alias = repo_with_url("download.nvidia.com") or catalog.NVIDIA_REPO_ALIAS
+    if not repo_with_url("download.nvidia.com"):
+        run(ZYPPER + ["addrepo", "--refresh", "--name", "NVIDIA",
+                      catalog.NVIDIA_REPO_URL, alias])
+    run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+    run(ZYPPER_IN + catalog.NVIDIA_DRIVERS[variant])
+    print("Restart the computer to load the NVIDIA driver.", flush=True)
+
+
+# --- Performance -----------------------------------------------------------
+
+def scx_enable(args):
+    sched = arg(args, 0, catalog.SCX_SCHEDULERS)
+    if not rpm_installed("scx"):
+        run(ZYPPER_IN + ["scx"])
+    if not Path("/usr/bin", sched).exists():
+        raise Fail(f"{sched} is not part of the installed scx package")
+    lines = SCX_DEFAULT.read_text().splitlines() if SCX_DEFAULT.exists() else []
+    out, done = [], False
+    for line in lines:
+        if re.match(r"\s*SCX_SCHEDULER\s*=", line):
+            if not done:
+                out.append(f"SCX_SCHEDULER={sched}")
+                done = True
+        else:
+            out.append(line)
+    if not done:
+        out.append(f"SCX_SCHEDULER={sched}")
+    SCX_DEFAULT.write_text("\n".join(out) + "\n")
+    print(f"{SCX_DEFAULT}: SCX_SCHEDULER={sched}", flush=True)
+    run(["systemctl", "enable", "scx.service"])
+    run(["systemctl", "restart", "scx.service"])
+
+
+def scx_disable(_args):
+    run(["systemctl", "disable", "--now", "scx.service"])
+
+
+def kparam(args):
+    item = catalog.by_id(catalog.KERNEL_PARAMS, arg(args, 0))
+    if item is None:
+        raise Fail("unknown kernel option")
+    enable = arg(args, 1, ("on", "off")) == "on"
+    key = item["param"].split("=")[0]
+    text = GRUB_DEFAULT.read_text()
+    m = re.search(r'^GRUB_CMDLINE_LINUX_DEFAULT=(["\']?)(.*?)\1\s*$',
+                  text, re.M)
+    if m is None:
+        raise Fail(f"GRUB_CMDLINE_LINUX_DEFAULT not found in {GRUB_DEFAULT}")
+    opts = [o for o in m.group(2).split()
+            if o.split("=")[0] != key]
+    if enable:
+        opts.append(item["param"])
+    line = 'GRUB_CMDLINE_LINUX_DEFAULT="' + " ".join(opts) + '"'
+    GRUB_DEFAULT.write_text(text[:m.start()] + line + text[m.end():])
+    print(line, flush=True)
+    if Path("/usr/sbin/update-bootloader").exists():
+        run(["update-bootloader", "--refresh"])
+    else:
+        run(["grub2-mkconfig", "-o", "/boot/grub2/grub.cfg"])
+    print("The change takes effect after a restart.", flush=True)
+
+
+def deck_install(_args):
+    run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    run(ZYPPER_IN + ["--type", "pattern", catalog.DECK_PATTERN])
+
+
+# --- Apps --------------------------------------------------------------------
+
+def flathub_ensure():
+    run(FLATPAK + ["remote-add", "--if-not-exists", "flathub", FLATHUB_URL])
+
+
+def flatpak_resolve(refs):
+    """Pick the newest branch for ids that exist in several branches
+    (e.g. Vulkan layers per runtime version); install fails otherwise."""
+    listing = output(FLATPAK + ["remote-ls", "flathub",
+                                "--columns=application,branch"])
+    branches = {}
+    for line in listing.splitlines():
+        parts = line.split("\t")
+        if len(parts) == 2:
+            branches.setdefault(parts[0], set()).add(parts[1])
+
+    def key(b):
+        return [int(x) if x.isdigit() else -1 for x in re.split(r"[.]", b)]
+
+    resolved = []
+    for ref in refs:
+        found = branches.get(ref, set())
+        if len(found) > 1:
+            resolved.append(f"{ref}//{max(found, key=key)}")
+        else:
+            resolved.append(ref)
+    return resolved
+
+
+def app_install(args):
+    app = catalog.by_id(catalog.APPS, arg(args, 0))
+    if app is None:
+        raise Fail("unknown app")
+    if app["kind"] == "flatpak":
+        flathub_ensure()
+        run(FLATPAK + ["install", "--noninteractive", "-y", "flathub"]
+            + flatpak_resolve(app["refs"]))
+    else:
+        run(ZYPPER_IN + app["refs"])
+
+
+def app_remove(args):
+    app = catalog.by_id(catalog.APPS, arg(args, 0))
+    if app is None:
+        raise Fail("unknown app")
+    if app["kind"] == "flatpak":
+        installed = output(FLATPAK + ["list", "--columns=application"]).split()
+        refs = [r for r in app["refs"] if r in installed]
+        if refs:
+            run(FLATPAK + ["uninstall", "--noninteractive", "-y"] + refs)
+    else:
+        run(ZYPPER + ["remove", "--clean-deps"] + app["refs"])
+
+
+# --- System --------------------------------------------------------------------
+
+def service(args):
+    svc = catalog.by_id(catalog.SERVICES, arg(args, 0))
+    if svc is None:
+        raise Fail("unknown service")
+    enable = arg(args, 1, ("on", "off")) == "on"
+    if enable and not rpm_installed(svc["package"]):
+        run(ZYPPER_IN + [svc["package"]])
+    if svc["user"]:
+        return  # user units are switched by the GUI without root
+    run(["systemctl", "enable" if enable else "disable", "--now",
+         svc["unit"]])
+
+
+def system_update(_args):
+    run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses"])
+    if Path("/usr/bin/flatpak").exists():
+        run(FLATPAK + ["update", "--noninteractive", "-y"])
+
+
+def repo_refresh(_args):
+    run(ZYPPER + ["--gpg-auto-import-keys", "refresh", "--force"])
+
+
+def cache_clean(_args):
+    run(ZYPPER + ["clean", "--all"])
+
+
+def flatpak_unused(_args):
+    run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"])
+
+
+def flatpak_repair(_args):
+    run(FLATPAK + ["repair"])
+
+
+def snapshot(_args):
+    run(["snapper", "-c", "root", "create", "--type", "single",
+         "--cleanup-algorithm", "number",
+         "--description", "nazoos-welcome: manual snapshot"])
+
+
+# --- Drives --------------------------------------------------------------------
+
+def lsblk():
+    data = json.loads(output(["lsblk", "--json", "--list", "--output",
+                              "PATH,UUID,FSTYPE,LABEL,MOUNTPOINTS"]))
+    return data.get("blockdevices", [])
+
+
+def sanitize(name):
+    name = re.sub(r"[^A-Za-z0-9._-]+", "-", name).strip("-.")
+    return name[:40]
+
+
+def automount_add(args):
+    uuid = arg(args, 0)
+    dev = next((d for d in lsblk() if d.get("uuid") == uuid), None)
+    if dev is None or dev.get("fstype") not in catalog.AUTOMOUNT_FS:
+        raise Fail("drive not found or file system not supported")
+    if uuid in FSTAB.read_text():
+        raise Fail("this drive is already in /etc/fstab")
+    # Only drives that are unmounted or mounted on demand by Dolphin
+    for mp in dev.get("mountpoints") or []:
+        if mp and not mp.startswith("/run/media/"):
+            raise Fail(f"this drive is already used by the system ({mp})")
+    fstype = dev["fstype"]
+    base = sanitize(dev.get("label") or "") or uuid[:8]
+    mnt = Path(catalog.MOUNT_BASE, base)
+    n = 2
+    while mnt.exists() and any(mnt.iterdir()):
+        mnt = Path(catalog.MOUNT_BASE, f"{base}-{n}")
+        n += 1
+    uid = int(os.environ.get("PKEXEC_UID", "1000"))
+    gid = int(output(["id", "-g", str(uid)]).strip() or 100)
+    opts = "nofail,x-systemd.device-timeout=10s,noatime"
+    if fstype == "ntfs":
+        fstype = "ntfs3"
+        opts += f",uid={uid},gid={gid},umask=022,windows_names"
+    elif fstype == "exfat":
+        opts += f",uid={uid},gid={gid},umask=022"
+    elif fstype == "btrfs":
+        opts += ",compress=zstd:1"
+    mnt.mkdir(parents=True, exist_ok=True)
+    line = f"UUID={uuid} {mnt} {fstype} {opts} 0 0"
+    text = FSTAB.read_text()
+    if not text.endswith("\n"):
+        text += "\n"
+    tmp = FSTAB.with_name("fstab.nazoos-welcome.tmp")
+    tmp.write_text(text + f"{catalog.FSTAB_MARKER}\n{line}\n")
+    os.chmod(tmp, 0o644)
+    os.replace(tmp, FSTAB)
+    print(line, flush=True)
+    run(["systemctl", "daemon-reload"])
+    run(["mount", str(mnt)])
+    # A fresh Linux file system belongs to root: give it to the user so
+    # Steam can put a library there. Existing data is left alone.
+    if fstype in ("ext4", "btrfs", "xfs"):
+        st = mnt.stat()
+        content = [p.name for p in mnt.iterdir()]
+        if st.st_uid == 0 and set(content) <= {"lost+found"}:
+            os.chown(mnt, uid, gid)
+            print(f"{mnt} now belongs to uid {uid}", flush=True)
+
+
+def automount_remove(args):
+    uuid = arg(args, 0)
+    lines = FSTAB.read_text().splitlines()
+    out, mnt, i = [], None, 0
+    while i < len(lines):
+        line = lines[i]
+        nxt = lines[i + 1] if i + 1 < len(lines) else ""
+        if line == catalog.FSTAB_MARKER and nxt.startswith(f"UUID={uuid} "):
+            mnt = nxt.split()[1]
+            i += 2
+            continue
+        out.append(line)
+        i += 1
+    if mnt is None:
+        raise Fail("only drives added by NazoOS Welcome can be removed here")
+    run(["umount", mnt], check=False)
+    tmp = FSTAB.with_name("fstab.nazoos-welcome.tmp")
+    tmp.write_text("\n".join(out) + "\n")
+    os.chmod(tmp, 0o644)
+    os.replace(tmp, FSTAB)
+    run(["systemctl", "daemon-reload"])
+    try:
+        Path(mnt).rmdir()
+    except OSError:
+        pass
+
+
+ACTIONS = {
+    "codecs-install": codecs_install,
+    "nvidia-install": nvidia_install,
+    "scx-enable": scx_enable,
+    "scx-disable": scx_disable,
+    "kparam": kparam,
+    "deck-install": deck_install,
+    "app-install": app_install,
+    "app-remove": app_remove,
+    "service": service,
+    "system-update": system_update,
+    "repo-refresh": repo_refresh,
+    "cache-clean": cache_clean,
+    "flatpak-unused": flatpak_unused,
+    "flatpak-repair": flatpak_repair,
+    "snapshot": snapshot,
+    "automount-add": automount_add,
+    "automount-remove": automount_remove,
+}
+
+
+def main():
+    if os.geteuid() != 0:
+        print("@@error must run as root (via pkexec)", flush=True)
+        return 1
+    if len(sys.argv) < 2 or sys.argv[1] not in ACTIONS:
+        print("@@error unknown action", flush=True)
+        return 2
+    # Wait for a running zypper/PackageKit instead of failing at once
+    os.environ["ZYPP_LOCK_TIMEOUT"] = "120"
+    os.environ["LC_ALL"] = "C.UTF-8"
+    try:
+        ACTIONS[sys.argv[1]](sys.argv[2:])
+    except Fail as e:
+        print(f"@@error {e}", flush=True)
+        return 1
+    except OSError as e:
+        print(f"@@error {e}", flush=True)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

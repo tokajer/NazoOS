@@ -46,10 +46,13 @@ Recommends:     scx
 # Audio
 Recommends:     pipewire-config-upmix
 Recommends:     rtkit
+# First steps after installation (drivers, codecs, apps)
+Recommends:     nazoos-welcome
 # Software management
 Recommends:     discover6
 Recommends:     discover6-backend-flatpak
 Recommends:     flatpak
+Recommends:     flatpak-remote-flathub
 Recommends:     myrlyn
 # Desktop
 Recommends:     MozillaFirefox

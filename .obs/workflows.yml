@@ -18,6 +18,9 @@ devel_build:
     - trigger_services:
         project: home:Tokajer:nazoos:devel
         package: nazoos-calamares-config
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: nazoos-welcome
   filters:
     event: push
     branches:

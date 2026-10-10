@@ -1,0 +1,18 @@
+-------------------------------------------------------------------
+Sat Oct 10 10:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- First version of NazoOS Welcome (Python, PySide6, Kirigami):
+  * Welcome page with disclaimer, first steps, installer button on
+    the live medium, "show at login" switch
+  * Drivers & codecs: NVIDIA driver (G07 open / G06 legacy) from
+    NVIDIA's repository, Packman codecs like `opi codecs`
+  * Gaming: scx toggle and scheduler choice (ADR 0002), kernel
+    options (AMD overclocking, mitigations=off), nazoos-deck pattern
+  * Apps: optional Flatpaks and RPMs (ADR 0003), incl. OBS Studio
+    with vkcapture
+  * Drives: automatic mounting of internal drives under /mnt
+  * System: update, snapshots, services, maintenance
+  * Help: links, system information for bug reports
+  * Root actions via pkexec helper with fixed action list, Polkit
+    policy org.nazoos.welcome.helper
+  * German translation
