@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Differences of the nazoos flavor to openSUSE's x86_64/default config.
+# make-obs-package.sh copies config/x86_64/default, applies these lines
+# and runs "make olddefconfig" for everything the patches add.
+# Syntax like a kernel .config: CONFIG_X=y|m|value, "# CONFIG_X is not set".
+
+# uname -r ends with -nazoos (ADR 0007)
+CONFIG_LOCALVERSION="-nazoos"
+
+# 1000 Hz timer and full preemption (PREEMPT_DYNAMIC keeps preempt=
+# working). openSUSE's default config has both since 7.x; listed here so
+# the flavor keeps them if default changes
+CONFIG_HZ_1000=y
+CONFIG_HZ=1000
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_DYNAMIC=y
+
+# BORE on top of EEVDF (0001-bore.patch)
+CONFIG_SCHED_BORE=y
+
+# BBRv3 as extra module "bbr3" next to BBR (0002/0003-tcp-bbr3.patch)
+CONFIG_TCP_CONG_BBR=m
+CONFIG_TCP_CONG_BBR3=m
+
+# amd-pstate in active (EPP) mode
+CONFIG_X86_AMD_PSTATE=y
+CONFIG_X86_AMD_PSTATE_DEFAULT_MODE=3
+
+# v4l2loopback (OBS virtual camera)
+CONFIG_V4L2_LOOPBACK=m
+
+# sched_ext for scx schedulers (ADR 0002), MGLRU
+CONFIG_SCHED_CLASS_EXT=y
+CONFIG_LRU_GEN=y
+CONFIG_LRU_GEN_ENABLED=y
+
+# ntsync for Wine/Proton
+CONFIG_NTSYNC=m
+
+# Handheld drivers (0007-handheld.patch), all as modules: Steam Deck MFD
+# and LEDs, Asus ROG Ally, MSI Claw, Zotac Zone, aw87xxx amplifier
+CONFIG_MFD_STEAMDECK=m
+CONFIG_SENSORS_STEAMDECK=m
+CONFIG_LEDS_STEAMDECK=m
+CONFIG_EXTCON_STEAMDECK=m
+CONFIG_LEDS_VALVE=m
+CONFIG_HID_ASUS_ALLY=m
+CONFIG_HID_MSI=m
+CONFIG_ZOTAC_ZONE_HID=m
+CONFIG_ZOTAC_ZONE_PLATFORM=m
+CONFIG_SND_SOC_AW87XXX=m

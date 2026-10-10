@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# User unit: shows notifications for pending updates, failed checks and
+# a boot from a read-only snapshot.
+[Unit]
+Description=NazoOS: update notifications
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nazoos-update --notify

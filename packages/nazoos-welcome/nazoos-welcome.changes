@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Sat Oct 10 15:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Kernel page (ADR 0008): install the NazoOS kernel next to the
+  openSUSE kernel, remove the openSUSE kernel after 3 clean starts
+  (nazoos-kernel-only), way back, Secure Boot key state and
+  "Enroll key"
+- nazoos-kernel-boot.service: keeps kernel-nazoos as default boot
+  entry and counts clean boots
+- System page: rollback hint points to NazoOS Update ("Make
+  permanent" after booting a snapshot) instead of Btrfs Assistant
+
+-------------------------------------------------------------------
 Sat Oct 10 10:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - First version of NazoOS Welcome (Python, PySide6, Kirigami):

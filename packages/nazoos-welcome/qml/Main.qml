@@ -48,8 +48,8 @@ Kirigami.ApplicationWindow {
     function showPage(name) {
         const comps = {
             welcome: welcomePage, drivers: driversPage, gaming: gamingPage,
-            apps: appsPage, drives: drivesPage, system: systemPage,
-            help: helpPage
+            kernel: kernelPage, apps: appsPage, drives: drivesPage,
+            system: systemPage, help: helpPage
         }
         if (!(name in comps)) name = "welcome"
         if (name === currentPage) return
@@ -87,6 +87,12 @@ Kirigami.ApplicationWindow {
                 onTriggered: root.showPage("gaming")
             },
             Kirigami.Action {
+                text: L.tr("Kernel"); icon.name: "preferences-system-linux"
+                visible: !root.live
+                checkable: true; checked: root.currentPage === "kernel"
+                onTriggered: root.showPage("kernel")
+            },
+            Kirigami.Action {
                 text: L.tr("Apps"); icon.name: "plasmadiscover"
                 visible: !root.live
                 checkable: true; checked: root.currentPage === "apps"
@@ -115,6 +121,7 @@ Kirigami.ApplicationWindow {
     Component { id: welcomePage; WelcomePage { app: root } }
     Component { id: driversPage; DriversPage { app: root } }
     Component { id: gamingPage; GamingPage { app: root } }
+    Component { id: kernelPage; KernelPage { app: root } }
     Component { id: appsPage; AppsPage { app: root } }
     Component { id: drivesPage; DrivesPage { app: root } }
     Component { id: systemPage; SystemPage { app: root } }

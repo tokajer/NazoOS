@@ -1,0 +1,6 @@
+-------------------------------------------------------------------
+Sat Oct 10 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- First package for NazoOS: version 2.3.2
+  * bash interpreter instead of /usr/bin/env in the wrapper scripts
+  * btrfsmaintenance config path /etc/sysconfig/btrfsmaintenance

@@ -11,6 +11,7 @@ Whenever a step changes the system, a password dialog appears. Enter the passwor
 | Welcome | First steps, disclaimer, switch "Show this window at login" |
 | Drivers & codecs | Install the NVIDIA driver, install multimedia codecs from Packman, firmware updates |
 | Gaming & performance | sched_ext CPU scheduler (scx), AMD GPU overclocking, CPU mitigations, Steam Deck/handheld support, Steam launch options |
+| Kernel | Optional NazoOS kernel with gaming patches, Secure Boot key, way back to the openSUSE kernel ([details](kernel.md)) |
 | Apps | Install popular apps with one click (Discord, OBS Studio, Heroic, ProtonUp-Qt, …) |
 | Drives | Mount internal drives automatically, e.g. for a Steam library |
 | System | Updates, snapshots, services (Bluetooth, LACT, CoolerControl, SSH, profile-sync-daemon), maintenance |
@@ -44,4 +45,4 @@ Kernel options take effect after a restart. The page shows "Restart the computer
 
 If an action fails, a dialog explains what happened. **Show details** shows the full output, and **Copy** copies it for a bug report. **Try again** repeats the action, e.g. after a network problem.
 
-If the system misbehaves after a change, roll back. Restart, choose **Start bootloader from a read-only snapshot** in the boot menu and pick the state before the change.
+If the system misbehaves after a change, roll back. Restart, choose **Start bootloader from a read-only snapshot** in the boot menu and pick the state before the change. NazoOS Update then offers to make that state permanent ([details](update.md)).

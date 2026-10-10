@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Refreshes the repositories and writes the list of pending updates to
+# /var/lib/nazoos-update/status.json (read by the user notifier and GUI).
+[Unit]
+Description=NazoOS: check for system and Flatpak updates
+Documentation=https://github.com/tokajer/NazoOS/blob/main/docs/update.md
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=!/usr/share/calamares/settings.conf
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/nazoos-update/nazoos-update-helper check
+# Background job: never slow down a game
+Nice=19
+IOSchedulingClass=idle
+StateDirectory=nazoos-update

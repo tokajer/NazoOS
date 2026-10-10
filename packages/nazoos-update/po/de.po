@@ -1,0 +1,298 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# German translation of nazoos-update.
+msgid ""
+msgstr ""
+"Project-Id-Version: nazoos-update\n"
+"PO-Revision-Date: 2026-10-10 15:00+0200\n"
+"Last-Translator: NazoOS Contributors\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: nazoos_update/backend.py
+msgid "Checking for updates"
+msgstr "Suche nach Updates"
+
+#: nazoos_update/backend.py
+msgid "Installing updates"
+msgstr "Updates werden installiert"
+
+#: nazoos_update/backend.py
+msgid "Making the snapshot permanent"
+msgstr "Snapshot wird dauerhaft übernommen"
+
+#: nazoos_update/backend.py:136
+msgid "pkexec could not be started."
+msgstr "pkexec konnte nicht gestartet werden."
+
+#: nazoos_update/backend.py:140
+msgid "Done."
+msgstr "Fertig."
+
+#: nazoos_update/backend.py:143
+msgid "Cancelled: no administrator password was given."
+msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
+
+#: nazoos_update/backend.py:145
+msgid "Something went wrong."
+msgstr "Etwas ist schiefgelaufen."
+
+#: nazoos_update/backend.py:182
+msgid "This program is not installed."
+msgstr "Dieses Programm ist nicht installiert."
+
+#: nazoos_update/notify.py:86
+msgid "Started from a snapshot"
+msgstr "Von einem Snapshot gestartet"
+
+#: nazoos_update/notify.py:87
+msgid ""
+"The system runs from an older, read-only snapshot. If everything works, you "
+"can make this state permanent."
+msgstr ""
+"Das System läuft von einem älteren, schreibgeschützten Snapshot. Wenn alles "
+"funktioniert, können Sie diesen Stand dauerhaft übernehmen."
+
+#: nazoos_update/notify.py:97
+msgid "Restart required"
+msgstr "Neustart erforderlich"
+
+#: nazoos_update/notify.py:100
+msgid "Open"
+msgstr "Öffnen"
+
+#: nazoos_update/notify.py:106
+msgid "Update needs your decision"
+msgstr "Update braucht Ihre Entscheidung"
+
+#: nazoos_update/notify.py:107
+msgid ""
+"The update cannot be installed automatically because of a package conflict."
+msgstr ""
+"Das Update kann wegen eines Paketkonflikts nicht automatisch installiert "
+"werden."
+
+#: nazoos_update/notify.py:109 nazoos_update/notify.py:115
+msgid "Fix"
+msgstr "Beheben"
+
+#: nazoos_update/notify.py:112
+msgid "Update check does not work"
+msgstr "Update-Prüfung funktioniert nicht"
+
+#: nazoos_update/notify.py:113
+msgid ""
+"NazoOS could not check for updates for several days. Is the computer "
+"connected to the internet?"
+msgstr ""
+"NazoOS konnte seit mehreren Tagen nicht nach Updates suchen. Ist der "
+"Computer mit dem Internet verbunden?"
+
+#: nazoos_update/notify.py:119
+#, python-format
+msgid "%d update is ready to install."
+msgid_plural "%d updates are ready to install."
+msgstr[0] "%d Update ist bereit zur Installation."
+msgstr[1] "%d Updates sind bereit zur Installation."
+
+#: nazoos_update/notify.py:121
+msgid "Updates available"
+msgstr "Updates verfügbar"
+
+#: qml/Main.qml:12
+msgid "NazoOS Update"
+msgstr "NazoOS Aktualisierung"
+
+#: qml/Main.qml:24
+msgid "never"
+msgstr "nie"
+
+#: qml/Main.qml:26
+msgid "just now"
+msgstr "gerade eben"
+
+#: qml/Main.qml:27
+msgid "%1 minute ago"
+msgid_plural "%1 minutes ago"
+msgstr[0] "vor %1 Minute"
+msgstr[1] "vor %1 Minuten"
+
+#: qml/Main.qml:29
+msgid "%1 hour ago"
+msgid_plural "%1 hours ago"
+msgstr[0] "vor %1 Stunde"
+msgstr[1] "vor %1 Stunden"
+
+#: qml/Main.qml:30
+msgid "%1 day ago"
+msgid_plural "%1 days ago"
+msgstr[0] "vor %1 Tag"
+msgstr[1] "vor %1 Tagen"
+
+#: qml/Main.qml:35
+msgid "Updates"
+msgstr "Updates"
+
+#: qml/Main.qml:39
+msgid "Check now"
+msgstr "Jetzt prüfen"
+
+#: qml/Main.qml:45 qml/Main.qml:283
+msgid "Details"
+msgstr "Details"
+
+#: qml/Main.qml:56 qml/Main.qml:269
+msgid "Show details"
+msgstr "Details anzeigen"
+
+#: qml/Main.qml:68
+msgid ""
+"The system was started from snapshot %1. It is read-only: changes are lost "
+"at the next restart. If everything works now, make this state permanent."
+msgstr ""
+"Das System wurde von Snapshot %1 gestartet. Er ist schreibgeschützt: "
+"Änderungen gehen beim nächsten Neustart verloren. Wenn jetzt alles "
+"funktioniert, übernehmen Sie diesen Stand dauerhaft."
+
+#: qml/Main.qml:71 qml/Main.qml:251
+msgid "Make permanent"
+msgstr "Dauerhaft übernehmen"
+
+#: qml/Main.qml:84
+msgid "Updates were installed. Restart the computer to use them."
+msgstr ""
+"Updates wurden installiert. Starten Sie den Computer neu, um sie zu "
+"verwenden."
+
+#: qml/Main.qml:87
+msgid "Restart now"
+msgstr "Jetzt neu starten"
+
+#: qml/Main.qml:99
+msgid ""
+"The package sources could not be reached. Check the internet connection and "
+"try again."
+msgstr ""
+"Die Paketquellen sind nicht erreichbar. Prüfen Sie die Internetverbindung "
+"und versuchen Sie es erneut."
+
+#: qml/Main.qml:102
+msgid "Try again"
+msgstr "Erneut versuchen"
+
+#: qml/Main.qml:112
+msgid "The update needs a decision that cannot be made automatically:"
+msgstr ""
+"Das Update braucht eine Entscheidung, die nicht automatisch getroffen werden "
+"kann:"
+
+#: qml/Main.qml:114
+msgid "Myrlyn shows the conflict and offers solutions to choose from."
+msgstr "Myrlyn zeigt den Konflikt und bietet Lösungen zur Auswahl an."
+
+#: qml/Main.qml:117
+msgid "Open Myrlyn"
+msgstr "Myrlyn öffnen"
+
+#: qml/Main.qml:141
+msgid "%1 update available"
+msgid_plural "%1 updates available"
+msgstr[0] "%1 Update verfügbar"
+msgstr[1] "%1 Updates verfügbar"
+
+#: qml/Main.qml:142
+msgid "Not checked yet"
+msgstr "Noch nicht geprüft"
+
+#: qml/Main.qml:142
+msgid "The system is up to date"
+msgstr "Das System ist aktuell"
+
+#: qml/Main.qml:148
+msgid "Last check: %1"
+msgstr "Letzte Prüfung: %1"
+
+#: qml/Main.qml:149
+msgid "A restart will be needed afterwards."
+msgstr "Danach ist ein Neustart nötig."
+
+#: qml/Main.qml:155
+msgid ""
+"Before the update a snapshot is taken automatically. If something breaks, "
+"pick it in the boot menu under \"Start bootloader from a read-only "
+"snapshot\"."
+msgstr ""
+"Vor dem Update wird automatisch ein Snapshot erstellt. Wenn etwas "
+"kaputtgeht, wählen Sie ihn im Bootmenü unter „Start bootloader from a read-"
+"only snapshot“."
+
+#: qml/Main.qml:159
+msgid "Update now"
+msgstr "Jetzt aktualisieren"
+
+#: qml/Main.qml:172
+msgid "System packages"
+msgstr "Systempakete"
+
+#: qml/Main.qml:188
+msgid "new"
+msgstr "neu"
+
+#: qml/Main.qml:189
+msgid "removed"
+msgstr "entfernt"
+
+#: qml/Main.qml:199
+msgid "Flatpak apps and runtimes"
+msgstr "Flatpak-Apps und -Laufzeiten"
+
+#: qml/Main.qml:215
+msgid "Snapshots (Btrfs Assistant)"
+msgstr "Snapshots (Btrfs Assistant)"
+
+#: qml/Main.qml:220
+msgid "Packages (Myrlyn)"
+msgstr "Pakete (Myrlyn)"
+
+#: qml/Main.qml:246
+msgid "Make this state permanent?"
+msgstr "Diesen Stand dauerhaft übernehmen?"
+
+#: qml/Main.qml:247
+msgid ""
+"The system goes back to snapshot %1 for good. The current, broken state is "
+"kept as a snapshot, so this can be undone. Afterwards the computer has to "
+"restart."
+msgstr ""
+"Das System kehrt dauerhaft zu Snapshot %1 zurück. Der aktuelle, defekte "
+"Stand bleibt als Snapshot erhalten, das lässt sich also rückgängig machen. "
+"Danach muss der Computer neu starten."
+
+#: qml/Main.qml:256
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: qml/Main.qml:265
+msgid "That did not work"
+msgstr "Das hat nicht geklappt"
+
+#: qml/Main.qml:274 qml/Main.qml:297
+msgid "Close"
+msgstr "Schließen"
+
+#: qml/Main.qml:289
+msgid "Copy"
+msgstr "Kopieren"
+
+#: qml/Main.qml:293
+msgid "Copied to the clipboard."
+msgstr "In die Zwischenablage kopiert."
+
+#: qml/Main.qml:307
+msgid "Nothing has run yet."
+msgstr "Bisher ist noch nichts gelaufen."

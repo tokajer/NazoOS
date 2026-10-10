@@ -45,7 +45,8 @@ Only for the live medium; it removes itself from the installed system.
 install -Dm0644 settings.conf %{buildroot}%{_datadir}/calamares/settings.conf
 install -Dm0644 -t %{buildroot}%{_datadir}/calamares/modules modules/*.conf
 install -Dm0644 -t %{buildroot}%{_datadir}/calamares/branding/nazoos \
-  branding/nazoos/branding.desc branding/nazoos/show.qml
+  branding/nazoos/branding.desc branding/nazoos/show.qml \
+  branding/nazoos/disclaimer.html
 install -Dm0755 scripts/nazoos-postinstall \
   %{buildroot}%{_libexecdir}/nazoos-calamares/nazoos-postinstall
 # Live session

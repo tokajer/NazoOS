@@ -171,6 +171,26 @@ NVIDIA_DRIVERS = {
 # Handheld / Steam Deck pattern (separate package, may not exist yet)
 DECK_PATTERN = "nazoos-deck"
 
+# NazoOS kernel (ADR 0007/0008). Opt-in: the repo is added on install.
+# Stage 1 installs kernel-nazoos next to kernel-default, stage 2 removes
+# kernel-default with the conflict package nazoos-kernel-only.
+KERNEL_REPO_ALIAS = "nazoos-kernel"
+KERNEL_REPO_URL = ("https://download.opensuse.org/repositories/"
+                   "home:/Tokajer:/nazoos:/kernel/openSUSE_Tumbleweed/")
+KERNEL_PACKAGE = "kernel-nazoos"
+KERNEL_DEFAULT = "kernel-default"
+KERNEL_ONLY_PACKAGE = "nazoos-kernel-only"
+# Kernel module packages built for both flavors: <base>-kmp-default from
+# Tumbleweed/NVIDIA, <base>-kmp-nazoos from our kernel project
+KMP_BASES = ["nvidia-open-driver-G07-signed", "nvidia-open-driver-G06-signed",
+             "xone", "xpadneo"]
+# Only built for kernel-default (closed NVIDIA driver from NVIDIA's repo):
+# kernel-nazoos would boot without graphics driver
+KMP_DEFAULT_ONLY = ["nvidia-driver-G06-kmp-default"]
+# State of the boot counter and the "prefer kernel-nazoos" switch
+KERNEL_STATE_DIR = "/var/lib/nazoos"
+KERNEL_STABLE_BOOTS = 3
+
 # Drives: file systems offered for automatic mounting, and the marker that
 # identifies fstab lines written by nazoos-welcome
 AUTOMOUNT_FS = ["ext4", "btrfs", "xfs", "ntfs", "exfat"]

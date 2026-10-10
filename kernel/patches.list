@@ -1,0 +1,32 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Gaming patches of the nazoos kernel flavor, in apply order.
+# Format: <file name in patches/> <URL | local>
+# Pinned to commits/paths for one kernel series (KERNEL_SERIES in
+# make-obs-package.sh). On a new kernel series: update the URLs (CachyOS
+# keeps one directory / branch per series), run fetch-patches.sh and
+# make-obs-package.sh --check.
+#
+# Sources:
+#   https://github.com/CachyOS/kernel-patches   (patch files per series)
+#   https://github.com/CachyOS/linux             (branches <series>/<topic>)
+
+# BORE scheduler (Burst-Oriented Response Enhancer), plain variant
+# without the CachyOS base patch
+0001-bore.patch                  https://raw.githubusercontent.com/CachyOS/kernel-patches/master/7.2/sched/0001-bore.patch
+# BBRv3 TCP congestion control (branch 7.2/bbr3)
+0002-tcp-bbr3.patch              https://github.com/CachyOS/linux/commit/af253e921d6f.patch
+0003-tcp-bbr3-name.patch         https://github.com/CachyOS/linux/commit/7235d70addc6.patch
+# ACS override (pcie_acs_override=), for PCI passthrough to VMs (branch 7.2/cachy)
+0004-pci-acs-override.patch      https://github.com/CachyOS/linux/commit/a9689a07cd0a.patch
+# v4l2loopback in-tree, as module (branch 7.2/cachy: add + update to 0.15.4)
+0005-v4l2loopback.patch          https://github.com/CachyOS/linux/commit/bc0047b275d8.patch
+0006-v4l2loopback-0.15.4.patch   https://github.com/CachyOS/linux/commit/a72155249381.patch
+# Handheld support: panel orientation, MSI Claw, Zotac Zone, Ayaneo/GPD/
+# OneXPlayer audio and fan quirks, Steam Deck backlight (branch 7.2/handheld).
+# "local": refreshed by us, fetch-patches.sh keeps the file. Upstream:
+# https://raw.githubusercontent.com/CachyOS/kernel-patches/master/7.2/misc/0001-handheld.patch
+# Change: drivers/hid/Makefile hunk adapted (CachyOS' tree has Apple T2
+# lines that SUSE's tree does not have)
+0007-handheld.patch              local

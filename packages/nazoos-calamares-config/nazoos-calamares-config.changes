@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 10 15:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Disclaimer page (license module, short version of DISCLAIMER.md
+  in English and German) after the welcome page; it has to be
+  accepted before the installation goes on
+
+-------------------------------------------------------------------
 Sat Oct 10 07:40:13 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - users.conf: add the first user to group gamemode (renice via limits.d)

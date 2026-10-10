@@ -24,6 +24,9 @@ systemctl enable snapper-timeline.timer snapper-cleanup.timer
 # Apply our presets (nazoos-tweaks) again: in the image build a service
 # package may be installed before the preset file exists
 systemctl preset coolercontrold.service
+# nazoos-update: system timer (repo check) and user timer (notifications)
+systemctl preset nazoos-update-check.timer
+systemctl --global preset nazoos-update-notify.timer
 
 if [ "$profile" = test ]; then
   # Test image only: ssh into the VM (test password!).

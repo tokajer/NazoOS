@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Installed as /etc/xdg/PlasmaDiscoverUpdates: Discover's notifier stays
+# quiet, nazoos-update notifies about system and Flatpak updates.
+# -1 = never (discover/notifier/DiscoverNotifier.cpp)
+[Global]
+RequiredNotificationInterval=-1

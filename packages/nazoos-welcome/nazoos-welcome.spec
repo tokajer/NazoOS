@@ -12,6 +12,7 @@ Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  desktop-file-utils
 BuildRequires:  gettext-tools
 BuildRequires:  python3
+BuildRequires:  systemd-rpm-macros
 BuildArch:      noarch
 # GUI: Python + Qt Quick + Kirigami, native Plasma look
 Requires:       kf6-kirigami-imports
@@ -26,13 +27,16 @@ Requires:       pciutils
 Requires:       util-linux
 Requires:       zypper
 Recommends:     flatpak
+# Secure Boot state and key enrollment for the NazoOS kernel
+Recommends:     mokutil
 Recommends:     nazoos-branding
 Recommends:     snapper
+%{?systemd_ordering}
 
 %description
 NazoOS Welcome sets up a fresh NazoOS installation without a terminal:
 NVIDIA driver, multimedia codecs from Packman, sched_ext scheduler,
-kernel options, optional apps from Flathub, automatic mounting of extra
+kernel options, the optional NazoOS kernel, optional apps from Flathub, automatic mounting of extra
 drives, system services, updates, snapshots and maintenance.
 Root actions run through a small helper started with pkexec, which
 only accepts a fixed list of actions.
@@ -51,6 +55,12 @@ done
 install -Dm0755 nazoos-welcome %{buildroot}%{_bindir}/nazoos-welcome
 install -Dm0755 helper/nazoos-welcome-helper \
   %{buildroot}%{_libexecdir}/nazoos-welcome/nazoos-welcome-helper
+install -Dm0755 helper/nazoos-kernel-boot \
+  %{buildroot}%{_libexecdir}/nazoos-welcome/nazoos-kernel-boot
+install -Dm0644 data/nazoos-kernel-boot.service \
+  %{buildroot}%{_unitdir}/nazoos-kernel-boot.service
+install -Dm0644 data/90-nazoos-welcome.preset \
+  %{buildroot}%{_presetdir}/90-nazoos-welcome.preset
 install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-welcome/nazoos_welcome \
   nazoos_welcome/*.py
 install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-welcome/qml qml/*.qml
@@ -74,12 +84,29 @@ python3 -m compileall -q --invalidation-mode checked-hash \
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/org.nazoos.welcome.desktop
 desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/nazoos-welcome.desktop
-python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" helper/nazoos-welcome-helper
+for f in helper/nazoos-welcome-helper helper/nazoos-kernel-boot; do
+  python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" "$f"
+done
+
+%pre
+%service_add_pre nazoos-kernel-boot.service
+
+%post
+%service_add_post nazoos-kernel-boot.service
+
+%preun
+%service_del_preun nazoos-kernel-boot.service
+
+%postun
+%service_del_postun_without_restart nazoos-kernel-boot.service
 
 %files -f %{name}.lang
 %{_bindir}/nazoos-welcome
 %dir %{_libexecdir}/nazoos-welcome
 %{_libexecdir}/nazoos-welcome/nazoos-welcome-helper
+%{_libexecdir}/nazoos-welcome/nazoos-kernel-boot
+%{_unitdir}/nazoos-kernel-boot.service
+%{_presetdir}/90-nazoos-welcome.preset
 %{_datadir}/nazoos-welcome
 %{_datadir}/applications/org.nazoos.welcome.desktop
 %config(noreplace) %{_sysconfdir}/xdg/autostart/nazoos-welcome.desktop

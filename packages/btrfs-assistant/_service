@@ -1,0 +1,18 @@
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<services>
+  <!-- Take .spec and .changes from our GitHub repo -->
+  <service name="obs_scm">
+    <param name="url">https://github.com/tokajer/NazoOS.git</param>
+    <param name="scm">git</param>
+    <param name="revision">main</param>
+    <param name="subdir">packages/btrfs-assistant</param>
+    <param name="filename">btrfs-assistant-packaging</param>
+    <param name="extract">btrfs-assistant.spec</param>
+    <param name="extract">btrfs-assistant.changes</param>
+  </service>
+  <!-- Upstream release tarball: downloaded from the Source0 URL of the spec -->
+  <service name="download_files"/>
+</services>

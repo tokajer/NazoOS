@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+
+Allows nazoos-update to start its root helper via pkexec. The helper
+only knows the actions check, update and rollback.
+Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
+-->
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>NazoOS</vendor>
+  <vendor_url>https://github.com/tokajer/NazoOS</vendor_url>
+  <icon_name>system-software-update</icon_name>
+
+  <action id="org.nazoos.update.helper">
+    <description>Update the system with NazoOS Update</description>
+    <description xml:lang="de">Das System mit NazoOS Aktualisierung aktualisieren</description>
+    <message>NazoOS Update needs administrator rights to install updates.</message>
+    <message xml:lang="de">NazoOS Aktualisierung benötigt Administratorrechte, um Updates zu installieren.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-update/nazoos-update-helper</annotate>
+  </action>
+</policyconfig>

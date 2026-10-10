@@ -11,7 +11,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from . import catalog
+from . import catalog, kernel
 
 AUTOSTART_NAME = "nazoos-welcome.desktop"
 
@@ -168,6 +168,40 @@ def _human(n):
     return ""
 
 
+def kernel_state():
+    """NazoOS kernel opt-in (ADR 0008), without root rights."""
+    names = ([catalog.KERNEL_PACKAGE, catalog.KERNEL_DEFAULT,
+              catalog.KERNEL_ONLY_PACKAGE] + catalog.KMP_DEFAULT_ONLY)
+    rpms = rpm_installed(names)
+    release = platform.release()
+    sb = _out(["mokutil", "--sb-state"]).lower()
+    secure_boot = "secureboot enabled" in sb
+    mok = ""
+    if secure_boot and catalog.KERNEL_PACKAGE in rpms:
+        certs = [f for f in _out(["rpm", "-ql", catalog.KERNEL_PACKAGE]).split()
+                 if re.fullmatch(r"/etc/uefi/certs/\w+\.crt", f)]
+        if certs:
+            test = _out(["mokutil", "--test-key", certs[0]]).lower()
+            mok = ("enrolled" if "already enrolled" in test
+                   else "pending" if certs[0].rsplit("/", 1)[1][:-4].lower()
+                   in _out(["mokutil", "--list-new"]).lower().replace(":", "")
+                   else "missing")
+    boots = kernel.read_boots()
+    return {
+        "release": release,
+        "running": release.endswith("-nazoos"),
+        "installed": catalog.KERNEL_PACKAGE in rpms,
+        "defaultInstalled": catalog.KERNEL_DEFAULT in rpms,
+        "only": catalog.KERNEL_ONLY_PACKAGE in rpms,
+        "preferred": kernel.PREFER.exists(),
+        "boots": boots.get("count", 0),
+        "stableBoots": catalog.KERNEL_STABLE_BOOTS,
+        "blocked": any(p in rpms for p in catalog.KMP_DEFAULT_ONLY),
+        "secureBoot": secure_boot,
+        "mok": mok,
+    }
+
+
 def collect():
     """Full state for the UI, as plain JSON-friendly data."""
     gpu_list = gpus()
@@ -242,6 +276,7 @@ def collect():
         "deckInstalled": deck_installed,
         "deckAvailable": deck_available,
         "drives": drives(),
+        "kernel": kernel_state(),
         "hasBtrfsAssistant": shutil.which("btrfs-assistant") is not None,
         "hasNazoosUpdate": shutil.which("nazoos-update") is not None,
         "hasLact": shutil.which("lact") is not None,

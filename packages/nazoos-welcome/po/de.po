@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 13:04+0200\n"
+"POT-Creation-Date: 2026-10-10 14:35+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,23 +16,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: nazoos_welcome/backend.py:187
+#: nazoos_welcome/backend.py:192
 msgid "pkexec could not be started."
 msgstr "pkexec konnte nicht gestartet werden."
 
-#: nazoos_welcome/backend.py:195 nazoos_welcome/backend.py:236
+#: nazoos_welcome/backend.py:200 nazoos_welcome/backend.py:241
 msgid "Done."
 msgstr "Fertig."
 
-#: nazoos_welcome/backend.py:200
+#: nazoos_welcome/backend.py:205
 msgid "Cancelled: no administrator password was given."
 msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
 
-#: nazoos_welcome/backend.py:204
+#: nazoos_welcome/backend.py:209
 msgid "Something went wrong."
 msgstr "Etwas ist schiefgelaufen."
 
-#: nazoos_welcome/backend.py:265
+#: nazoos_welcome/backend.py:270
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
@@ -146,6 +146,10 @@ msgid "Installing the NVIDIA driver"
 msgstr "NVIDIA-Treiber wird installiert"
 
 #: nazoos_welcome/catalog.py
+msgid "Installing the NazoOS kernel"
+msgstr "NazoOS-Kernel wird installiert"
+
+#: nazoos_welcome/catalog.py
 msgid "Installing the handheld pattern"
 msgstr "Handheld-Unterstützung wird installiert"
 
@@ -192,6 +196,10 @@ msgid "Office suite (about 600 MB)"
 msgstr "Office-Paket (etwa 600 MB)"
 
 #: nazoos_welcome/catalog.py
+msgid "Preparing the Secure Boot key"
+msgstr "Secure-Boot-Schlüssel wird vorbereitet"
+
+#: nazoos_welcome/catalog.py
 msgid "Profile-sync-daemon"
 msgstr "Profile-sync-daemon"
 
@@ -210,6 +218,14 @@ msgstr "Wird entfernt"
 #: nazoos_welcome/catalog.py
 msgid "Removing drive"
 msgstr "Laufwerk wird entfernt"
+
+#: nazoos_welcome/catalog.py
+msgid "Removing the NazoOS kernel"
+msgstr "NazoOS-Kernel wird entfernt"
+
+#: nazoos_welcome/catalog.py
+msgid "Removing the openSUSE kernel"
+msgstr "openSUSE-Kernel wird entfernt"
 
 #: nazoos_welcome/catalog.py
 msgid "Removing unused Flatpak runtimes"
@@ -234,6 +250,10 @@ msgstr "Spiele von einem anderen PC streamen"
 #: nazoos_welcome/catalog.py
 msgid "Streaming and recording, with Vulkan game capture"
 msgstr "Streaming und Aufnahme, mit Vulkan-Spielaufnahme"
+
+#: nazoos_welcome/catalog.py
+msgid "Switching back to the openSUSE kernel"
+msgstr "Zurück zum openSUSE-Kernel"
 
 #: nazoos_welcome/catalog.py
 msgid "Unlocks clock and voltage controls in LACT"
@@ -271,59 +291,63 @@ msgstr "Treiber & Codecs"
 msgid "Gaming & performance"
 msgstr "Gaming & Leistung"
 
-#: qml/Main.qml:90 qml/pages/AppsPage.qml:27
+#: qml/Main.qml:90 qml/pages/KernelPage.qml:21
+msgid "Kernel"
+msgstr "Kernel"
+
+#: qml/Main.qml:96 qml/pages/AppsPage.qml:27
 msgid "Apps"
 msgstr "Apps"
 
-#: qml/Main.qml:96 qml/pages/DrivesPage.qml:17
+#: qml/Main.qml:102 qml/pages/DrivesPage.qml:17
 msgid "Drives"
 msgstr "Laufwerke"
 
-#: qml/Main.qml:102 qml/pages/SystemPage.qml:16
+#: qml/Main.qml:108 qml/pages/SystemPage.qml:16
 msgid "System"
 msgstr "System"
 
-#: qml/Main.qml:108 qml/pages/HelpPage.qml:15
+#: qml/Main.qml:114 qml/pages/HelpPage.qml:15
 msgid "Help"
 msgstr "Hilfe"
 
-#: qml/Main.qml:147
+#: qml/Main.qml:154
 msgid "Continue"
 msgstr "Weiter"
 
-#: qml/Main.qml:155
+#: qml/Main.qml:162
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: qml/Main.qml:165
+#: qml/Main.qml:172
 msgid "That did not work"
 msgstr "Das hat nicht geklappt"
 
-#: qml/Main.qml:169
+#: qml/Main.qml:176
 msgid "Try again"
 msgstr "Erneut versuchen"
 
-#: qml/Main.qml:178 qml/components/BusyBar.qml:31
+#: qml/Main.qml:185 qml/components/BusyBar.qml:31
 msgid "Show details"
 msgstr "Details anzeigen"
 
-#: qml/Main.qml:183 qml/Main.qml:206
+#: qml/Main.qml:190 qml/Main.qml:213
 msgid "Close"
 msgstr "Schließen"
 
-#: qml/Main.qml:192
+#: qml/Main.qml:199
 msgid "Details"
 msgstr "Details"
 
-#: qml/Main.qml:198
+#: qml/Main.qml:205
 msgid "Copy"
 msgstr "Kopieren"
 
-#: qml/Main.qml:202 qml/pages/HelpPage.qml:79
+#: qml/Main.qml:209 qml/pages/HelpPage.qml:79
 msgid "Copied to the clipboard."
 msgstr "In die Zwischenablage kopiert."
 
-#: qml/Main.qml:217
+#: qml/Main.qml:224
 msgid "Nothing has run yet."
 msgstr "Bisher wurde nichts ausgeführt."
 
@@ -362,11 +386,14 @@ msgstr "Installiert"
 
 #: qml/pages/AppsPage.qml:98 qml/pages/DriversPage.qml:55
 #: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:93
-#: qml/pages/GamingPage.qml:115 qml/pages/WelcomePage.qml:69
+#: qml/pages/GamingPage.qml:115 qml/pages/KernelPage.qml:41
+#: qml/pages/KernelPage.qml:47 qml/pages/WelcomePage.qml:69
 msgid "Install"
 msgstr "Installieren"
 
 #: qml/pages/AppsPage.qml:98 qml/pages/AppsPage.qml:106
+#: qml/pages/KernelPage.qml:61 qml/pages/KernelPage.qml:66
+#: qml/pages/KernelPage.qml:90
 msgid "Remove"
 msgstr "Entfernen"
 
@@ -794,6 +821,169 @@ msgstr "Haftungsausschluss"
 msgid "Trademark"
 msgstr "Marke"
 
+#: qml/pages/KernelPage.qml:26
+msgid "NazoOS kernel"
+msgstr "NazoOS-Kernel"
+
+#: qml/pages/KernelPage.qml:31
+msgid "NazoOS gaming kernel"
+msgstr "NazoOS-Gaming-Kernel"
+
+#: qml/pages/KernelPage.qml:32
+msgid ""
+"The openSUSE kernel with gaming patches: BORE scheduler for smoother frame "
+"times, BBRv3, handheld drivers (Steam Deck, ROG Ally, MSI Claw, Zotac Zone "
+"and more), v4l2loopback for virtual cameras. It is installed next to the "
+"openSUSE kernel, which stays in the boot menu as a fallback."
+msgstr ""
+"Der openSUSE-Kernel mit Gaming-Patches: BORE-Scheduler für gleichmäßigere "
+"Frametimes, BBRv3, Handheld-Treiber (Steam Deck, ROG Ally, MSI Claw, Zotac "
+"Zone und mehr), v4l2loopback für virtuelle Kameras. Er wird neben dem "
+"openSUSE-Kernel installiert, der als Rückfalloption im Bootmenü bleibt."
+
+#: qml/pages/KernelPage.qml:33
+msgid ""
+"Not possible with the closed NVIDIA driver (G06). Switch to the open driver "
+"first."
+msgstr ""
+"Mit dem geschlossenen NVIDIA-Treiber (G06) nicht möglich. Wechseln Sie "
+"zuerst zum offenen Treiber."
+
+#: qml/pages/KernelPage.qml:34
+msgid "Running: %1"
+msgstr "Läuft: %1"
+
+#: qml/pages/KernelPage.qml:35
+msgid "Installed – restart the computer to start it"
+msgstr "Installiert – starten Sie den Computer neu, um ihn zu verwenden"
+
+#: qml/pages/KernelPage.qml:44
+msgid "Install the NazoOS kernel?"
+msgstr "NazoOS-Kernel installieren?"
+
+#: qml/pages/KernelPage.qml:45
+msgid ""
+"The NazoOS kernel becomes the default in the boot menu. The openSUSE kernel "
+"stays installed: if something does not work, pick it under \"Advanced "
+"options\" in the boot menu."
+msgstr ""
+"Der NazoOS-Kernel wird zum Standard im Bootmenü. Der openSUSE-Kernel bleibt "
+"installiert: Wenn etwas nicht funktioniert, wählen Sie ihn im Bootmenü unter "
+"„Advanced options“."
+
+#: qml/pages/KernelPage.qml:46
+msgid ""
+"Secure Boot is on: after the restart a blue screen (MokManager) asks to "
+"enroll the NazoOS key. Choose \"Enroll MOK\", \"Continue\", \"Yes\" and type "
+"your administrator (root) password."
+msgstr ""
+"Secure Boot ist aktiv: Nach dem Neustart fragt ein blauer Bildschirm "
+"(MokManager), ob der NazoOS-Schlüssel eingetragen werden soll. Wählen Sie "
+"„Enroll MOK“, „Continue“, „Yes“ und geben Sie Ihr Administrator-Passwort "
+"(root) ein."
+
+#: qml/pages/KernelPage.qml:55
+msgid "Remove the openSUSE kernel"
+msgstr "openSUSE-Kernel entfernen"
+
+#: qml/pages/KernelPage.qml:56
+msgid ""
+"Once the NazoOS kernel has started cleanly %1 times in a row, the openSUSE "
+"kernel can be removed. Updates then never install it again. Older NazoOS "
+"kernels and snapshots stay as fallback."
+msgstr ""
+"Sobald der NazoOS-Kernel %1-mal hintereinander fehlerfrei gestartet ist, "
+"kann der openSUSE-Kernel entfernt werden. Updates installieren ihn dann "
+"nicht wieder. Ältere NazoOS-Kernel und Snapshots bleiben als Rückfalloption."
+
+#: qml/pages/KernelPage.qml:57
+msgid "Clean starts in a row: %1 of %2"
+msgstr "Fehlerfreie Starts hintereinander: %1 von %2"
+
+#: qml/pages/KernelPage.qml:64
+msgid "Remove the openSUSE kernel?"
+msgstr "openSUSE-Kernel entfernen?"
+
+#: qml/pages/KernelPage.qml:65
+msgid ""
+"Only the NazoOS kernel stays installed. You can bring the openSUSE kernel "
+"back here at any time."
+msgstr ""
+"Nur der NazoOS-Kernel bleibt installiert. Sie können den openSUSE-Kernel "
+"hier jederzeit zurückholen."
+
+#: qml/pages/KernelPage.qml:74
+msgid "Back to the openSUSE kernel"
+msgstr "Zurück zum openSUSE-Kernel"
+
+#: qml/pages/KernelPage.qml:75
+msgid ""
+"Makes the openSUSE kernel the default again and installs it if it was "
+"removed. The NazoOS kernel can then be removed while the openSUSE kernel is "
+"running."
+msgstr ""
+"Macht den openSUSE-Kernel wieder zum Standard und installiert ihn, falls er "
+"entfernt wurde. Der NazoOS-Kernel kann dann entfernt werden, während der "
+"openSUSE-Kernel läuft."
+
+#: qml/pages/KernelPage.qml:79
+msgid "Use openSUSE kernel"
+msgstr "openSUSE-Kernel verwenden"
+
+#: qml/pages/KernelPage.qml:85
+msgid "Remove NazoOS kernel"
+msgstr "NazoOS-Kernel entfernen"
+
+#: qml/pages/KernelPage.qml:88
+msgid "Remove the NazoOS kernel?"
+msgstr "NazoOS-Kernel entfernen?"
+
+#: qml/pages/KernelPage.qml:89
+msgid ""
+"The NazoOS kernel and its driver modules are removed. You can install it "
+"again later."
+msgstr ""
+"Der NazoOS-Kernel und seine Treibermodule werden entfernt. Sie können ihn "
+"später wieder installieren."
+
+#: qml/pages/KernelPage.qml:97
+msgid "Secure Boot"
+msgstr "Secure Boot"
+
+#: qml/pages/KernelPage.qml:103
+msgid "NazoOS key (MOK)"
+msgstr "NazoOS-Schlüssel (MOK)"
+
+#: qml/pages/KernelPage.qml:104
+msgid ""
+"With Secure Boot the computer only starts kernels with a trusted key. The "
+"NazoOS key is added once in the blue MokManager screen that appears after a "
+"restart: \"Enroll MOK\" → \"Continue\" → \"Yes\", then the administrator "
+"(root) password. Until then the NazoOS kernel does not start; choose the "
+"openSUSE kernel in the boot menu."
+msgstr ""
+"Mit Secure Boot startet der Computer nur Kernel mit vertrauenswürdigem "
+"Schlüssel. Der NazoOS-Schlüssel wird einmalig im blauen MokManager-"
+"Bildschirm nach einem Neustart eingetragen: „Enroll MOK“ → „Continue“ → "
+"„Yes“, dann das Administrator-Passwort (root). Bis dahin startet der NazoOS-"
+"Kernel nicht; wählen Sie im Bootmenü den openSUSE-Kernel."
+
+#: qml/pages/KernelPage.qml:105
+msgid "Key enrolled"
+msgstr "Schlüssel eingetragen"
+
+#: qml/pages/KernelPage.qml:106
+msgid "Waiting for MokManager – restart the computer"
+msgstr "Wartet auf MokManager – starten Sie den Computer neu"
+
+#: qml/pages/KernelPage.qml:107
+msgid "Key not enrolled"
+msgstr "Schlüssel nicht eingetragen"
+
+#: qml/pages/KernelPage.qml:112
+msgid "Enroll key"
+msgstr "Schlüssel eintragen"
+
 #: qml/pages/SystemPage.qml:21
 msgid "Updates"
 msgstr "Updates"
@@ -842,13 +1032,13 @@ msgstr "Snapshots"
 msgid ""
 "If the system does not start or misbehaves after an update: restart, choose "
 "\"Start bootloader from a read-only snapshot\" in the boot menu and pick the "
-"state before the update. Once it works, make it permanent with Btrfs "
-"Assistant (Snapper → Restore)."
+"state before the update. NazoOS Update then offers to make that state "
+"permanent."
 msgstr ""
 "Startet das System nach einem Update nicht oder verhält es sich falsch: Neu "
 "starten, im Bootmenü „Start bootloader from a read-only snapshot“ wählen und "
-"den Stand vor dem Update auswählen. Wenn alles läuft, machen Sie das mit "
-"Btrfs Assistant dauerhaft (Snapper → Restore)."
+"den Stand vor dem Update auswählen. NazoOS Aktualisierung bietet dann an, "
+"diesen Stand dauerhaft zu übernehmen."
 
 #: qml/pages/SystemPage.qml:52
 msgid "Create snapshot"

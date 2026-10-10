@@ -46,7 +46,7 @@ Kirigami.ScrollablePage {
         SettingCard {
             iconName: "document-revert"
             title: L.tr("Snapshots")
-            subtitle: L.tr("If the system does not start or misbehaves after an update: restart, choose \"Start bootloader from a read-only snapshot\" in the boot menu and pick the state before the update. Once it works, make it permanent with Btrfs Assistant (Snapper → Restore).")
+            subtitle: L.tr("If the system does not start or misbehaves after an update: restart, choose \"Start bootloader from a read-only snapshot\" in the boot menu and pick the state before the update. NazoOS Update then offers to make that state permanent.")
             QQC2.Button {
                 enabled: !backend.busy
                 text: L.tr("Create snapshot")

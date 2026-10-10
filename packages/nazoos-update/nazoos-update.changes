@@ -1,0 +1,16 @@
+-------------------------------------------------------------------
+Sat Oct 10 15:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- First version of NazoOS Update (Python, PySide6, Kirigami):
+  * nazoos-update-check.timer: refreshes repositories every 6 hours
+    and stores pending "zypper dup" changes and Flatpak updates in
+    /var/lib/nazoos-update/status.json
+  * nazoos-update-notify.timer (user): notifications for updates,
+    conflicts, failing checks, needed restarts and a boot from a
+    read-only snapshot, each with a button that opens the window
+  * Window: list of pending updates, "Update now" (zypper dup +
+    Flatpak, snapshot via snapper-zypp-plugin), restart button
+  * Rollback: after starting a read-only snapshot from GRUB,
+    "Make permanent" runs snapper --ambit classic rollback
+  * Discover's update notifications are switched off
+  * German translation

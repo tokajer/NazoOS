@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 10 15:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend nazoos-update (update notifications, rollback) and
+  btrfs-assistant (snapshot GUI, packaged in :devel)
+
+-------------------------------------------------------------------
 Sat Oct 10 10:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend nazoos-welcome (first steps app) and

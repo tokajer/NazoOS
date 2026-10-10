@@ -21,6 +21,15 @@ devel_build:
     - trigger_services:
         project: home:Tokajer:nazoos:devel
         package: nazoos-welcome
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: nazoos-update
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: btrfs-assistant
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: nazoos-kernel-only
   filters:
     event: push
     branches:

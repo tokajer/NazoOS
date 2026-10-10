@@ -1,0 +1,6 @@
+-------------------------------------------------------------------
+Sat Oct 10 16:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- First version: requires kernel-nazoos, conflicts with
+  kernel-default(-base) and the -kmp-default packages of NVIDIA
+  open driver, xone, xpadneo and v4l2loopback (ADR 0008 stage 2)

@@ -1,0 +1,53 @@
+#!/usr/bin/python3
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Boot counter of the NazoOS kernel opt-in (ADR 0008).
+
+Run by nazoos-kernel-boot.service at every boot while kernel-nazoos is
+preferred (/var/lib/nazoos/kernel-prefer). Keeps kernel-nazoos as the
+default boot entry (a kernel update creates a new entry) and counts
+boots of a -nazoos kernel that reach "running". A degraded boot resets
+the counter. After 3 clean boots nazoos-update offers stage 2.
+--grub-only: only fix the boot entry (nazoos-update after an update).
+"""
+
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+for base in (Path("/usr/share/nazoos-welcome"),
+             Path(__file__).resolve().parent.parent):
+    if (base / "nazoos_welcome" / "kernel.py").is_file():
+        sys.path.insert(0, str(base))
+        break
+from nazoos_welcome import kernel  # noqa: E402
+
+
+def main():
+    if not kernel.PREFER.exists():
+        return 0
+    try:
+        kernel.ensure_grub_default()
+    except (OSError, subprocess.CalledProcessError) as e:
+        print(f"could not set the boot entry: {e}", file=sys.stderr)
+    if "--grub-only" in sys.argv:
+        return 0
+    release = os.uname().release
+    if not release.endswith("-nazoos"):
+        # Started kernel-default on purpose (GRUB menu): neither good nor bad
+        return 0
+    # Waits until the boot is finished: "running" or "degraded"
+    state = subprocess.run(["systemctl", "is-system-running", "--wait"],
+                           capture_output=True, text=True).stdout.strip()
+    boots = kernel.read_boots()
+    count = boots.get("count", 0) + 1 if state == "running" else 0
+    kernel.write_boots({"count": count, "kernel": release, "state": state,
+                        "time": int(time.time())})
+    print(f"{release}: {state}, clean boots in a row: {count}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

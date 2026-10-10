@@ -34,8 +34,8 @@ def main():
     parser.add_argument("--autostart", action="store_true",
                         help="started at login: quit if disabled or live")
     parser.add_argument("--page", default="welcome",
-                        help="page to open (welcome, drivers, gaming, apps, "
-                             "drives, system, help)")
+                        help="page to open (welcome, drivers, gaming, kernel, "
+                             "apps, drives, system, help)")
     args, qt_args = parser.parse_known_args()
 
     if args.autostart and (system.is_live()

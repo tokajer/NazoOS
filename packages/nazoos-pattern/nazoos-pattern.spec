@@ -48,6 +48,9 @@ Recommends:     pipewire-config-upmix
 Recommends:     rtkit
 # First steps after installation (drivers, codecs, apps)
 Recommends:     nazoos-welcome
+# Updates with notifications, rollback after booting a snapshot
+Recommends:     nazoos-update
+Recommends:     btrfs-assistant
 # Software management
 Recommends:     discover6
 Recommends:     discover6-backend-flatpak
@@ -60,8 +63,9 @@ Recommends:     kate
 
 %description
 Installs the NazoOS gaming desktop: system tweaks, Steam, Lutris,
-Wine, Gamescope, MangoHud, GameMode, hardware tools and graphical
-software management (Discover with Flatpak, Myrlyn).
+Wine, Gamescope, MangoHud, GameMode, hardware tools, graphical
+software management (Discover with Flatpak, Myrlyn), updates with
+notifications (nazoos-update) and snapshots (Btrfs Assistant).
 
 %prep
 # Nothing to unpack: a pattern only carries dependencies

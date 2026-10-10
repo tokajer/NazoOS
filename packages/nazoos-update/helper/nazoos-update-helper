@@ -1,0 +1,234 @@
+#!/usr/bin/python3
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Root part of nazoos-update.
+
+Started by nazoos-update-check.service (action "check") and by the GUI
+via pkexec ("check", "update", "rollback"). Takes no other arguments.
+The status of the last check is written to STATUS as JSON, readable by
+every user; the GUI and the notifier only read it.
+The last output line "@@error <text>" carries a message for the user.
+"""
+
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+STATUS = Path("/var/lib/nazoos-update/status.json")
+KERNEL_BOOT = "/usr/libexec/nazoos-welcome/nazoos-kernel-boot"
+ZYPPER = ["zypper", "--non-interactive"]
+FLATPAK = ["flatpak", "--system"]
+# zypper exit codes that are not errors: 100-103 = informational
+# (updates/reboot needed), 106 = a repository was skipped
+ZYPPER_OK = (0, 100, 101, 102, 103, 106)
+# Package names that need a restart after the update
+REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
+                         r"libQt6|plasma|kwin|sddm)")
+
+
+class Fail(Exception):
+    pass
+
+
+def run(cmd, check=True):
+    print("$ " + " ".join(cmd), flush=True)
+    rc = subprocess.run(cmd, stdin=subprocess.DEVNULL).returncode
+    if check and rc != 0:
+        raise Fail(f"'{cmd[0]}' failed (exit code {rc})")
+    return rc
+
+
+def capture(cmd):
+    return subprocess.run(cmd, stdin=subprocess.DEVNULL,
+                          capture_output=True, text=True)
+
+
+def write_status(data):
+    now = int(time.time())
+    data["checked"] = now
+    # Time of the last check that worked: the notifier only complains
+    # about failing checks when they keep failing (laptop offline, ...)
+    data["last_ok"] = now if not data.get("error") else \
+        read_status().get("last_ok", 0)
+    STATUS.parent.mkdir(parents=True, exist_ok=True)
+    tmp = STATUS.with_suffix(".tmp")
+    tmp.write_text(json.dumps(data, indent=1))
+    os.chmod(tmp, 0o644)
+    os.replace(tmp, STATUS)
+
+
+def read_status():
+    try:
+        return json.loads(STATUS.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+# --- check ------------------------------------------------------------------
+
+def zypper_messages(root):
+    return [m.text or "" for m in root.iter("message")
+            if m.get("type") == "error"]
+
+
+def dup_preview():
+    """Packages a "zypper dup" would change, from its XML output."""
+    r = capture(ZYPPER + ["--xmlout", "dist-upgrade", "--dry-run",
+                          "--auto-agree-with-licenses"])
+    try:
+        root = ET.fromstring(r.stdout)
+    except ET.ParseError:
+        raise Fail("zypper returned no readable answer")
+    problems = [p.findtext("description") or ""
+                for p in root.iter("problem")]
+    # Exit code 4: the solver found a problem the user has to decide
+    if r.returncode == 4 and not problems:
+        problems = zypper_messages(root) or ["dependency problem"]
+    if problems:
+        return None, problems
+    if r.returncode not in ZYPPER_OK:
+        raise Fail(" ".join(zypper_messages(root))
+                   or f"zypper failed (exit code {r.returncode})")
+    pkgs = []
+    summary = root.find("install-summary")
+    if summary is None:
+        return pkgs, []
+    for group in summary:
+        kind = group.tag.replace("to-", "")   # upgrade, install, remove, ...
+        for s in group.iter("solvable"):
+            pkgs.append({
+                "name": s.get("name"),
+                "kind": kind,
+                "type": s.get("type"),
+                "old": s.get("edition-old") or "",
+                "new": s.get("edition") or "",
+            })
+    return pkgs, []
+
+
+def flatpak_updates():
+    if not Path("/usr/bin/flatpak").exists():
+        return []
+    r = capture(FLATPAK + ["remote-ls", "--updates",
+                           "--columns=application,branch"])
+    apps = []
+    for line in r.stdout.splitlines():
+        parts = line.split("\t")
+        if parts and parts[0]:
+            apps.append(parts[0] + ("//" + parts[1] if len(parts) > 1 else ""))
+    return apps
+
+
+def check(_args=None):
+    status = {"error": "", "problems": [], "packages": [], "flatpaks": []}
+    r = capture(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    print(r.stdout, end="", flush=True)
+    if r.returncode != 0:
+        status["error"] = "refresh"
+        status["detail"] = (r.stderr or r.stdout).strip()[-600:]
+        write_status(status)
+        raise Fail("the package sources could not be refreshed "
+                   "(no internet connection?)")
+    pkgs, problems = dup_preview()
+    if problems:
+        status["error"] = "conflict"
+        status["problems"] = problems
+    else:
+        status["packages"] = pkgs
+        status["reboot"] = any(REBOOT_HINT.match(p["name"] or "")
+                               for p in pkgs if p["type"] == "package")
+    status["flatpaks"] = flatpak_updates()
+    write_status(status)
+    print(f"{len(status['packages'])} package changes, "
+          f"{len(status['flatpaks'])} Flatpak updates", flush=True)
+    if problems:
+        raise Fail("the update needs a decision: " + problems[0])
+
+
+# --- update -----------------------------------------------------------------
+
+def update(_args):
+    run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    # snapper-zypp-plugin creates a pre/post snapshot pair around this
+    rc = run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses"],
+             check=False)
+    if rc not in ZYPPER_OK:
+        check_quietly()
+        raise Fail(f"the system update failed (zypper exit code {rc})")
+    if Path("/usr/bin/flatpak").exists():
+        run(FLATPAK + ["update", "--noninteractive", "-y"], check=False)
+        run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"],
+            check=False)
+    # NazoOS kernel opt-in: a kernel update adds a new boot entry, keep
+    # kernel-nazoos as default (nazoos-welcome, ADR 0008)
+    if os.access(KERNEL_BOOT, os.X_OK):
+        run([KERNEL_BOOT, "--grub-only"], check=False)
+    reboot = capture(["zypper", "needs-rebooting"]).returncode == 102
+    write_status({"error": "", "problems": [], "packages": [],
+                  "flatpaks": [], "reboot": False,
+                  "needs_reboot": reboot, "updated": int(time.time())})
+    if reboot:
+        print("@@reboot", flush=True)
+
+
+def check_quietly():
+    try:
+        check()
+    except Fail:
+        pass
+
+
+# --- rollback ---------------------------------------------------------------
+
+def booted_snapshot():
+    """Number of the read-only snapshot the system was started from."""
+    r = capture(["findmnt", "--noheadings", "--output", "OPTIONS", "/"])
+    opts = r.stdout.strip().split(",")
+    if "ro" not in opts:
+        return None
+    for o in opts:
+        m = re.fullmatch(r"subvol=/@/\.snapshots/(\d+)/snapshot", o)
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def rollback(_args):
+    num = booted_snapshot()
+    if num is None:
+        raise Fail("the system was not started from a snapshot")
+    # --ambit classic: also works on installs whose root subvolume is not
+    # snapshot 1 (Calamares, ADR 0005). Snapper makes a backup snapshot of
+    # the broken state and sets a writable copy of snapshot NUM as default.
+    run(["snapper", "--ambit", "classic", "rollback",
+         "--description", f"nazoos-update: rollback to {num}"])
+    print("@@reboot", flush=True)
+
+
+ACTIONS = {"check": check, "update": update, "rollback": rollback}
+
+
+def main():
+    if os.geteuid() != 0:
+        print("@@error must run as root (via pkexec)", flush=True)
+        return 1
+    if len(sys.argv) != 2 or sys.argv[1] not in ACTIONS:
+        print("@@error unknown action", flush=True)
+        return 2
+    os.environ["ZYPP_LOCK_TIMEOUT"] = "300"
+    os.environ["LC_ALL"] = "C.UTF-8"
+    try:
+        ACTIONS[sys.argv[1]](sys.argv[2:])
+    except (Fail, OSError) as e:
+        print(f"@@error {e}", flush=True)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

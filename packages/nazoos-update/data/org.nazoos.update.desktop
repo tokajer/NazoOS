@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+[Desktop Entry]
+Type=Application
+Name=NazoOS Update
+Name[de]=NazoOS Aktualisierung
+GenericName=System updates
+GenericName[de]=Systemaktualisierung
+Comment=Install system and Flatpak updates, go back to a snapshot
+Comment[de]=System- und Flatpak-Updates installieren, zu einem Snapshot zurückkehren
+Icon=system-software-update
+Exec=nazoos-update
+Terminal=false
+Categories=Qt;KDE;System;
+Keywords=update;upgrade;zypper;flatpak;snapshot;rollback;
+Keywords[de]=update;aktualisierung;zypper;flatpak;snapshot;rollback;wiederherstellen;

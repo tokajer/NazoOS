@@ -19,16 +19,19 @@ precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 The NazoOS Contributors"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
 
-# Kernel patches
+# Kernel patches: written by Linux/CachyOS developers (see each patch
+# header), refreshed by NazoOS. "override": the SPDX lines inside the
+# patches belong to the patched kernel files, not to the patch files
 [[annotations]]
 path = "kernel/patches/**"
-precedence = "aggregate"
-SPDX-FileCopyrightText = "2026 The NazoOS Contributors"
+precedence = "override"
+SPDX-FileCopyrightText = ["The Linux kernel and CachyOS contributors (see patch headers)", "2026 The NazoOS Contributors"]
 SPDX-License-Identifier = "GPL-2.0-only"
 
 # Legal notices (documentation, not code)
 [[annotations]]
-path = ["TRADEMARK.md", "DISCLAIMER.md"]
+path = ["TRADEMARK.md", "DISCLAIMER.md",
+        "packages/nazoos-calamares-config/branding/nazoos/disclaimer.html"]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 The NazoOS Contributors"
 SPDX-License-Identifier = "CC-BY-SA-4.0"

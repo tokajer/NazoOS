@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+[Unit]
+Description=NazoOS: check for updates regularly
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=6h
+# Catch up a missed check after the computer was off
+Persistent=true
+RandomizedDelaySec=15min
+
+[Install]
+WantedBy=timers.target
