@@ -14,6 +14,9 @@ OBS `Kernel:stable`) plus:
 | `config/nazoos.fragment` | Config differences to openSUSE's `x86_64/default` |
 | `fetch-patches.sh` | Downloads the patches of `patches.list` |
 | `make-obs-package.sh` | Builds the OBS source package of `kernel-nazoos` |
+| `upload-obs.sh` | Commits that package to OBS |
+| `check-update.sh` | Compares kernel-source `stable` with the version in OBS |
+| [`../.github/workflows/kernel-update.yml`](../.github/workflows/kernel-update.yml) | Does all of it automatically |
 
 ## Build the OBS package
 
@@ -49,13 +52,12 @@ osc linkpac openSUSE:Factory xone home:Tokajer:nazoos:kernel
 osc linkpac openSUSE:Factory xpadneo home:Tokajer:nazoos:kernel
 ```
 
-Every kernel update:
+Every kernel update (by hand; normally the workflow below does it):
 
 ```sh
+./check-update.sh          # upstream=7.2.10 obs=7.2.9 → update available
 ./make-obs-package.sh
-cd home:Tokajer:nazoos:kernel/kernel-source && osc up
-rsync -a --delete --exclude .osc ~/nazoos-kernel/kernel-source-nazoos/ .
-osc addremove && osc ci -m "Update to $(sed -n 's/^SRCVERSION=//p' config.sh)"
+./upload-obs.sh            # osc checkout in ~/nazoos-kernel/obs/, rsync, osc ci
 ```
 
 The KMPs stay "unresolvable" (`nothing provides kernel-nazoos-devel`) until
@@ -66,13 +68,41 @@ project's certificate. The certificate ends up in `/etc/uefi/certs/` and
 the kernel's install script queues it for MokManager
 (`mokutil --import … --root-pw`).
 
+## Automatic updates (GitHub workflow `kernel-update.yml`)
+
+| When | What happens |
+|---|---|
+| Daily 04:17 UTC, new stable release (7.2.9 → 7.2.10) | build + upload, OBS builds kernel and KMPs |
+| Daily, kernel-source `stable` moved to a new series | issue "Kernel 7.3: update patches.list", nothing uploaded |
+| Push to `main` that changes `kernel/` | build + upload |
+| Actions → Kernel update → Run workflow | build + upload if newer (`force`: always) |
+| A step fails (patch does not apply, OBS login …) | issue "Kernel update failed", later failures comment on it |
+
+OBS keeps the last good kernel when an upload fails or a build breaks.
+
+One time:
+
+1. Create a second openSUSE account for the bot
+   (<https://idp-portal.suse.com/>), log in once on build.opensuse.org.
+   Password without `%` (osc's config parser treats it specially).
+2. Make the bot maintainer of the package kernel-source only:
+   `osc meta pkg -e home:Tokajer:nazoos:kernel kernel-source` →
+   `<person userid="BOT" role="maintainer"/>` (web: package → Users → Add User)
+3. GitHub → NazoOS → Settings → Secrets and variables → Actions:
+   `OBS_USER` = bot name, `OBS_PASSWORD` = its password.
+
+GitHub stops scheduled workflows after 60 days without a commit in the
+repo; it shows a banner on the Actions page, "Enable workflow" restarts it.
+
 ## New kernel series (e.g. 7.2 → 7.3)
 
 1. CachyOS keeps one directory per series in
    [kernel-patches](https://github.com/CachyOS/kernel-patches) and branches
    `<series>/<topic>` in [CachyOS/linux](https://github.com/CachyOS/linux).
-   Update the URLs/commits in `patches.list`.
+   Update the URLs/commits in `patches.list`, set `KERNEL_SERIES` in
+   `make-obs-package.sh` to the new series.
 2. `./fetch-patches.sh && ./make-obs-package.sh --check`
 3. A patch that does not apply: refresh it with quilt in
    `~/nazoos-kernel/tree/linux-*-nazoos` (`quilt push -f`, fix, `quilt refresh`),
    copy it to `patches/` and mark it `local` in `patches.list`.
+4. Push: the workflow builds and uploads.

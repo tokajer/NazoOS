@@ -1,4 +1,18 @@
 -------------------------------------------------------------------
+Sat Oct 10 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Helper: zypper exit codes 102, 103 and 106 (reboot needed, zypper
+  updated, repository skipped) count as success with a note; a skipped
+  repo aborted "Install NazoOS kernel" after the package was installed
+
+-------------------------------------------------------------------
+Sat Oct 10 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Fix codec install: libavcodec-full does not exist in Packman and
+  gstreamer-plugins-libav only in openSUSE, so "zypper install --from
+  packman" failed; codec status now checks gstreamer-plugins-bad-codecs
+
+-------------------------------------------------------------------
 Sat Oct 10 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Kernel option tsc=directsync ("Stable CPU clock after standby"),

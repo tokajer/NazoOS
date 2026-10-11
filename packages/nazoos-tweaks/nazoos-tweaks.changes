@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 10 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- SATA LPM rule: write only when the value differs; virtual AHCI
+  controllers rejected the write and logged errors on every boot
+
+-------------------------------------------------------------------
 Sat Oct 10 07:40:13 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - tmpfiles.d: enable MGLRU (off in the openSUSE kernel), otherwise min_ttl_ms has no effect

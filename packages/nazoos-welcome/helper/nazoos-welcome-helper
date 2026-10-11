@@ -27,6 +27,13 @@ from nazoos_welcome import catalog, kernel  # noqa: E402
 ZYPPER = ["zypper", "--non-interactive"]
 ZYPPER_IN = ZYPPER + ["install", "--auto-agree-with-licenses"]
 FLATPAK = ["flatpak", "--system"]
+# zypper exit codes >= 100 that mean "done, but note this"
+# (man zypper, EXIT CODES)
+ZYPPER_INFO = {
+    102: "restart the computer to finish the update",
+    103: "zypper updated itself; run the action again if something is missing",
+    106: "some repositories could not be refreshed and were skipped",
+}
 FLATHUB_URL = "https://dl.flathub.org/repo/flathub.flatpakrepo"
 GRUB_DEFAULT = Path("/etc/default/grub")
 FSTAB = Path("/etc/fstab")
@@ -40,6 +47,9 @@ class Fail(Exception):
 def run(cmd, check=True):
     print("$ " + " ".join(cmd), flush=True)
     rc = subprocess.run(cmd, stdin=subprocess.DEVNULL).returncode
+    if cmd[0] == "zypper" and rc in ZYPPER_INFO:
+        print(f"Note: {ZYPPER_INFO[rc]}", flush=True)
+        return 0
     if check and rc != 0:
         raise Fail(f"'{cmd[0]}' failed (exit code {rc})")
     return rc

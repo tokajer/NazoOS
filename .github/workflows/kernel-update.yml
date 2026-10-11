@@ -1,0 +1,140 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Keeps kernel-nazoos up to date in home:Tokajer:nazoos:kernel:
+# - daily: new stable release on SUSE's kernel-source (7.2.9 → 7.2.10)
+#   → build the OBS package and commit it; OBS builds kernel + KMPs
+# - new kernel series (7.2 → 7.3): only an issue, the patches need a human
+# - push to main that changes kernel/: build and commit
+# - by hand: Actions → Kernel update → Run workflow (force = even if
+#   OBS already has the newest version)
+# Errors open an issue (or comment on the open one).
+# Secrets: OBS_USER, OBS_PASSWORD – bot account that is maintainer of
+# home:Tokajer:nazoos:kernel/kernel-source only. See kernel/README.md.
+# Doku: https://docs.github.com/actions/writing-workflows/workflow-syntax-for-github-actions
+
+name: Kernel update
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  push:
+    branches: [main]
+    paths:
+      - kernel/patches.list
+      - kernel/patches/**
+      - kernel/config/**
+      - kernel/make-obs-package.sh
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Build and upload even if OBS has the newest version
+        type: boolean
+        default: false
+
+# One run at a time, never cancel a running upload
+concurrency:
+  group: kernel-update
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    # Same tools as the maintainer's distrobox
+    container: registry.opensuse.org/opensuse/tumbleweed:latest
+    defaults:
+      run:
+        # explicit bash = -eo pipefail: "script | tee" fails if the script fails
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Install tools
+        run: >
+          zypper -n in --no-recommends git curl quilt make gcc flex bison bc
+          perl xz bzip2 python3 perl-Text-Glob osc rsync gh tar gzip
+          diffutils patch which
+
+      - uses: actions/checkout@v7
+
+      - name: OBS login
+        env:
+          OBS_USER: ${{ secrets.OBS_USER }}
+          OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
+        run: |
+          [ -n "$OBS_USER" ] && [ -n "$OBS_PASSWORD" ] ||
+            { echo "::error::secrets OBS_USER / OBS_PASSWORD missing"; exit 1; }
+          mkdir -p ~/.config/osc
+          umask 077
+          printf '%s\n' \
+            '[general]' \
+            'apiurl = https://api.opensuse.org' \
+            '[https://api.opensuse.org]' \
+            "user = $OBS_USER" \
+            "pass = $OBS_PASSWORD" \
+            'credentials_mgr_class = osc.credentials.PlaintextConfigFileCredentialsManager' \
+            > ~/.config/osc/oscrc
+
+      - name: Check versions
+        id: check
+        env:
+          EVENT: ${{ github.event_name }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          kernel/check-update.sh | tee versions
+          . ./versions
+          if [ "$series" != "$pinned" ]; then
+            action=series
+          elif [ "$EVENT" = push ] || [ "$FORCE" = true ] || [ "$upstream" != "$obs" ]; then
+            action=build
+          else
+            action=none
+          fi
+          echo "action=$action"
+          { cat versions; echo "action=$action"; } >> "$GITHUB_OUTPUT"
+          echo "Linux $upstream (series $series), OBS: $obs, patches for $pinned → **$action**" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report new kernel series
+        if: steps.check.outputs.action == 'series'
+        env:
+          SERIES: ${{ steps.check.outputs.series }}
+          PINNED: ${{ steps.check.outputs.pinned }}
+        run: |
+          title="Kernel $SERIES: update patches.list (now $PINNED)"
+          if [ "$(gh issue list --state open --search "\"$title\" in:title" --json number --jq length)" = 0 ]; then
+            gh issue create --title "$title" --body "SUSE's kernel-source \`stable\` is now Linux $SERIES, our patches are for $PINNED. kernel-nazoos stays on the last $PINNED build until the patches are updated.
+
+          Steps: kernel/README.md → \"New kernel series\", then set \`KERNEL_SERIES=$SERIES\` in kernel/make-obs-package.sh. The push builds and uploads.
+
+          Found by: $RUN_URL"
+          fi
+
+      - name: Build OBS package
+        if: steps.check.outputs.action == 'build'
+        run: kernel/make-obs-package.sh
+
+      - name: Upload to OBS
+        if: steps.check.outputs.action == 'build'
+        run: |
+          kernel/upload-obs.sh | tee upload.log
+          tail -1 upload.log >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report failure
+        if: failure()
+        run: |
+          title="Kernel update failed"
+          issue=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --body "Failed again: $RUN_URL"
+          else
+            gh issue create --title "$title" --body "The automatic kernel update failed: $RUN_URL
+
+          Often a patch that no longer applies after a stable update: kernel/README.md → \"New kernel series\", step 3 (refresh with quilt). kernel-nazoos in OBS stays on the last good version."
+          fi

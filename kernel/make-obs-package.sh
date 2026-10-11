@@ -18,6 +18,7 @@
 set -euo pipefail
 
 BRANCH=stable                 # SUSE/kernel-source branch = Kernel:stable
+KERNEL_SERIES=7.2             # series patches.list is made for
 FLAVOR=nazoos
 REPO=https://github.com/SUSE/kernel-source.git
 
@@ -41,6 +42,12 @@ git -C "$src" checkout -q -f -B "$FLAVOR" "origin/$BRANCH"
 git -C "$src" clean -q -fd -- patches.addon config
 . "$src/rpm/config.sh"        # SRCVERSION, e.g. 7.2
 echo "kernel-source $BRANCH: Linux $SRCVERSION"
+# A new series needs new patches (README "New kernel series"): stop early
+# instead of failing somewhere in sequence-patch
+if [ "$SRCVERSION" != "$KERNEL_SERIES" ]; then
+  echo "error: kernel-source $BRANCH is Linux $SRCVERSION, patches.list is for $KERNEL_SERIES" >&2
+  exit 1
+fi
 
 # --- 2. patches -------------------------------------------------------------
 mkdir -p "$src/patches.addon"

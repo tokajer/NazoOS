@@ -207,7 +207,8 @@ def collect():
     gpu_list = gpus()
     vendors = {g["vendor"] for g in gpu_list}
 
-    rpm_names = (["scx", catalog.DECK_PATTERN, "ffmpeg", "libavcodec-full",
+    rpm_names = (["scx", catalog.DECK_PATTERN, "ffmpeg",
+                  "gstreamer-plugins-bad-codecs",
                   "nazoos-update", "btrfs-assistant", "plasma-discover",
                   "discover6", "myrlyn", "lact", "coolercontrol"]
                  + [p for v in catalog.NVIDIA_DRIVERS.values() for p in v]
@@ -267,8 +268,9 @@ def collect():
         "nvidiaLoaded": Path("/sys/module/nvidia").exists(),
         "rocm": catalog.ROCM_PACKAGES[0] in rpms,
         "packmanRepo": repo_present("/packman/"),
+        # gstreamer-plugins-bad-codecs only exists in Packman
         "codecs": "packman" in rpms.get("ffmpeg", "").lower()
-                  or "packman" in rpms.get("libavcodec-full", "").lower(),
+                  or "gstreamer-plugins-bad-codecs" in rpms,
         "scxInstalled": "scx" in rpms,
         "scxEnabled": scx_enabled,
         "scxActive": scx_active,
