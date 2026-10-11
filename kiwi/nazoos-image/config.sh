@@ -7,9 +7,11 @@
 
 set -euxo pipefail
 
-# KIWI writes the image settings (e.g. kiwi_profiles) into /.profile
+# KIWI writes the image settings (e.g. kiwi_profiles) into /.profile.
+# kiwi_profiles is a comma-separated list: "release" pulls in "live"
 test -f /.profile && . /.profile
-profile=${kiwi_profiles:-}
+profiles=",${kiwi_profiles:-},"
+has_profile() { [[ $profiles == *",$1,"* ]]; }
 
 echo nazoos > /etc/hostname
 
@@ -28,13 +30,13 @@ systemctl preset coolercontrold.service
 systemctl preset nazoos-update-check.timer
 systemctl --global preset nazoos-update-notify.timer
 
-if [ "$profile" = test ]; then
+if has_profile test; then
   # Test image only: ssh into the VM (test password!).
   # qemu-guest-agent needs no enable, udev starts it when the VM has the channel
   systemctl enable sshd.service
 fi
 
-if [ "$profile" = live ]; then
+if has_profile live; then
   # Autologin of the live user. openSUSE's SDDM reads the user from
   # sysconfig, and that value overrides sddm.conf. The installer resets it
   # (nazoos-postinstall)
@@ -56,6 +58,12 @@ zypper --non-interactive addrepo -f \
   https://download.opensuse.org/tumbleweed/repo/non-oss/ repo-non-oss
 zypper --non-interactive addrepo -f \
   https://download.opensuse.org/update/tumbleweed/ repo-update
-# Priority 90 beats the default 99: our packages win over Tumbleweed's
-zypper --non-interactive addrepo -f -p 90 \
-  https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/ nazoos-devel
+# Priority 90 beats the default 99: our packages win over Tumbleweed's.
+# Release ISO: tested packages from :release; test/live images: :devel
+if has_profile release; then
+  zypper --non-interactive addrepo -f -p 90 \
+    https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/release/openSUSE_Tumbleweed/ nazoos
+else
+  zypper --non-interactive addrepo -f -p 90 \
+    https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/ nazoos-devel
+fi

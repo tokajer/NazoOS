@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 20:43+0200\n"
+"POT-Creation-Date: 2026-10-11 12:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,24 +17,24 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: nazoos_welcome/backend.py:217 nazoos_welcome/backend.py:278
-#: nazoos_welcome/backend.py:321
+#: nazoos_welcome/backend.py:218 nazoos_welcome/backend.py:279
+#: nazoos_welcome/backend.py:322
 msgid "Done."
 msgstr ""
 
-#: nazoos_welcome/backend.py:270
+#: nazoos_welcome/backend.py:271
 msgid "pkexec could not be started."
 msgstr ""
 
-#: nazoos_welcome/backend.py:283
+#: nazoos_welcome/backend.py:284
 msgid "Cancelled: no administrator password was given."
 msgstr ""
 
-#: nazoos_welcome/backend.py:287
+#: nazoos_welcome/backend.py:288
 msgid "Something went wrong."
 msgstr ""
 
-#: nazoos_welcome/backend.py:350
+#: nazoos_welcome/backend.py:351
 msgid "This program is not installed."
 msgstr ""
 
@@ -65,6 +65,12 @@ msgid "Alternative manager for Proton and Wine versions"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
+msgid ""
+"Android apps and games in a window. The first start downloads Android (about "
+"1 GB)"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
 msgid "Bluetooth"
 msgstr ""
 
@@ -74,6 +80,10 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "Changing service"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Changing the USB polling rate"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -338,7 +348,7 @@ msgstr ""
 msgid "Drivers & codecs"
 msgstr ""
 
-#: qml/Main.qml:84 qml/pages/GamingPage.qml:16
+#: qml/Main.qml:84 qml/pages/GamingPage.qml:17
 msgid "Gaming & performance"
 msgstr ""
 
@@ -433,31 +443,35 @@ msgid ""
 "sandbox; everything else is in Discover."
 msgstr ""
 
-#: qml/pages/AppsPage.qml:94 qml/pages/DriversPage.qml:86
-#: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:109
+#: qml/pages/AppsPage.qml:97
+msgid "Needs the NazoOS kernel (Kernel page)"
+msgstr ""
+
+#: qml/pages/AppsPage.qml:99 qml/pages/DriversPage.qml:86
+#: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:170
 msgid "Installed"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:98 qml/pages/DriversPage.qml:55
+#: qml/pages/AppsPage.qml:103 qml/pages/DriversPage.qml:55
 #: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
-#: qml/pages/DriversPage.qml:120 qml/pages/GamingPage.qml:116
+#: qml/pages/DriversPage.qml:120 qml/pages/GamingPage.qml:177
 #: qml/pages/KernelPage.qml:41 qml/pages/KernelPage.qml:47
 #: qml/pages/WelcomePage.qml:69
 msgid "Install"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:98 qml/pages/AppsPage.qml:106
+#: qml/pages/AppsPage.qml:103 qml/pages/AppsPage.qml:111
 #: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
 #: qml/pages/KernelPage.qml:61 qml/pages/KernelPage.qml:66
 #: qml/pages/KernelPage.qml:90
 msgid "Remove"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:104
+#: qml/pages/AppsPage.qml:109
 msgid "Remove %1?"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:105
+#: qml/pages/AppsPage.qml:110
 msgid "Your settings and files in your home folder are kept."
 msgstr ""
 
@@ -676,109 +690,145 @@ msgid ""
 "Nothing on the drive is changed or deleted."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:21
+#: qml/pages/GamingPage.qml:22
 msgid "CPU scheduler"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:25
+#: qml/pages/GamingPage.qml:26
 msgid "sched_ext scheduler (scx)"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:26
+#: qml/pages/GamingPage.qml:27
 msgid ""
 "Replaces the kernel's CPU scheduler with one tuned for games and desktop "
 "latency. Optional: if games stutter or the system behaves oddly, switch it "
 "off again."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:28
+#: qml/pages/GamingPage.qml:29
 msgid "Active: %1"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:29 qml/pages/SystemPage.qml:82
+#: qml/pages/GamingPage.qml:30 qml/pages/SystemPage.qml:82
 msgid "Enabled, but not running"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:30
+#: qml/pages/GamingPage.qml:31
 msgid "Off (kernel scheduler)"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:34
+#: qml/pages/GamingPage.qml:35
 msgid "Scheduler:"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:45
+#: qml/pages/GamingPage.qml:46
 msgid "scx_lavd is the default and works well for most games."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:67
+#: qml/pages/GamingPage.qml:68
 msgid "Kernel options"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:79
+#: qml/pages/GamingPage.qml:80
 msgid "Restart the computer to apply the change"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:80
+#: qml/pages/GamingPage.qml:81
 msgid "On"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:91
+#: qml/pages/GamingPage.qml:92
 msgid "Disable CPU security mitigations?"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:92
+#: qml/pages/GamingPage.qml:93
 msgid ""
 "This removes protection against Spectre, Meltdown and similar CPU attacks. "
 "Malicious websites or programs could read data from other programs. Only do "
 "this if you know the risk."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:93
+#: qml/pages/GamingPage.qml:94
 msgid "Disable mitigations"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:103
+#: qml/pages/GamingPage.qml:107
+msgid "Controllers and mice"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:113
+msgid "USB polling rate"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:114
+msgid ""
+"How often the computer asks a USB controller, mouse or keyboard for input. "
+"Many controllers only ask 125 or 250 times per second; 1000 Hz lowers the "
+"input lag. The setting is kept after a restart. If a device misbehaves at a "
+"higher rate, set it back to \"Device default\"."
+msgstr ""
+
+#: qml/pages/GamingPage.qml:116
+msgid "No USB controller, mouse or keyboard is connected."
+msgstr ""
+
+#: qml/pages/GamingPage.qml:117
+msgid "After a change: unplug the device and plug it in again."
+msgstr ""
+
+#: qml/pages/GamingPage.qml:135
+msgid "not connected"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:137
+msgid "now %1 Hz"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:144
+msgid "Device default"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:164
 msgid "Handheld"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:107
+#: qml/pages/GamingPage.qml:168
 msgid "Steam Deck and handheld support"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:108
+#: qml/pages/GamingPage.qml:169
 msgid ""
 "Gamescope session with Steam's gaming mode, controller and fan support for "
 "Steam Deck, Legion Go, ROG Ally and similar devices."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:111
+#: qml/pages/GamingPage.qml:172
 msgid "Not available yet"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:122 qml/pages/RepairPage.qml:114
+#: qml/pages/GamingPage.qml:183 qml/pages/RepairPage.qml:114
 msgid "Tools"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:126
+#: qml/pages/GamingPage.qml:187
 msgid "GPU and cooling"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:127
+#: qml/pages/GamingPage.qml:188
 msgid ""
 "LACT: GPU clocks, power limit and fan curve. CoolerControl: fans and pumps "
 "of the whole system."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:142
+#: qml/pages/GamingPage.qml:203
 msgid "Steam launch options"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:143
+#: qml/pages/GamingPage.qml:204
 msgid "In Steam, right-click a game → Properties → Launch options:"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:152
+#: qml/pages/GamingPage.qml:213
 msgid ""
 "GameMode raises the game's priority while it runs; MangoHud shows FPS and "
 "frame times (toggle with Shift+F12)."

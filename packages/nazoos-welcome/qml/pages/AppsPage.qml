@@ -86,15 +86,20 @@ Kirigami.ScrollablePage {
                             required property var modelData
                             readonly property bool installed:
                                 (page.st.apps || {})[modelData.id] === true
+                            // Waydroid: Binder only exists in the NazoOS kernel
+                            readonly property bool needsKernel:
+                                modelData.kernel === "nazoos" && !installed
+                                && (page.st.kernel || {}).running !== true
                             iconName: modelData.icon
                             fallbackIcon: page.categoryIcons[modelData.category]
                             title: modelData.name
                             subtitle: L.tr(modelData.summary)
-                            status: (modelData.kind === "flatpak" ? "Flatpak" : "RPM")
+                            status: needsKernel ? L.tr("Needs the NazoOS kernel (Kernel page)")
+                                    : (modelData.kind === "flatpak" ? "Flatpak" : "RPM")
                                     + (installed ? " · " + L.tr("Installed") : "")
-                            statusType: installed ? 1 : 0
+                            statusType: needsKernel ? 2 : installed ? 1 : 0
                             QQC2.Button {
-                                enabled: !backend.busy
+                                enabled: !backend.busy && !needsKernel
                                 text: installed ? L.tr("Remove") : L.tr("Install")
                                 icon.name: installed ? "edit-delete" : "download"
                                 onClicked: {

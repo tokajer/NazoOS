@@ -36,6 +36,12 @@ devel_build:
     - trigger_services:
         project: home:Tokajer:nazoos:devel
         package: plasma-foreground-booster
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: game-devices-udev
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: nazoos-binder
   filters:
     event: push
     branches:

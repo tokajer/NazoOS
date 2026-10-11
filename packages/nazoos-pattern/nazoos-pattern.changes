@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sun Oct 11 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend game-devices-udev: user access for more controllers,
+  wheels and flight sticks than steam-devices covers
+
+-------------------------------------------------------------------
 Sat Oct 10 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend dmemcg-booster and plasma-foreground-booster: the focused

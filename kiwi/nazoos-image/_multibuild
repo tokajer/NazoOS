@@ -4,8 +4,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
 -->
 <!-- OBS builds one image per flavor; the flavor is passed to KIWI as the
      profile (see OBS-Profiles in config.kiwi). Results: nazoos-image:test,
-     nazoos-image:live -->
+     nazoos-image:live, nazoos-image:release. The ISO for users is
+     nazoos-image:release from the :release project (tested packages);
+     the same flavor in :devel only tests the description -->
 <multibuild>
   <flavor>test</flavor>
   <flavor>live</flavor>
+  <flavor>release</flavor>
 </multibuild>

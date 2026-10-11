@@ -10,7 +10,7 @@ Whenever a step changes the system, a password dialog appears. Enter the passwor
 |---|---|
 | Welcome | First steps, disclaimer, switch "Show this window at login" |
 | Drivers & codecs | Install the NVIDIA driver, install multimedia codecs from Packman, firmware updates |
-| Gaming & performance | sched_ext CPU scheduler (scx), AMD GPU overclocking, CPU mitigations, Steam Deck/handheld support, Steam launch options |
+| Gaming & performance | sched_ext CPU scheduler (scx), AMD GPU overclocking, CPU mitigations, USB polling rate of controllers and mice (NazoOS kernel), Steam Deck/handheld support, Steam launch options |
 | Kernel | Optional NazoOS kernel with gaming patches, Secure Boot key, way back to the openSUSE kernel ([details](kernel.md)) |
 | Apps | Install popular apps with one click (Discord, OBS Studio, Heroic, ProtonUp-Qt, …) |
 | Drives | Mount internal drives automatically, e.g. for a Steam library |
@@ -36,6 +36,10 @@ Kernel options take effect after a restart. The page shows "Restart the computer
 
 - **AMD GPU overclocking** unlocks clock and voltage controls in LACT.
 - **Disable CPU mitigations** gives a little more performance on older CPUs, but removes protection against Spectre-type attacks. Leave it off unless you know the risk.
+
+## USB polling rate
+
+Only with the NazoOS kernel. Many controllers report their input only 125 or 250 times per second. Pick a higher rate (up to 1000 Hz) for each connected controller, mouse or keyboard. Then unplug the device and plug it in again; the setting stays after a restart. If a device stops working properly, set it back to "Device default".
 
 ## Drives
 

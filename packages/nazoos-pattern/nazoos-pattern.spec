@@ -27,6 +27,9 @@ Requires:       acl
 # Gaming
 Recommends:     steam
 Recommends:     steam-devices
+# More controllers, wheels and flight sticks than steam-devices (own OBS
+# package from codeberg.org/fabiscafe/game-devices-udev)
+Recommends:     game-devices-udev
 Recommends:     lutris
 Recommends:     gamemode
 Recommends:     mangohud

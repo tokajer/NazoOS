@@ -1,0 +1,5 @@
+-------------------------------------------------------------------
+Sun Oct 11 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- First package for NazoOS: version 1.1
+  * all vendor rules and the early /dev/uinput rule, priority 71

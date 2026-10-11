@@ -168,6 +168,65 @@ def _human(n):
     return ""
 
 
+def usb_input_devices():
+    """Connected USB devices with a HID interface (controllers, mice,
+    keyboards) and their current polling rate in Hz (0 = unknown)."""
+    result = {}
+    for dev in sorted(Path("/sys/bus/usb/devices").glob("*")):
+        # Interfaces are named "1-2:1.0", root hubs "usb1"
+        if ":" in dev.name or dev.name.startswith("usb"):
+            continue
+        vid = _read(dev / "idVendor").strip()
+        pid = _read(dev / "idProduct").strip()
+        if not vid or not pid:
+            continue
+        hid, ms = False, None
+        for intf in dev.glob(f"{dev.name}:*"):
+            if _read(intf / "bInterfaceClass").strip() != "03":
+                continue
+            hid = True
+            for ep in intf.glob("ep_*"):
+                if (_read(ep / "type").strip() != "Interrupt"
+                        or _read(ep / "direction").strip() != "in"):
+                    continue
+                # "8ms" or "125us"
+                m = re.fullmatch(r"(\d+)(m|u)s",
+                                 _read(ep / "interval").strip())
+                if m:
+                    v = int(m.group(1)) / (1000 if m.group(2) == "u" else 1)
+                    if v > 0 and (ms is None or v < ms):
+                        ms = v
+        if not hid:
+            continue
+        name = " ".join(x for x in (_read(dev / "manufacturer").strip(),
+                                    _read(dev / "product").strip()) if x)
+        vp = f"{vid}:{pid}"
+        result.setdefault(vp, {"id": vp, "name": name or vp,
+                               "hz": round(1000 / ms) if ms else 0,
+                               "connected": True})
+    return list(result.values())
+
+
+def pollrate_state():
+    """USB polling rate overrides (kernel-nazoos only)."""
+    configured = {}
+    for opt in grub_cmdline():
+        if opt.startswith(catalog.POLLRATE_PARAM + "="):
+            configured = catalog.pollrate_parse(opt.split("=", 1)[1])
+    devices = usb_input_devices()
+    ids = {d["id"] for d in devices}
+    # Devices with an override that are not plugged in: can be reset
+    for vp in sorted(configured):
+        if vp not in ids:
+            devices.append({"id": vp, "name": vp, "hz": 0,
+                            "connected": False})
+    return {
+        "available": Path(catalog.POLLRATE_SYSFS).exists(),
+        "devices": devices,
+        "configured": configured,
+    }
+
+
 def kernel_state():
     """NazoOS kernel opt-in (ADR 0008), without root rights."""
     names = ([catalog.KERNEL_PACKAGE, catalog.KERNEL_DEFAULT,
@@ -276,6 +335,7 @@ def collect():
         "scxActive": scx_active,
         "scxScheduler": m.group(1) if m else "",
         "kparams": kparams,
+        "pollrate": pollrate_state(),
         "services": services,
         "apps": apps,
         "flathub": "flathub" in _out(["flatpak", "remotes",

@@ -38,6 +38,17 @@ APPS = [
      "kind": "flatpak", "refs": ["com.moonlight_stream.Moonlight"],
      "icon": "com.moonlight_stream.Moonlight",
      "summary": "Stream games from another PC"},
+    # Linked from Emulators:Waydroid into our OBS project. Needs Binder,
+    # which only kernel-nazoos has built in ("kernel"); nazoos-binder
+    # stands in for waydroid's "binder-kmp" requirement. "units" are
+    # enabled after the install, "trusted" interfaces go into firewalld's
+    # trusted zone (Android's network: DHCP and DNS from the host)
+    {"id": "waydroid", "name": "Waydroid", "category": "gaming",
+     "kind": "rpm", "refs": ["waydroid", "nazoos-binder"], "icon": "waydroid",
+     "kernel": "nazoos", "units": ["waydroid-container.service"],
+     "trusted": ["waydroid0"],
+     "summary": "Android apps and games in a window. The first start "
+                "downloads Android (about 1 GB)"},
     # Communication
     {"id": "discord", "name": "Discord", "category": "social",
      "kind": "flatpak", "refs": ["com.discordapp.Discord"],
@@ -141,6 +152,33 @@ KERNEL_PARAMS = [
                 "Needs the NazoOS kernel"},
 ]
 
+# USB polling rate per device (kernel-nazoos patch 0022, like Nobara's
+# custom-device-pollrates). Kernel option VID:PID:ms[,VID:PID:ms...];
+# usbcore is built in, so only the command line keeps it over a restart.
+# The sysfs file exists only in kernel-nazoos and holds at most 127 chars.
+POLLRATE_PARAM = "usbcore.interrupt_interval_override"
+POLLRATE_SYSFS = "/sys/module/usbcore/parameters/interrupt_interval_override"
+POLLRATE_MAXLEN = 127
+# Interval in ms: 0 = device default, then 125, 250, 500 and 1000 Hz
+POLLRATE_INTERVALS = [0, 8, 4, 2, 1]
+
+
+def pollrate_parse(value):
+    """{"045e:028e": 1, ...} from "045e:028e:1,..." (bad entries dropped)."""
+    result = {}
+    for entry in value.strip().split(","):
+        parts = entry.strip().lower().split(":")
+        if (len(parts) == 3 and all(len(p) == 4 for p in parts[:2])
+                and all(c in "0123456789abcdef" for c in parts[0] + parts[1])
+                and parts[2].isdigit() and int(parts[2]) > 0):
+            result[f"{parts[0]}:{parts[1]}"] = int(parts[2])
+    return result
+
+
+def pollrate_format(overrides):
+    return ",".join(f"{vp}:{ms}" for vp, ms in sorted(overrides.items()))
+
+
 # sched_ext schedulers offered in the UI (ADR 0002), default first
 SCX_SCHEDULERS = ["scx_lavd", "scx_bpfland", "scx_rusty", "scx_flash"]
 
@@ -233,10 +271,17 @@ def repo_path(url):
 
 
 # Packages Packman rebuilds with full codecs. A mix of Packman and openSUSE
-# builds of these breaks video playback after an update.
+# builds of these breaks video playback after an update. Mesa: Packman
+# "Extra" builds Tumbleweed's Mesa.spec with video codecs (H.264/H.265
+# VA-API); packman_switch() moves it too, and a mixed Mesa breaks graphics.
 PACKMAN_FAMILY = (r"(ffmpeg-\d+|lib(avcodec|avdevice|avfilter|avformat|avutil"
                   r"|postproc|swresample|swscale)\d+"
-                  r"|gstreamer-plugins-(bad|ugly|libav))(-32bit)?")
+                  r"|gstreamer-plugins-(bad|ugly|libav)"
+                  r"|Mesa(-dri(-nouveau)?|-libEGL1|-libGL1|-libva"
+                  r"|-libRusticlOpenCL|-vulkan-(anti-lag|device-select"
+                  r"|overlay))?"
+                  r"|libgbm1|libvulkan_[a-z]+)"
+                  r"(-32bit)?")
 # Free space below which the repair page warns (whichever is larger)
 SPACE_MIN_GB = 5
 SPACE_MIN_PERCENT = 5

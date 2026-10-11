@@ -39,6 +39,7 @@ ACTION_LABELS = {
     "scx-enable": "Enabling the scheduler",
     "scx-disable": "Disabling the scheduler",
     "kparam": "Changing kernel options",
+    "pollrate": "Changing the USB polling rate",
     "rocm-install": "Installing ROCm",
     "rocm-remove": "Removing ROCm",
     "deck-install": "Installing the handheld pattern",

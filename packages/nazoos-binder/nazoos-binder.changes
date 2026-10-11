@@ -1,0 +1,6 @@
+-------------------------------------------------------------------
+Sun Oct 11 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- First version: provides binder-kmp for Waydroid (Binder is built
+  into kernel-nazoos), requires kernel-nazoos, conflicts with
+  binder-kmp-default and binder-dkms

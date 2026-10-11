@@ -13,6 +13,7 @@ Kirigami.ScrollablePage {
 
     footer: BusyBar { app: page.app }
     readonly property var st: app.st
+    readonly property var pr: st.pollrate || {}
     title: L.tr("Gaming & performance")
 
     ColumnLayout {
@@ -98,6 +99,66 @@ Kirigami.ScrollablePage {
                     }
                 }
             }
+        }
+
+        // USB polling rate per device: only kernel-nazoos has the option
+        SectionHeader {
+            visible: page.pr.available === true
+            text: L.tr("Controllers and mice")
+        }
+
+        SettingCard {
+            visible: page.pr.available === true
+            iconName: "input-gamepad"
+            title: L.tr("USB polling rate")
+            subtitle: L.tr("How often the computer asks a USB controller, mouse or keyboard for input. Many controllers only ask 125 or 250 times per second; 1000 Hz lowers the input lag. The setting is kept after a restart. If a device misbehaves at a higher rate, set it back to \"Device default\".")
+            status: (page.pr.devices || []).length === 0
+                    ? L.tr("No USB controller, mouse or keyboard is connected.")
+                    : L.tr("After a change: unplug the device and plug it in again.")
+            statusType: 0
+            extraContent: [
+                Repeater {
+                    model: page.pr.devices || []
+                    delegate: RowLayout {
+                        id: devRow
+                        required property var modelData
+                        readonly property int configured:
+                            (page.pr.configured || {})[modelData.id] || 0
+                        Layout.fillWidth: true
+                        QQC2.Label {
+                            text: devRow.modelData.name
+                            elide: Text.ElideRight
+                            Layout.fillWidth: true
+                        }
+                        QQC2.Label {
+                            text: !devRow.modelData.connected
+                                  ? L.tr("not connected")
+                                  : devRow.modelData.hz > 0
+                                  ? L.tr("now %1 Hz").arg(devRow.modelData.hz) : ""
+                            opacity: 0.7
+                        }
+                        QQC2.ComboBox {
+                            enabled: !backend.busy
+                            textRole: "text"
+                            model: [
+                                { text: L.tr("Device default"), ms: 0 },
+                                { text: "125 Hz", ms: 8 },
+                                { text: "250 Hz", ms: 4 },
+                                { text: "500 Hz", ms: 2 },
+                                { text: "1000 Hz", ms: 1 }
+                            ]
+                            currentIndex: Math.max(0, model.findIndex(o => o.ms === devRow.configured))
+                            onActivated: index => {
+                                const ms = model[index].ms
+                                // Follow the real state again once the action is done
+                                currentIndex = Qt.binding(() => Math.max(0, model.findIndex(o => o.ms === devRow.configured)))
+                                if (ms !== devRow.configured)
+                                    page.app.runAction("pollrate", [devRow.modelData.id, String(ms)])
+                            }
+                        }
+                    }
+                }
+            ]
         }
 
         SectionHeader { text: L.tr("Handheld") }

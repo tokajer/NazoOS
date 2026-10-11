@@ -1,4 +1,22 @@
 -------------------------------------------------------------------
+Sun Oct 11 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Gaming page: USB polling rate per controller, mouse or keyboard
+  (kernel-nazoos patch 0022, usbcore.interrupt_interval_override);
+  written to the kernel command line and to sysfs at once
+- Apps: Waydroid, only installable while kernel-nazoos runs (Binder);
+  installs nazoos-binder with it, enables waydroid-container.service,
+  waydroid0 in firewalld's trusted zone
+- Kernel install: check that our kernel project builds each needed
+  -kmp-nazoos; missing NVIDIA module stops with a clear message
+  instead of a zypper error (G06 open driver), other missing modules
+  are skipped with a note
+- Repair NVIDIA: reinstall the module type that is installed (G07
+  open, G06 open or G06 closed)
+- Repair Packman mix: Mesa is part of the Packman family (Packman
+  builds Mesa with video codecs, the codec install switches it too)
+
+-------------------------------------------------------------------
 Sat Oct 10 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Helper: zypper exit codes 102, 103 and 106 (reboot needed, zypper

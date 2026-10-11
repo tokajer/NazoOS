@@ -3,7 +3,8 @@
 SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
-<!-- NazoOS images: test disk image (qcow2) and live ISO with installer.
+<!-- NazoOS images: test disk image (qcow2), live ISO with installer and
+     the release ISO (live + :release repo).
      OBS builds one image per flavor in _multibuild; the flavor name
      selects the KIWI profile. -->
 <!-- OBS-Profiles: @BUILD_FLAVOR@ -->
@@ -18,6 +19,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
   <profiles>
     <profile name="test" description="Disk image (qcow2) for virtual machines"/>
     <profile name="live" description="Live ISO with the Calamares installer"/>
+    <!-- Release ISO for users: everything of "live", but the installed
+         system gets its NazoOS packages from :release (config.sh) -->
+    <profile name="release" description="Live ISO for users, :release repo">
+      <requires profile="live"/>
+    </profile>
   </profiles>
 
   <preferences>

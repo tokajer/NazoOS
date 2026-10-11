@@ -12,8 +12,8 @@ NazoOS starts with the openSUSE kernel (`kernel-default`). It works everywhere, 
 - **VRAM for the game in front**: when graphics memory runs short, other programs give way and the focused game keeps its data in fast VRAM (AMD graphics cards, not NVIDIA yet; see below)
 - **Stable CPU clock after standby** (`tsc=directsync`): for the Steam Deck and AMD systems whose games stutter after waking up. Off by default; switch it on in **NazoOS Welcome → Gaming → Kernel options** (the switch only appears on CPUs that can use it)
 - **HDMI 2.1 VRR for AMD**: variable refresh rate over HDMI also on TVs and monitors without FreeSync, and with more DisplayPort-to-HDMI adapters. It turns on by itself when the screen supports it
-- **Waydroid** (Android apps) works: the needed Binder driver is built in. The openSUSE kernel does not have it
-- **Controller poll rate**: wired controllers can be polled faster, e.g. PS4/PS5 controllers at 1000 Hz. For now only for advanced users as boot option `usbcore.interrupt_interval_override=054c:09cc:1` (vendor ID:product ID:milliseconds, see `lsusb`)
+- **Waydroid** (Android apps) works: the needed Binder driver is built in. The openSUSE kernel does not have it. Install it in **NazoOS Welcome → Apps** (the button is active while the NazoOS kernel runs)
+- **Controller poll rate**: wired controllers can be polled faster, e.g. PS4/PS5 controllers at 1000 Hz. Set it per device in **NazoOS Welcome → Gaming → Controllers and mice**, then unplug the device and plug it in again
 - **Hardware fixes**: ROG Ally fan and sensor readings, Logitech G923 (PlayStation version), some Bluetooth adapters, ASUS laptop keyboards, RX 5000/6000 series (RDNA1/RDNA2) standby, the Intel I226-V network chip on some ASUS X870 mainboards
 - 1000 Hz timer and full preemption (same as the openSUSE kernel today)
 
