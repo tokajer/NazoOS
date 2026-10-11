@@ -17,6 +17,7 @@ NazoOS starts with the openSUSE kernel (`kernel-default`). It works everywhere, 
 - **Hardware fixes**: ROG Ally fan and sensor readings, Logitech G923 (PlayStation version), some Bluetooth adapters, ASUS laptop keyboards, RX 5000/6000 series (RDNA1/RDNA2) standby, the Intel I226-V network chip on some ASUS X870 mainboards
 - 1000 Hz timer and full preemption (same as the openSUSE kernel today)
 
+
 `uname -r` ends with `-nazoos`.
 
 ## VRAM for the game in front
