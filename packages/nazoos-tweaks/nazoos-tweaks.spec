@@ -22,7 +22,8 @@ ntsync module loading for Wine/Proton, MGLRU working set protection,
 TCP BBR, transparent huge page defrag tuning, Nvidia driver options,
 a journal size limit, the i2c group for DDC/CI and RGB devices,
 larger shader caches, GameMode defaults, a lower PipeWire default
-latency and the SDDM greeter on Wayland, tuned for gaming and desktop
+latency, the SDDM greeter on Wayland and the signing key of the NazoOS
+package repository, tuned for gaming and desktop
 responsiveness on NazoOS.
 
 %prep
@@ -54,6 +55,10 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/environment.d \
   environment.d/70-nazoos-shader-cache.conf
 install -Dm0644 sysusers.d/nazoos-i2c.conf %{buildroot}%{_sysusersdir}/nazoos-i2c.conf
 install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
+# Signing key of the OBS projects home:Tokajer:nazoos:* (osc signkey
+# home:Tokajer). Same place as openSUSE-build-key; the image imports all
+# keys from there (kiwi config.sh)
+install -Dm0644 -t %{buildroot}%{_prefix}/lib/rpm/gnupg/keys rpm-keys/*.asc
 
 %pre -f nazoos-i2c.pre
 
@@ -88,5 +93,8 @@ install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
 %{_prefix}/lib/environment.d/70-nazoos-shader-cache.conf
 %{_sysusersdir}/nazoos-i2c.conf
 %config(noreplace) %{_sysconfdir}/gamemode.ini
+%dir %{_prefix}/lib/rpm/gnupg
+%dir %{_prefix}/lib/rpm/gnupg/keys
+%{_prefix}/lib/rpm/gnupg/keys/gpg-pubkey-a686e7d6-6ac40415.asc
 
 %changelog

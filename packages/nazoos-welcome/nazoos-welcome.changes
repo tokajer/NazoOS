@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sun Oct 11 13:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Codecs: drop pipewire-aptx, Tumbleweed's pipewire-spa-plugins has
+  aptX itself now and obsoletes it (zypper exit 4)
+
+-------------------------------------------------------------------
 Sun Oct 11 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Gaming page: USB polling rate per controller, mouse or keyboard

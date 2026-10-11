@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Sun Oct 11 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Disclaimer page: show the text as HTML (tag on the first line,
+  the SPDX comment made Qt treat it as plain text)
+- stylesheet.qss: readable checkbox text on the light "not yet
+  accepted" frame with Breeze Dark
+
+-------------------------------------------------------------------
 Sat Oct 10 15:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Disclaimer page (license module, short version of DISCLAIMER.md

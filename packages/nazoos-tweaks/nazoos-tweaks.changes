@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sun Oct 11 13:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Ship the signing key of the NazoOS OBS repositories in
+  /usr/lib/rpm/gnupg/keys (imported into the image by kiwi config.sh)
+
+-------------------------------------------------------------------
 Sat Oct 10 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - SATA LPM rule: write only when the value differs; virtual AHCI

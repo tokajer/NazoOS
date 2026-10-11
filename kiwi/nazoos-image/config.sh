@@ -51,6 +51,12 @@ if has_profile live; then
   chown live:users /home/live/.config/kscreenlockerrc
 fi
 
+# Trust the signing keys of the online repos below. OBS builds from its
+# own repos without signature checks, so the rpm database has no keys yet
+# and zypper --non-interactive (nazoos-update, nazoos-welcome) refuses
+# every repo. Key files: openSUSE-build-key and nazoos-tweaks (NazoOS)
+rpm --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-*.asc
+
 # Online repos for the finished system; the OBS build repos are not kept
 zypper --non-interactive addrepo -f \
   https://download.opensuse.org/tumbleweed/repo/oss/ repo-oss

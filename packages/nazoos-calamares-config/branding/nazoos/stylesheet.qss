@@ -1,0 +1,17 @@
+/*
+ * SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ *
+ * Qt stylesheet for the NazoOS branding (Calamares loads stylesheet.qss
+ * from the branding directory).
+ * License page: while the disclaimer is not accepted, Calamares gives the
+ * frame around the checkbox a fixed light background (#fff6f6). With
+ * Breeze Dark the text is white, so it would be invisible there.
+ * Unchecked = light frame -> dark text; checked = no frame style -> light text.
+ */
+#acceptFrame QCheckBox:!checked {
+    color: #000000;
+}
+#acceptFrame QCheckBox:checked {
+    color: #FFFFFF;
+}

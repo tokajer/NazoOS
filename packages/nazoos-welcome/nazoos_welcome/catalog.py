@@ -186,13 +186,15 @@ SCX_SCHEDULERS = ["scx_lavd", "scx_bpfland", "scx_rusty", "scx_flash"]
 # Same mirror and priority as `opi codecs`. Only names Packman really
 # ships: the libav* libraries are switched by packman_switch(), not named
 # here (versioned names like libavcodec62 change with every FFmpeg major).
+# No pipewire-aptx: Tumbleweed's pipewire-spa-plugins has aptX itself
+# since 2026-10 (libfreeaptx) and obsoletes the Packman package.
 PACKMAN_ALIAS = "packman"
 PACKMAN_URL = "https://ftp.fau.de/packman/suse/openSUSE_Tumbleweed/"
 PACKMAN_PRIORITY = "70"
 PACKMAN_CODECS = [
     "ffmpeg", "vlc-codecs",
     "gstreamer-plugins-bad-codecs", "gstreamer-plugins-ugly-codecs",
-    "libfdk-aac2", "pipewire-aptx",
+    "libfdk-aac2",
 ]
 OSS_CODECS = [
     "gstreamer-plugins-good", "gstreamer-plugins-good-extra",
