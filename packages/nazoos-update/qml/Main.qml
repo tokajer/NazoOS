@@ -65,7 +65,7 @@ Kirigami.ApplicationWindow {
                 Layout.fillWidth: true
                 visible: root.snapshot > 0
                 type: Kirigami.MessageType.Warning
-                text: L.tr("The system was started from snapshot %1. It is read-only: changes are lost at the next restart. If everything works now, make this state permanent.").replace("%1", root.snapshot)
+                text: L.tr("The system was started from snapshot %1. It is read-only: nothing can be installed or changed. If everything works now, make this state permanent.").replace("%1", root.snapshot)
                 actions: [
                     Kirigami.Action {
                         text: L.tr("Make permanent")
@@ -118,6 +118,15 @@ Kirigami.ApplicationWindow {
                         onTriggered: backend.launch("myrlyn")
                     }
                 ]
+            }
+
+            // --- mirrors still have an older Tumbleweed snapshot -------------
+            Kirigami.InlineMessage {
+                Layout.fillWidth: true
+                visible: root.snapshot === 0 && !!root.st.behind
+                type: Kirigami.MessageType.Information
+                text: L.tr("The download servers do not have the newest Tumbleweed version yet (system: %1, servers: %2). Updates will appear as soon as they have it, usually within a day.")
+                      .replace("%1", (root.st.behind || [])[0]).replace("%2", (root.st.behind || [])[1])
             }
 
             // --- summary ----------------------------------------------------
@@ -225,12 +234,21 @@ Kirigami.ApplicationWindow {
         }
     }
 
-    Component.onCompleted: {
-        if (startPage === "rollback" && snapshot > 0) rollbackDialog.open()
+    // Opened from the "Make permanent" notification: ask right away, but
+    // only once the window is shown. Opened in Component.onCompleted the
+    // dialog has no size yet (binding loop on y) and stays invisible
+    Timer {
+        interval: 300
+        running: startPage === "rollback" && root.visible && root.snapshot > 0
+        onTriggered: rollbackDialog.open()
     }
 
     Connections {
         target: backend
+        // A "Done." from the last action must not stay during the next one
+        function onBusyChanged() {
+            if (backend.busy) root.hidePassiveNotification()
+        }
         function onActionFinished(action, ok, message) {
             if (ok) {
                 root.showPassiveNotification(message)

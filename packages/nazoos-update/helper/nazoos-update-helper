@@ -10,13 +10,17 @@ every user; the GUI and the notifier only read it.
 The last output line "@@error <text>" carries a message for the user.
 """
 
+import fcntl
+import gettext
 import json
 import os
 import re
+import struct
 import subprocess
 import sys
 import time
 import xml.etree.ElementTree as ET
+from datetime import datetime
 from pathlib import Path
 
 STATUS = Path("/var/lib/nazoos-update/status.json")
@@ -26,6 +30,13 @@ FLATPAK = ["flatpak", "--system"]
 # zypper exit codes that are not errors: 100-103 = informational
 # (updates/reboot needed), 106 = a repository was skipped
 ZYPPER_OK = (0, 100, 101, 102, 103, 106)
+# btrfs ioctl BTRFS_IOC_SUBVOL_GETFLAGS = _IOR(0x94, 25, u64) and the
+# read-only flag. A snapshot booted from GRUB is mounted "rw", only the
+# subvolume itself is read-only (notes/update.md)
+BTRFS_IOC_SUBVOL_GETFLAGS = 0x80089419
+BTRFS_SUBVOL_RDONLY = 1 << 1
+# Package whose version is the Tumbleweed snapshot (YYYYMMDD)
+RELEASE_PKG = "openSUSE-release"
 # Package names that need a restart after the update
 REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
                          r"libQt6|plasma|kwin|sddm)")
@@ -111,6 +122,18 @@ def dup_preview():
     return pkgs, []
 
 
+def mirrors_behind(pkgs):
+    """The repos still have an older Tumbleweed snapshot than the installed
+    system (image built before the mirrors got the new snapshot): a dup
+    would only downgrade. Returns (installed, mirror) or None."""
+    for p in pkgs:
+        if p["name"] == RELEASE_PKG and p["type"] == "package":
+            old, new = p["old"][:8], p["new"][:8]
+            if new.isdigit() and old.isdigit() and new < old:
+                return old, new
+    return None
+
+
 def flatpak_updates():
     if not Path("/usr/bin/flatpak").exists():
         return []
@@ -138,12 +161,16 @@ def check(_args=None):
     if problems:
         status["error"] = "conflict"
         status["problems"] = problems
+    elif mirrors_behind(pkgs):
+        # Nothing to offer: wait until the mirrors have the snapshot
+        status["behind"] = list(mirrors_behind(pkgs))
     else:
         status["packages"] = pkgs
         status["reboot"] = any(REBOOT_HINT.match(p["name"] or "")
                                for p in pkgs if p["type"] == "package")
     status["flatpaks"] = flatpak_updates()
     write_status(status)
+    label_snapshots()
     print(f"{len(status['packages'])} package changes, "
           f"{len(status['flatpaks'])} Flatpak updates", flush=True)
     if problems:
@@ -154,12 +181,21 @@ def check(_args=None):
 
 def update(_args):
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
-    # snapper-zypp-plugin creates a pre/post snapshot pair around this
-    rc = run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses"],
-             check=False)
-    if rc not in ZYPPER_OK:
-        check_quietly()
-        raise Fail(f"the system update failed (zypper exit code {rc})")
+    pkgs, _problems = dup_preview()
+    behind = mirrors_behind(pkgs or [])
+    if behind:
+        print(f"Mirrors have Tumbleweed {behind[1]}, the system has "
+              f"{behind[0]}: no system update until they catch up",
+              flush=True)
+    else:
+        last = last_snapshot()
+        # snapper-zypp-plugin creates a pre/post snapshot pair around this
+        rc = run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses"],
+                 check=False)
+        label_snapshots(update_after=last)
+        if rc not in ZYPPER_OK:
+            check_quietly()
+            raise Fail(f"the system update failed (zypper exit code {rc})")
     if Path("/usr/bin/flatpak").exists():
         run(FLATPAK + ["update", "--noninteractive", "-y"], check=False)
         run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"],
@@ -171,6 +207,7 @@ def update(_args):
     reboot = capture(["zypper", "needs-rebooting"]).returncode == 102
     write_status({"error": "", "problems": [], "packages": [],
                   "flatpaks": [], "reboot": False,
+                  "behind": list(behind) if behind else None,
                   "needs_reboot": reboot, "updated": int(time.time())})
     if reboot:
         print("@@reboot", flush=True)
@@ -183,17 +220,105 @@ def check_quietly():
         pass
 
 
+# --- snapshot names in the boot menu ---------------------------------------
+# grub2-snapper-plugin shows the userdata "bootloader" instead of
+# "kernel,date,pre,zypp(zypper)". It rebuilds the menu on modify-snapshot.
+
+def snapshots():
+    r = capture(["snapper", "--jsonout", "list", "--disable-used-space"])
+    try:
+        return json.loads(r.stdout).get("root", [])
+    except ValueError:
+        return []
+
+
+def last_snapshot():
+    return max((s["number"] for s in snapshots()), default=0)
+
+
+def system_translation():
+    """Labels in the language of the system (/etc/locale.conf), not of
+    the helper process (LC_ALL=C for zypper)."""
+    lang = ""
+    try:
+        for line in Path("/etc/locale.conf").read_text().splitlines():
+            if line.startswith("LANG="):
+                lang = line[5:].strip().strip('"').split(".")[0]
+    except OSError:
+        pass
+    return gettext.translation("nazoos-update", languages=[lang] if lang
+                               else None, fallback=True)
+
+
+def label_snapshots(update_after=None):
+    """Readable boot menu entries. Snapshots of the update that started
+    after snapshot UPDATE_AFTER get "Before/After update", other zypper
+    pairs "Before/After software change", timeline ones "Automatic", the
+    rest their description; always with the local date. Snapshots that
+    already have a label are left alone."""
+    if not Path("/usr/bin/snapper").exists():
+        return
+    _ = system_translation().gettext
+    # xgettext:no-python-format
+    date_fmt = _("%Y-%m-%d %H:%M")
+    snaps = snapshots()
+    zypp_pre = {s["number"] for s in snaps if s["type"] == "pre"
+                and (s.get("description") or "").startswith("zypp(")}
+    for s in snaps:
+        num = s["number"]
+        if num == 0 or "bootloader" in (s.get("userdata") or {}):
+            continue
+        is_update = update_after is not None and num > update_after
+        if s["type"] == "pre" and num in zypp_pre:
+            text = _("Before update") if is_update \
+                else _("Before software change")
+        elif s["type"] == "post" and s.get("pre-number") in zypp_pre:
+            text = _("After update") if is_update \
+                else _("After software change")
+        elif s["type"] == "single" and s.get("description") == "timeline":
+            text = _("Automatic snapshot")
+        elif s["type"] == "single" and s.get("description"):
+            # Made by hand, nazoos-welcome or a rollback: its own text
+            text = s["description"]
+        else:
+            continue
+        try:
+            date = datetime.strptime(s["date"], "%Y-%m-%d %H:%M:%S")
+        except (KeyError, ValueError):
+            continue
+        # snapper splits userdata at "," and "="
+        label = (text + " " + date.strftime(date_fmt)) \
+            .replace(",", " ").replace("=", " ")
+        capture(["snapper", "modify", "--userdata",
+                 f"bootloader={label}", str(num)])
+
+
 # --- rollback ---------------------------------------------------------------
 
+def subvol_readonly(path="/"):
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY)
+    except OSError:
+        return False
+    try:
+        buf = bytearray(8)
+        fcntl.ioctl(fd, BTRFS_IOC_SUBVOL_GETFLAGS, buf)
+        return bool(struct.unpack("=Q", buf)[0] & BTRFS_SUBVOL_RDONLY)
+    except OSError:
+        return False
+    finally:
+        os.close(fd)
+
+
 def booted_snapshot():
-    """Number of the read-only snapshot the system was started from."""
+    """Number of the read-only snapshot the system was started from.
+    KIWI images run from snapshot 1 normally, so the path alone is not
+    enough: the subvolume must be read-only (or mounted ro)."""
     r = capture(["findmnt", "--noheadings", "--output", "OPTIONS", "/"])
     opts = r.stdout.strip().split(",")
-    if "ro" not in opts:
-        return None
     for o in opts:
         m = re.fullmatch(r"subvol=/@/\.snapshots/(\d+)/snapshot", o)
-        if m:
+        if m and ("ro" in opts or subvol_readonly("/")):
             return int(m.group(1))
     return None
 

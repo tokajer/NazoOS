@@ -27,6 +27,13 @@ def main():
                         help="section to show: update or rollback")
     args, qt_args = parser.parse_known_args()
 
+    # "sudo nazoos-update" has no access to the desktop session and dies
+    # with a Qt platform error; root rights are asked for by pkexec later
+    if os.geteuid() == 0:
+        sys.exit("nazoos-update: please start it without sudo, as a normal "
+                 "user. The administrator password is asked for when "
+                 "needed.")
+
     if args.notify:
         from . import notify
         return notify.main()

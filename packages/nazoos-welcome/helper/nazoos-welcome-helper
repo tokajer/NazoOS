@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 # pkexec clears PYTHONPATH; load catalog.py from the installed location
@@ -559,9 +560,11 @@ def repair_nvidia(_args):
 
 
 def failed_units():
-    return [line.split()[0] for line in output(
+    units = [line.split()[0] for line in output(
         ["systemctl", "list-units", "--failed", "--plain",
          "--no-legend"]).splitlines() if line.strip()]
+    return [u for u in units if u not in catalog.IGNORED_UNITS
+            and not re.fullmatch(catalog.IGNORED_UNIT_PATTERN, u)]
 
 
 def repair_units(_args):
@@ -569,8 +572,15 @@ def repair_units(_args):
     for unit in units:
         if unit.endswith((".service", ".mount", ".socket")):
             run(["systemctl", "restart", unit], check=False)
-    run(["systemctl", "reset-failed"])
+    if not units:
+        return
+    # Check only after a moment, and never reset-failed before: that
+    # hid units that fail again right after the restart
+    time.sleep(catalog.UNIT_SETTLE_SECONDS)
     still = failed_units()
+    fixed = [u for u in units if u not in still]
+    if fixed:
+        run(["systemctl", "reset-failed"] + fixed)
     if still:
         raise Fail("still failing: " + ", ".join(still))
 

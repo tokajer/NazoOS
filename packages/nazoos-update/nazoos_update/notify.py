@@ -14,6 +14,7 @@ import shutil
 import subprocess
 import threading
 import time
+import uuid
 from pathlib import Path
 
 from . import status
@@ -27,6 +28,21 @@ REMIND = 24 * 3600
 CHECK_GRACE = 3 * 24 * 3600
 
 _threads = []
+
+
+def _launch(cmd):
+    """Start the app in its own unit. A child of this oneshot service
+    would be killed with the service's cgroup as soon as main() returns
+    (start_new_session does not help). Unit name like KDE's app units:
+    app-<desktop id>@<id>.service"""
+    app = "org.nazoos.welcome" if cmd[0] == "nazoos-welcome" \
+        else "org.nazoos.update"
+    if shutil.which("systemd-run"):
+        subprocess.run(["systemd-run", "--user", "--quiet", "--collect",
+                        f"--unit=app-{app}@{uuid.uuid4().hex}.service",
+                        "--"] + cmd)
+    else:
+        subprocess.Popen(cmd, start_new_session=True)
 
 
 def _load():
@@ -62,8 +78,7 @@ def _send(key, title, body, action, page, icon="system-software-update",
              "--hint=string:desktop-entry:org.nazoos.update", title, body],
             capture_output=True, text=True)
         if r.stdout.strip() == "open":
-            subprocess.Popen(command or ["nazoos-update", "--page", page],
-                             start_new_session=True)
+            _launch(command or ["nazoos-update", "--page", page])
 
     t = threading.Thread(target=wait)
     t.start()

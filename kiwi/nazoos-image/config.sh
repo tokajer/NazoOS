@@ -29,6 +29,11 @@ systemctl preset coolercontrold.service
 # nazoos-update: system timer (repo check) and user timer (notifications)
 systemctl preset nazoos-update-check.timer
 systemctl --global preset nazoos-update-notify.timer
+# sched_ext: scx_lavd as the preselected scheduler (made for gaming
+# latency; the scx package ships scx_flash). scx itself stays off until
+# it is switched on in nazoos-welcome
+sed -i 's/^SCX_SCHEDULER=.*/SCX_SCHEDULER=scx_lavd/' /etc/default/scx
+grep -q '^SCX_SCHEDULER=scx_lavd' /etc/default/scx
 
 if has_profile test; then
   # Test image only: ssh into the VM (test password!).

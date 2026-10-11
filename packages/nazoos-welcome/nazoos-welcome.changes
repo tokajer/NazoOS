@@ -1,4 +1,17 @@
 -------------------------------------------------------------------
+Sun Oct 11 21:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Repair page: no false "mixed codecs" finding for gstreamer-plugins-
+  bad/ugly/libav (Packman ships only the -codecs packages, the plain
+  plugins come from oss on purpose)
+- Repair page: ignore drkonqi-coredump-pickup.service (fails with a
+  timeout after every login) and app instance units of the menu
+  (app-*@<id>.service, e.g. a cancelled pkexec dialog)
+- "Restart failed services" checks again after 3 seconds and reports
+  units that still fail instead of hiding them with reset-failed
+- Starting with sudo: clear message instead of a Qt platform error
+
+-------------------------------------------------------------------
 Sun Oct 11 13:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Codecs: drop pipewire-aptx, Tumbleweed's pipewire-spa-plugins has

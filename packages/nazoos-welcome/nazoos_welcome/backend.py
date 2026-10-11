@@ -209,10 +209,17 @@ class Backend(QObject):
         """Fix one finding. Failed user units need no password."""
         if self._busy:
             return
+        still = []
         if action in ("repair-units", ""):
-            self._append(repair.restart_user_units())
+            log, still = repair.restart_user_units()
+            self._append(log)
         if action:
             self.run(action, [])
+        elif still:
+            self.actionFinished.emit("repair-units", False, self._tr.gettext(
+                "These services still fail after a restart: %1")
+                .replace("%1", ", ".join(still)))
+            self.checkSystem()
         else:
             self.actionFinished.emit("repair-units", True,
                                      self._tr.gettext("Done."))

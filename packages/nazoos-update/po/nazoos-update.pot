@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-10 20:04+0200\n"
+"POT-Creation-Date: 2026-10-11 22:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,31 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: helper/nazoos-update-helper:262
+#, no-python-format
+msgid "%Y-%m-%d %H:%M"
+msgstr ""
+
+#: helper/nazoos-update-helper:272
+msgid "Before update"
+msgstr ""
+
+#: helper/nazoos-update-helper:273
+msgid "Before software change"
+msgstr ""
+
+#: helper/nazoos-update-helper:275
+msgid "After update"
+msgstr ""
+
+#: helper/nazoos-update-helper:276
+msgid "After software change"
+msgstr ""
+
+#: helper/nazoos-update-helper:278
+msgid "Automatic snapshot"
+msgstr ""
 
 #: nazoos_update/backend.py
 msgid "Checking for updates"
@@ -150,21 +175,21 @@ msgstr ""
 msgid "Check now"
 msgstr ""
 
-#: qml/Main.qml:45 qml/Main.qml:289
+#: qml/Main.qml:45 qml/Main.qml:302
 msgid "Details"
 msgstr ""
 
-#: qml/Main.qml:56 qml/Main.qml:275
+#: qml/Main.qml:56 qml/Main.qml:288
 msgid "Show details"
 msgstr ""
 
 #: qml/Main.qml:68
 msgid ""
-"The system was started from snapshot %1. It is read-only: changes are lost "
-"at the next restart. If everything works now, make this state permanent."
+"The system was started from snapshot %1. It is read-only: nothing can be "
+"installed or changed. If everything works now, make this state permanent."
 msgstr ""
 
-#: qml/Main.qml:71 qml/Main.qml:251
+#: qml/Main.qml:71 qml/Main.qml:264
 msgid "Make permanent"
 msgstr ""
 
@@ -198,98 +223,105 @@ msgstr ""
 msgid "Open Myrlyn"
 msgstr ""
 
-#: qml/Main.qml:141
+#: qml/Main.qml:128
+msgid ""
+"The download servers do not have the newest Tumbleweed version yet (system: "
+"%1, servers: %2). Updates will appear as soon as they have it, usually "
+"within a day."
+msgstr ""
+
+#: qml/Main.qml:150
 msgid "%1 update available"
 msgid_plural "%1 updates available"
 msgstr[0] ""
 msgstr[1] ""
 
-#: qml/Main.qml:142
+#: qml/Main.qml:151
 msgid "Not checked yet"
 msgstr ""
 
-#: qml/Main.qml:142
+#: qml/Main.qml:151
 msgid "The system is up to date"
 msgstr ""
 
-#: qml/Main.qml:148
+#: qml/Main.qml:157
 msgid "Last check: %1"
 msgstr ""
 
-#: qml/Main.qml:149
+#: qml/Main.qml:158
 msgid "A restart will be needed afterwards."
 msgstr ""
 
-#: qml/Main.qml:155
+#: qml/Main.qml:164
 msgid ""
 "Before the update a snapshot is taken automatically. If something breaks, "
 "pick it in the boot menu under \"Start bootloader from a read-only "
 "snapshot\"."
 msgstr ""
 
-#: qml/Main.qml:159
+#: qml/Main.qml:168
 msgid "Update now"
 msgstr ""
 
-#: qml/Main.qml:172
+#: qml/Main.qml:181
 msgid "System packages"
 msgstr ""
 
-#: qml/Main.qml:188
+#: qml/Main.qml:197
 msgid "new"
 msgstr ""
 
-#: qml/Main.qml:189
+#: qml/Main.qml:198
 msgid "removed"
 msgstr ""
 
-#: qml/Main.qml:199
+#: qml/Main.qml:208
 msgid "Flatpak apps and runtimes"
 msgstr ""
 
-#: qml/Main.qml:215
+#: qml/Main.qml:224
 msgid "Snapshots (Btrfs Assistant)"
 msgstr ""
 
-#: qml/Main.qml:220
+#: qml/Main.qml:229
 msgid "Packages (Myrlyn)"
 msgstr ""
 
-#: qml/Main.qml:246
+#: qml/Main.qml:259
 msgid "Make this state permanent?"
 msgstr ""
 
-#: qml/Main.qml:247
+#: qml/Main.qml:260
 msgid ""
 "The system goes back to snapshot %1 for good. The current, broken state is "
 "kept as a snapshot, so this can be undone. Afterwards the computer has to "
 "restart."
 msgstr ""
 
-#: qml/Main.qml:256
+#: qml/Main.qml:269
 msgid "Cancel"
 msgstr ""
 
-#: qml/Main.qml:265
+#: qml/Main.qml:278
 msgid "That did not work"
 msgstr ""
 
-#: qml/Main.qml:269
+#: qml/Main.qml:282
 msgid "Repair"
 msgstr ""
 
-#: qml/Main.qml:280 qml/Main.qml:303
+#: qml/Main.qml:293 qml/Main.qml:316
 msgid "Close"
 msgstr ""
 
-#: qml/Main.qml:295
+#: qml/Main.qml:308
 msgid "Copy"
 msgstr ""
 
-#: qml/Main.qml:299
+#: qml/Main.qml:312
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: qml/Main.qml:313
+#: qml/Main.qml:326
 msgid "Nothing has run yet."
 msgstr ""

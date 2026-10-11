@@ -276,14 +276,28 @@ def repo_path(url):
 # builds of these breaks video playback after an update. Mesa: Packman
 # "Extra" builds Tumbleweed's Mesa.spec with video codecs (H.264/H.265
 # VA-API); packman_switch() moves it too, and a mixed Mesa breaks graphics.
+# No gstreamer: Packman only ships gstreamer-plugins-{bad,ugly}-codecs
+# (no openSUSE twin), the plain bad/ugly/libav plugins come from oss on
+# purpose (OSS_CODECS) and would be a false "mixed" finding.
 PACKMAN_FAMILY = (r"(ffmpeg-\d+|lib(avcodec|avdevice|avfilter|avformat|avutil"
                   r"|postproc|swresample|swscale)\d+"
-                  r"|gstreamer-plugins-(bad|ugly|libav)"
                   r"|Mesa(-dri(-nouveau)?|-libEGL1|-libGL1|-libva"
                   r"|-libRusticlOpenCL|-vulkan-(anti-lag|device-select"
                   r"|overlay))?"
                   r"|libgbm1|libvulkan_[a-z]+)"
                   r"(-32bit)?")
+# Failed units the repair page ignores: known harmless upstream issues.
+# drkonqi-coredump-pickup (drkonqi6 6.7): RuntimeMaxSec=30min, ends with
+# result "timeout" after login although nothing crashed (VM 2026-10-11)
+IGNORED_UNITS = {"drkonqi-coredump-pickup.service"}
+# Apps started from the menu run as transient units app-<name>@<id>.service
+# (or .scope). One fails when the app exits with an error, e.g. a cancelled
+# password dialog of a pkexec launcher: not a system problem, and
+# restarting it would start the app again
+IGNORED_UNIT_PATTERN = r"app-.+@[0-9a-f]+\.(service|scope)"
+# Seconds to wait after restarting failed units: a Type=simple unit
+# fails again only after "systemctl restart" has returned
+UNIT_SETTLE_SECONDS = 3
 # Free space below which the repair page warns (whichever is larger)
 SPACE_MIN_GB = 5
 SPACE_MIN_PERCENT = 5

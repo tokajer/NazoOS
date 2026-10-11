@@ -84,9 +84,11 @@ def nvidia_module_missing():
 
 def failed_units(user=False):
     base = ["systemctl", "--user"] if user else ["systemctl"]
-    return [line.split()[0] for line in _out(
+    units = [line.split()[0] for line in _out(
         base + ["list-units", "--failed", "--plain",
                 "--no-legend"]).splitlines() if line.strip()]
+    return [u for u in units if u not in catalog.IGNORED_UNITS
+            and not re.fullmatch(catalog.IGNORED_UNIT_PATTERN, u)]
 
 
 def low_space():
@@ -139,13 +141,21 @@ def check():
 
 
 def restart_user_units():
-    """Fix part without root: failed units of the user session."""
+    """Fix part without root: failed units of the user session.
+    Returns the log and the units that still fail after the restart."""
     log = ""
-    for unit in failed_units(user=True):
+    units = failed_units(user=True)
+    for unit in units:
         log += f"$ systemctl --user restart {unit}\n"
         log += _out(["systemctl", "--user", "restart", unit])
-    _out(["systemctl", "--user", "reset-failed"])
-    return log
+    if not units:
+        return log, []
+    time.sleep(catalog.UNIT_SETTLE_SECONDS)
+    still = failed_units(user=True)
+    fixed = [u for u in units if u not in still]
+    if fixed:
+        _out(["systemctl", "--user", "reset-failed"] + fixed)
+    return log, still
 
 
 def report(state, findings, log):

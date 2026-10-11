@@ -5,7 +5,10 @@ Description=NazoOS: look for update notifications regularly
 PartOf=graphical-session.target
 
 [Timer]
-OnActiveSec=2min
+# Soon after login: a booted snapshot must be reported at once. Only
+# reads status.json, no network needed; 30 s lets Plasma's notification
+# service start first
+OnActiveSec=30s
 OnUnitInactiveSec=1h
 
 [Install]

@@ -1,4 +1,25 @@
 -------------------------------------------------------------------
+Sun Oct 11 21:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Rollback: detect a snapshot booted from GRUB by the read-only flag
+  of the btrfs subvolume; it is mounted "rw", so the notification and
+  "Make permanent" never appeared
+- Boot menu: readable snapshot names via snapper userdata "bootloader"
+  ("Before update", "After software change", "Automatic snapshot",
+  with local date, in the system language) instead of
+  "kernel,date,pre,zypp(zypper)"
+- No downgrades: when the mirrors still have an older Tumbleweed
+  snapshot than the system, show a note instead of offering a
+  "dist-upgrade" back to it; "Update now" then only updates Flatpaks
+- Starting with sudo: clear message instead of a Qt platform error
+- Hide the "Done." message when the next action starts
+- Notifications 30 s after login instead of 2 min (snapshot notice)
+- Buttons in notifications: start the window in its own systemd unit;
+  as a child of the oneshot notify service it was killed right away
+- "Make permanent" from the notification: open the question only once
+  the window is shown
+
+-------------------------------------------------------------------
 Sat Oct 10 20:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Error dialog: "Repair" button opens the repair page of

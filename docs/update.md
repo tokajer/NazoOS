@@ -30,8 +30,8 @@ If the system does not start or misbehaves after an update:
 
 1. Restart the computer.
 2. In the boot menu choose **Start bootloader from a read-only snapshot**.
-3. Pick the snapshot from before the update (the list shows date and description, e.g. "zypp(zypper) pre").
-4. The system starts in that older state. It is read-only: changes are lost at the next restart.
+3. Pick the snapshot from before the update. The newest is at the top; the entries are named like **Before update 2026-10-11 22:39**, **After software change …** (programs installed or removed) or **Automatic snapshot …** (taken every hour).
+4. The system starts in that older state. It is read-only: nothing can be installed or changed until you make it permanent.
 5. If everything works, NazoOS Update shows a notification **Started from a snapshot**. Click **Make permanent** and confirm. The broken state is kept as a snapshot too, so this can be undone.
 6. Restart.
 
@@ -42,3 +42,5 @@ If the system does not start or misbehaves after an update:
 - Background check: `nazoos-update-check.timer` (system), result in `/var/lib/nazoos-update/status.json`.
 - Notifications: `nazoos-update-notify.timer` (user).
 - "Make permanent" runs `snapper --ambit classic rollback`.
+- The boot menu names come from the snapper userdata `bootloader`, set by NazoOS Update after each update and check (`snapper list` shows the original descriptions).
+- When the download servers still have an older Tumbleweed snapshot than the installed system (right after installing from a new image), no system update is offered: `zypper dup` would only go back to the older versions.

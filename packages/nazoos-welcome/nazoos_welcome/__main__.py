@@ -38,6 +38,13 @@ def main():
                              "apps, drives, system, repair, help)")
     args, qt_args = parser.parse_known_args()
 
+    # "sudo nazoos-welcome" has no access to the desktop session and dies
+    # with a Qt platform error; root rights are asked for by pkexec later
+    if os.geteuid() == 0:
+        sys.exit("nazoos-welcome: please start it without sudo, as a normal "
+                 "user. The administrator password is asked for when "
+                 "needed.")
+
     if args.autostart and (system.is_live()
                            or not system.autostart_enabled()):
         return 0

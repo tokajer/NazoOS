@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 12:03+0200\n"
+"POT-Creation-Date: 2026-10-11 12:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,24 +17,28 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: nazoos_welcome/backend.py:218 nazoos_welcome/backend.py:279
-#: nazoos_welcome/backend.py:322
+#: nazoos_welcome/backend.py:220
+msgid "These services still fail after a restart: %1"
+msgstr ""
+
+#: nazoos_welcome/backend.py:225 nazoos_welcome/backend.py:286
+#: nazoos_welcome/backend.py:329
 msgid "Done."
 msgstr ""
 
-#: nazoos_welcome/backend.py:271
+#: nazoos_welcome/backend.py:278
 msgid "pkexec could not be started."
 msgstr ""
 
-#: nazoos_welcome/backend.py:284
+#: nazoos_welcome/backend.py:291
 msgid "Cancelled: no administrator password was given."
 msgstr ""
 
-#: nazoos_welcome/backend.py:288
+#: nazoos_welcome/backend.py:295
 msgid "Something went wrong."
 msgstr ""
 
-#: nazoos_welcome/backend.py:351
+#: nazoos_welcome/backend.py:358
 msgid "This program is not installed."
 msgstr ""
 

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 12:03+0200\n"
+"POT-Creation-Date: 2026-10-11 12:24+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,24 +16,28 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: nazoos_welcome/backend.py:218 nazoos_welcome/backend.py:279
-#: nazoos_welcome/backend.py:322
+#: nazoos_welcome/backend.py:220
+msgid "These services still fail after a restart: %1"
+msgstr "Diese Dienste schlagen auch nach dem Neustart fehl: %1"
+
+#: nazoos_welcome/backend.py:225 nazoos_welcome/backend.py:286
+#: nazoos_welcome/backend.py:329
 msgid "Done."
 msgstr "Fertig."
 
-#: nazoos_welcome/backend.py:271
+#: nazoos_welcome/backend.py:278
 msgid "pkexec could not be started."
 msgstr "pkexec konnte nicht gestartet werden."
 
-#: nazoos_welcome/backend.py:284
+#: nazoos_welcome/backend.py:291
 msgid "Cancelled: no administrator password was given."
 msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
 
-#: nazoos_welcome/backend.py:288
+#: nazoos_welcome/backend.py:295
 msgid "Something went wrong."
 msgstr "Etwas ist schiefgelaufen."
 
-#: nazoos_welcome/backend.py:351
+#: nazoos_welcome/backend.py:358
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
@@ -69,7 +73,9 @@ msgstr "Alternative Verwaltung für Proton- und Wine-Versionen"
 msgid ""
 "Android apps and games in a window. The first start downloads Android (about "
 "1 GB)"
-msgstr "Android-Apps und -Spiele im Fenster. Der erste Start lädt Android herunter (etwa 1 GB)"
+msgstr ""
+"Android-Apps und -Spiele im Fenster. Der erste Start lädt Android herunter "
+"(etwa 1 GB)"
 
 #: nazoos_welcome/catalog.py
 msgid "Bluetooth"
@@ -819,7 +825,12 @@ msgid ""
 "Many controllers only ask 125 or 250 times per second; 1000 Hz lowers the "
 "input lag. The setting is kept after a restart. If a device misbehaves at a "
 "higher rate, set it back to \"Device default\"."
-msgstr "Wie oft der Computer einen USB-Controller, eine Maus oder Tastatur nach Eingaben fragt. Viele Controller fragen nur 125- oder 250-mal pro Sekunde; 1000 Hz senkt die Eingabeverzögerung. Die Einstellung bleibt nach einem Neustart erhalten. Wenn ein Gerät mit höherer Rate Probleme macht, stelle es wieder auf „Gerätestandard“."
+msgstr ""
+"Wie oft der Computer einen USB-Controller, eine Maus oder Tastatur nach "
+"Eingaben fragt. Viele Controller fragen nur 125- oder 250-mal pro Sekunde; "
+"1000 Hz senkt die Eingabeverzögerung. Die Einstellung bleibt nach einem "
+"Neustart erhalten. Wenn ein Gerät mit höherer Rate Probleme macht, stelle es "
+"wieder auf „Gerätestandard“."
 
 #: qml/pages/GamingPage.qml:116
 msgid "No USB controller, mouse or keyboard is connected."
