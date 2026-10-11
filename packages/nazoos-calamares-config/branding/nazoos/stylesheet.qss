@@ -4,14 +4,15 @@
  *
  * Qt stylesheet for the NazoOS branding (Calamares loads stylesheet.qss
  * from the branding directory).
- * License page: while the disclaimer is not accepted, Calamares gives the
- * frame around the checkbox a fixed light background (#fff6f6). With
- * Breeze Dark the text is white, so it would be invisible there.
- * Unchecked = light frame -> dark text; checked = no frame style -> light text.
+ * License page: while the disclaimer is not accepted, Calamares sets a
+ * fixed light pink background (#fff6f6) on the widget #acceptFrame. A
+ * widget's own stylesheet always wins, so the frame cannot be recoloured
+ * here. Instead the checkbox paints its own background in the theme
+ * colours (Breeze Dark) over it; only the red "not accepted" border stays.
  */
-#acceptFrame QCheckBox:!checked {
-    color: #000000;
-}
-#acceptFrame QCheckBox:checked {
-    color: #FFFFFF;
+#acceptFrame QCheckBox {
+    background-color: palette(window);
+    color: palette(window-text);
+    border-radius: 3px;
+    padding: 6px 10px;
 }

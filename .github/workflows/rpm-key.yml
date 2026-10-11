@@ -1,0 +1,127 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Watches the signing key of our OBS repositories (home:Tokajer:nazoos:*).
+# nazoos-tweaks ships it in /usr/lib/rpm/gnupg/keys and the image imports
+# it; an expired key makes `zypper --non-interactive` refuse our repo.
+# - OBS repo has the same key with a later expiry (after
+#   `osc signkey --extend home:Tokajer`) → pull request with the new file
+# - less than 90 days left and not extended → issue
+# - OBS repo has a different key (fingerprint) → issue, no update: we
+#   never take a key just because the server sends it (pinning)
+# Extending itself stays manual: it needs the maintainer's OBS login.
+# Needs: Settings → Actions → General → "Allow GitHub Actions to create
+# and approve pull requests". Pull requests opened by GITHUB_TOKEN do not
+# start other workflows (reuse.yml): run `reuse lint` before merging.
+# Doku: https://docs.github.com/actions/writing-workflows/workflow-syntax-for-github-actions
+
+name: RPM signing key
+
+on:
+  schedule:
+    - cron: "41 5 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: rpm-key
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+env:
+  KEY: packages/nazoos-tweaks/rpm-keys/gpg-pubkey-a686e7d6-6ac40415.asc
+  FPR: 8E0FEEE8D51E8476708B732FB75EA6B0A686E7D6
+  URL: https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/repodata/repomd.xml.key
+  WARN_DAYS: 90
+  BRANCH: rpm-key-update
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check key
+        run: |
+          # Field 7 of the pub line = expiry (epoch, empty = never),
+          # field 10 of the first fpr line = fingerprint of the primary key
+          expiry() { gpg --show-keys --with-colons "$1" | awk -F: '$1=="pub"{print ($7=="" ? 9999999999 : $7); exit}'; }
+          fpr() { gpg --show-keys --with-colons "$1" | awk -F: '$1=="fpr"{print $10; exit}'; }
+          # Open an issue unless one with this title is open already
+          issue() {
+            if [ "$(gh issue list --state open --search "\"$1\" in:title" --json number --jq length)" = 0 ]; then
+              gh issue create --title "$1" --body "$2
+
+          Found by: $RUN_URL"
+            fi
+          }
+
+          curl -sfL --retry 3 "$URL" -o remote.asc
+          [ "$(fpr "$KEY")" = "$FPR" ] ||
+            { echo "::error::$KEY does not have the pinned fingerprint $FPR"; exit 1; }
+
+          if [ "$(fpr remote.asc)" != "$FPR" ]; then
+            issue "OBS repository signing key changed" "The OBS repository now signs with key \`$(fpr remote.asc)\`, nazoos-tweaks ships \`$FPR\`. Installed systems will refuse the repo.
+
+          Not updated automatically. Check in OBS whether the key was replaced on purpose (\`osc signkey home:Tokajer\`). If yes: new file in packages/nazoos-tweaks/rpm-keys/ (name: \`gpg-pubkey-<last 8 of key id>-<creation time hex>.asc\`), update KEY and FPR in .github/workflows/rpm-key.yml and the %files list in nazoos-tweaks.spec."
+            exit 0
+          fi
+
+          local_exp=$(expiry "$KEY")
+          remote_exp=$(expiry remote.asc)
+          echo "ships: $(date -ud "@$local_exp" +%F), OBS: $(date -ud "@$remote_exp" +%F)" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$remote_exp" -gt "$local_exp" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git switch -C "$BRANCH"
+            cp remote.asc "$KEY"
+            changes=packages/nazoos-tweaks/nazoos-tweaks.changes
+            {
+              echo "-------------------------------------------------------------------"
+              echo "$(LC_ALL=C date -u '+%a %b %e %H:%M:%S UTC %Y') - $(git config user.name) <$(git config user.email)>"
+              echo
+              echo "- Repository signing key extended until $(date -ud "@$remote_exp" +%F)"
+              echo
+              cat "$changes"
+            } > changes.new
+            mv changes.new "$changes"
+            git commit -am "nazoos-tweaks: signing key extended until $(date -ud "@$remote_exp" +%F)"
+            git push -f origin "$BRANCH"
+            if [ "$(gh pr list --head "$BRANCH" --state open --json number --jq length)" = 0 ]; then
+              gh pr create --head "$BRANCH" --title "nazoos-tweaks: update repository signing key" --body "The OBS repository key (same fingerprint \`$FPR\`) now expires on $(date -ud "@$remote_exp" +%F), the shipped file on $(date -ud "@$local_exp" +%F).
+
+          Before merging: \`reuse lint\` (this PR does not start other workflows). After the merge OBS rebuilds nazoos-tweaks and installed systems get the new key with the next update.
+
+          Found by: $RUN_URL"
+            fi
+            exit 0
+          fi
+
+          days_left=$(( (local_exp - $(date +%s)) / 86400 ))
+          if [ "$days_left" -lt "$WARN_DAYS" ]; then
+            issue "Extend the OBS signing key" "The signing key of our OBS repositories expires on $(date -ud "@$local_exp" +%F) ($days_left days). After that installed systems refuse the NazoOS repo.
+
+          Run in the distrobox \`tw\`: \`osc signkey --extend home:Tokajer\`. The next run of this workflow (weekly, or Actions → RPM signing key → Run workflow) opens a pull request with the extended key."
+          fi
+
+      - name: Report failure
+        if: failure()
+        run: |
+          title="RPM signing key check failed"
+          issue=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --body "Failed again: $RUN_URL"
+          else
+            gh issue create --title "$title" --body "The weekly check of the repository signing key failed: $RUN_URL"
+          fi

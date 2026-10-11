@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Sun Oct 11 14:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Disclaimer: start with <!DOCTYPE html>, drop the SPDX comment
+  (REUSE.toml covers the file), so Qt always renders it as HTML
+- stylesheet.qss: the accept checkbox paints its own theme background
+  over the light pink frame; only the red border stays
+
+-------------------------------------------------------------------
 Sun Oct 11 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Disclaimer page: show the text as HTML (tag on the first line,
