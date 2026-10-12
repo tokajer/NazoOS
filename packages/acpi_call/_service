@@ -1,0 +1,21 @@
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<services>
+  <!-- Take .spec, .changes and the KMP preamble from our GitHub repo.
+       Package lives in home:Tokajer:nazoos:kernel (needs kernel-syms
+       with the nazoos flavor), not in :devel -->
+  <service name="obs_scm">
+    <param name="url">https://github.com/tokajer/NazoOS.git</param>
+    <param name="scm">git</param>
+    <param name="revision">main</param>
+    <param name="subdir">packages/acpi_call</param>
+    <param name="filename">acpi_call-packaging</param>
+    <param name="extract">acpi_call.spec</param>
+    <param name="extract">acpi_call.changes</param>
+    <param name="extract">preamble</param>
+  </service>
+  <!-- Upstream tarball: downloaded from the Source0 URL of the spec -->
+  <service name="download_files"/>
+</services>

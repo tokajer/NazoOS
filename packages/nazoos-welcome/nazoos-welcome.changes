@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 12 21:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Kernel: install acpi_call-kmp-nazoos together with kernel-nazoos
+  (handheld TDP tools) and remove it with the kernel
+  (catalog.KMP_NAZOOS_ONLY)
+
+-------------------------------------------------------------------
 Mon Oct 12 21:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Gaming page: opt-in card "Steam Deck dock firmware"

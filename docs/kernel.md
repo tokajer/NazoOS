@@ -14,6 +14,8 @@ NazoOS starts with the openSUSE kernel (`kernel-default`). It works everywhere, 
 - **HDMI 2.1 VRR for AMD**: variable refresh rate over HDMI also on TVs and monitors without FreeSync, and with more DisplayPort-to-HDMI adapters. It turns on by itself when the screen supports it
 - **Waydroid** (Android apps) works: the needed Binder driver is built in. The openSUSE kernel does not have it. Install it in **NazoOS Welcome → Apps** (the button is active while the NazoOS kernel runs)
 - **Controller poll rate**: wired controllers can be polled faster, e.g. PS4/PS5 controllers at 1000 Hz. Set it per device in **NazoOS Welcome → Gaming → Controllers and mice**, then unplug the device and plug it in again
+- **Laptop speakers**: sound from the built-in speakers of Samsung Galaxy Book 4 and 5, Lenovo Legion Pro (AW88399 amplifier) and Razer Blade 16 (2025)
+- **acpi_call** for handheld tools: Handheld Daemon and SimpleDeckyTDP use it to set the power limit (TDP) on devices like the Lenovo Legion Go. Installed together with the NazoOS kernel
 - **Hardware fixes**: ROG Ally fan and sensor readings, Logitech G923 (PlayStation version), some Bluetooth adapters, ASUS laptop keyboards, RX 5000/6000 series (RDNA1/RDNA2) standby, the Intel I226-V network chip on some ASUS X870 mainboards
 - 1000 Hz timer and full preemption (same as the openSUSE kernel today)
 
@@ -33,7 +35,7 @@ autostart=false
 
 ## Step 1: install
 
-**Install** adds the NazoOS kernel repository and installs the kernel next to the openSUSE kernel, together with the matching driver modules (NVIDIA open driver, Xbox controllers). The NazoOS kernel becomes the default in the boot menu. The openSUSE kernel stays under **Advanced options**.
+**Install** adds the NazoOS kernel repository and installs the kernel next to the openSUSE kernel, together with the matching driver modules (NVIDIA open driver, Xbox controllers, acpi_call). The NazoOS kernel becomes the default in the boot menu. The openSUSE kernel stays under **Advanced options**.
 
 The closed NVIDIA driver for older cards (GTX 750 – GTX 10) only exists for the openSUSE kernel, and so does the older open driver series 580 (`nvidia-open-driver-G06-signed`). With either of them the NazoOS kernel cannot be installed; on GTX 16 / RTX 20 and newer switch to the open driver on the **Drivers** page first.
 

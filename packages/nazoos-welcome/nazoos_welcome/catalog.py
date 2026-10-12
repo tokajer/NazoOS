@@ -267,6 +267,9 @@ KMP_BASES = ["nvidia-open-driver-G07-signed", "nvidia-open-driver-G06-signed",
 # Only built for kernel-default (closed NVIDIA driver from NVIDIA's repo):
 # kernel-nazoos would boot without graphics driver
 KMP_DEFAULT_ONLY = ["nvidia-driver-G06-kmp-default"]
+# Only built for kernel-nazoos, installed and removed with it (<base>-kmp-
+# nazoos): acpi_call for handheld TDP tools (Handheld Daemon, SimpleDeckyTDP)
+KMP_NAZOOS_ONLY = ["acpi_call"]
 # State of the boot counter and the "prefer kernel-nazoos" switch
 KERNEL_STATE_DIR = "/var/lib/nazoos"
 KERNEL_STABLE_BOOTS = 3

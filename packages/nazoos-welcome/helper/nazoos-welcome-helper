@@ -315,8 +315,12 @@ def kernel_install(_args):
     for p in missing:
         print(f"Note: {p} is not available, the device works only with "
               "the openSUSE kernel", flush=True)
+    # Modules only kernel-nazoos has (acpi_call): optional, skip if the
+    # repo has no build yet
+    extra = [p for p in (f"{b}-kmp-nazoos" for b in catalog.KMP_NAZOOS_ONLY)
+             if repo_has(alias, p)]
     run(ZYPPER_IN + [catalog.KERNEL_PACKAGE]
-        + [p for p in kmps if p not in missing])
+        + [p for p in kmps if p not in missing] + extra)
     kernel.STATE.mkdir(parents=True, exist_ok=True)
     kernel.PREFER.touch()
     kernel.write_boots({"count": 0})
@@ -359,7 +363,8 @@ def kernel_remove(_args):
     if not rpm_installed(catalog.KERNEL_DEFAULT):
         raise Fail("the openSUSE kernel is not installed")
     pkgs = [p for p in [catalog.KERNEL_PACKAGE, catalog.KERNEL_ONLY_PACKAGE]
-            + [f"{b}-kmp-nazoos" for b in catalog.KMP_BASES]
+            + [f"{b}-kmp-nazoos"
+               for b in catalog.KMP_BASES + catalog.KMP_NAZOOS_ONLY]
             if rpm_installed(p)]
     if pkgs:
         run(ZYPPER + ["remove", "--clean-deps"] + pkgs)

@@ -1,0 +1,5 @@
+-------------------------------------------------------------------
+Mon Oct 12 21:40:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- First package for NazoOS: master commit 6ad1e67 (after 1.2.2),
+  built for kernel-nazoos only (acpi_call-kmp-nazoos)

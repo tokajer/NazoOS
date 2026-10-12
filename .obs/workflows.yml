@@ -51,6 +51,11 @@ devel_build:
     - trigger_services:
         project: home:Tokajer:nazoos:devel
         package: nazoos-image
+    # Kernel module for kernel-nazoos only: built in :kernel (kernel-syms
+    # with the nazoos flavor)
+    - trigger_services:
+        project: home:Tokajer:nazoos:kernel
+        package: acpi_call
   filters:
     event: push
     branches:

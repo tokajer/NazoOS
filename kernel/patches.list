@@ -83,3 +83,11 @@
 0026-usbhid-skip-polling.patch     https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/0001-skip-interrupt-in-polling-for-devices.patch
 0027-amdgpu-gfx10-csib.patch       https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/drm-amdgpu-restore-csib-submission-on-gfx10-dgpus.patch
 0028-igc-i226v-aspm.patch          https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/igc-disable-aspm-l1-asus-i226-v.patch
+# Sound on laptops whose speakers sit behind an amplifier that 7.2 does not
+# drive yet: Samsung Galaxy Book 4/5 (MAX98390), Lenovo Legion Pro
+# (AW88399), Razer Blade 16 2025. Branch 7.2/snd-codecs (on 7.2-rc6) as
+# one diff; new options in config/nazoos.fragment.
+# "local": context of one alc269.c hunk adapted (0007-handheld adds a
+# comment after the fixup enum). Upstream:
+# https://github.com/CachyOS/linux/compare/075b74841bd0...9beb1cbf4d54.diff
+0029-snd-codecs.patch              local

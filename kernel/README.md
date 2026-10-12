@@ -50,6 +50,9 @@ osc mkpac kernel-source
 osc linkpac openSUSE:Factory nvidia-open-driver-G07-signed home:Tokajer:nazoos:kernel
 osc linkpac openSUSE:Factory xone home:Tokajer:nazoos:kernel
 osc linkpac openSUSE:Factory xpadneo home:Tokajer:nazoos:kernel
+# Our own KMP (not in Tumbleweed, kernel-nazoos only): spec from GitHub
+osc mkpac acpi_call && cp <NazoOS repo>/packages/acpi_call/_service acpi_call/
+(cd acpi_call && osc add _service && osc ci -m "acpi_call: obs_scm")
 ```
 
 Every kernel update (by hand; normally the workflow below does it):
