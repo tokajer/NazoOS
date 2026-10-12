@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Oct 12 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend fuse + libfuse2: AppImages with the older runtime need
+  fusermount (fuse 2); tested in the VM with appimagetool 12
+
+-------------------------------------------------------------------
 Mon Oct 12 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend plasma6-firewall and partitionmanager: graphical firewall

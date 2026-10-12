@@ -93,6 +93,11 @@ Recommends:     discover6-backend-flatpak
 Recommends:     flatpak
 Recommends:     flatpak-remote-flathub
 Recommends:     myrlyn
+# AppImages: older ones (AppImageKit runtime, libfuse2) call fusermount
+# from fuse 2 and fail with "AppImages require FUSE to run" without it;
+# the newer static runtime uses fusermount3 (fuse3, already in the base)
+Recommends:     fuse
+Recommends:     libfuse2
 # Desktop
 Recommends:     MozillaFirefox
 Recommends:     kate
