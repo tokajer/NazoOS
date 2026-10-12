@@ -35,7 +35,7 @@ autostart=false
 
 **Install** adds the NazoOS kernel repository and installs the kernel next to the openSUSE kernel, together with the matching driver modules (NVIDIA open driver, Xbox controllers). The NazoOS kernel becomes the default in the boot menu. The openSUSE kernel stays under **Advanced options**.
 
-The closed NVIDIA driver for older cards (GTX 750 – GTX 10) only exists for the openSUSE kernel. With that driver the NazoOS kernel cannot be installed.
+The closed NVIDIA driver for older cards (GTX 750 – GTX 10) only exists for the openSUSE kernel, and so does the older open driver series 580 (`nvidia-open-driver-G06-signed`). With either of them the NazoOS kernel cannot be installed; on GTX 16 / RTX 20 and newer switch to the open driver on the **Drivers** page first.
 
 ### Secure Boot
 

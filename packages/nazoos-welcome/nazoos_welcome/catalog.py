@@ -238,8 +238,9 @@ KERNEL_REPO_URL = ("https://download.opensuse.org/repositories/"
 KERNEL_PACKAGE = "kernel-nazoos"
 KERNEL_DEFAULT = "kernel-default"
 KERNEL_ONLY_PACKAGE = "nazoos-kernel-only"
-# Kernel module packages built for both flavors: <base>-kmp-default from
-# Tumbleweed/NVIDIA, <base>-kmp-nazoos from our kernel project
+# Kernel module packages: <base>-kmp-default from Tumbleweed/NVIDIA,
+# <base>-kmp-nazoos from our kernel project. G06 open has no nazoos build
+# (ADR 0018); it stays listed so kernel_install stops with a clear error
 KMP_BASES = ["nvidia-open-driver-G07-signed", "nvidia-open-driver-G06-signed",
              "xone", "xpadneo"]
 # Only built for kernel-default (closed NVIDIA driver from NVIDIA's repo):

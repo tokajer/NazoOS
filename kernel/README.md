@@ -48,7 +48,6 @@ osc mkpac kernel-source
 # make-obs-package.sh) that builds kernel-nazoos and kernel-syms as flavors
 # Kernel modules: built for every flavor in kernel-syms -> *-kmp-nazoos
 osc linkpac openSUSE:Factory nvidia-open-driver-G07-signed home:Tokajer:nazoos:kernel
-osc linkpac openSUSE:Factory nvidia-open-driver-G06-signed home:Tokajer:nazoos:kernel
 osc linkpac openSUSE:Factory xone home:Tokajer:nazoos:kernel
 osc linkpac openSUSE:Factory xpadneo home:Tokajer:nazoos:kernel
 ```
