@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Oct 13 00:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- After the system update: nazoos-welcome-helper kernel-sync, so
+  kernel-nazoos users get new kernel modules (zypper dup only updates
+  installed packages)
+
+-------------------------------------------------------------------
 Mon Oct 12 09:40:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - nazoos-update-label.path/.service: new snapshots get their boot menu

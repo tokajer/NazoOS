@@ -26,6 +26,7 @@ from pathlib import Path
 
 STATUS = Path("/var/lib/nazoos-update/status.json")
 KERNEL_BOOT = "/usr/libexec/nazoos-welcome/nazoos-kernel-boot"
+WELCOME_HELPER = "/usr/libexec/nazoos-welcome/nazoos-welcome-helper"
 ZYPPER = ["zypper", "--non-interactive"]
 FLATPAK = ["flatpak", "--system"]
 # zypper exit codes that are not errors: 100-103 = informational
@@ -197,6 +198,11 @@ def update(_args):
         if rc not in ZYPPER_OK:
             check_quietly()
             raise Fail(f"the system update failed (zypper exit code {rc})")
+        # dup only updates what is installed: kernel modules for
+        # kernel-nazoos that came later (acpi_call). nazoos-welcome has
+        # the list; a module missing from the repo is skipped there
+        if os.access(WELCOME_HELPER, os.X_OK):
+            run([WELCOME_HELPER, "kernel-sync"], check=False)
     if Path("/usr/bin/flatpak").exists():
         run(FLATPAK + ["update", "--noninteractive", "-y"], check=False)
         run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"],

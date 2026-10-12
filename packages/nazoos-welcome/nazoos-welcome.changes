@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Oct 13 00:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Helper action kernel-sync (run by nazoos-update after the update):
+  installs kernel modules for kernel-nazoos that came after it was
+  installed (acpi_call, or the -kmp-nazoos of a driver installed for
+  kernel-default later); skips modules the kernel repo has no build of
+
+-------------------------------------------------------------------
 Mon Oct 12 21:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Kernel: install acpi_call-kmp-nazoos together with kernel-nazoos

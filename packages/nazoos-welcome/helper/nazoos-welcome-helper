@@ -372,6 +372,33 @@ def kernel_remove(_args):
     run(["systemctl", "disable", "nazoos-kernel-boot.service"], check=False)
 
 
+def kernel_sync(_args):
+    """Kernel modules for kernel-nazoos that came after it was installed.
+
+    Run by nazoos-update after "zypper dup", which only updates installed
+    packages: a new KMP_NAZOOS_ONLY module (acpi_call), or a driver
+    installed for kernel-default later (xone after kernel-nazoos), would
+    never arrive. Only takes what the kernel repo has: a module that does
+    not build right now is skipped and the update goes on (no hard
+    Requires, kernel and packages stay separate).
+    """
+    if not rpm_installed(catalog.KERNEL_PACKAGE):
+        return
+    fragment = catalog.KERNEL_REPO_URL.split("/repositories/")[1]
+    alias = repo_with_url(fragment)
+    if alias is None:
+        print("Note: the NazoOS kernel repository is missing, kernel "
+              "modules are not checked", flush=True)
+        return
+    wanted = [f"{b}-kmp-nazoos" for b in catalog.KMP_BASES
+              if rpm_installed(f"{b}-kmp-default")]
+    wanted += [f"{b}-kmp-nazoos" for b in catalog.KMP_NAZOOS_ONLY]
+    new = [p for p in wanted
+           if not rpm_installed(p) and repo_has(alias, p)]
+    if new:
+        run(ZYPPER_IN + new)
+
+
 def kernel_cert():
     files = output(["rpm", "-ql", catalog.KERNEL_PACKAGE]).split()
     certs = [f for f in files if re.fullmatch(r"/etc/uefi/certs/\w+\.crt", f)]
@@ -742,6 +769,7 @@ ACTIONS = {
     "kernel-only": kernel_only,
     "kernel-restore": kernel_restore,
     "kernel-remove": kernel_remove,
+    "kernel-sync": kernel_sync,
     "mok-import": mok_import,
     "app-install": app_install,
     "app-remove": app_remove,
