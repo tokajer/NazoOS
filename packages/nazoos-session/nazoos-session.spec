@@ -117,6 +117,9 @@ fi
 # Written by nazoos-session-ctl
 %ghost %config(noreplace) %{_sysconfdir}/nazoos/session.conf
 %ghost %{_sysconfdir}/nazoos/session-oneshot
+# Owned by sddm too; sddm is not in the build root, so the OBS file
+# list check would call it unowned
+%dir %{_sysconfdir}/sddm.conf.d
 %ghost %config(noreplace) %{_sysconfdir}/sddm.conf.d/zz-nazoos-session.conf
 
 %changelog
