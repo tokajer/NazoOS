@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Mon Oct 12 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Fall back to the desktop when gaming mode does not start (no Vulkan
+  GPU, broken driver): ExecStopPost drop-in for gamescope-session-plus@
+  logs into Plasma once instead of a login loop, then a notification
+  explains why, with a "Fix" button (Welcome repair page)
+- Desktop session file is plasmawayland.desktop on Tumbleweed (was
+  plasma.desktop, which does not exist: "Switch to Desktop" ended at
+  the login screen)
+- German texts for the notifications
+
+-------------------------------------------------------------------
 Mon Oct 12 13:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Create /etc/sddm.conf.d in the install section; owning it alone

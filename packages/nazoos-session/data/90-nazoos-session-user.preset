@@ -2,3 +2,4 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 enable nazoos-session-gaming.service
 enable nazoos-session-desktop.service
+enable nazoos-session-failed.service

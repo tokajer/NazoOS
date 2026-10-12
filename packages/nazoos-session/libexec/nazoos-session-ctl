@@ -7,6 +7,7 @@
 #   - nazoos-session-switch (pkexec, the user switches modes)
 #   - nazoos-welcome-helper (boot mode on/off)
 #   - nazoos-session-boot.service (at boot)
+#   - gamescope-session-plus@.service (ExecStopPost: gaming mode failed)
 #   - the installer (handheld install starts in gaming mode)
 #
 # Boot mode "gaming": the user is logged in automatically into gaming
@@ -27,7 +28,7 @@ readonly ONESHOT=/etc/nazoos/session-oneshot
 readonly SDDM_CONF=/etc/sddm.conf.d/zz-nazoos-session.conf
 readonly DM_SYSCONFIG=/etc/sysconfig/displaymanager
 readonly GAMING_SESSION=gamescope-session-steam.desktop
-readonly DESKTOP_SESSION=plasma.desktop
+readonly WAYLAND_SESSIONS=/usr/share/wayland-sessions
 
 die() {
   echo "nazoos-session: $*" >&2
@@ -45,10 +46,24 @@ valid_user() {
   [[ $1 =~ ^[a-z_][a-z0-9_.-]*$ ]] && getent passwd "$1" >/dev/null
 }
 
+# Tumbleweed's plasma6-session ships plasmawayland.desktop, upstream
+# Plasma plasma.desktop; SDDM shows the login screen instead of an
+# autologin into a session file that does not exist
+desktop_session() {
+  local f
+  for f in plasmawayland.desktop plasma.desktop; do
+    if [ -f "$WAYLAND_SESSIONS/$f" ]; then
+      echo "$f"
+      return
+    fi
+  done
+  echo plasmawayland.desktop
+}
+
 session_file() {
   case $1 in
     gaming) echo "$GAMING_SESSION" ;;
-    desktop) echo "$DESKTOP_SESSION" ;;
+    desktop) desktop_session ;;
     *) die "unknown session: $1" ;;
   esac
 }
@@ -166,6 +181,23 @@ case $cmd in
     fi
     ;;
 
+  failed)
+    # Gaming mode of user $2 did not start (no Vulkan GPU, broken driver):
+    # log into the desktop once instead. Otherwise SDDM logs straight back
+    # into gaming mode (autologin with Relogin, or the remembered last
+    # session) and the user never gets past the login screen.
+    kind=${1-}
+    user=${2-}
+    [ "$kind" = gaming ] || die "only gaming mode can fail to start"
+    valid_user "$user" || die "invalid user: $user"
+    if [ "$boot_mode" != gaming ] && [ ! -f "$ONESHOT" ]; then
+      printf 'PREVIOUS="%s"\n' "$(dm_autologin)" > "$ONESHOT"
+    fi
+    # Boot mode gaming: "started desktop" arms gaming mode again, so the
+    # next logout or boot tries once more (the driver may be fixed then)
+    set_autologin "$user" desktop
+    ;;
+
   boot)
     # A one-time switch never survives a reboot; gaming mode always
     # starts in gaming mode
@@ -181,6 +213,6 @@ case $cmd in
     ;;
 
   *)
-    die "usage: nazoos-session-ctl boot-mode|switch|started|boot|status ..."
+    die "usage: nazoos-session-ctl boot-mode|switch|started|failed|boot|status ..."
     ;;
 esac

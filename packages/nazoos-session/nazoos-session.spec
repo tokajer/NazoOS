@@ -65,7 +65,11 @@ install -Dm0644 data/org.nazoos.session.gaming.desktop \
 install -Dm0644 data/nazoos-session-boot.service \
   %{buildroot}%{_unitdir}/nazoos-session-boot.service
 install -Dm0644 -t %{buildroot}%{_userunitdir} \
-  data/nazoos-session-gaming.service data/nazoos-session-desktop.service
+  data/nazoos-session-gaming.service data/nazoos-session-desktop.service \
+  data/nazoos-session-failed.service
+# Fallback to the desktop when gamescope does not start
+install -Dm0644 data/50-nazoos-session-fallback.conf \
+  %{buildroot}%{_userunitdir}/gamescope-session-plus@.service.d/50-nazoos-session-fallback.conf
 install -Dm0644 data/90-nazoos-session.preset \
   %{buildroot}%{_presetdir}/90-nazoos-session.preset
 install -Dm0644 data/90-nazoos-session-user.preset \
@@ -82,11 +86,11 @@ for f in bin/nazoos-session-select libexec/*; do bash -n "$f"; done
 
 %post
 %service_add_post nazoos-session-boot.service
-%systemd_user_post nazoos-session-gaming.service nazoos-session-desktop.service
+%systemd_user_post nazoos-session-gaming.service nazoos-session-desktop.service nazoos-session-failed.service
 
 %preun
 %service_del_preun nazoos-session-boot.service
-%systemd_user_preun nazoos-session-gaming.service nazoos-session-desktop.service
+%systemd_user_preun nazoos-session-gaming.service nazoos-session-desktop.service nazoos-session-failed.service
 # Last removal: no automatic login into a session that is gone
 if [ $1 -eq 0 ] && [ -x %{_libexecdir}/nazoos-session/nazoos-session-ctl ]; then
   %{_libexecdir}/nazoos-session/nazoos-session-ctl boot-mode desktop || :
@@ -94,7 +98,7 @@ fi
 
 %postun
 %service_del_postun nazoos-session-boot.service
-%systemd_user_postun nazoos-session-gaming.service nazoos-session-desktop.service
+%systemd_user_postun nazoos-session-gaming.service nazoos-session-desktop.service nazoos-session-failed.service
 
 %files
 %{_bindir}/nazoos-session-select
@@ -111,6 +115,9 @@ fi
 %{_unitdir}/nazoos-session-boot.service
 %{_userunitdir}/nazoos-session-gaming.service
 %{_userunitdir}/nazoos-session-desktop.service
+%{_userunitdir}/nazoos-session-failed.service
+%dir %{_userunitdir}/gamescope-session-plus@.service.d
+%{_userunitdir}/gamescope-session-plus@.service.d/50-nazoos-session-fallback.conf
 %{_presetdir}/90-nazoos-session.preset
 %dir %{_userpresetdir}
 %{_userpresetdir}/90-nazoos-session.preset

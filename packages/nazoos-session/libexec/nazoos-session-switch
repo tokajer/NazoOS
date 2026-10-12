@@ -6,6 +6,7 @@
 # org.nazoos.session.policy). Only switches the caller's own session and
 # only while the caller sits at the computer (active session on seat0).
 # Usage: nazoos-session-switch switch|started gaming|desktop
+#        nazoos-session-switch failed gaming
 
 set -euo pipefail
 
@@ -24,7 +25,7 @@ user=$(getent passwd "$uid" | cut -d: -f1)
 
 cmd=${1-}
 kind=${2-}
-case $cmd in switch|started) ;; *) die "invalid command: $cmd" ;; esac
+case $cmd in switch|started|failed) ;; *) die "invalid command: $cmd" ;; esac
 case $kind in gaming|desktop) ;; *) die "invalid session: $kind" ;; esac
 
 # The caller needs a session on seat0 (a local login, not SSH). Gamescope

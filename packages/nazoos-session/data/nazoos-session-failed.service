@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS gaming mode: gaming mode failed to start and the desktop opened
+# instead; tell the user why, with a "Fix" button (repair page).
+[Unit]
+Description=NazoOS gaming mode: report a failed start
+After=plasma-workspace.target
+ConditionPathExists=%S/nazoos-session/gaming-failed
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nazoos-session-select --report-failed
+
+[Install]
+WantedBy=plasma-workspace.target
