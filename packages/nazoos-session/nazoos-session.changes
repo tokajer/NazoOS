@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Oct 12 13:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Create /etc/sddm.conf.d in the install section; owning it alone
+  failed with "Directory not found"
+
+-------------------------------------------------------------------
 Mon Oct 12 12:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Own /etc/sddm.conf.d (OBS: "directories not owned by a package")

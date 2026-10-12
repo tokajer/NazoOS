@@ -71,6 +71,7 @@ install -Dm0644 data/90-nazoos-session.preset \
 install -Dm0644 data/90-nazoos-session-user.preset \
   %{buildroot}%{_userpresetdir}/90-nazoos-session.preset
 install -d %{buildroot}%{_sysconfdir}/nazoos
+install -d %{buildroot}%{_sysconfdir}/sddm.conf.d
 
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/org.nazoos.session.gaming.desktop
