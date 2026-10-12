@@ -14,6 +14,7 @@ Kirigami.ScrollablePage {
     footer: BusyBar { app: page.app }
     readonly property var st: app.st
     readonly property var pr: st.pollrate || {}
+    readonly property var ses: st.session || {}
     title: L.tr("Gaming & performance")
 
     ColumnLayout {
@@ -161,6 +162,54 @@ Kirigami.ScrollablePage {
             ]
         }
 
+        SectionHeader {
+            text: L.tr("Gaming mode")
+            visible: page.ses.installed === true
+        }
+
+        SettingCard {
+            visible: page.ses.installed === true
+            iconName: "steam"
+            title: L.tr("Steam gaming mode")
+            subtitle: L.tr("Steam's console interface in Gamescope, like on the Steam Deck. Back to the desktop: Steam menu → Power → Switch to Desktop. Also available as a session on the login screen.")
+            status: !page.ses.steam ? L.tr("Install Steam first (Apps page)")
+                    : page.ses.bootGaming ? L.tr("Starts in gaming mode (user %1)").arg(page.ses.user)
+                    : ""
+            statusType: !page.ses.steam ? 2 : page.ses.bootGaming ? 1 : 0
+            extraContent: [
+                RowLayout {
+                    QQC2.Switch {
+                        id: bootGamingSwitch
+                        enabled: !backend.busy && page.ses.steam === true
+                        checked: page.ses.bootGaming === true
+                        text: L.tr("Start in gaming mode")
+                        onToggled: {
+                            const on = checked
+                            // Follow the real state again once the action is done
+                            checked = Qt.binding(() => page.ses.bootGaming === true)
+                            page.app.runAction("session-boot-mode", [on ? "gaming" : "desktop"])
+                        }
+                    }
+                    QQC2.Label {
+                        text: L.tr("Logs you in automatically and starts Steam, like a console. The desktop is then used for one session only.")
+                        opacity: 0.7
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                    }
+                }
+            ]
+            QQC2.Button {
+                enabled: page.ses.steam === true
+                text: L.tr("Switch now")
+                icon.name: "go-next"
+                onClicked: page.app.confirm(
+                    L.tr("Switch to gaming mode?"),
+                    L.tr("This ends the desktop session. Save your work first. Steam starts in gaming mode; \"Switch to Desktop\" in Steam's power menu brings you back."),
+                    L.tr("Switch to gaming mode"),
+                    () => backend.launch("gaming-mode"))
+            }
+        }
+
         SectionHeader { text: L.tr("Handheld") }
 
         SettingCard {
@@ -168,9 +217,10 @@ Kirigami.ScrollablePage {
             title: L.tr("Steam Deck and handheld support")
             subtitle: L.tr("Gamescope session with Steam's gaming mode, controller and fan support for Steam Deck, Legion Go, ROG Ally and similar devices.")
             status: page.st.deckInstalled ? L.tr("Installed")
-                    : page.st.deckAvailable ? ""
-                    : L.tr("Not available yet")
-            statusType: page.st.deckInstalled ? 1 : 0
+                    : !page.st.deckAvailable ? L.tr("Not available yet")
+                    : page.ses.handheld ? L.tr("Recommended: %1 detected").arg(page.ses.handheld)
+                    : ""
+            statusType: page.st.deckInstalled ? 1 : page.ses.handheld ? 2 : 0
             QQC2.Button {
                 visible: !page.st.deckInstalled
                 enabled: !backend.busy && page.st.deckAvailable === true

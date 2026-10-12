@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS gaming mode: tells nazoos-session-ctl that gaming mode started
+# (ends a one-time switch). Pulled in by every gamescope-session-plus@
+# instance via its .wants directory.
+[Unit]
+Description=NazoOS gaming mode started
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nazoos-session-select --started gaming
+
+[Install]
+WantedBy=gamescope-session-plus@.service

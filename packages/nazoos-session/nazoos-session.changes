@@ -1,0 +1,10 @@
+-------------------------------------------------------------------
+Mon Oct 12 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- First package: Steam gaming mode (gamescope-session-steam) as a
+  login session for every NazoOS system
+  * "Gaming Mode" menu entry and Steam's "Switch to Desktop" switch
+    without a password (local sessions only)
+  * boot mode "gaming": automatic login into gaming mode, desktop
+    only for one session (like SteamOS)
+  * clear session names on the login screen, duplicate entry hidden

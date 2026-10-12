@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+
+Switching between gaming mode and desktop without a password. Steam and
+gamescope run as user services outside the login session, so Polkit
+never sees them as "active": the helper checks for a local session on
+seat0 itself and only changes the caller's own session.
+Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
+-->
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>NazoOS</vendor>
+  <vendor_url>https://github.com/tokajer/NazoOS</vendor_url>
+  <icon_name>nazoos-logo</icon_name>
+
+  <action id="org.nazoos.session.switch">
+    <description>Switch between gaming mode and desktop</description>
+    <description xml:lang="de">Zwischen Gaming-Modus und Desktop wechseln</description>
+    <message>Switching the session needs permission.</message>
+    <message xml:lang="de">Für den Wechsel der Sitzung ist eine Berechtigung nötig.</message>
+    <defaults>
+      <allow_any>yes</allow_any>
+      <allow_inactive>yes</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-session/nazoos-session-switch</annotate>
+  </action>
+</policyconfig>

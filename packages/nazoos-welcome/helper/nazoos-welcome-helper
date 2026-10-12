@@ -258,6 +258,22 @@ def deck_install(_args):
     run(ZYPPER_IN + ["--type", "pattern", catalog.DECK_PATTERN])
 
 
+def session_boot_mode(args):
+    """Start in Steam's gaming mode (autologin of the calling user) or
+    with the normal login screen (nazoos-session-ctl)."""
+    mode = arg(args, 0, ("gaming", "desktop"))
+    if not Path(catalog.SESSION_CTL).exists():
+        raise Fail("gaming mode is not installed (nazoos-session)")
+    if mode == "gaming":
+        uid = int(os.environ.get("PKEXEC_UID", "-1"))
+        user = output(["id", "-nu", str(uid)]).strip()
+        if uid < 1000 or not user:
+            raise Fail("unknown user")
+        run([catalog.SESSION_CTL, "boot-mode", "gaming", user])
+    else:
+        run([catalog.SESSION_CTL, "boot-mode", "desktop"])
+
+
 # --- NazoOS kernel (ADR 0008) ----------------------------------------------
 
 def running_nazoos():
@@ -716,6 +732,7 @@ ACTIONS = {
     "rocm-install": rocm_install,
     "rocm-remove": rocm_remove,
     "deck-install": deck_install,
+    "session-boot-mode": session_boot_mode,
     "kernel-install": kernel_install,
     "kernel-only": kernel_only,
     "kernel-restore": kernel_restore,

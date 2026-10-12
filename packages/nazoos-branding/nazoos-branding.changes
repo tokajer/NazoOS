@@ -1,4 +1,18 @@
 -------------------------------------------------------------------
+Mon Oct 12 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New subpackage nazoos-branding-plymouth: NazoOS boot splash
+  (two-step with logo and spinner), replaces plymouth-branding-openSUSE
+- New subpackage nazoos-branding-grub2: NazoOS GRUB theme
+  (wallpaper, logo, DejaVu fonts built with grub2-mkfont), replaces
+  grub2-branding-openSUSE
+- /etc/os-release names the system NazoOS (written from openSUSE's
+  file after every openSUSE-release update; ID stays
+  opensuse-tumbleweed, VARIANT_ID=nazoos). GRUB snapshot entries and
+  fastfetch now say NazoOS
+- Login screen: NazoOS logo
+
+-------------------------------------------------------------------
 Thu Oct  8 18:25:04 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Add NazoOS logo (hicolor icon nazoos-logo), shown in System Settings

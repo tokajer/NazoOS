@@ -1,0 +1,186 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS gaming mode: root part. Chooses which session SDDM logs into
+# automatically (Steam gaming mode or Plasma). Called by
+#   - nazoos-session-switch (pkexec, the user switches modes)
+#   - nazoos-welcome-helper (boot mode on/off)
+#   - nazoos-session-boot.service (at boot)
+#   - the installer (handheld install starts in gaming mode)
+#
+# Boot mode "gaming": the user is logged in automatically into gaming
+# mode; "Switch to Desktop" opens Plasma once, the next logout or boot
+# goes back to gaming mode (like SteamOS).
+# Boot mode "desktop" (default): normal login screen. A switch logs into
+# the other session once, then the login screen is back.
+#
+# SDDM re-reads its config every time a session ends (Seat::createDisplay),
+# so a change takes effect at the next logout. openSUSE's SDDM takes the
+# autologin user from DISPLAYMANAGER_AUTOLOGIN in sysconfig, always.
+
+set -euo pipefail
+
+readonly CONF=/etc/nazoos/session.conf
+# Previous DISPLAYMANAGER_AUTOLOGIN while a one-time switch is pending
+readonly ONESHOT=/etc/nazoos/session-oneshot
+readonly SDDM_CONF=/etc/sddm.conf.d/zz-nazoos-session.conf
+readonly DM_SYSCONFIG=/etc/sysconfig/displaymanager
+readonly GAMING_SESSION=gamescope-session-steam.desktop
+readonly DESKTOP_SESSION=plasma.desktop
+
+die() {
+  echo "nazoos-session: $*" >&2
+  exit 1
+}
+
+# Values are read with grep, never sourced: the files are data
+conf_get() {
+  local file=$1 key=$2
+  [ -f "$file" ] || return 0
+  sed -n -E "s/^${key}=\"?([^\"]*)\"?\$/\1/p" "$file" | tail -n1
+}
+
+valid_user() {
+  [[ $1 =~ ^[a-z_][a-z0-9_.-]*$ ]] && getent passwd "$1" >/dev/null
+}
+
+session_file() {
+  case $1 in
+    gaming) echo "$GAMING_SESSION" ;;
+    desktop) echo "$DESKTOP_SESSION" ;;
+    *) die "unknown session: $1" ;;
+  esac
+}
+
+dm_autologin() {
+  conf_get "$DM_SYSCONFIG" DISPLAYMANAGER_AUTOLOGIN
+}
+
+set_dm_autologin() {
+  [ -f "$DM_SYSCONFIG" ] || touch "$DM_SYSCONFIG"
+  if grep -q '^DISPLAYMANAGER_AUTOLOGIN=' "$DM_SYSCONFIG"; then
+    sed -i "s/^DISPLAYMANAGER_AUTOLOGIN=.*/DISPLAYMANAGER_AUTOLOGIN=\"$1\"/" "$DM_SYSCONFIG"
+  else
+    echo "DISPLAYMANAGER_AUTOLOGIN=\"$1\"" >> "$DM_SYSCONFIG"
+  fi
+}
+
+# Next login (boot or logout) goes to user $1, session $2 (gaming|desktop)
+set_autologin() {
+  local user=$1 session
+  session=$(session_file "$2")
+  mkdir -p "$(dirname "$SDDM_CONF")"
+  cat > "$SDDM_CONF.tmp" <<EOF
+# Written by nazoos-session-ctl (NazoOS gaming mode), do not edit.
+# Change it in NazoOS Welcome → Gaming → Gaming mode.
+[Autologin]
+Session=$session
+Relogin=true
+EOF
+  mv -f "$SDDM_CONF.tmp" "$SDDM_CONF"
+  set_dm_autologin "$user"
+}
+
+# Remove our autologin; an autologin the admin had before comes back
+clear_autologin() {
+  rm -f "$SDDM_CONF"
+  set_dm_autologin "${1-}"
+}
+
+write_conf() {
+  mkdir -p "$(dirname "$CONF")"
+  cat > "$CONF.tmp" <<EOF
+# NazoOS gaming mode (nazoos-session-ctl). BOOT_MODE: gaming | desktop
+BOOT_MODE="$1"
+USER="$2"
+EOF
+  mv -f "$CONF.tmp" "$CONF"
+}
+
+# Undo a pending one-time switch
+restore_oneshot() {
+  [ -f "$ONESHOT" ] || return 0
+  clear_autologin "$(conf_get "$ONESHOT" PREVIOUS)"
+  rm -f "$ONESHOT"
+}
+
+boot_mode=$(conf_get "$CONF" BOOT_MODE)
+boot_user=$(conf_get "$CONF" USER)
+
+cmd=${1-}
+[ $# -gt 0 ] && shift
+
+case $cmd in
+  boot-mode)
+    mode=${1-}
+    case $mode in
+      gaming)
+        user=${2-}
+        valid_user "$user" || die "invalid user: $user"
+        rm -f "$ONESHOT"
+        write_conf gaming "$user"
+        set_autologin "$user" gaming
+        ;;
+      desktop)
+        restore_oneshot
+        if [ "$boot_mode" = gaming ]; then
+          clear_autologin ""
+        fi
+        write_conf desktop ""
+        ;;
+      *) die "usage: boot-mode gaming USER | boot-mode desktop" ;;
+    esac
+    ;;
+
+  switch)
+    target=${1-}
+    user=${2-}
+    session_file "$target" >/dev/null
+    valid_user "$user" || die "invalid user: $user"
+    if [ "$boot_mode" = gaming ]; then
+      [ "$user" = "$boot_user" ] \
+        || die "gaming mode starts for $boot_user, not for $user"
+      set_autologin "$user" "$target"
+    else
+      # One-time autologin; remember what was there before
+      if [ ! -f "$ONESHOT" ]; then
+        printf 'PREVIOUS="%s"\n' "$(dm_autologin)" > "$ONESHOT"
+      fi
+      set_autologin "$user" "$target"
+    fi
+    ;;
+
+  started)
+    # A session of user $2 has started: $1 = gaming | desktop
+    kind=${1-}
+    user=${2-}
+    session_file "$kind" >/dev/null
+    if [ "$boot_mode" = gaming ] && [ "$user" = "$boot_user" ]; then
+      # Desktop is only for this session; next time gaming mode again
+      if [ "$kind" = desktop ]; then
+        set_autologin "$user" gaming
+      fi
+    else
+      restore_oneshot
+    fi
+    ;;
+
+  boot)
+    # A one-time switch never survives a reboot; gaming mode always
+    # starts in gaming mode
+    restore_oneshot
+    if [ "$boot_mode" = gaming ] && valid_user "$boot_user"; then
+      set_autologin "$boot_user" gaming
+    fi
+    ;;
+
+  status)
+    echo "BOOT_MODE=${boot_mode:-desktop}"
+    echo "USER=$boot_user"
+    ;;
+
+  *)
+    die "usage: nazoos-session-ctl boot-mode|switch|started|boot|status ..."
+    ;;
+esac

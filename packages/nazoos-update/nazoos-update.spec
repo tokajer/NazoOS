@@ -63,7 +63,8 @@ install -Dm0644 data/org.nazoos.update.desktop \
 install -Dm0644 data/org.nazoos.update.policy \
   %{buildroot}%{_datadir}/polkit-1/actions/org.nazoos.update.policy
 install -Dm0644 -t %{buildroot}%{_unitdir} \
-  data/nazoos-update-check.service data/nazoos-update-check.timer
+  data/nazoos-update-check.service data/nazoos-update-check.timer \
+  data/nazoos-update-label.service data/nazoos-update-label.path
 install -Dm0644 -t %{buildroot}%{_userunitdir} \
   data/nazoos-update-notify.service data/nazoos-update-notify.timer
 install -Dm0644 data/90-nazoos-update.preset \
@@ -84,18 +85,18 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/org.nazoos.update.des
 python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" helper/nazoos-update-helper
 
 %pre
-%service_add_pre nazoos-update-check.service nazoos-update-check.timer
+%service_add_pre nazoos-update-check.service nazoos-update-check.timer nazoos-update-label.service nazoos-update-label.path
 
 %post
-%service_add_post nazoos-update-check.service nazoos-update-check.timer
+%service_add_post nazoos-update-check.service nazoos-update-check.timer nazoos-update-label.service nazoos-update-label.path
 %systemd_user_post nazoos-update-notify.service nazoos-update-notify.timer
 
 %preun
-%service_del_preun nazoos-update-check.service nazoos-update-check.timer
+%service_del_preun nazoos-update-check.service nazoos-update-check.timer nazoos-update-label.service nazoos-update-label.path
 %systemd_user_preun nazoos-update-notify.service nazoos-update-notify.timer
 
 %postun
-%service_del_postun nazoos-update-check.service nazoos-update-check.timer
+%service_del_postun nazoos-update-check.service nazoos-update-check.timer nazoos-update-label.service nazoos-update-label.path
 %systemd_user_postun nazoos-update-notify.service nazoos-update-notify.timer
 
 %files -f %{name}.lang
@@ -109,6 +110,8 @@ python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" helper/nazoos-
 %{_datadir}/polkit-1/actions/org.nazoos.update.policy
 %{_unitdir}/nazoos-update-check.service
 %{_unitdir}/nazoos-update-check.timer
+%{_unitdir}/nazoos-update-label.service
+%{_unitdir}/nazoos-update-label.path
 %{_userunitdir}/nazoos-update-notify.service
 %{_userunitdir}/nazoos-update-notify.timer
 %{_presetdir}/90-nazoos-update.preset

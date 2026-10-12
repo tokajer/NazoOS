@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+[Desktop Entry]
+Type=Application
+Name=Gaming Mode
+Name[de]=Gaming-Modus
+GenericName=Switch to Steam gaming mode
+GenericName[de]=Zum Steam-Gaming-Modus wechseln
+Comment=Ends the desktop session and starts Steam's console interface
+Comment[de]=Beendet die Desktop-Sitzung und startet Steams Konsolenoberfläche
+Icon=steam
+Exec=nazoos-session-select gaming
+TryExec=steam
+Terminal=false
+Categories=Game;
+Keywords=steam;deck;big picture;gamescope;console;
+Keywords[de]=steam;deck;big picture;gamescope;konsole;
+OnlyShowIn=KDE;

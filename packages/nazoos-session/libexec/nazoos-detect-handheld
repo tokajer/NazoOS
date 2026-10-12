@@ -1,0 +1,25 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Exit 0 and print the model name if this computer is a gaming handheld.
+# Steam Deck by its DMI name; all others through InputPlumber's device
+# list (hwdb property USE_INPUTPLUMBER), so no own list has to be kept.
+# Used by the installer (preselects "Handheld") and NazoOS Welcome.
+
+dmi=/sys/class/dmi/id
+vendor=$(cat "$dmi/sys_vendor" 2>/dev/null)
+product=$(cat "$dmi/product_name" 2>/dev/null)
+
+case "$vendor:$product" in
+  Valve:Jupiter) echo "Steam Deck LCD"; exit 0 ;;
+  Valve:Galileo) echo "Steam Deck OLED"; exit 0 ;;
+esac
+
+modalias=$(cat "$dmi/modalias" 2>/dev/null)
+if [ -n "$modalias" ] && command -v systemd-hwdb >/dev/null \
+    && systemd-hwdb query "$modalias" 2>/dev/null | grep -qx 'USE_INPUTPLUMBER=1'; then
+  echo "$vendor $product"
+  exit 0
+fi
+exit 1

@@ -229,6 +229,11 @@ ROCM_PACKAGES = ["rocm-hip", "rocm-opencl", "rocminfo", "amdsmi"]
 # Handheld / Steam Deck pattern (separate package, may not exist yet)
 DECK_PATTERN = "nazoos-deck"
 
+# Steam gaming mode (nazoos-session): boot mode file and tools
+SESSION_CONF = "/etc/nazoos/session.conf"
+SESSION_CTL = "/usr/libexec/nazoos-session/nazoos-session-ctl"
+SESSION_DETECT = "/usr/libexec/nazoos-session/nazoos-detect-handheld"
+
 # NazoOS kernel (ADR 0007/0008). Opt-in: the repo is added on install.
 # Stage 1 installs kernel-nazoos next to kernel-default, stage 2 removes
 # kernel-default with the conflict package nazoos-kernel-only.

@@ -261,6 +261,28 @@ def kernel_state():
     }
 
 
+def session_state():
+    """Steam gaming mode (nazoos-session): boot mode and handheld model."""
+    conf = {}
+    for line in _read(catalog.SESSION_CONF).splitlines():
+        m = re.match(r'^(\w+)="?([^"]*)"?$', line.strip())
+        if m:
+            conf[m.group(1)] = m.group(2)
+    handheld = ""
+    if os.access(catalog.SESSION_DETECT, os.X_OK):
+        r = subprocess.run([catalog.SESSION_DETECT], capture_output=True,
+                           text=True)
+        if r.returncode == 0:
+            handheld = r.stdout.strip() or "handheld"
+    return {
+        "installed": shutil.which("nazoos-session-select") is not None,
+        "steam": shutil.which("steam") is not None,
+        "bootGaming": conf.get("BOOT_MODE") == "gaming",
+        "user": conf.get("USER", ""),
+        "handheld": handheld,
+    }
+
+
 def collect():
     """Full state for the UI, as plain JSON-friendly data."""
     gpu_list = gpus()
@@ -342,6 +364,7 @@ def collect():
                                       "--columns=name"]).split(),
         "deckInstalled": deck_installed,
         "deckAvailable": deck_available,
+        "session": session_state(),
         "drives": drives(),
         "kernel": kernel_state(),
         "hasBtrfsAssistant": shutil.which("btrfs-assistant") is not None,

@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: replaces gamescope-session-steam's entry of the same name
+# (SDDM uses the first directory that has the file, 40-nazoos-session.conf)
+[Desktop Entry]
+Name=Gaming Mode (Steam)
+Name[de]=Gaming-Modus (Steam)
+Comment=Steam's console interface in Gamescope, like on the Steam Deck
+Comment[de]=Steams Konsolenoberfläche in Gamescope, wie auf dem Steam Deck
+Exec=gamescope-session-plus steam
+TryExec=steam
+Type=Application
+DesktopNames=gamescope

@@ -4,7 +4,8 @@
 """Root part of nazoos-update.
 
 Started by nazoos-update-check.service (action "check") and by the GUI
-via pkexec ("check", "update", "rollback"). Takes no other arguments.
+via pkexec ("check", "update", "rollback"); "label" by
+nazoos-update-label.service. Takes no other arguments.
 The status of the last check is written to STATUS as JSON, readable by
 every user; the GUI and the notifier only read it.
 The last output line "@@error <text>" carries a message for the user.
@@ -257,7 +258,8 @@ def label_snapshots(update_after=None):
     rest their description; always with the local date. Snapshots that
     already have a label are left alone."""
     if not Path("/usr/bin/snapper").exists():
-        return
+        return 0
+    named = 0
     _ = system_translation().gettext
     # xgettext:no-python-format
     date_fmt = _("%Y-%m-%d %H:%M")
@@ -266,9 +268,12 @@ def label_snapshots(update_after=None):
                 and (s.get("description") or "").startswith("zypp(")}
     for s in snaps:
         num = s["number"]
-        if num == 0 or "bootloader" in (s.get("userdata") or {}):
-            continue
         is_update = update_after is not None and num > update_after
+        # nazoos-update-label.path may have named the pair of this update
+        # "software change" while zypper was running: rename those
+        if num == 0 or ("bootloader" in (s.get("userdata") or {})
+                        and not is_update):
+            continue
         if s["type"] == "pre" and num in zypp_pre:
             text = _("Before update") if is_update \
                 else _("Before software change")
@@ -277,6 +282,13 @@ def label_snapshots(update_after=None):
                 else _("After software change")
         elif s["type"] == "single" and s.get("description") == "timeline":
             text = _("Automatic snapshot")
+        elif s["type"] == "single" \
+                and (s.get("description") or "").startswith(
+                    "nazoos-update: rollback") \
+                and subvol_readonly(f"/.snapshots/{num}/snapshot"):
+            # The read-only backup snapper keeps of the state before the
+            # rollback; the writable copy (new root) keeps its description
+            text = _("Before rollback")
         elif s["type"] == "single" and s.get("description"):
             # Made by hand, nazoos-welcome or a rollback: its own text
             text = s["description"]
@@ -291,6 +303,8 @@ def label_snapshots(update_after=None):
             .replace(",", " ").replace("=", " ")
         capture(["snapper", "modify", "--userdata",
                  f"bootloader={label}", str(num)])
+        named += 1
+    return named
 
 
 # --- rollback ---------------------------------------------------------------
@@ -335,7 +349,17 @@ def rollback(_args):
     print("@@reboot", flush=True)
 
 
-ACTIONS = {"check": check, "update": update, "rollback": rollback}
+def label(_args):
+    # The path unit misses changes while this runs (e.g. zypper's post
+    # snapshot during our first pass): repeat until a pass names nothing
+    for _round in range(10):
+        if not label_snapshots():
+            break
+        time.sleep(2)
+
+
+ACTIONS = {"check": check, "update": update, "rollback": rollback,
+           "label": label}
 
 
 def main():

@@ -1,8 +1,13 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# NazoOS: login screen background. SDDM reads theme.conf.user after the
-# theme's own theme.conf, so this overrides only the background.
+# NazoOS: login screen background and logo. SDDM reads theme.conf.user
+# after the theme's own theme.conf, so this overrides only these keys.
+# The theme itself is upstream Breeze (packaged by openSUSE as
+# breeze-openSUSE); no own QML fork, see ADR 0019.
 
 [General]
 background=/usr/share/wallpapers/NazoOS/contents/images/3840x2160.png
+# Logo above the clock line, hidden while the login form is shown
+showlogo=shown
+logo=/usr/share/icons/hicolor/scalable/apps/nazoos-logo.svg

@@ -26,11 +26,18 @@ Requires:       snapper
 Requires:       util-linux
 # Live session: installer starter runs Calamares via sudo
 Requires:       sudo
+# Device page: handheld detection, gaming mode for handheld installs
+Requires:       nazoos-session
+# Handheld installs keep it, desktop installs remove it
+Recommends:     nazoos-deck
 
 %description
 Configuration and branding for the Calamares installer on the NazoOS
 live medium: btrfs with the openSUSE subvolume layout, Snapper, GRUB
-with Secure Boot (shim) and snapshot boot entries.
+with Secure Boot (shim) and snapshot boot entries. One image for all
+devices: a device page (desktop PC or handheld, preselected on
+handhelds) decides whether the system starts in Steam's gaming mode
+and keeps the handheld packages.
 Also sets up the live session: autologin into Plasma and an installer
 starter (menu + autostart).
 Only for the live medium; it removes itself from the installed system.
@@ -46,9 +53,10 @@ install -Dm0644 settings.conf %{buildroot}%{_datadir}/calamares/settings.conf
 install -Dm0644 -t %{buildroot}%{_datadir}/calamares/modules modules/*.conf
 install -Dm0644 -t %{buildroot}%{_datadir}/calamares/branding/nazoos \
   branding/nazoos/branding.desc branding/nazoos/show.qml \
-  branding/nazoos/disclaimer.html branding/nazoos/stylesheet.qss
-install -Dm0755 scripts/nazoos-postinstall \
-  %{buildroot}%{_libexecdir}/nazoos-calamares/nazoos-postinstall
+  branding/nazoos/disclaimer.html branding/nazoos/stylesheet.qss \
+  branding/nazoos/device-desktop.svg branding/nazoos/device-handheld.svg
+install -Dm0755 -t %{buildroot}%{_libexecdir}/nazoos-calamares \
+  scripts/nazoos-postinstall scripts/nazoos-installer
 # Live session
 install -Dm0644 live/nazoos-installer.desktop \
   %{buildroot}%{_datadir}/applications/nazoos-installer.desktop

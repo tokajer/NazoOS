@@ -34,6 +34,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <timezone>Europe/Berlin</timezone>
     <rpm-excludedocs>true</rpm-excludedocs>
     <rpm-check-signatures>false</rpm-check-signatures>
+    <!-- NazoOS GRUB theme and boot splash (nazoos-branding-grub2/-plymouth):
+         KIWI copies the GRUB theme to /boot (also into the ISO boot menu)
+         and sets the Plymouth theme -->
+    <bootsplash-theme>nazoos</bootsplash-theme>
+    <bootloader-theme>nazoos</bootloader-theme>
   </preferences>
 
   <preferences profiles="test">
@@ -138,6 +143,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <package name="nazoos-pattern"/>
     <package name="nazoos-tweaks"/>
     <package name="nazoos-branding"/>
+    <package name="nazoos-branding-plymouth"/>
+    <package name="nazoos-branding-grub2"/>
+    <package name="plymouth"/>
+    <!-- Steam gaming mode as login session (also pulled by the pattern) -->
+    <package name="nazoos-session"/>
     <!-- No X11 session (CLAUDE.md: Wayland only) -->
     <ignore name="plasma6-session-x11"/>
   </packages>
@@ -155,5 +165,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <package name="dracut-kiwi-live"/>
     <!-- Installer + its NazoOS config (pulls in calamares) -->
     <package name="nazoos-calamares-config"/>
+    <!-- One ISO for all devices: the handheld packages are on the
+         medium, the installer's device page keeps them (handheld) or
+         removes them (desktop PC). Offline install, no download -->
+    <package name="nazoos-deck"/>
   </packages>
 </image>

@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: default boot splash (replaces plymouth-branding-openSUSE's
+# file). Override in /etc/plymouth/plymouthd.conf.
+[Daemon]
+Theme=nazoos
+ShowDelay=0
+DeviceTimeout=8

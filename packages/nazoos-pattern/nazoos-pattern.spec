@@ -34,6 +34,9 @@ Recommends:     lutris
 Recommends:     gamemode
 Recommends:     mangohud
 Recommends:     gamescope
+# Steam's gaming mode (Steam Deck interface) as a login session, with a
+# "Gaming Mode" switch in the menu and Steam's "Switch to Desktop"
+Recommends:     nazoos-session
 Recommends:     wine
 Recommends:     protontricks
 Recommends:     winetricks
@@ -92,9 +95,10 @@ Recommends:     kate
 
 %description
 Installs the NazoOS gaming desktop: system tweaks, Steam, Lutris,
-Wine, Gamescope, MangoHud, GameMode, hardware tools, graphical
-software management (Discover with Flatpak, Myrlyn), updates with
-notifications (nazoos-update) and snapshots (Btrfs Assistant).
+Wine, Gamescope with Steam's gaming mode, MangoHud, GameMode, hardware
+tools, graphical software management (Discover with Flatpak, Myrlyn),
+updates with notifications (nazoos-update) and snapshots (Btrfs
+Assistant).
 
 %prep
 # Nothing to unpack: a pattern only carries dependencies

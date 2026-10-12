@@ -1,0 +1,79 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS GRUB theme. Fonts (*.pf2) are generated at build time from
+# DejaVu; GRUB loads every .pf2 file of the theme directory.
+# Docs: https://www.gnu.org/software/grub/manual/grub/html_node/Theme-file-format.html
+
+desktop-image: "background.jpg"
+desktop-image-scale-method: "crop"
+desktop-color: "#0D1214"
+
+title-text: ""
+terminal-font: "Gnu Unifont Mono Regular 16"
+
++ image {
+  left = 32
+  top = 24
+  width = 72
+  height = 72
+  file = "logo.png"
+}
+
++ label {
+  left = 118
+  top = 42
+  width = 400
+  height = 40
+  text = "NazoOS"
+  font = "DejaVu Sans Bold 24"
+  color = "#E8F5EC"
+}
+
++ boot_menu {
+  left = 15%
+  width = 70%
+  top = 30%
+  height = 45%
+
+  item_font = "DejaVu Sans Regular 14"
+  item_color = "#C8D6CF"
+  item_height = 36
+  item_padding = 12
+  item_spacing = 4
+
+  selected_item_font = "DejaVu Sans Bold 14"
+  selected_item_color = "#FFFFFF"
+  selected_item_pixmap_style = "highlight_*.png"
+
+  icon_height = 0
+  icon_width = 0
+
+  scrollbar = true
+  scrollbar_width = 8
+  scrollbar_thumb = "slider_*.png"
+}
+
++ progress_bar {
+  id = "__timeout__"
+  left = 15%
+  width = 70%
+  top = 78%
+  height = 24
+  font = "DejaVu Sans Regular 12"
+  text_color = "#C8D6CF"
+  fg_color = "#1F7A3A"
+  bg_color = "#0D1214"
+  border_color = "#1E2B27"
+  text = "@TIMEOUT_NOTIFICATION_LONG@"
+}
+
++ label {
+  left = 32
+  top = 100%-40
+  width = 100%
+  height = 24
+  text = "Enter: start   E: edit entry   C: command line"
+  font = "DejaVu Sans Regular 12"
+  color = "#8FA39A"
+}

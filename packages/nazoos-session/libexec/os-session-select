@@ -1,0 +1,8 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Hook of gamescope-session-steam-generic: Steam's "Switch to Desktop"
+# runs steamos-session-select, which calls /usr/lib/os-session-select
+# with the session name (plasma, desktop, gamescope, ...).
+exec /usr/bin/nazoos-session-select "${1:-desktop}"

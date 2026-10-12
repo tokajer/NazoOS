@@ -1,0 +1,42 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS gaming mode: what a user may do without a password (pkexec,
+# org.nazoos.session.policy). Only switches the caller's own session and
+# only while the caller sits at the computer (active session on seat0).
+# Usage: nazoos-session-switch switch|started gaming|desktop
+
+set -euo pipefail
+
+readonly CTL=/usr/libexec/nazoos-session/nazoos-session-ctl
+
+die() {
+  echo "nazoos-session-switch: $*" >&2
+  exit 1
+}
+
+[ "$(id -u)" -eq 0 ] || die "must run via pkexec"
+uid=${PKEXEC_UID-}
+[[ $uid =~ ^[0-9]+$ ]] || die "no caller (PKEXEC_UID)"
+user=$(getent passwd "$uid" | cut -d: -f1)
+[ -n "$user" ] || die "unknown user id $uid"
+
+cmd=${1-}
+kind=${2-}
+case $cmd in switch|started) ;; *) die "invalid command: $cmd" ;; esac
+case $kind in gaming|desktop) ;; *) die "invalid session: $kind" ;; esac
+
+# The caller needs a session on seat0 (a local login, not SSH). Gamescope
+# and Steam run as user services outside the login session, so the
+# session itself is checked here instead of Polkit's "active" state.
+local_session=no
+for s in $(loginctl show-user "$uid" -p Sessions --value 2>/dev/null); do
+  if [ "$(loginctl show-session "$s" -p Seat --value 2>/dev/null)" = seat0 ]; then
+    local_session=yes
+    break
+  fi
+done
+[ "$local_session" = yes ] || die "only possible at the computer itself (no local session of $user)"
+
+exec "$CTL" "$cmd" "$kind" "$user"

@@ -4,8 +4,13 @@
 #
 # NazoOS: last installer step, runs inside the installed system (chroot).
 # Called by Calamares (modules/shellprocess-nazoos.conf).
+# Arguments: device type from the device page (desktop | handheld) and
+# the name of the user created by the installer.
 
 set -euxo pipefail
+
+device=${1:-desktop}
+user=${2:-}
 
 # The live medium's base image has no /etc/mtab (systemd creates it at
 # boot); snapper and other tools need it inside the installer chroot
@@ -47,6 +52,29 @@ sed -i 's/^DISPLAYMANAGER_AUTOLOGIN=.*/DISPLAYMANAGER_AUTOLOGIN=""/' \
   /etc/sysconfig/displaymanager
 rm -f /etc/dracut.conf.d/02-livecd.conf
 
+# 3b. One image for every device: adapt it to the device page's choice
+#     (after the live autologin is cleared above)
+case $device in
+  handheld)
+    # Start in Steam's gaming mode (autologin of the new user); handheld
+    # packages stay. nazoos-deck adds the desktop shortcut and the
+    # on-screen keyboard at the first desktop login.
+    /usr/libexec/nazoos-session/nazoos-session-ctl boot-mode gaming "$user"
+    ;;
+  *)
+    # Desktop/laptop: remove what only handhelds need (the live medium
+    # carries it for handheld installs). One by one, so a package that
+    # something else still needs simply stays.
+    rpm -q --quiet nazoos-deck && rpm -e nazoos-deck
+    for p in inputplumber jupiter-fan-control steamdeck-dsp galileo-mura \
+             jupiter-dock-updater-bin steamos-powerbuttond; do
+      if rpm -q --quiet "$p"; then
+        rpm -e "$p" || echo "kept $p (needed by another package)"
+      fi
+    done
+    ;;
+esac
+
 # 4. initrd for the installed system. Must exist before the GRUB config
 #    is generated, otherwise grub2-mkconfig writes entries without initrd
 #    (the live medium keeps its initrd on the ISO, not in /boot)
@@ -66,6 +94,10 @@ GRUB_GFXMODE="auto"
 GRUB_DISABLE_OS_PROBER="false"
 SUSE_BTRFS_SNAPSHOT_BOOTING="true"
 GRUB
+# NazoOS GRUB theme (nazoos-branding-grub2): copy to /boot, GRUB_THEME
+if [ -x /usr/share/grub2/themes/nazoos/activate-theme ]; then
+  /usr/share/grub2/themes/nazoos/activate-theme
+fi
 cat > /etc/sysconfig/bootloader <<BOOT
 LOADER_TYPE="grub2-efi"
 SECURE_BOOT="yes"

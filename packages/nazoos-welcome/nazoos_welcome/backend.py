@@ -30,6 +30,8 @@ LAUNCHERS = {
     "steam": (["steam.desktop"], ["steam"]),
     "systemsettings": (["systemsettings.desktop"], ["systemsettings"]),
     "installer": (["nazoos-installer.desktop"], None),
+    # Ends the desktop session (nazoos-session)
+    "gaming-mode": ([], ["nazoos-session-select", "gaming"]),
 }
 
 # Root actions of the helper, with the text shown while they run
@@ -43,6 +45,7 @@ ACTION_LABELS = {
     "rocm-install": "Installing ROCm",
     "rocm-remove": "Removing ROCm",
     "deck-install": "Installing the handheld pattern",
+    "session-boot-mode": "Changing the start mode",
     "kernel-install": "Installing the NazoOS kernel",
     "kernel-only": "Removing the openSUSE kernel",
     "kernel-restore": "Switching back to the openSUSE kernel",

@@ -49,3 +49,14 @@ path = "packages/nazoos-branding/logo/**"
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 The NazoOS Contributors"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+# Artwork: boot splash, GRUB theme images (generated from logo and
+# wallpaper) and the installer's device pictures
+[[annotations]]
+path = ["packages/nazoos-branding/plymouth/*.png",
+        "packages/nazoos-branding/grub2/*.png",
+        "packages/nazoos-branding/grub2/*.jpg",
+        "packages/nazoos-calamares-config/branding/nazoos/device-*.svg"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2026 The NazoOS Contributors"
+SPDX-License-Identifier = "CC-BY-SA-4.0"

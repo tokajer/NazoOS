@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+  <!-- SPDX-FileCopyrightText: 2026 The NazoOS Contributors -->
+  <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+  <title>Desktop PC or laptop</title>
+  <defs>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1E2B27"/><stop offset="1" stop-color="#0D1214"/>
+    </linearGradient>
+  </defs>
+  <!-- monitor -->
+  <rect x="70" y="30" width="250" height="160" rx="10" fill="#0D1214" stroke="#5FD27A" stroke-width="5"/>
+  <rect x="84" y="44" width="222" height="132" rx="4" fill="url(#screen)"/>
+  <rect x="84" y="160" width="222" height="16" fill="#1F7A3A" opacity="0.8"/>
+  <rect x="92" y="164" width="8" height="8" rx="2" fill="#5FD27A"/>
+  <rect x="104" y="58" width="60" height="40" rx="4" fill="#1F7A3A" opacity="0.6"/>
+  <rect x="172" y="58" width="60" height="40" rx="4" fill="#1F7A3A" opacity="0.4"/>
+  <path d="M175 190 L165 230 H225 L215 190 Z" fill="#5FD27A"/>
+  <rect x="140" y="228" width="110" height="10" rx="5" fill="#5FD27A"/>
+  <!-- laptop -->
+  <rect x="300" y="120" width="130" height="85" rx="6" fill="#0D1214" stroke="#C8AE7E" stroke-width="4"/>
+  <rect x="310" y="130" width="110" height="65" rx="2" fill="url(#screen)"/>
+  <path d="M285 210 H445 L432 228 H298 Z" fill="#C8AE7E"/>
+  <!-- keyboard -->
+  <rect x="60" y="250" width="200" height="26" rx="5" fill="#0D1214" stroke="#5FD27A" stroke-width="3"/>
+  <g fill="#5FD27A" opacity="0.7">
+    <rect x="70" y="257" width="14" height="5" rx="1"/><rect x="90" y="257" width="14" height="5" rx="1"/>
+    <rect x="110" y="257" width="14" height="5" rx="1"/><rect x="130" y="257" width="14" height="5" rx="1"/>
+    <rect x="150" y="257" width="14" height="5" rx="1"/><rect x="170" y="257" width="14" height="5" rx="1"/>
+    <rect x="190" y="257" width="14" height="5" rx="1"/><rect x="210" y="257" width="14" height="5" rx="1"/>
+    <rect x="230" y="257" width="20" height="5" rx="1"/>
+    <rect x="95" y="266" width="130" height="5" rx="1"/>
+  </g>
+</svg>

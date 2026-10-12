@@ -27,8 +27,11 @@ systemctl enable snapper-timeline.timer snapper-cleanup.timer
 # package may be installed before the preset file exists
 systemctl preset coolercontrold.service
 # nazoos-update: system timer (repo check) and user timer (notifications)
-systemctl preset nazoos-update-check.timer
+systemctl preset nazoos-update-check.timer nazoos-update-label.path
 systemctl --global preset nazoos-update-notify.timer
+# nazoos-session: gaming mode at boot (system) and session start (user)
+systemctl preset nazoos-session-boot.service
+systemctl --global preset nazoos-session-gaming.service nazoos-session-desktop.service
 # sched_ext: scx_lavd as the preselected scheduler (made for gaming
 # latency; the scx package ships scx_flash). scx itself stays off until
 # it is switched on in nazoos-welcome
@@ -54,6 +57,11 @@ if has_profile live; then
   printf '[Daemon]\nAutolock=false\nLockOnResume=false\n' \
     > /home/live/.config/kscreenlockerrc
   chown live:users /home/live/.config/kscreenlockerrc
+  # Handheld services (nazoos-deck, live profile only): they start only on
+  # matching hardware; desktop installs remove the packages
+  systemctl preset jupiter-fan-control.service pipewire-sysconf.service \
+    wireplumber-sysconf.service
+  systemctl --global preset steamos-powerbuttond.service
 fi
 
 # Trust the signing keys of the online repos below. OBS builds from its

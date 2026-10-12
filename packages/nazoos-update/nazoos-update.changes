@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Mon Oct 12 09:40:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- nazoos-update-label.path/.service: new snapshots get their boot menu
+  name at once (zypper from Welcome, Myrlyn, a terminal), not only at
+  the next update check; the update itself still renames its pair to
+  "Before/After update"
+- Boot menu: the backup snapper keeps at a rollback is "Before rollback"
+- Notifications 10 s after login with AccuracySec=1s (the timer's
+  default accuracy of 1 min made it fire up to a minute late)
+
+-------------------------------------------------------------------
 Sun Oct 11 21:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Rollback: detect a snapshot booted from GRUB by the read-only flag

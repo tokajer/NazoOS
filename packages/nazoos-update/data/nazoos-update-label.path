@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# A new snapshot (zypper from any program, snapper timeline, Btrfs
+# Assistant) gets a readable boot menu name right away, not only at the
+# next update check.
+[Unit]
+Description=NazoOS: name new snapshots for the boot menu
+ConditionPathIsDirectory=/.snapshots
+
+[Path]
+PathChanged=/.snapshots
+Unit=nazoos-update-label.service
+
+[Install]
+WantedBy=paths.target

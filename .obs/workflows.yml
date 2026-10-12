@@ -44,6 +44,12 @@ devel_build:
         package: nazoos-binder
     - trigger_services:
         project: home:Tokajer:nazoos:devel
+        package: nazoos-session
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: nazoos-deck
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
         package: nazoos-image
   filters:
     event: push

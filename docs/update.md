@@ -42,5 +42,6 @@ If the system does not start or misbehaves after an update:
 - Background check: `nazoos-update-check.timer` (system), result in `/var/lib/nazoos-update/status.json`.
 - Notifications: `nazoos-update-notify.timer` (user).
 - "Make permanent" runs `snapper --ambit classic rollback`.
-- The boot menu names come from the snapper userdata `bootloader`, set by NazoOS Update after each update and check (`snapper list` shows the original descriptions).
+- The boot menu names come from the snapper userdata `bootloader`, set by `nazoos-update-label.path` as soon as a snapshot appears and by NazoOS Update after each update (`snapper list` shows the original descriptions).
 - When the download servers still have an older Tumbleweed snapshot than the installed system (right after installing from a new image), no system update is offered: `zypper dup` would only go back to the older versions.
+- In a terminal, `sudo zypper dup` does not have this check: in the first hours after installing it may list many packages going *down* a version (compare `VERSION_ID` in `/etc/os-release` with `curl -sL https://download.opensuse.org/tumbleweed/repo/oss/media.1/products`). That is harmless – the system just matches the servers again and the next update moves forward – but you can also simply wait. `zypper up` never downgrades, but on Tumbleweed `dup` is the right command. Do not set `solver.dupAllowDowngrade = false`: Tumbleweed sometimes goes back a version on purpose when a new one was broken.

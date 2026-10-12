@@ -1,0 +1,71 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS gaming mode: switch between Steam gaming mode and the Plasma
+# desktop. Runs as the user; the root part is nazoos-session-switch.
+#   nazoos-session-select gaming|desktop   switch now (ends this session)
+#   nazoos-session-select --started gaming|desktop
+#                                          called when a session starts
+
+set -uo pipefail
+
+readonly SWITCH=/usr/libexec/nazoos-session/nazoos-session-switch
+
+usage() {
+  echo "usage: nazoos-session-select gaming|desktop" >&2
+  echo "       nazoos-session-select --started gaming|desktop" >&2
+  exit 2
+}
+
+notify_error() {
+  echo "nazoos-session-select: $1" >&2
+  if command -v notify-send >/dev/null; then
+    notify-send --app-name="NazoOS" --icon=dialog-error \
+      "Gaming mode" "$1" 2>/dev/null || :
+  fi
+}
+
+end_session() {
+  case ${XDG_CURRENT_DESKTOP-} in
+    *gamescope*)
+      # Steam's own shutdown; gamescope-session-plus then ends the session
+      steam -shutdown >/dev/null 2>&1 &
+      return 0
+      ;;
+    *KDE*)
+      if dbus-send --session --type=method_call --dest=org.kde.Shutdown \
+          /Shutdown org.kde.Shutdown.logout 2>/dev/null; then
+        return 0
+      fi
+      ;;
+  esac
+  if [ -n "${XDG_SESSION_ID-}" ]; then
+    loginctl terminate-session "$XDG_SESSION_ID"
+  else
+    notify_error "Please log out to switch."
+  fi
+}
+
+if [ "${1-}" = --started ]; then
+  case ${2-} in gaming|desktop) ;; *) usage ;; esac
+  exec pkexec "$SWITCH" started "$2"
+fi
+
+case ${1-} in
+  gaming|desktop) target=$1 ;;
+  plasma|plasma-wayland|plasma-wayland-persistent|plasma-persistent) target=desktop ;;
+  gamescope) target=gaming ;;
+  *) usage ;;
+esac
+
+if [ "$target" = gaming ] && ! command -v steam >/dev/null; then
+  notify_error "Steam is not installed. Install it in NazoOS Welcome → Apps."
+  exit 1
+fi
+
+if ! err=$(pkexec "$SWITCH" switch "$target" 2>&1); then
+  notify_error "Could not switch: ${err##*: }"
+  exit 1
+fi
+end_session

@@ -1,0 +1,7 @@
+-------------------------------------------------------------------
+Mon Oct 12 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- First package: pattern nazoos-deck for Steam Deck and other
+  handhelds (InputPlumber, Steam Deck fan control and audio DSP,
+  power button in gaming mode, on-screen keyboard, auto-rotation)
+  * Steam Deck services only start on a Steam Deck

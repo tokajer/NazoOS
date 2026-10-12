@@ -1,0 +1,32 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: copy the GRUB theme to /boot (GRUB reads it before /usr may be
+# reachable, e.g. with a separate /boot) and point /etc/default/grub at
+# it. Same job as openSUSE's activate-theme of grub2-branding-openSUSE.
+# The caller regenerates grub.cfg (update-bootloader --refresh).
+
+set -eu
+
+theme=nazoos
+src=/usr/share/grub2/themes/$theme
+dst=/boot/grub2/themes/$theme
+default=/etc/default/grub
+
+[ -d "$src" ] || exit 0
+mkdir -p "$(dirname "$dst")"
+rm -rf "$dst"
+cp -r "$src" "$dst"
+rm -f "$dst/activate-theme"
+
+[ -f "$default" ] || exit 0
+set_key() {
+  if grep -qE "^\s*#?\s*$1=" "$default"; then
+    sed -i -E "s|^\s*#?\s*$1=.*|$1=\"$2\"|" "$default"
+  else
+    echo "$1=\"$2\"" >> "$default"
+  fi
+}
+set_key GRUB_THEME "$dst/theme.txt"
+set_key GRUB_BACKGROUND "$dst/background.jpg"

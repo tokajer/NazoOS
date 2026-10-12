@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+[Desktop Entry]
+Type=Application
+Name=NazoOS handheld setup
+Name[de]=NazoOS-Handheld-Einrichtung
+Comment=Gaming mode shortcut and on-screen keyboard (once per user)
+Comment[de]=Gaming-Modus-Verknüpfung und Bildschirmtastatur (einmal pro Nutzer)
+Exec=/usr/libexec/nazoos-deck/nazoos-deck-firstlogin
+Icon=input-gamepad
+Terminal=false
+NoDisplay=true
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2

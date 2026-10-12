@@ -1,0 +1,63 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS boot splash: Plymouth's two-step plugin (like openSUSE's bgrt
+# theme) with the NazoOS logo in the middle and the spinner below.
+# Spinner images come from plymouth-theme-spinner (ImageDir).
+# Docs: https://gitlab.freedesktop.org/plymouth/plymouth (src/plugins/splash/two-step)
+[Plymouth Theme]
+Name=NazoOS
+Description=NazoOS logo with a spinner
+ModuleName=two-step
+
+[two-step]
+Font=Cantarell 12
+TitleFont=Cantarell Light 30
+ImageDir=/usr/share/plymouth/themes/spinner
+WatermarkPath=/usr/share/plymouth/themes/nazoos/watermark.png
+WatermarkHorizontalAlignment=.5
+WatermarkVerticalAlignment=.42
+HorizontalAlignment=.5
+VerticalAlignment=.75
+DialogHorizontalAlignment=.5
+DialogVerticalAlignment=.75
+TitleHorizontalAlignment=.5
+TitleVerticalAlignment=.2
+Transition=none
+TransitionDuration=0.0
+# Same dark colour as the logo and installer sidebar
+BackgroundStartColor=0x0D1214
+BackgroundEndColor=0x0D1214
+ProgressBarBackgroundColor=0x1E2B27
+ProgressBarForegroundColor=0x5FD27A
+MessageBelowAnimation=true
+
+[boot-up]
+UseEndAnimation=false
+
+[shutdown]
+UseEndAnimation=false
+
+[reboot]
+UseEndAnimation=false
+
+[updates]
+SuppressMessages=true
+ProgressBarShowPercentComplete=true
+UseProgressBar=true
+Title=Installing Updates...
+SubTitle=Do not turn off your computer
+
+[system-upgrade]
+SuppressMessages=true
+ProgressBarShowPercentComplete=true
+UseProgressBar=true
+Title=Upgrading System...
+SubTitle=Do not turn off your computer
+
+[firmware-upgrade]
+SuppressMessages=true
+ProgressBarShowPercentComplete=true
+UseProgressBar=true
+Title=Upgrading Firmware...
+SubTitle=Do not turn off your computer

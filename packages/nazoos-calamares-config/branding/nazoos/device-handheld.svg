@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+  <!-- SPDX-FileCopyrightText: 2026 The NazoOS Contributors -->
+  <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
+  <title>Handheld</title>
+  <defs>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1E2B27"/><stop offset="1" stop-color="#0D1214"/>
+    </linearGradient>
+  </defs>
+  <!-- body -->
+  <rect x="30" y="70" width="420" height="160" rx="70" fill="#0D1214" stroke="#5FD27A" stroke-width="5"/>
+  <!-- screen -->
+  <rect x="135" y="88" width="210" height="124" rx="8" fill="url(#screen)" stroke="#1F7A3A" stroke-width="3"/>
+  <!-- gaming mode tiles on the screen -->
+  <rect x="150" y="104" width="50" height="70" rx="4" fill="#1F7A3A"/>
+  <rect x="208" y="104" width="50" height="70" rx="4" fill="#1F7A3A" opacity="0.7"/>
+  <rect x="266" y="104" width="50" height="70" rx="4" fill="#1F7A3A" opacity="0.5"/>
+  <rect x="150" y="184" width="110" height="8" rx="4" fill="#5FD27A" opacity="0.6"/>
+  <!-- left: stick + d-pad -->
+  <circle cx="90" cy="115" r="22" fill="#1E2B27" stroke="#C8AE7E" stroke-width="4"/>
+  <circle cx="90" cy="115" r="9" fill="#C8AE7E"/>
+  <g fill="#C8AE7E">
+    <rect x="82" y="160" width="16" height="44" rx="3"/>
+    <rect x="68" y="174" width="44" height="16" rx="3"/>
+  </g>
+  <!-- right: buttons + stick -->
+  <g fill="#5FD27A">
+    <circle cx="390" cy="98" r="9"/><circle cx="410" cy="118" r="9"/>
+    <circle cx="370" cy="118" r="9"/><circle cx="390" cy="138" r="9"/>
+  </g>
+  <circle cx="390" cy="185" r="22" fill="#1E2B27" stroke="#C8AE7E" stroke-width="4"/>
+  <circle cx="390" cy="185" r="9" fill="#C8AE7E"/>
+  <!-- shoulder buttons -->
+  <rect x="70" y="58" width="80" height="14" rx="7" fill="#5FD27A" opacity="0.8"/>
+  <rect x="330" y="58" width="80" height="14" rx="7" fill="#5FD27A" opacity="0.8"/>
+</svg>

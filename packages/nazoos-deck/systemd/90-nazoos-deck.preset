@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS handheld: Steam Deck services (only start on a Steam Deck, see
+# 50-nazoos-steam-deck-only.conf). InputPlumber needs no entry: udev
+# starts it on supported handhelds by itself.
+enable jupiter-fan-control.service
+enable pipewire-sysconf.service
+enable wireplumber-sysconf.service

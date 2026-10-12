@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 22:56+0200\n"
+"POT-Creation-Date: 2026-10-11 23:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,29 +18,33 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: helper/nazoos-update-helper:262
+#: helper/nazoos-update-helper:265
 #, no-python-format
 msgid "%Y-%m-%d %H:%M"
 msgstr ""
 
-#: helper/nazoos-update-helper:272
+#: helper/nazoos-update-helper:278
 msgid "Before update"
 msgstr ""
 
-#: helper/nazoos-update-helper:273
+#: helper/nazoos-update-helper:279
 msgid "Before software change"
 msgstr ""
 
-#: helper/nazoos-update-helper:275
+#: helper/nazoos-update-helper:281
 msgid "After update"
 msgstr ""
 
-#: helper/nazoos-update-helper:276
+#: helper/nazoos-update-helper:282
 msgid "After software change"
 msgstr ""
 
-#: helper/nazoos-update-helper:278
+#: helper/nazoos-update-helper:284
 msgid "Automatic snapshot"
+msgstr ""
+
+#: helper/nazoos-update-helper:291
+msgid "Before rollback"
 msgstr ""
 
 #: nazoos_update/backend.py
@@ -75,65 +79,65 @@ msgstr ""
 msgid "This program is not installed."
 msgstr ""
 
-#: nazoos_update/notify.py:86
+#: nazoos_update/notify.py:101
 msgid "Started from a snapshot"
 msgstr ""
 
-#: nazoos_update/notify.py:87
+#: nazoos_update/notify.py:102
 msgid ""
 "The system runs from an older, read-only snapshot. If everything works, you "
 "can make this state permanent."
 msgstr ""
 
-#: nazoos_update/notify.py:97
+#: nazoos_update/notify.py:112
 msgid "Restart required"
 msgstr ""
 
-#: nazoos_update/notify.py:100 nazoos_update/notify.py:107
+#: nazoos_update/notify.py:115 nazoos_update/notify.py:122
 msgid "Open"
 msgstr ""
 
-#: nazoos_update/notify.py:104
+#: nazoos_update/notify.py:119
 msgid "NazoOS kernel runs stable"
 msgstr ""
 
-#: nazoos_update/notify.py:105
+#: nazoos_update/notify.py:120
 msgid ""
 "The NazoOS kernel started cleanly several times in a row. Remove the "
 "openSUSE kernel now?"
 msgstr ""
 
-#: nazoos_update/notify.py:115
+#: nazoos_update/notify.py:130
 msgid "Update needs your decision"
 msgstr ""
 
-#: nazoos_update/notify.py:116
+#: nazoos_update/notify.py:131
 msgid ""
 "The update cannot be installed automatically because of a package conflict."
 msgstr ""
 
-#: nazoos_update/notify.py:118 nazoos_update/notify.py:124
+#: nazoos_update/notify.py:133 nazoos_update/notify.py:139
 msgid "Fix"
 msgstr ""
 
-#: nazoos_update/notify.py:121
+#: nazoos_update/notify.py:136
 msgid "Update check does not work"
 msgstr ""
 
-#: nazoos_update/notify.py:122
+#: nazoos_update/notify.py:137
 msgid ""
 "NazoOS could not check for updates for several days. Is the computer "
 "connected to the internet?"
 msgstr ""
 
-#: nazoos_update/notify.py:128
+#: nazoos_update/notify.py:143
 #, python-format
 msgid "%d update is ready to install."
 msgid_plural "%d updates are ready to install."
 msgstr[0] ""
 msgstr[1] ""
 
-#: nazoos_update/notify.py:130
+#: nazoos_update/notify.py:145
 msgid "Updates available"
 msgstr ""
 
@@ -175,11 +179,11 @@ msgstr ""
 msgid "Check now"
 msgstr ""
 
-#: qml/Main.qml:45 qml/Main.qml:302
+#: qml/Main.qml:45 qml/Main.qml:307
 msgid "Details"
 msgstr ""
 
-#: qml/Main.qml:56 qml/Main.qml:288
+#: qml/Main.qml:56 qml/Main.qml:293
 msgid "Show details"
 msgstr ""
 
@@ -189,7 +193,7 @@ msgid ""
 "installed or changed. If everything works now, make this state permanent."
 msgstr ""
 
-#: qml/Main.qml:71 qml/Main.qml:264
+#: qml/Main.qml:71 qml/Main.qml:269
 msgid "Make permanent"
 msgstr ""
 
@@ -287,41 +291,41 @@ msgstr ""
 msgid "Packages (Myrlyn)"
 msgstr ""
 
-#: qml/Main.qml:259
+#: qml/Main.qml:264
 msgid "Make this state permanent?"
 msgstr ""
 
-#: qml/Main.qml:260
+#: qml/Main.qml:265
 msgid ""
 "The system goes back to snapshot %1 for good. The current, broken state is "
 "kept as a snapshot, so this can be undone. Afterwards the computer has to "
 "restart."
 msgstr ""
 
-#: qml/Main.qml:269
+#: qml/Main.qml:274
 msgid "Cancel"
 msgstr ""
 
-#: qml/Main.qml:278
+#: qml/Main.qml:283
 msgid "That did not work"
 msgstr ""
 
-#: qml/Main.qml:282
+#: qml/Main.qml:287
 msgid "Repair"
 msgstr ""
 
-#: qml/Main.qml:293 qml/Main.qml:316
+#: qml/Main.qml:298 qml/Main.qml:321
 msgid "Close"
 msgstr ""
 
-#: qml/Main.qml:308
+#: qml/Main.qml:313
 msgid "Copy"
 msgstr ""
 
-#: qml/Main.qml:312
+#: qml/Main.qml:317
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: qml/Main.qml:326
+#: qml/Main.qml:331
 msgid "Nothing has run yet."
 msgstr ""

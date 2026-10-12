@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS gaming mode: before the login screen starts, undo a one-time
+# switch and, in boot mode "gaming", start in gaming mode again.
+[Unit]
+Description=NazoOS gaming mode: session at boot
+# display-manager.service is an alias on openSUSE; name the real units too
+Before=display-manager.service display-manager-legacy.service sddm.service
+ConditionPathExists=|/etc/nazoos/session.conf
+ConditionPathExists=|/etc/nazoos/session-oneshot
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/nazoos-session/nazoos-session-ctl boot
+
+[Install]
+WantedBy=graphical.target

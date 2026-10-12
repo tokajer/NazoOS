@@ -6,9 +6,11 @@ PartOf=graphical-session.target
 
 [Timer]
 # Soon after login: a booted snapshot must be reported at once. Only
-# reads status.json, no network needed; 30 s lets Plasma's notification
-# service start first
-OnActiveSec=30s
+# reads status.json, no network needed. org.freedesktop.Notifications is
+# D-Bus activatable, so notify-send waits for Plasma if it is not ready
+OnActiveSec=10s
+# Default AccuracySec=1min let it fire up to a minute late (68 s, VM)
+AccuracySec=1s
 OnUnitInactiveSec=1h
 
 [Install]

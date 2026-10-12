@@ -1,0 +1,5 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS handheld: power button in gaming mode (short press = standby)
+enable steamos-powerbuttond.service

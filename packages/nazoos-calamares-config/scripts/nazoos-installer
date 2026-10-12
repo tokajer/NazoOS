@@ -1,0 +1,24 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: installer starter in the live session (runs as root via sudo,
+# see live/nazoos-installer.desktop). On a handheld the device page
+# preselects "Handheld": Calamares reads module configs from
+# /etc/calamares/modules/ before /usr/share/calamares/modules/. The live
+# system's /etc is an overlay, nothing of this reaches the installed system.
+
+set -u
+
+conf=packagechooser-device.conf
+detect=/usr/libexec/nazoos-session/nazoos-detect-handheld
+
+rm -f "/etc/calamares/modules/$conf"
+if [ -x "$detect" ] && model=$("$detect"); then
+  echo "nazoos-installer: handheld detected ($model)"
+  mkdir -p /etc/calamares/modules
+  sed 's/^default: .*/default: handheld/' \
+    "/usr/share/calamares/modules/$conf" > "/etc/calamares/modules/$conf"
+fi
+
+exec /usr/bin/calamares "$@"

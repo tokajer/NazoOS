@@ -1,0 +1,36 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS handheld: once per user, at the first Plasma login
+#  - "Gaming Mode" shortcut on the desktop (way back to Steam, like
+#    SteamOS's "Return to Gaming Mode"); the folder name depends on the
+#    language (Desktop, Schreibtisch, ...), so it is created here and not
+#    by the installer
+#  - Maliit as on-screen keyboard (KWin input method) unless one is set
+
+set -u
+
+state=${XDG_STATE_HOME:-$HOME/.local/state}/nazoos-deck
+marker=$state/firstlogin-done
+[ -e "$marker" ] && exit 0
+
+shortcut=/usr/share/applications/org.nazoos.session.gaming.desktop
+if [ -f "$shortcut" ]; then
+  desktop_dir=$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")
+  if [ -n "$desktop_dir" ] && [ "$desktop_dir" != "$HOME" ]; then
+    mkdir -p "$desktop_dir"
+    # Executable = trusted by Plasma, starts without a warning
+    install -m0755 "$shortcut" "$desktop_dir/nazoos-gaming-mode.desktop"
+  fi
+fi
+
+maliit=/usr/share/applications/com.github.maliit.keyboard.desktop
+if [ -f "$maliit" ] && command -v kwriteconfig6 >/dev/null \
+    && [ -z "$(kreadconfig6 --file kwinrc --group Wayland --key InputMethod 2>/dev/null)" ]; then
+  kwriteconfig6 --file kwinrc --group Wayland --key InputMethod "$maliit"
+  dbus-send --session --type=signal /KWin org.kde.KWin.reloadConfig 2>/dev/null || :
+fi
+
+mkdir -p "$state"
+touch "$marker"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 12:24+0200\n"
+"POT-Creation-Date: 2026-10-12 11:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,28 +17,28 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: nazoos_welcome/backend.py:220
+#: nazoos_welcome/backend.py:223
 msgid "These services still fail after a restart: %1"
 msgstr ""
 
-#: nazoos_welcome/backend.py:225 nazoos_welcome/backend.py:286
-#: nazoos_welcome/backend.py:329
+#: nazoos_welcome/backend.py:228 nazoos_welcome/backend.py:289
+#: nazoos_welcome/backend.py:332
 msgid "Done."
 msgstr ""
 
-#: nazoos_welcome/backend.py:278
+#: nazoos_welcome/backend.py:281
 msgid "pkexec could not be started."
 msgstr ""
 
-#: nazoos_welcome/backend.py:291
+#: nazoos_welcome/backend.py:294
 msgid "Cancelled: no administrator password was given."
 msgstr ""
 
-#: nazoos_welcome/backend.py:295
+#: nazoos_welcome/backend.py:298
 msgid "Something went wrong."
 msgstr ""
 
-#: nazoos_welcome/backend.py:358
+#: nazoos_welcome/backend.py:361
 msgid "This program is not installed."
 msgstr ""
 
@@ -88,6 +88,10 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "Changing the USB polling rate"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Changing the start mode"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -352,7 +356,7 @@ msgstr ""
 msgid "Drivers & codecs"
 msgstr ""
 
-#: qml/Main.qml:84 qml/pages/GamingPage.qml:17
+#: qml/Main.qml:84 qml/pages/GamingPage.qml:18
 msgid "Gaming & performance"
 msgstr ""
 
@@ -452,13 +456,13 @@ msgid "Needs the NazoOS kernel (Kernel page)"
 msgstr ""
 
 #: qml/pages/AppsPage.qml:99 qml/pages/DriversPage.qml:86
-#: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:170
+#: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:219
 msgid "Installed"
 msgstr ""
 
 #: qml/pages/AppsPage.qml:103 qml/pages/DriversPage.qml:55
 #: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
-#: qml/pages/DriversPage.qml:120 qml/pages/GamingPage.qml:177
+#: qml/pages/DriversPage.qml:120 qml/pages/GamingPage.qml:227
 #: qml/pages/KernelPage.qml:41 qml/pages/KernelPage.qml:47
 #: qml/pages/WelcomePage.qml:69
 msgid "Install"
@@ -694,77 +698,77 @@ msgid ""
 "Nothing on the drive is changed or deleted."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:22
+#: qml/pages/GamingPage.qml:23
 msgid "CPU scheduler"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:26
+#: qml/pages/GamingPage.qml:27
 msgid "sched_ext scheduler (scx)"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:27
+#: qml/pages/GamingPage.qml:28
 msgid ""
 "Replaces the kernel's CPU scheduler with one tuned for games and desktop "
 "latency. Optional: if games stutter or the system behaves oddly, switch it "
 "off again."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:29
+#: qml/pages/GamingPage.qml:30
 msgid "Active: %1"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:30 qml/pages/SystemPage.qml:82
+#: qml/pages/GamingPage.qml:31 qml/pages/SystemPage.qml:82
 msgid "Enabled, but not running"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:31
+#: qml/pages/GamingPage.qml:32
 msgid "Off (kernel scheduler)"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:35
+#: qml/pages/GamingPage.qml:36
 msgid "Scheduler:"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:46
+#: qml/pages/GamingPage.qml:47
 msgid "scx_lavd is the default and works well for most games."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:68
+#: qml/pages/GamingPage.qml:69
 msgid "Kernel options"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:80
+#: qml/pages/GamingPage.qml:81
 msgid "Restart the computer to apply the change"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:81
+#: qml/pages/GamingPage.qml:82
 msgid "On"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:92
+#: qml/pages/GamingPage.qml:93
 msgid "Disable CPU security mitigations?"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:93
+#: qml/pages/GamingPage.qml:94
 msgid ""
 "This removes protection against Spectre, Meltdown and similar CPU attacks. "
 "Malicious websites or programs could read data from other programs. Only do "
 "this if you know the risk."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:94
+#: qml/pages/GamingPage.qml:95
 msgid "Disable mitigations"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:107
+#: qml/pages/GamingPage.qml:108
 msgid "Controllers and mice"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:113
+#: qml/pages/GamingPage.qml:114
 msgid "USB polling rate"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:114
+#: qml/pages/GamingPage.qml:115
 msgid ""
 "How often the computer asks a USB controller, mouse or keyboard for input. "
 "Many controllers only ask 125 or 250 times per second; 1000 Hz lowers the "
@@ -772,67 +776,122 @@ msgid ""
 "higher rate, set it back to \"Device default\"."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:116
+#: qml/pages/GamingPage.qml:117
 msgid "No USB controller, mouse or keyboard is connected."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:117
+#: qml/pages/GamingPage.qml:118
 msgid "After a change: unplug the device and plug it in again."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:135
+#: qml/pages/GamingPage.qml:136
 msgid "not connected"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:137
+#: qml/pages/GamingPage.qml:138
 msgid "now %1 Hz"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:144
+#: qml/pages/GamingPage.qml:145
 msgid "Device default"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:164
+#: qml/pages/GamingPage.qml:166
+msgid "Gaming mode"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:173
+msgid "Steam gaming mode"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:174
+msgid ""
+"Steam's console interface in Gamescope, like on the Steam Deck. Back to the "
+"desktop: Steam menu → Power → Switch to Desktop. Also available as a session "
+"on the login screen."
+msgstr ""
+
+#: qml/pages/GamingPage.qml:175
+msgid "Install Steam first (Apps page)"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:176
+msgid "Starts in gaming mode (user %1)"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:185
+msgid "Start in gaming mode"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:194
+msgid ""
+"Logs you in automatically and starts Steam, like a console. The desktop is "
+"then used for one session only."
+msgstr ""
+
+#: qml/pages/GamingPage.qml:203
+msgid "Switch now"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:206
+msgid "Switch to gaming mode?"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:207
+msgid ""
+"This ends the desktop session. Save your work first. Steam starts in gaming "
+"mode; \"Switch to Desktop\" in Steam's power menu brings you back."
+msgstr ""
+
+#: qml/pages/GamingPage.qml:208
+msgid "Switch to gaming mode"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:213
 msgid "Handheld"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:168
+#: qml/pages/GamingPage.qml:217
 msgid "Steam Deck and handheld support"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:169
+#: qml/pages/GamingPage.qml:218
 msgid ""
 "Gamescope session with Steam's gaming mode, controller and fan support for "
 "Steam Deck, Legion Go, ROG Ally and similar devices."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:172
+#: qml/pages/GamingPage.qml:220
 msgid "Not available yet"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:183 qml/pages/RepairPage.qml:114
+#: qml/pages/GamingPage.qml:221
+msgid "Recommended: %1 detected"
+msgstr ""
+
+#: qml/pages/GamingPage.qml:233 qml/pages/RepairPage.qml:114
 msgid "Tools"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:187
+#: qml/pages/GamingPage.qml:237
 msgid "GPU and cooling"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:188
+#: qml/pages/GamingPage.qml:238
 msgid ""
 "LACT: GPU clocks, power limit and fan curve. CoolerControl: fans and pumps "
 "of the whole system."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:203
+#: qml/pages/GamingPage.qml:253
 msgid "Steam launch options"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:204
+#: qml/pages/GamingPage.qml:254
 msgid "In Steam, right-click a game → Properties → Launch options:"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:213
+#: qml/pages/GamingPage.qml:263
 msgid ""
 "GameMode raises the game's priority while it runs; MangoHud shows FPS and "
 "frame times (toggle with Shift+F12)."

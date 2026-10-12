@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Mon Oct 12 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Device page (packagechooser): desktop PC or handheld, one image
+  for all devices. Preselected on handhelds by the new starter
+  nazoos-installer (Steam Deck by DMI name, others by InputPlumber's
+  device list)
+- nazoos-postinstall: handheld installs start in Steam's gaming mode
+  (nazoos-session boot mode), desktop installs remove the handheld
+  packages
+
+-------------------------------------------------------------------
 Sun Oct 11 14:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Disclaimer: start with <!DOCTYPE html>, drop the SPDX comment

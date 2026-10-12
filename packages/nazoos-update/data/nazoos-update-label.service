@@ -1,0 +1,16 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Started by nazoos-update-label.path. Sets the snapper userdata
+# "bootloader" of unnamed snapshots; snapper then rebuilds the GRUB
+# snapshot menu. Rewriting that menu changes /.snapshots again, so the
+# service runs once more and finds nothing left to name.
+[Unit]
+Description=NazoOS: name new snapshots for the boot menu
+ConditionPathExists=!/usr/share/calamares/settings.conf
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/nazoos-update/nazoos-update-helper label
+Nice=19
+IOSchedulingClass=idle

@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Oct 12 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Gaming page: new "Steam gaming mode" card (nazoos-session):
+  "Start in gaming mode" switch (autologin into Steam, action
+  session-boot-mode) and "Switch now"
+- Handheld card: shows the detected handheld model as a hint
+
+-------------------------------------------------------------------
 Mon Oct 12 08:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - "Update now" on the System page runs the update of NazoOS Update
