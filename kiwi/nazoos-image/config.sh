@@ -23,6 +23,10 @@ systemctl enable NetworkManager.service
 # wicked would fight NetworkManager over the interfaces
 systemctl disable wicked.service || true
 systemctl enable snapper-timeline.timer snapper-cleanup.timer
+# Firewall with the NazoOS zone (nazoos-tweaks, ADR 0021). The offline
+# tool works without a running firewalld, as in this chroot
+systemctl enable firewalld.service
+firewall-offline-cmd --set-default-zone=nazoos
 # Apply our presets (nazoos-tweaks) again: in the image build a service
 # package may be installed before the preset file exists
 systemctl preset coolercontrold.service
@@ -71,8 +75,10 @@ fi
 rpm --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-*.asc
 
 # <ignore> in config.kiwi is a zypper lock that would stay in the
-# installed system: keep only the X11 one, the dock updater may be
-# installed later (it needs network to fetch the dock firmware)
+# installed system: keep only the X11 one. The dock updater may be
+# installed later (it needs network to fetch the dock firmware), and so
+# may YaST, if somebody wants it
+zypper --non-interactive removelock yast2
 if has_profile live; then
   zypper --non-interactive removelock jupiter-dock-updater-bin
 fi

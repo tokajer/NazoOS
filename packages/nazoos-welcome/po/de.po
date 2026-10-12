@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-12 11:04+0200\n"
+"POT-Creation-Date: 2026-10-12 11:42+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -241,6 +241,13 @@ msgid "Office suite (about 600 MB)"
 msgstr "Office-Paket (etwa 600 MB)"
 
 #: nazoos_welcome/catalog.py
+msgid ""
+"OpenVPN connections in the network settings (WireGuard works without it)"
+msgstr ""
+"OpenVPN-Verbindungen in den Netzwerkeinstellungen (WireGuard geht auch "
+"ohne)"
+
+#: nazoos_welcome/catalog.py
 msgid "Preparing the Secure Boot key"
 msgstr "Secure-Boot-Schlüssel wird vorbereitet"
 
@@ -311,6 +318,10 @@ msgstr "Windows-Programme in verwalteten Wine-Umgebungen ausführen"
 #: nazoos_welcome/catalog.py
 msgid "SSH server"
 msgstr "SSH-Server"
+
+#: nazoos_welcome/catalog.py
+msgid "Scan documents, also several pages into one PDF"
+msgstr "Dokumente scannen, auch mehrere Seiten in ein PDF"
 
 #: nazoos_welcome/catalog.py
 msgid "Stable CPU clock after standby"

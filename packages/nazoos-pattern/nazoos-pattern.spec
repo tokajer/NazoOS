@@ -83,6 +83,10 @@ Recommends:     nazoos-welcome
 # Updates with notifications, rollback after booting a snapshot
 Recommends:     nazoos-update
 Recommends:     btrfs-assistant
+# System settings that YaST used to cover (YaST is not in the image):
+# firewall page in System Settings, partitioning
+Recommends:     plasma6-firewall
+Recommends:     partitionmanager
 # Software management
 Recommends:     discover6
 Recommends:     discover6-backend-flatpak

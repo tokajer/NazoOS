@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 12 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Apps page: OpenVPN plugin for the network settings and Skanpage
+  (document scanner) as optional RPM apps; both used to be YaST
+  territory
+
+-------------------------------------------------------------------
 Mon Oct 12 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Gaming page: new "Steam gaming mode" card (nazoos-session):

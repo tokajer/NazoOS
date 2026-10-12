@@ -100,6 +100,12 @@ APPS = [
      "kind": "flatpak", "refs": ["com.github.tchx84.Flatseal"],
      "icon": "com.github.tchx84.Flatseal",
      "summary": "Manage Flatpak permissions"},
+    # Plugin for the network settings, no app of its own
+    {"id": "openvpn", "name": "OpenVPN", "category": "office",
+     "kind": "rpm", "refs": ["NetworkManager-openvpn", "plasma6-nm-openvpn"],
+     "icon": "network-vpn",
+     "summary": "OpenVPN connections in the network settings "
+                "(WireGuard works without it)"},
     # Hardware
     {"id": "piper", "name": "Piper", "category": "hardware",
      "kind": "rpm", "refs": ["piper"], "icon": "org.freedesktop.Piper",
@@ -107,6 +113,9 @@ APPS = [
     {"id": "solaar", "name": "Solaar", "category": "hardware",
      "kind": "rpm", "refs": ["solaar"], "icon": "solaar",
      "summary": "Logitech Unifying and Bolt receivers"},
+    {"id": "skanpage", "name": "Skanpage", "category": "hardware",
+     "kind": "rpm", "refs": ["skanpage"], "icon": "skanpage",
+     "summary": "Scan documents, also several pages into one PDF"},
 ]
 
 APP_CATEGORIES = ["gaming", "social", "media", "office", "hardware"]

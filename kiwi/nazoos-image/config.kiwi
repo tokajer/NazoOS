@@ -124,6 +124,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <package name="system-group-wheel"/>
     <package name="sudo"/>
     <package name="NetworkManager"/>
+    <!-- All system locales (de_DE etc.): glibc-locale-base has only C and
+         en_US, nothing pulls in glibc-locale on its own -->
+    <package name="glibc-locale"/>
+    <!-- Firewall with the zone "nazoos" from nazoos-tweaks (ADR 0021) -->
+    <package name="firewalld"/>
     <!-- Boot: UEFI with Secure Boot shim -->
     <package name="grub2-x86_64-efi"/>
     <!-- KIWI needs the BIOS modules on x86_64 even for UEFI images -->
@@ -150,6 +155,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <package name="nazoos-session"/>
     <!-- No X11 session (CLAUDE.md: Wayland only) -->
     <ignore name="plasma6-session-x11"/>
+    <!-- No YaST: yast2-samba-server "Supplements: samba" (samba comes
+         with Dolphin sharing) and pulls in YaST with Qt5/KF5 and Ruby,
+         about 150 packages. Myrlyn, nazoos-update, nazoos-welcome and
+         System Settings cover its tasks. config.sh lifts the lock -->
+    <ignore name="yast2"/>
   </packages>
 
   <packages type="image" profiles="test">

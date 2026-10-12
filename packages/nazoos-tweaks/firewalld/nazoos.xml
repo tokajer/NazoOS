@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+
+NazoOS default firewall zone (ADR 0021), modelled on Fedora's
+"FedoraWorkstation" zone. Below port 1025 only the listed services are
+reachable: system services that are switched on by accident stay
+closed. Ports 1025-65535 are open: games, Steam Remote Play, KDE
+Connect and voice chat work without asking. ssh and samba only answer
+when the user switches them on (nazoos-welcome, Dolphin share).
+The kiwi config.sh makes this the default zone.
+-->
+<zone>
+  <short>NazoOS</short>
+  <description>Gaming desktop: incoming connections below port 1025 are rejected except for the listed services. Ports 1025 and above are open for games, game streaming and desktop apps.</description>
+  <service name="dhcpv6-client"/>
+  <service name="mdns"/>
+  <service name="samba-client"/>
+  <service name="samba"/>
+  <service name="ssh"/>
+  <port protocol="udp" port="1025-65535"/>
+  <port protocol="tcp" port="1025-65535"/>
+  <forward/>
+</zone>

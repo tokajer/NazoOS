@@ -22,8 +22,8 @@ ntsync module loading for Wine/Proton, MGLRU working set protection,
 TCP BBR, transparent huge page defrag tuning, Nvidia driver options,
 a journal size limit, the i2c group for DDC/CI and RGB devices,
 larger shader caches, GameMode defaults, a lower PipeWire default
-latency, the SDDM greeter on Wayland and the signing key of the NazoOS
-package repository, tuned for gaming and desktop
+latency, the SDDM greeter on Wayland, the NazoOS firewall zone and the
+signing key of the NazoOS package repository, tuned for gaming and desktop
 responsiveness on NazoOS.
 
 %prep
@@ -54,6 +54,8 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/sddm/sddm.conf.d \
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/environment.d \
   environment.d/70-nazoos-shader-cache.conf
 install -Dm0644 sysusers.d/nazoos-i2c.conf %{buildroot}%{_sysusersdir}/nazoos-i2c.conf
+# Firewall zone, made the default zone by kiwi config.sh (ADR 0021)
+install -Dm0644 -t %{buildroot}%{_prefix}/lib/firewalld/zones firewalld/nazoos.xml
 install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
 # Signing key of the OBS projects home:Tokajer:nazoos:* (osc signkey
 # home:Tokajer). Same place as openSUSE-build-key; the image imports all
@@ -92,6 +94,9 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/rpm/gnupg/keys rpm-keys/*.asc
 %dir %{_prefix}/lib/environment.d
 %{_prefix}/lib/environment.d/70-nazoos-shader-cache.conf
 %{_sysusersdir}/nazoos-i2c.conf
+%dir %{_prefix}/lib/firewalld
+%dir %{_prefix}/lib/firewalld/zones
+%{_prefix}/lib/firewalld/zones/nazoos.xml
 %config(noreplace) %{_sysconfdir}/gamemode.ini
 %dir %{_prefix}/lib/rpm/gnupg
 %dir %{_prefix}/lib/rpm/gnupg/keys
