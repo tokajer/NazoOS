@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-12 11:42+0200\n"
+"POT-Creation-Date: 2026-10-12 22:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -357,80 +357,80 @@ msgstr ""
 msgid "NazoOS Welcome"
 msgstr ""
 
-#: qml/Main.qml:73 qml/pages/WelcomePage.qml:15
+#: qml/Main.qml:84 qml/pages/WelcomePage.qml:15
 msgid "Welcome"
 msgstr ""
 
-#: qml/Main.qml:78 qml/pages/DriversPage.qml:16
+#: qml/Main.qml:89 qml/pages/DriversPage.qml:16
 msgid "Drivers & codecs"
 msgstr ""
 
-#: qml/Main.qml:84 qml/pages/GamingPage.qml:18
+#: qml/Main.qml:95 qml/pages/GamingPage.qml:18
 msgid "Gaming & performance"
 msgstr ""
 
-#: qml/Main.qml:90 qml/pages/KernelPage.qml:21
+#: qml/Main.qml:101 qml/pages/KernelPage.qml:21
 msgid "Kernel"
 msgstr ""
 
-#: qml/Main.qml:96 qml/pages/AppsPage.qml:27
+#: qml/Main.qml:107 qml/pages/AppsPage.qml:27
 msgid "Apps"
 msgstr ""
 
-#: qml/Main.qml:102 qml/pages/DrivesPage.qml:17
+#: qml/Main.qml:113 qml/pages/DrivesPage.qml:17
 msgid "Drives"
 msgstr ""
 
-#: qml/Main.qml:108 qml/pages/SystemPage.qml:16
+#: qml/Main.qml:119 qml/pages/SystemPage.qml:16
 msgid "System"
 msgstr ""
 
-#: qml/Main.qml:114 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:28
+#: qml/Main.qml:125 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:28
 #: qml/pages/RepairPage.qml:147 qml/pages/SystemPage.qml:100
 msgid "Repair"
 msgstr ""
 
-#: qml/Main.qml:120 qml/pages/HelpPage.qml:15
+#: qml/Main.qml:131 qml/pages/HelpPage.qml:15
 msgid "Help"
 msgstr ""
 
-#: qml/Main.qml:162
+#: qml/Main.qml:173
 msgid "Continue"
 msgstr ""
 
-#: qml/Main.qml:170
+#: qml/Main.qml:181
 msgid "Cancel"
 msgstr ""
 
-#: qml/Main.qml:180
+#: qml/Main.qml:191
 msgid "That did not work"
 msgstr ""
 
-#: qml/Main.qml:184
+#: qml/Main.qml:195
 msgid "Try again"
 msgstr ""
 
-#: qml/Main.qml:193 qml/components/BusyBar.qml:31
+#: qml/Main.qml:204 qml/components/BusyBar.qml:31
 msgid "Show details"
 msgstr ""
 
-#: qml/Main.qml:198 qml/Main.qml:221
+#: qml/Main.qml:209 qml/Main.qml:232
 msgid "Close"
 msgstr ""
 
-#: qml/Main.qml:207
+#: qml/Main.qml:218
 msgid "Details"
 msgstr ""
 
-#: qml/Main.qml:213
+#: qml/Main.qml:224
 msgid "Copy"
 msgstr ""
 
-#: qml/Main.qml:217 qml/pages/HelpPage.qml:79
+#: qml/Main.qml:228 qml/pages/HelpPage.qml:79
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: qml/Main.qml:232
+#: qml/Main.qml:243
 msgid "Nothing has run yet."
 msgstr ""
 
@@ -473,7 +473,7 @@ msgstr ""
 #: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
 #: qml/pages/DriversPage.qml:120 qml/pages/GamingPage.qml:227
 #: qml/pages/KernelPage.qml:41 qml/pages/KernelPage.qml:47
-#: qml/pages/WelcomePage.qml:69
+#: qml/pages/WelcomePage.qml:103
 msgid "Install"
 msgstr ""
 
@@ -681,9 +681,9 @@ msgstr ""
 #: qml/pages/DrivesPage.qml:56 qml/pages/HelpPage.qml:31
 #: qml/pages/HelpPage.qml:40 qml/pages/HelpPage.qml:49
 #: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:103
-#: qml/pages/SystemPage.qml:112 qml/pages/WelcomePage.qml:94
-#: qml/pages/WelcomePage.qml:103 qml/pages/WelcomePage.qml:112
-#: qml/pages/WelcomePage.qml:121
+#: qml/pages/SystemPage.qml:112 qml/pages/WelcomePage.qml:128
+#: qml/pages/WelcomePage.qml:137 qml/pages/WelcomePage.qml:146
+#: qml/pages/WelcomePage.qml:155
 msgid "Open"
 msgstr ""
 
@@ -1457,82 +1457,100 @@ msgid ""
 "administrator rights asks for your password first."
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:53
+#: qml/pages/WelcomePage.qml:59
+msgid ""
+"Welcome no longer opens at login. You find it in the application menu as "
+"\"NazoOS Welcome\"."
+msgstr ""
+
+#: qml/pages/WelcomePage.qml:60
+msgid "This window opens at every login."
+msgstr ""
+
+#: qml/pages/WelcomePage.qml:64
+msgid "Don't show again"
+msgstr ""
+
+#: qml/pages/WelcomePage.qml:73
+msgid "Undo"
+msgstr ""
+
+#: qml/pages/WelcomePage.qml:87
 msgid ""
 "NazoOS is a hobby project, provided \"as is\" without warranty of any kind. "
 "Use it at your own risk and keep backups of your data. NazoOS is independent "
 "and not affiliated with openSUSE, SUSE or any other company."
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:56
+#: qml/pages/WelcomePage.qml:90
 msgid "Full disclaimer"
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:66
+#: qml/pages/WelcomePage.qml:100
 msgid "Install NazoOS"
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:67
+#: qml/pages/WelcomePage.qml:101
 msgid ""
 "Starts the installer. Your data on other drives stays untouched unless you "
 "choose to erase them."
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:77
+#: qml/pages/WelcomePage.qml:111
 msgid "First steps"
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:87
+#: qml/pages/WelcomePage.qml:121
 msgid "1. Drivers & codecs"
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:88
+#: qml/pages/WelcomePage.qml:122
 msgid "NVIDIA driver and multimedia codecs for videos and streaming."
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:90
+#: qml/pages/WelcomePage.qml:124
 msgid "NVIDIA graphics card without driver"
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:100
+#: qml/pages/WelcomePage.qml:134
 msgid "2. Gaming & performance"
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:101
+#: qml/pages/WelcomePage.qml:135
 msgid "CPU scheduler, GPU overclocking, handheld mode."
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:109
+#: qml/pages/WelcomePage.qml:143
 msgid "3. Apps"
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:110
+#: qml/pages/WelcomePage.qml:144
 msgid "Discord, OBS Studio, Heroic, ProtonUp-Qt and more with one click."
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:118
+#: qml/pages/WelcomePage.qml:152
 msgid "4. Drives"
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:119
+#: qml/pages/WelcomePage.qml:153
 msgid "Mount extra drives automatically, e.g. for a Steam library."
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:130
+#: qml/pages/WelcomePage.qml:164
 msgid "Something broke after an update?"
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:131
+#: qml/pages/WelcomePage.qml:165
 msgid ""
 "NazoOS takes a snapshot before every update. Restart, choose \"Start "
 "bootloader from a read-only snapshot\" in the boot menu and pick the last "
 "working state."
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:133
+#: qml/pages/WelcomePage.qml:167
 msgid "Learn more"
 msgstr ""
 
-#: qml/pages/WelcomePage.qml:140
+#: qml/pages/WelcomePage.qml:174
 msgid "Show this window at login"
 msgstr ""

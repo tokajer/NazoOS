@@ -46,6 +46,40 @@ Kirigami.ScrollablePage {
             }
         }
 
+        // Opt-out right at the top: the switch at the bottom was not found
+        Kirigami.InlineMessage {
+            id: autostartMessage
+            property bool justHidden: false
+            Layout.fillWidth: true
+            visible: !page.app.live
+                     && (page.app.st.autostart !== false || justHidden)
+            type: justHidden ? Kirigami.MessageType.Positive
+                             : Kirigami.MessageType.Information
+            text: justHidden
+                  ? L.tr("Welcome no longer opens at login. You find it in the application menu as \"NazoOS Welcome\".")
+                  : L.tr("This window opens at every login.")
+            actions: [
+                Kirigami.Action {
+                    visible: !autostartMessage.justHidden
+                    text: L.tr("Don't show again")
+                    icon.name: "window-close"
+                    onTriggered: {
+                        autostartMessage.justHidden = true
+                        backend.setAutostart(false)
+                    }
+                },
+                Kirigami.Action {
+                    visible: autostartMessage.justHidden
+                    text: L.tr("Undo")
+                    icon.name: "edit-undo"
+                    onTriggered: {
+                        autostartMessage.justHidden = false
+                        backend.setAutostart(true)
+                    }
+                }
+            ]
+        }
+
         Kirigami.InlineMessage {
             Layout.fillWidth: true
             visible: true

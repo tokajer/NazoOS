@@ -24,7 +24,16 @@
       </g>
       <g fill="#2E1E10"><circle cx="18" cy="6" r="1.4"/><circle cx="5" cy="20" r="1.6"/><circle cx="12" cy="22" r="1.1"/><circle cx="27" cy="9" r="1.2"/></g>
     </pattern>
-    <pattern id="leopard-s" href="#leopard" patternTransform="scale(.45)"/>
+    <!-- same print, smaller (QtSvg does not follow href between patterns) -->
+    <pattern id="leopard-s" width="30" height="26" patternUnits="userSpaceOnUse" patternTransform="scale(.45)">
+      <rect width="30" height="26" fill="#D8B27A"/>
+      <g fill="#A87A44"><ellipse cx="8" cy="7" rx="4" ry="3"/><ellipse cx="23" cy="19" rx="3.5" ry="3"/></g>
+      <g fill="none" stroke="#2E1E10" stroke-width="2.2" stroke-linecap="round">
+        <path d="M3,6 Q4,2 8,2.5"/><path d="M11,3 Q14,6 12,10"/><path d="M9,12 Q5,12 4,9"/>
+        <path d="M18,17 Q19,14 23,14.5"/><path d="M26,15 Q29,18 27,22"/><path d="M24,24 Q20,24 19,21"/>
+      </g>
+      <g fill="#2E1E10"><circle cx="18" cy="6" r="1.4"/><circle cx="5" cy="20" r="1.6"/><circle cx="12" cy="22" r="1.1"/><circle cx="27" cy="9" r="1.2"/></g>
+    </pattern>
   </defs>
 
   <!-- badge -->

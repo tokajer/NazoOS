@@ -8,7 +8,7 @@ import signal
 import sys
 from pathlib import Path
 
-from PySide6.QtCore import QUrl
+from PySide6.QtCore import QCoreApplication, QUrl
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtQuickControls2 import QQuickStyle
@@ -17,6 +17,7 @@ from PySide6.QtWidgets import QApplication
 from . import system
 from .backend import Backend
 from .i18n import Translator
+from .single import Instance
 
 VERSION = "0.1.0"
 
@@ -33,7 +34,7 @@ def main():
     parser = argparse.ArgumentParser(prog="nazoos-welcome")
     parser.add_argument("--autostart", action="store_true",
                         help="started at login: quit if disabled or live")
-    parser.add_argument("--page", default="welcome",
+    parser.add_argument("--page", default="",
                         help="page to open (welcome, drivers, gaming, kernel, "
                              "apps, drives, system, repair, help)")
     args, qt_args = parser.parse_known_args()
@@ -47,6 +48,16 @@ def main():
 
     if args.autostart and (system.is_live()
                            or not system.autostart_enabled()):
+        return 0
+
+    # Already open: show the page there. A second autostart (Plasma's
+    # session restore already opened the window) changes nothing.
+    instance = Instance()
+    if not instance.acquire():
+        if not args.autostart:
+            # QLocalSocket needs an application object, not a window
+            _app = QCoreApplication(sys.argv[:1])
+            instance.send(args.page)
         return 0
 
     # Native Plasma look (qqc2-desktop-style) unless the user chose a style
@@ -71,11 +82,13 @@ def main():
     ctx = engine.rootContext()
     ctx.setContextProperty("L", translator)
     ctx.setContextProperty("backend", backend)
-    ctx.setContextProperty("startPage", args.page)
+    ctx.setContextProperty("startPage", args.page or "welcome")
+    ctx.setContextProperty("instance", instance)
     ctx.setContextProperty("appVersion", VERSION)
     engine.load(QUrl.fromLocalFile(str(qml_dir() / "Main.qml")))
     if not engine.rootObjects():
         return 1
+    instance.listen()
     backend.refresh()
     return app.exec()
 

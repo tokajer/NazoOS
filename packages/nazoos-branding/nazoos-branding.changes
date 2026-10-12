@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 12 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Logo: small leopard pattern as a full copy instead of href to the
+  big one; QtSvg does not follow it ("Could not resolve property:
+  leopard-s" in SDDM and Welcome, tie without print)
+
+-------------------------------------------------------------------
 Mon Oct 12 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - New subpackage nazoos-branding-plymouth: NazoOS boot splash

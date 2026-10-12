@@ -61,6 +61,17 @@ Kirigami.ApplicationWindow {
 
     Component.onCompleted: showPage(startPage)
 
+    // Welcome was started again (single.py): show its page here
+    Connections {
+        target: instance
+        function onPageRequested(name) {
+            if (name) root.showPage(name)
+            if (root.visibility === Window.Minimized) root.showNormal()
+            root.raise()
+            root.requestActivate()
+        }
+    }
+
     // --- navigation ----------------------------------------------------------
 
     globalDrawer: Kirigami.GlobalDrawer {
