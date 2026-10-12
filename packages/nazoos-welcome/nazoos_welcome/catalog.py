@@ -116,6 +116,13 @@ APPS = [
     {"id": "skanpage", "name": "Skanpage", "category": "hardware",
      "kind": "rpm", "refs": ["skanpage"], "icon": "skanpage",
      "summary": "Scan documents, also several pages into one PDF"},
+    # Steam Deck only: card on the Gaming page, not on the Apps page
+    # (category not in APP_CATEGORIES). Opt-in, because its install
+    # script downloads Valve's proprietary dock firmware updater
+    {"id": "deckdock", "name": "Steam Deck dock firmware", "category": "handheld",
+     "kind": "rpm", "refs": ["jupiter-dock-updater-bin"],
+     "icon": "preferences-desktop-peripherals",
+     "summary": "Firmware updates for the official Steam Deck dock"},
 ]
 
 APP_CATEGORIES = ["gaming", "social", "media", "office", "hardware"]

@@ -29,7 +29,7 @@ systemctl enable firewalld.service
 firewall-offline-cmd --set-default-zone=nazoos
 # Apply our presets (nazoos-tweaks) again: in the image build a service
 # package may be installed before the preset file exists
-systemctl preset coolercontrold.service
+systemctl preset coolercontrold.service fwupd-refresh.timer nazoos-xone-firmware.timer
 # nazoos-update: system timer (repo check) and user timer (notifications)
 systemctl preset nazoos-update-check.timer nazoos-update-label.path
 systemctl --global preset nazoos-update-notify.timer
@@ -75,13 +75,9 @@ fi
 rpm --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-*.asc
 
 # <ignore> in config.kiwi is a zypper lock that would stay in the
-# installed system: keep only the X11 one. The dock updater may be
-# installed later (it needs network to fetch the dock firmware), and so
-# may YaST, if somebody wants it
+# installed system: keep only the X11 one. YaST may be installed later,
+# if somebody wants it
 zypper --non-interactive removelock yast2
-if has_profile live; then
-  zypper --non-interactive removelock jupiter-dock-updater-bin
-fi
 
 # Online repos for the finished system; the OBS build repos are not kept
 zypper --non-interactive addrepo -f \

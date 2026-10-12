@@ -14,6 +14,7 @@ BuildRequires:  sysuser-tools
 BuildArch:      noarch
 Requires:       zram-generator
 %sysusers_requires
+%{?systemd_ordering}
 
 %description
 Default kernel parameters (sysctl), zram swap configuration,
@@ -23,7 +24,8 @@ TCP BBR, transparent huge page defrag tuning, Nvidia driver options,
 a journal size limit, the i2c group for DDC/CI and RGB devices,
 larger shader caches, GameMode defaults, a lower PipeWire default
 latency, the SDDM greeter on Wayland, the NazoOS firewall zone and the
-signing key of the NazoOS package repository, tuned for gaming and desktop
+signing key of the NazoOS package repository and a timer that downloads
+the Xbox wireless dongle firmware once the system is online, tuned for gaming and desktop
 responsiveness on NazoOS.
 
 %prep
@@ -49,6 +51,8 @@ install -Dm0644 -t %{buildroot}%{_datadir}/pipewire/pipewire.conf.d \
 install -Dm0644 -t %{buildroot}%{_unitdir}/display-manager-legacy.service.d \
   systemd/display-manager-legacy.service.d/10-nazoos-tty1.conf
 install -Dm0644 systemd/90-nazoos.preset %{buildroot}%{_presetdir}/90-nazoos.preset
+install -Dm0644 -t %{buildroot}%{_unitdir} \
+  systemd/nazoos-xone-firmware.service systemd/nazoos-xone-firmware.timer
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/sddm/sddm.conf.d \
   sddm/10-nazoos-wayland.conf
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/environment.d \
@@ -63,11 +67,19 @@ install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/rpm/gnupg/keys rpm-keys/*.asc
 
 %pre -f nazoos-i2c.pre
+%service_add_pre nazoos-xone-firmware.service nazoos-xone-firmware.timer
 
 %post
 %sysctl_apply 70-nazoos.conf
 %tmpfiles_create nazoos-tweaks.conf
 %udev_rules_update
+%service_add_post nazoos-xone-firmware.service nazoos-xone-firmware.timer
+
+%preun
+%service_del_preun nazoos-xone-firmware.service nazoos-xone-firmware.timer
+
+%postun
+%service_del_postun nazoos-xone-firmware.service nazoos-xone-firmware.timer
 
 %files
 %{_sysctldir}/70-nazoos.conf
@@ -88,6 +100,8 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/rpm/gnupg/keys rpm-keys/*.asc
 %dir %{_unitdir}/display-manager-legacy.service.d
 %{_unitdir}/display-manager-legacy.service.d/10-nazoos-tty1.conf
 %{_presetdir}/90-nazoos.preset
+%{_unitdir}/nazoos-xone-firmware.service
+%{_unitdir}/nazoos-xone-firmware.timer
 %dir %{_prefix}/lib/sddm
 %dir %{_prefix}/lib/sddm/sddm.conf.d
 %{_prefix}/lib/sddm/sddm.conf.d/10-nazoos-wayland.conf

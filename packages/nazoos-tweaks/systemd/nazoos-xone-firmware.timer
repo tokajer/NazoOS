@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# A timer instead of WantedBy=multi-user.target: the download must not
+# hold up booting, and an offline start is retried every hour until the
+# firmware is there (afterwards the service's conditions skip it)
+[Unit]
+Description=Download the Xbox wireless dongle firmware when online
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1h
+
+[Install]
+WantedBy=timers.target

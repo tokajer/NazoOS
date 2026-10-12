@@ -179,10 +179,5 @@ SPDX-License-Identifier: GPL-3.0-or-later
          medium, the installer's device page keeps them (handheld) or
          removes them (desktop PC). Offline install, no download -->
     <package name="nazoos-deck"/>
-    <!-- Recommended by nazoos-deck, but its install script downloads the
-         Steam Deck dock firmware: no network in the OBS build, zypper
-         aborts the image. config.sh lifts the lock again, so it can be
-         installed later on a Deck -->
-    <ignore name="jupiter-dock-updater-bin"/>
   </packages>
 </image>

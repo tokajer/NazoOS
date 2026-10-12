@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 12 21:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Do not recommend jupiter-dock-updater-bin: its install script
+  downloads Valve's proprietary dock updater (fails in the OBS image
+  build); opt-in card in NazoOS Welcome instead
+
+-------------------------------------------------------------------
 Mon Oct 12 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - First package: pattern nazoos-deck for Steam Deck and other

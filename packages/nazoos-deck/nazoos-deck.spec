@@ -28,11 +28,12 @@ Requires:       kf6-kconfig
 # GPD, OneXPlayer, Zotac Zone, ... (started by udev on those devices)
 Recommends:     inputplumber
 # Steam Deck: fan curve, speaker/microphone DSP, OLED panel correction,
-# dock firmware, power button
+# power button. Not jupiter-dock-updater-bin: its install script
+# downloads Valve's proprietary dock updater (no network in the OBS
+# image build); opt-in card in NazoOS Welcome → Gaming instead
 Recommends:     jupiter-fan-control
 Recommends:     steamdeck-dsp
 Recommends:     galileo-mura
-Recommends:     jupiter-dock-updater-bin
 Recommends:     steamos-powerbuttond
 # Desktop mode on a touch screen: on-screen keyboard, auto-rotation
 Recommends:     maliit-keyboard

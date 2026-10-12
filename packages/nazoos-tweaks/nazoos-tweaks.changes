@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Mon Oct 12 21:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Timer nazoos-xone-firmware: downloads the Xbox wireless dongle
+  firmware once the system is online (the install script of
+  xone-dongle-firmware has no network in the OBS image build);
+  retries hourly while a file is missing
+- Preset: enable fwupd-refresh.timer (firmware metadata for fwupd
+  and Discover)
+
+-------------------------------------------------------------------
 Mon Oct 12 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Add the firewalld zone "nazoos" (ADR 0021): services ssh, samba,

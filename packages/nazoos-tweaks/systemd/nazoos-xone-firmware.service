@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# xone-dongle-firmware downloads the Xbox wireless dongle firmware from
+# Microsoft in its install script. In the OBS image build there is no
+# network, so images ship without it. Fetch it once the system is online.
+[Unit]
+Description=Download the Xbox wireless dongle firmware (xone)
+Documentation=https://github.com/dlundqvist/xone
+Wants=network-online.target
+After=network-online.target
+# Only with xone-dongle-firmware installed, and only while a file is missing
+ConditionPathExists=/usr/libexec/xone-dongle-firmware/xone-dl-firmware.sh
+ConditionPathExists=|!/usr/lib/firmware/xone_dongle_02e6.bin
+ConditionPathExists=|!/usr/lib/firmware/xone_dongle_02fe.bin
+ConditionPathExists=|!/usr/lib/firmware/xone_dongle_02f9.bin
+ConditionPathExists=|!/usr/lib/firmware/xone_dongle_091e.bin
+
+[Service]
+Type=oneshot
+# --no-fail: offline is not an error, the timer simply tries again
+ExecStart=/usr/libexec/xone-dongle-firmware/xone-dl-firmware.sh --no-fail

@@ -5,3 +5,6 @@
 # Read before openSUSE's 95-default-SUSE.preset and 99-default.preset
 # (disable *), the first matching line wins. Users can still disable them.
 enable coolercontrold.service
+enable nazoos-xone-firmware.timer
+# Firmware metadata for fwupd/Discover (off in openSUSE's presets)
+enable fwupd-refresh.timer

@@ -230,6 +230,26 @@ Kirigami.ScrollablePage {
             }
         }
 
+        // Opt-in: jupiter-dock-updater-bin downloads Valve's proprietary
+        // updater; Steam uses it when the dock is connected
+        SettingCard {
+            id: dockCard
+            readonly property bool installed: (page.st.apps || {}).deckdock === true
+            visible: (page.ses.handheld || "").startsWith("Steam Deck")
+            iconName: "preferences-desktop-peripherals"
+            title: L.tr("Steam Deck dock firmware")
+            subtitle: L.tr("Lets Steam update the firmware of the official Steam Deck dock. Downloads Valve's updater (proprietary) during installation.")
+            status: installed ? L.tr("Installed") : ""
+            statusType: installed ? 1 : 0
+            QQC2.Button {
+                enabled: !backend.busy
+                text: dockCard.installed ? L.tr("Remove") : L.tr("Install")
+                icon.name: dockCard.installed ? "edit-delete" : "download"
+                onClicked: page.app.runAction(dockCard.installed ? "app-remove" : "app-install",
+                                              ["deckdock"])
+            }
+        }
+
         SectionHeader { text: L.tr("Tools") }
 
         SettingCard {
