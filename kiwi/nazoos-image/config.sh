@@ -70,6 +70,13 @@ fi
 # every repo. Key files: openSUSE-build-key and nazoos-tweaks (NazoOS)
 rpm --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-*.asc
 
+# <ignore> in config.kiwi is a zypper lock that would stay in the
+# installed system: keep only the X11 one, the dock updater may be
+# installed later (it needs network to fetch the dock firmware)
+if has_profile live; then
+  zypper --non-interactive removelock jupiter-dock-updater-bin
+fi
+
 # Online repos for the finished system; the OBS build repos are not kept
 zypper --non-interactive addrepo -f \
   https://download.opensuse.org/tumbleweed/repo/oss/ repo-oss
