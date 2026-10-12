@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Oct 12 08:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- "Update now" on the System page runs the update of NazoOS Update
+  (when installed) instead of its own zypper dup: no downgrade while
+  the mirrors have an older Tumbleweed snapshot, readable snapshot
+  names, restart hint
+
+-------------------------------------------------------------------
 Sun Oct 11 21:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Repair page: no false "mixed codecs" finding for gstreamer-plugins-

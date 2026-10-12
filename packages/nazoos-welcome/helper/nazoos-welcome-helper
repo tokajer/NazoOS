@@ -39,6 +39,8 @@ FLATHUB_URL = "https://dl.flathub.org/repo/flathub.flatpakrepo"
 GRUB_DEFAULT = Path("/etc/default/grub")
 FSTAB = Path("/etc/fstab")
 SCX_DEFAULT = Path("/etc/default/scx")
+# Root part of nazoos-update: one update path for both apps
+UPDATE_HELPER = "/usr/libexec/nazoos-update/nazoos-update-helper"
 
 
 class Fail(Exception):
@@ -477,6 +479,17 @@ def service(args):
 
 
 def system_update(_args):
+    # nazoos-update knows more: no dup while the mirrors have an older
+    # Tumbleweed snapshot (would only downgrade), boot menu names for the
+    # snapshots, restart hint, its status file. A plain dup here
+    # downgraded a fresh install (VM 2026-10-12)
+    if os.access(UPDATE_HELPER, os.X_OK):
+        rc = run([UPDATE_HELPER, "update"], check=False)
+        if rc:
+            # Its own "@@error <reason>" line is already out: no second,
+            # vaguer one on top
+            sys.exit(rc)
+        return
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
     run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses"])
     if Path("/usr/bin/flatpak").exists():
