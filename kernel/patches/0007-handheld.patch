@@ -1765,10 +1765,10 @@ Signed-off-by: Peter Jung <admin@ptr1337.dev>
  	}
  
  	update_subconnector_property(aconnector);
-@@ -5416,6 +5428,7 @@ static void amdgpu_dm_backlight_set_leve
- 	struct amdgpu_dm_backlight_caps *caps;
+@@ -5417,6 +5429,7 @@ static void amdgpu_dm_backlight_set_leve
  	struct dc_link *link;
  	u32 brightness = 0;
+ 	u32 millipercent = 0;
 +	u32 prev_brightness;
  	bool rc = false, reallow_idle = false;
  	struct drm_connector *connector;

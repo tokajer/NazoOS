@@ -28,7 +28,8 @@
 # "local": refreshed by us, fetch-patches.sh keeps the file. Upstream:
 # https://raw.githubusercontent.com/CachyOS/kernel-patches/master/7.2/misc/0001-handheld.patch
 # Change: drivers/hid/Makefile hunk adapted (CachyOS' tree has Apple T2
-# lines that SUSE's tree does not have)
+# lines that SUSE's tree does not have); amdgpu_dm backlight hunk: context
+# with "u32 millipercent" (new in 7.2.10)
 0007-handheld.patch                local
 # tsc=directsync: CPUs without IA32_TSC_ADJUST (Steam Deck, Zen 2 APUs)
 # sync their TSCs by writing the TSC directly and restore it after sleep,
@@ -77,7 +78,8 @@
 # https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/ROG-ALLY-NCT6775-PLATFORM.patch
 0023-nct6775-rog-ally.patch        local
 0024-hid-logitech-g923-ps.patch    https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/ps-logitech-wheel.patch
-0025-btusb-qca9377.patch           https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/add-QCA9377.patch
+# 0025-btusb-qca9377 dropped: in Linux 7.2.10 ("Bluetooth: btusb: Add IMC
+# Networks QCA9377 to quirks table", same ID 0x13d3:0x3503)
 0026-usbhid-skip-polling.patch     https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/0001-skip-interrupt-in-polling-for-devices.patch
 0027-amdgpu-gfx10-csib.patch       https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/drm-amdgpu-restore-csib-submission-on-gfx10-dgpus.patch
 0028-igc-i226v-aspm.patch          https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/igc-disable-aspm-l1-asus-i226-v.patch
