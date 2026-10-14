@@ -35,7 +35,8 @@ systemctl preset nazoos-update-check.timer nazoos-update-label.path
 systemctl --global preset nazoos-update-notify.timer
 # nazoos-session: gaming mode at boot (system) and session start (user)
 systemctl preset nazoos-session-boot.service
-systemctl --global preset nazoos-session-gaming.service nazoos-session-desktop.service
+systemctl --global preset nazoos-session-gaming.service nazoos-session-desktop.service \
+  nazoos-session-failed.service
 # sched_ext: scx_lavd as the preselected scheduler (made for gaming
 # latency; the scx package ships scx_flash). scx itself stays off until
 # it is switched on in nazoos-welcome

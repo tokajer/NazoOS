@@ -83,6 +83,7 @@ for f in bin/nazoos-session-select libexec/*; do bash -n "$f"; done
 
 %pre
 %service_add_pre nazoos-session-boot.service
+%systemd_user_pre nazoos-session-gaming.service nazoos-session-desktop.service nazoos-session-failed.service
 
 %post
 %service_add_post nazoos-session-boot.service

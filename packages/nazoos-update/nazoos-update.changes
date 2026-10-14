@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Oct 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- %pre: %systemd_user_pre for the user units, so the user preset is
+  applied on install (until now only the image build enabled the timer)
+
+-------------------------------------------------------------------
 Tue Oct 13 00:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - After the system update: nazoos-welcome-helper kernel-sync, so

@@ -86,6 +86,7 @@ python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" helper/nazoos-
 
 %pre
 %service_add_pre nazoos-update-check.service nazoos-update-check.timer nazoos-update-label.service nazoos-update-label.path
+%systemd_user_pre nazoos-update-notify.service nazoos-update-notify.timer
 
 %post
 %service_add_post nazoos-update-check.service nazoos-update-check.timer nazoos-update-label.service nazoos-update-label.path

@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Wed Oct 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- %pre: %systemd_user_pre for the user units. Without it openSUSE never
+  applies the user presets, so nazoos-session-failed.service stayed
+  disabled and the "gaming mode could not start" notification never
+  showed up (fresh installs of the package; the image build also
+  presets it in config.sh)
+
+-------------------------------------------------------------------
 Mon Oct 12 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Fall back to the desktop when gaming mode does not start (no Vulkan

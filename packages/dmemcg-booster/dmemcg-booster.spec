@@ -52,6 +52,7 @@ echo "enable %{name}-user.service" > %{buildroot}%{_userpresetdir}/80-%{name}.pr
 
 %pre
 %service_add_pre %{name}-system.service
+%systemd_user_pre %{name}-user.service
 
 %post
 %service_add_post %{name}-system.service
