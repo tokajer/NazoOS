@@ -217,8 +217,8 @@ Kirigami.ApplicationWindow {
         id: logDialog
         title: L.tr("Details")
         preferredWidth: Kirigami.Units.gridUnit * 40
-        preferredHeight: Kirigami.Units.gridUnit * 26
         standardButtons: Kirigami.Dialog.NoButton
+        onOpened: logScroll.toEnd()
         customFooterActions: [
             Kirigami.Action {
                 text: L.tr("Copy")
@@ -234,14 +234,29 @@ Kirigami.ApplicationWindow {
                 onTriggered: logDialog.close()
             }
         ]
+        // Fixed size: Kirigami.Dialog sizes itself after the content's
+        // implicit height, so a view as tall as the text grew the dialog
+        // with every line (binding loop on y, high CPU) and only the
+        // dialog's own outer view could scroll
         QQC2.ScrollView {
+            id: logScroll
+            implicitWidth: Kirigami.Units.gridUnit * 40
+            implicitHeight: Kirigami.Units.gridUnit * 22
+
+            // Follow new output like a terminal. A read-only TextArea
+            // without focus does not scroll the view to its cursor
+            function toEnd() {
+                const f = contentItem
+                f.contentY = Math.max(0, f.contentHeight - f.height)
+            }
+
             QQC2.TextArea {
                 id: logArea
                 readOnly: true
                 wrapMode: TextEdit.Wrap
                 font.family: "monospace"
                 text: backend.log || L.tr("Nothing has run yet.")
-                onTextChanged: cursorPosition = length
+                onTextChanged: Qt.callLater(logScroll.toEnd)
             }
         }
     }

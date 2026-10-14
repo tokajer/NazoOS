@@ -66,7 +66,9 @@
 0021-amdgpu-hdmi-vrr.patch         local
 # Poll rate per USB device: usbcore.interrupt_interval_override=VID:PID:ms
 # (e.g. wired PS4/PS5 controllers at 1000 Hz). "local": context of the
-# kernel-parameters.txt hunk adapted (new usbcore quirk flag in 7.2).
+# kernel-parameters.txt hunk adapted (new usbcore quirk flag in 7.2);
+# parser fix: len as int for %n (size_t len oopsed on every write, see
+# patch header).
 # Upstream: https://github.com/KarsMulder/Linux-Pollrate-Patch, via
 # https://raw.githubusercontent.com/Nobara-Project/rpm-sources/93742e4be6d092388742a0f5b60b37d719b719e7/baseos/kernel/mainline/7.2/0001-Allow-to-set-custom-USB-pollrate-for-specific-device.patch
 0022-usb-pollrate-override.patch   local

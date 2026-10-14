@@ -170,7 +170,7 @@ KERNEL_PARAMS = [
 
 # USB polling rate per device (kernel-nazoos patch 0022, like Nobara's
 # custom-device-pollrates). Kernel option VID:PID:ms[,VID:PID:ms...];
-# usbcore is built in, so only the command line keeps it over a restart.
+# usbcore loads from the initrd, so only the command line keeps it over a restart.
 # The sysfs file exists only in kernel-nazoos and holds at most 127 chars.
 POLLRATE_PARAM = "usbcore.interrupt_interval_override"
 POLLRATE_SYSFS = "/sys/module/usbcore/parameters/interrupt_interval_override"

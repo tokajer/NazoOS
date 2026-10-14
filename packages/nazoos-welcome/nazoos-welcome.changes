@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Oct 14 21:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Details dialog: log follows new output (scrolls to the end) and has a
+  fixed size; it grew with every line before (QML binding loop, high
+  CPU while an action ran)
+
+-------------------------------------------------------------------
 Tue Oct 13 00:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Helper action kernel-sync (run by nazoos-update after the update):
