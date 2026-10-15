@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Thu Oct 15 14:50:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Waydroid in a virtual machine: software rendering is set in
+  Waydroid's config after the install (no 3D driver there, Android
+  never finished booting); the card says so
+- Repair page: ignore drkonqi-coredump-processor@ units that time out
+  (a crash loop filled the list)
+
+-------------------------------------------------------------------
 Wed Oct 14 21:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Details dialog: log follows new output (scrolls to the end) and has a

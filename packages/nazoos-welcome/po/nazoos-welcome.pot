@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-12 22:53+0200\n"
+"POT-Creation-Date: 2026-10-15 14:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -434,7 +434,7 @@ msgstr ""
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: qml/Main.qml:243
+#: qml/Main.qml:258
 msgid "Nothing has run yet."
 msgstr ""
 
@@ -464,17 +464,21 @@ msgid ""
 "sandbox; everything else is in Discover."
 msgstr ""
 
-#: qml/pages/AppsPage.qml:97
+#: qml/pages/AppsPage.qml:103
 msgid "Needs the NazoOS kernel (Kernel page)"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:99 qml/pages/DriversPage.qml:86
+#: qml/pages/AppsPage.qml:105 qml/pages/DriversPage.qml:86
 #: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:219
 #: qml/pages/GamingPage.qml:242
 msgid "Installed"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:103 qml/pages/DriversPage.qml:55
+#: qml/pages/AppsPage.qml:106
+msgid "Software rendering (slower)"
+msgstr ""
+
+#: qml/pages/AppsPage.qml:110 qml/pages/DriversPage.qml:55
 #: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
 #: qml/pages/DriversPage.qml:120 qml/pages/GamingPage.qml:227
 #: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:41
@@ -482,18 +486,18 @@ msgstr ""
 msgid "Install"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:103 qml/pages/AppsPage.qml:111
+#: qml/pages/AppsPage.qml:110 qml/pages/AppsPage.qml:118
 #: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
 #: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:61
 #: qml/pages/KernelPage.qml:66 qml/pages/KernelPage.qml:90
 msgid "Remove"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:109
+#: qml/pages/AppsPage.qml:116
 msgid "Remove %1?"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:110
+#: qml/pages/AppsPage.qml:117
 msgid "Your settings and files in your home folder are kept."
 msgstr ""
 

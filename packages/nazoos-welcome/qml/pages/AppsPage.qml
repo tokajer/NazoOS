@@ -90,6 +90,12 @@ Kirigami.ScrollablePage {
                             readonly property bool needsKernel:
                                 modelData.kernel === "nazoos" && !installed
                                 && (page.st.kernel || {}).running !== true
+                            // Waydroid in a VM: no 3D driver, the helper
+                            // switches it to software rendering
+                            readonly property bool software:
+                                modelData.id === "waydroid"
+                                && (installed ? page.st.waydroidSoftware === true
+                                              : page.st.vm === true)
                             iconName: modelData.icon
                             fallbackIcon: page.categoryIcons[modelData.category]
                             title: modelData.name
@@ -97,6 +103,7 @@ Kirigami.ScrollablePage {
                             status: needsKernel ? L.tr("Needs the NazoOS kernel (Kernel page)")
                                     : (modelData.kind === "flatpak" ? "Flatpak" : "RPM")
                                     + (installed ? " · " + L.tr("Installed") : "")
+                                    + (software ? " · " + L.tr("Software rendering (slower)") : "")
                             statusType: needsKernel ? 2 : installed ? 1 : 0
                             QQC2.Button {
                                 enabled: !backend.busy && !needsKernel

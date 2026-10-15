@@ -107,6 +107,18 @@ def is_live():
     return Path("/usr/share/calamares/settings.conf").exists()
 
 
+def in_vm():
+    return _rc(["systemd-detect-virt", "--vm", "--quiet"]) == 0
+
+
+def waydroid_software():
+    """Waydroid's config selects software rendering (set in a VM)."""
+    m = re.search(r"^\s*ro\.hardware\.egl\s*=\s*(\S+)",
+                  _read(catalog.WAYDROID_CONFIG), re.M)
+    return m is not None and \
+        m.group(1) == catalog.WAYDROID_SOFTWARE["ro.hardware.egl"]
+
+
 def autostart_enabled():
     user_file = Path.home() / ".config" / "autostart" / AUTOSTART_NAME
     if not user_file.exists():
@@ -360,6 +372,9 @@ def collect():
         "pollrate": pollrate_state(),
         "services": services,
         "apps": apps,
+        # Waydroid card: software rendering is used (installed) or will be
+        "vm": in_vm(),
+        "waydroidSoftware": waydroid_software(),
         "flathub": "flathub" in _out(["flatpak", "remotes",
                                       "--columns=name"]).split(),
         "deckInstalled": deck_installed,
