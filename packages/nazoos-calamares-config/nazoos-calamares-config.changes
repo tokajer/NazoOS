@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Oct 16 19:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Start page: minimum RAM 3.5 GiB instead of 4.0. Calamares compares
+  with MemTotal, which is lower than the installed RAM (firmware and
+  kernel reservations): PCs with 4 GB were refused
+
+-------------------------------------------------------------------
 Mon Oct 12 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Device page (packagechooser): desktop PC or handheld, one image
