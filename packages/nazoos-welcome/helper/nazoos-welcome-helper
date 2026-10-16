@@ -430,8 +430,8 @@ def kernel_sync(_args):
 
 
 MOK_RESTART = ("Restart: the blue MokManager screen appears. Choose "
-               "\"Enroll MOK\", \"Continue\", \"Yes\" and type the number "
-               "you chose.")
+               "\"Enroll MOK\", \"Continue\", \"Yes\" and type the password "
+               "you chose (suggested: nazoos).")
 
 
 def kernel_cert():

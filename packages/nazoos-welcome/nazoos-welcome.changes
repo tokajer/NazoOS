@@ -1,8 +1,10 @@
 -------------------------------------------------------------------
 Fri Oct 16 18:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
-- Secure Boot key (ADR 0024): MokManager password is a number the
-  user picks in a dialog, no longer the root password. Calamares
+- Secure Boot key (ADR 0024): MokManager password comes from a dialog
+  (suggested "nazoos", 4-16 letters or digits; shows what to type on a
+  German keyboard, where Z and Y are swapped in MokManager), no longer
+  the root password. Calamares
   writes yescrypt hashes, "mokutil --root-pw" cannot use them: the
   kernel's cert-post failed, zypper ended with 107 and the kernel
   install stopped before the boot entry and boot counter
@@ -10,7 +12,7 @@ Fri Oct 16 18:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
   the package and queue it for MokManager before installing, so the
   kernel's own cert-post skips it (also with Secure Boot off)
 - Key card also shown with Secure Boot off; "Enroll key" asks for the
-  number too
+  password too
 - Key card showed "not enrolled" while the key waited for MokManager:
   MokNew is readable only by root, the helper now leaves a marker in
   /var/lib/nazoos that counts until the next boot

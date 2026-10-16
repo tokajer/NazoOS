@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-16 17:57+0200\n"
+"POT-Creation-Date: 2026-10-16 18:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -404,66 +404,63 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: qml/Main.qml:184 qml/Main.qml:242
+#: qml/Main.qml:184 qml/Main.qml:235
 msgid "Continue"
 msgstr ""
 
-#: qml/Main.qml:192 qml/Main.qml:255
+#: qml/Main.qml:192 qml/Main.qml:247
 msgid "Cancel"
 msgstr ""
 
-#: qml/Main.qml:207
-msgid "Number for the NazoOS key"
+#: qml/Main.qml:211
+msgid "Password for the NazoOS key"
 msgstr ""
 
-#: qml/Main.qml:208
+#: qml/Main.qml:212
 msgid ""
-"After the restart a blue screen (MokManager) asks you once to confirm the "
-"NazoOS key. Choose a number with 4 to 16 digits now and type it there. Only "
-"digits, because that screen may use a different keyboard layout."
+"After the restart a blue screen (MokManager) asks once for this password to "
+"enroll the NazoOS key. Suggested: \"nazoos\". 4 to 16 letters or digits."
 msgstr ""
 
-#: qml/Main.qml:215
-msgid "Number (4 to 16 digits)"
+#: qml/Main.qml:219
+msgid "Password (4 to 16 letters or digits)"
 msgstr ""
 
-#: qml/Main.qml:224
-msgid "Repeat the number"
+#: qml/Main.qml:228
+msgid ""
+"Z and Y are swapped in the blue screen on a German keyboard: type \"%1\" "
+"there."
 msgstr ""
 
-#: qml/Main.qml:235
-msgid "The numbers do not match."
-msgstr ""
-
-#: qml/Main.qml:269
+#: qml/Main.qml:260
 msgid "That did not work"
 msgstr ""
 
-#: qml/Main.qml:273
+#: qml/Main.qml:264
 msgid "Try again"
 msgstr ""
 
-#: qml/Main.qml:285 qml/components/BusyBar.qml:31
+#: qml/Main.qml:276 qml/components/BusyBar.qml:31
 msgid "Show details"
 msgstr ""
 
-#: qml/Main.qml:290 qml/Main.qml:313
+#: qml/Main.qml:281 qml/Main.qml:304
 msgid "Close"
 msgstr ""
 
-#: qml/Main.qml:299
+#: qml/Main.qml:290
 msgid "Details"
 msgstr ""
 
-#: qml/Main.qml:305
+#: qml/Main.qml:296
 msgid "Copy"
 msgstr ""
 
-#: qml/Main.qml:309 qml/pages/HelpPage.qml:79
+#: qml/Main.qml:300 qml/pages/HelpPage.qml:79
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: qml/Main.qml:339
+#: qml/Main.qml:330
 msgid "Nothing has run yet."
 msgstr ""
 
@@ -1062,8 +1059,8 @@ msgstr ""
 #: qml/pages/KernelPage.qml:46
 msgid ""
 "After the restart a blue screen (MokManager) asks to enroll the NazoOS key. "
-"Choose \"Enroll MOK\", \"Continue\", \"Yes\" and type the number you choose "
-"in the next step."
+"Choose \"Enroll MOK\", \"Continue\", \"Yes\" and type the password from the "
+"next step (suggested: nazoos)."
 msgstr ""
 
 #: qml/pages/KernelPage.qml:57
@@ -1132,9 +1129,9 @@ msgstr ""
 msgid ""
 "With Secure Boot the computer only starts kernels with a trusted key. The "
 "NazoOS key is added once in the blue MokManager screen that appears after a "
-"restart: \"Enroll MOK\" → \"Continue\" → \"Yes\", then the number you chose. "
-"Until then the NazoOS kernel does not start; choose the openSUSE kernel in "
-"the boot menu."
+"restart: \"Enroll MOK\" → \"Continue\" → \"Yes\", then the password you "
+"chose (suggested: nazoos). Until then the NazoOS kernel does not start; "
+"choose the openSUSE kernel in the boot menu."
 msgstr ""
 
 #: qml/pages/KernelPage.qml:108
@@ -1142,7 +1139,8 @@ msgid ""
 "Secure Boot is off, the NazoOS kernel starts without the key. Enroll it "
 "anyway: kernel updates expect it, and Secure Boot can be turned on later. It "
 "is added once in the blue MokManager screen that appears after a restart: "
-"\"Enroll MOK\" → \"Continue\" → \"Yes\", then the number you chose."
+"\"Enroll MOK\" → \"Continue\" → \"Yes\", then the password you chose "
+"(suggested: nazoos)."
 msgstr ""
 
 #: qml/pages/KernelPage.qml:109

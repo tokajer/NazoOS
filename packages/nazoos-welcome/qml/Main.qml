@@ -30,14 +30,14 @@ Kirigami.ApplicationWindow {
     }
 
     // Actions that may queue the Secure Boot key: ask for the MokManager
-    // password first (ADR 0024). "Try again" asks again, it is not kept
+    // password first (ADR 0024). "Try again" asks again
     function askMok(action, args) {
         mokDialog.action = action
         mokDialog.args = args || []
-        mokPin.text = ""
-        mokPin2.text = ""
+        mokPin.text = mokDialog.suggestion
         mokDialog.open()
         mokPin.forceActiveFocus()
+        mokPin.selectAll()
     }
 
     function confirm(title, text, okText, callback) {
@@ -200,39 +200,32 @@ Kirigami.ApplicationWindow {
         id: mokDialog
         property string action: ""
         property var args: []
-        // Digits only: MokManager runs before Linux with the firmware's
-        // keyboard layout (mostly US), letters like y/z can end up swapped
-        readonly property bool valid: /^[0-9]{4,16}$/.test(mokPin.text)
-                                      && mokPin.text === mokPin2.text
-        title: L.tr("Number for the NazoOS key")
-        subtitle: L.tr("After the restart a blue screen (MokManager) asks you once to confirm the NazoOS key. Choose a number with 4 to 16 digits now and type it there. Only digits, because that screen may use a different keyboard layout.")
+        // MokManager runs before Linux with the firmware's keyboard layout
+        // (mostly US). Letters and digits only; on a German keyboard only
+        // Y and Z differ there, the dialog says what to type (ADR 0024)
+        readonly property string suggestion: "nazoos"
+        readonly property bool valid: /^[A-Za-z0-9]{4,16}$/.test(mokPin.text)
+        // What a German keyboard has to type in MokManager
+        readonly property string usLayout: mokPin.text.replace(/[yzYZ]/g,
+            c => ({ y: "z", z: "y", Y: "Z", Z: "Y" })[c])
+        title: L.tr("Password for the NazoOS key")
+        subtitle: L.tr("After the restart a blue screen (MokManager) asks once for this password to enroll the NazoOS key. Suggested: \"nazoos\". 4 to 16 letters or digits.")
         standardButtons: Kirigami.Dialog.NoButton
 
         ColumnLayout {
             QQC2.TextField {
                 id: mokPin
                 Layout.fillWidth: true
-                placeholderText: L.tr("Number (4 to 16 digits)")
-                echoMode: TextInput.Password
-                inputMethodHints: Qt.ImhDigitsOnly
-                validator: RegularExpressionValidator { regularExpression: /[0-9]{0,16}/ }
-                onAccepted: mokPin2.forceActiveFocus()
-            }
-            QQC2.TextField {
-                id: mokPin2
-                Layout.fillWidth: true
-                placeholderText: L.tr("Repeat the number")
-                echoMode: TextInput.Password
-                inputMethodHints: Qt.ImhDigitsOnly
-                validator: RegularExpressionValidator { regularExpression: /[0-9]{0,16}/ }
+                placeholderText: L.tr("Password (4 to 16 letters or digits)")
+                validator: RegularExpressionValidator { regularExpression: /[A-Za-z0-9]{0,16}/ }
                 onAccepted: if (mokDialog.valid) mokOk.trigger()
             }
             QQC2.Label {
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
-                visible: mokPin2.text.length > 0 && mokPin.text !== mokPin2.text
-                color: Kirigami.Theme.negativeTextColor
-                text: L.tr("The numbers do not match.")
+                visible: mokDialog.usLayout !== mokPin.text
+                color: Kirigami.Theme.neutralTextColor
+                text: L.tr("Z and Y are swapped in the blue screen on a German keyboard: type \"%1\" there.").arg(mokDialog.usLayout)
             }
         }
 
@@ -245,7 +238,6 @@ Kirigami.ApplicationWindow {
                 onTriggered: {
                     const pin = mokPin.text
                     mokPin.text = ""
-                    mokPin2.text = ""
                     mokDialog.close()
                     root.lastRun = [mokDialog.action, mokDialog.args, true]
                     backend.runMok(mokDialog.action, mokDialog.args, pin)
@@ -256,7 +248,6 @@ Kirigami.ApplicationWindow {
                 icon.name: "dialog-cancel"
                 onTriggered: {
                     mokPin.text = ""
-                    mokPin2.text = ""
                     mokDialog.close()
                 }
             }

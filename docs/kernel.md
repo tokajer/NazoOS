@@ -43,13 +43,13 @@ The closed NVIDIA driver for older cards (GTX 750 – GTX 10) only exists for th
 
 With Secure Boot on, the computer only starts kernels signed with a trusted key. The NazoOS key is added once. On computers with UEFI this also happens with Secure Boot off: kernel updates expect the key, and you can turn Secure Boot on later.
 
-1. When you click **Install**, NazoOS Welcome asks for a number with 4 to 16 digits. Pick one and remember it until the next restart. Only digits, because the blue screen may use a US keyboard layout.
+1. When you click **Install**, NazoOS Welcome asks for a password for the blue screen, suggested: `nazoos`. Keep it or pick your own (4 to 16 letters or digits) and remember it until the next restart.
 2. Restart after the installation. A blue screen appears: **MokManager**. It waits only a few seconds, press a key in time.
 3. Choose **Enroll MOK** → **Continue** → **Yes**.
-4. Type the number from step 1.
+4. Type the password from step 1. The blue screen uses the US keyboard layout: on a German keyboard **Z and Y are swapped**, so for `nazoos` type `nayoos` (NazoOS Welcome shows what to type).
 5. Choose **Reboot**.
 
-If you miss the screen, choose the openSUSE kernel in the boot menu, open **NazoOS Welcome → Kernel** and click **Enroll key**. Pick a number again, then restart.
+If you miss the screen, choose the openSUSE kernel in the boot menu, open **NazoOS Welcome → Kernel** and click **Enroll key**. Enter the password again, then restart.
 
 ## Step 2: remove the openSUSE kernel (optional)
 
