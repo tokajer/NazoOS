@@ -27,8 +27,12 @@ Requires:       pciutils
 Requires:       util-linux
 Requires:       zypper
 Recommends:     flatpak
-# Secure Boot state and key enrollment for the NazoOS kernel
+# Secure Boot state and key enrollment for the NazoOS kernel: the
+# MokManager password hash (openssl passwd -6) and the certificate from
+# the downloaded kernel package (rpm2cpio | cpio), ADR 0024
 Recommends:     mokutil
+Requires:       cpio
+Requires:       openssl
 Recommends:     nazoos-branding
 Recommends:     snapper
 %{?systemd_ordering}

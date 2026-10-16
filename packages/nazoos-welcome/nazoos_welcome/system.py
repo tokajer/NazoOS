@@ -239,6 +239,19 @@ def pollrate_state():
     }
 
 
+def _requested_this_boot():
+    """The helper queued the key after the last start (kernel.MOK_REQUESTED);
+    a request from an earlier boot was already shown by MokManager."""
+    try:
+        requested = kernel.MOK_REQUESTED.stat().st_mtime
+        btime = next(int(line.split()[1]) for line in
+                     Path("/proc/stat").read_text().splitlines()
+                     if line.startswith("btime "))
+    except (OSError, StopIteration, ValueError):
+        return False
+    return requested > btime
+
+
 def kernel_state():
     """NazoOS kernel opt-in (ADR 0008), without root rights."""
     names = ([catalog.KERNEL_PACKAGE, catalog.KERNEL_DEFAULT,
@@ -247,15 +260,17 @@ def kernel_state():
     release = platform.release()
     sb = _out(["mokutil", "--sb-state"]).lower()
     secure_boot = "secureboot enabled" in sb
+    # "SecureBoot enabled/disabled": UEFI, the kernel package queues its
+    # key for MokManager either way (ADR 0024)
+    uefi = "secureboot" in sb
     mok = ""
-    if secure_boot and catalog.KERNEL_PACKAGE in rpms:
+    if uefi and catalog.KERNEL_PACKAGE in rpms:
         certs = [f for f in _out(["rpm", "-ql", catalog.KERNEL_PACKAGE]).split()
                  if re.fullmatch(r"/etc/uefi/certs/\w+\.crt", f)]
         if certs:
             test = _out(["mokutil", "--test-key", certs[0]]).lower()
             mok = ("enrolled" if "already enrolled" in test
-                   else "pending" if certs[0].rsplit("/", 1)[1][:-4].lower()
-                   in _out(["mokutil", "--list-new"]).lower().replace(":", "")
+                   else "pending" if _requested_this_boot()
                    else "missing")
     boots = kernel.read_boots()
     return {
@@ -269,6 +284,7 @@ def kernel_state():
         "stableBoots": catalog.KERNEL_STABLE_BOOTS,
         "blocked": any(p in rpms for p in catalog.KMP_DEFAULT_ONLY),
         "secureBoot": secure_boot,
+        "uefi": uefi,
         "mok": mok,
     }
 

@@ -18,6 +18,10 @@ STATE = Path(catalog.KERNEL_STATE_DIR)
 PREFER = STATE / "kernel-prefer"
 # Boot counter, written by nazoos-kernel-boot.service
 BOOTS = STATE / "kernel-boots.json"
+# Written by the helper when it queues the Secure Boot key. MokNew is
+# readable only by root, so the GUI cannot see the request itself; it
+# lives until the next boot (shim runs MokManager and deletes it)
+MOK_REQUESTED = STATE / "mok-requested"
 GRUB_CFG = Path("/boot/grub2/grub.cfg")
 GRUB_DEFAULT_FILE = Path("/etc/default/grub")
 

@@ -43,9 +43,11 @@ Kirigami.ScrollablePage {
                 onClicked: page.app.confirm(
                     L.tr("Install the NazoOS kernel?"),
                     L.tr("The NazoOS kernel becomes the default in the boot menu. The openSUSE kernel stays installed: if something does not work, pick it under \"Advanced options\" in the boot menu.")
-                    + (page.k.secureBoot ? "\n\n" + L.tr("Secure Boot is on: after the restart a blue screen (MokManager) asks to enroll the NazoOS key. Choose \"Enroll MOK\", \"Continue\", \"Yes\" and type your administrator (root) password.") : ""),
+                    + (page.k.uefi ? "\n\n" + L.tr("After the restart a blue screen (MokManager) asks to enroll the NazoOS key. Choose \"Enroll MOK\", \"Continue\", \"Yes\" and type the number you choose in the next step.") : ""),
                     L.tr("Install"),
-                    () => page.app.runAction("kernel-install", []))
+                    () => page.k.uefi && page.k.mok !== "enrolled"
+                          ? page.app.askMok("kernel-install", [])
+                          : page.app.runAction("kernel-install", []))
             }
         }
 
@@ -93,15 +95,17 @@ Kirigami.ScrollablePage {
         }
 
         SectionHeader {
-            visible: page.k.secureBoot === true && page.k.installed === true
+            visible: page.k.uefi === true && page.k.installed === true
             text: L.tr("Secure Boot")
         }
 
         SettingCard {
-            visible: page.k.secureBoot === true && page.k.installed === true
+            visible: page.k.uefi === true && page.k.installed === true
             iconName: "security-high"
             title: L.tr("NazoOS key (MOK)")
-            subtitle: L.tr("With Secure Boot the computer only starts kernels with a trusted key. The NazoOS key is added once in the blue MokManager screen that appears after a restart: \"Enroll MOK\" → \"Continue\" → \"Yes\", then the administrator (root) password. Until then the NazoOS kernel does not start; choose the openSUSE kernel in the boot menu.")
+            subtitle: (page.k.secureBoot
+                       ? L.tr("With Secure Boot the computer only starts kernels with a trusted key. The NazoOS key is added once in the blue MokManager screen that appears after a restart: \"Enroll MOK\" → \"Continue\" → \"Yes\", then the number you chose. Until then the NazoOS kernel does not start; choose the openSUSE kernel in the boot menu.")
+                       : L.tr("Secure Boot is off, the NazoOS kernel starts without the key. Enroll it anyway: kernel updates expect it, and Secure Boot can be turned on later. It is added once in the blue MokManager screen that appears after a restart: \"Enroll MOK\" → \"Continue\" → \"Yes\", then the number you chose."))
             status: page.k.mok === "enrolled" ? L.tr("Key enrolled")
                     : page.k.mok === "pending" ? L.tr("Waiting for MokManager – restart the computer")
                     : L.tr("Key not enrolled")
@@ -111,7 +115,7 @@ Kirigami.ScrollablePage {
                 enabled: !backend.busy
                 text: L.tr("Enroll key")
                 icon.name: "document-import"
-                onClicked: page.app.runAction("mok-import", [])
+                onClicked: page.app.askMok("mok-import", [])
             }
         }
     }

@@ -1,4 +1,22 @@
 -------------------------------------------------------------------
+Fri Oct 16 18:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Secure Boot key (ADR 0024): MokManager password is a number the
+  user picks in a dialog, no longer the root password. Calamares
+  writes yescrypt hashes, "mokutil --root-pw" cannot use them: the
+  kernel's cert-post failed, zypper ended with 107 and the kernel
+  install stopped before the boot entry and boot counter
+- Kernel install on UEFI: download first, take the certificate out of
+  the package and queue it for MokManager before installing, so the
+  kernel's own cert-post skips it (also with Secure Boot off)
+- Key card also shown with Secure Boot off; "Enroll key" asks for the
+  number too
+- Key card showed "not enrolled" while the key waited for MokManager:
+  MokNew is readable only by root, the helper now leaves a marker in
+  /var/lib/nazoos that counts until the next boot
+- Requires cpio and openssl
+
+-------------------------------------------------------------------
 Thu Oct 15 14:50:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Waydroid in a virtual machine: software rendering is set in

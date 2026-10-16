@@ -40,6 +40,8 @@ BTRFS_SUBVOL_RDONLY = 1 << 1
 # Package whose version is the Tumbleweed snapshot (YYYYMMDD)
 RELEASE_PKG = "openSUSE-release"
 # Package names that need a restart after the update
+# zypper: a %post script failed, the packages are installed
+ZYPPER_SCRIPT_FAILED = 107
 REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
                          r"libQt6|plasma|kwin|sddm)")
 
@@ -181,7 +183,36 @@ def check(_args=None):
 
 # --- update -----------------------------------------------------------------
 
+def nazoos_key_missing():
+    """kernel-nazoos on UEFI, its signing key neither enrolled nor waiting
+    for MokManager: the kernel's cert-post script then fails on every
+    kernel update ("mokutil --root-pw" cannot read the yescrypt root
+    hash Calamares writes, ADR 0024)."""
+    if capture(["mokutil", "--sb-state"]).returncode != 0:
+        return False
+    certs = [f for f in capture(["rpm", "-ql", "kernel-nazoos"]).stdout.split()
+             if re.fullmatch(r"/etc/uefi/certs/\w+\.crt", f)]
+    if not certs:
+        return False
+    if "already enrolled" in capture(["mokutil", "--test-key",
+                                      certs[0]]).stdout.lower():
+        return False
+    fpr = capture(["openssl", "x509", "-in", certs[0], "-noout",
+                   "-fingerprint", "-sha1"]).stdout
+    fpr = fpr.split("=")[-1].strip().replace(":", "").lower()
+    pending = capture(["mokutil", "--list-new"]).stdout.lower()
+    return not fpr or fpr not in pending.replace(":", "")
+
+
+def key_missing_quietly():
+    try:
+        return nazoos_key_missing()
+    except OSError:   # no mokutil/openssl: not our case
+        return False
+
+
 def update(_args):
+    key_missing = False
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
     pkgs, _problems = dup_preview()
     behind = mirrors_behind(pkgs or [])
@@ -195,7 +226,11 @@ def update(_args):
         rc = run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses"],
                  check=False)
         label_snapshots(update_after=last)
-        if rc not in ZYPPER_OK:
+        if rc == ZYPPER_SCRIPT_FAILED and key_missing_quietly():
+            # Installed, only the key import failed: finish the update
+            # (boot entry, modules) and say what to do at the end
+            key_missing = True
+        elif rc not in ZYPPER_OK:
             check_quietly()
             raise Fail(f"the system update failed (zypper exit code {rc})")
         # dup only updates what is installed: kernel modules for
@@ -218,6 +253,10 @@ def update(_args):
                   "needs_reboot": reboot, "updated": int(time.time())})
     if reboot:
         print("@@reboot", flush=True)
+    if key_missing:
+        raise Fail("the update is installed, but the NazoOS kernel key is "
+                   "not enrolled: open NazoOS Welcome, page Kernel, "
+                   "\"Enroll key\"")
 
 
 def check_quietly():

@@ -29,6 +29,17 @@ Kirigami.ApplicationWindow {
         backend.run(action, args || [])
     }
 
+    // Actions that may queue the Secure Boot key: ask for the MokManager
+    // password first (ADR 0024). "Try again" asks again, it is not kept
+    function askMok(action, args) {
+        mokDialog.action = action
+        mokDialog.args = args || []
+        mokPin.text = ""
+        mokPin2.text = ""
+        mokDialog.open()
+        mokPin.forceActiveFocus()
+    }
+
     function confirm(title, text, okText, callback) {
         confirmDialog.title = title
         confirmDialog.text = text
@@ -186,6 +197,73 @@ Kirigami.ApplicationWindow {
     }
 
     Kirigami.PromptDialog {
+        id: mokDialog
+        property string action: ""
+        property var args: []
+        // Digits only: MokManager runs before Linux with the firmware's
+        // keyboard layout (mostly US), letters like y/z can end up swapped
+        readonly property bool valid: /^[0-9]{4,16}$/.test(mokPin.text)
+                                      && mokPin.text === mokPin2.text
+        title: L.tr("Number for the NazoOS key")
+        subtitle: L.tr("After the restart a blue screen (MokManager) asks you once to confirm the NazoOS key. Choose a number with 4 to 16 digits now and type it there. Only digits, because that screen may use a different keyboard layout.")
+        standardButtons: Kirigami.Dialog.NoButton
+
+        ColumnLayout {
+            QQC2.TextField {
+                id: mokPin
+                Layout.fillWidth: true
+                placeholderText: L.tr("Number (4 to 16 digits)")
+                echoMode: TextInput.Password
+                inputMethodHints: Qt.ImhDigitsOnly
+                validator: RegularExpressionValidator { regularExpression: /[0-9]{0,16}/ }
+                onAccepted: mokPin2.forceActiveFocus()
+            }
+            QQC2.TextField {
+                id: mokPin2
+                Layout.fillWidth: true
+                placeholderText: L.tr("Repeat the number")
+                echoMode: TextInput.Password
+                inputMethodHints: Qt.ImhDigitsOnly
+                validator: RegularExpressionValidator { regularExpression: /[0-9]{0,16}/ }
+                onAccepted: if (mokDialog.valid) mokOk.trigger()
+            }
+            QQC2.Label {
+                Layout.fillWidth: true
+                wrapMode: Text.Wrap
+                visible: mokPin2.text.length > 0 && mokPin.text !== mokPin2.text
+                color: Kirigami.Theme.negativeTextColor
+                text: L.tr("The numbers do not match.")
+            }
+        }
+
+        customFooterActions: [
+            Kirigami.Action {
+                id: mokOk
+                text: L.tr("Continue")
+                icon.name: "dialog-ok"
+                enabled: mokDialog.valid
+                onTriggered: {
+                    const pin = mokPin.text
+                    mokPin.text = ""
+                    mokPin2.text = ""
+                    mokDialog.close()
+                    root.lastRun = [mokDialog.action, mokDialog.args, true]
+                    backend.runMok(mokDialog.action, mokDialog.args, pin)
+                }
+            },
+            Kirigami.Action {
+                text: L.tr("Cancel")
+                icon.name: "dialog-cancel"
+                onTriggered: {
+                    mokPin.text = ""
+                    mokPin2.text = ""
+                    mokDialog.close()
+                }
+            }
+        ]
+    }
+
+    Kirigami.PromptDialog {
         id: errorDialog
         property bool canRetry: false
         title: L.tr("That did not work")
@@ -197,7 +275,10 @@ Kirigami.ApplicationWindow {
                 visible: errorDialog.canRetry
                 onTriggered: {
                     errorDialog.close()
-                    root.runAction(root.lastRun[0], root.lastRun[1])
+                    if (root.lastRun[2])
+                        root.askMok(root.lastRun[0], root.lastRun[1])
+                    else
+                        root.runAction(root.lastRun[0], root.lastRun[1])
                 }
             },
             Kirigami.Action {

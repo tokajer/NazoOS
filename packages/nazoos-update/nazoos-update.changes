@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Oct 16 18:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Update with kernel-nazoos whose Secure Boot key is not enrolled:
+  zypper 107 from the kernel's cert-post no longer stops the update
+  before the boot entry and kernel modules; message at the end points
+  to NazoOS Welcome, "Enroll key" (ADR 0024)
+
+-------------------------------------------------------------------
 Wed Oct 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - %pre: %systemd_user_pre for the user units, so the user preset is

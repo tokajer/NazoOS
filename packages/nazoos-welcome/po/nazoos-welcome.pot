@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-15 14:43+0200\n"
+"POT-Creation-Date: 2026-10-16 17:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,24 +21,30 @@ msgstr ""
 msgid "These services still fail after a restart: %1"
 msgstr ""
 
-#: nazoos_welcome/backend.py:228 nazoos_welcome/backend.py:289
-#: nazoos_welcome/backend.py:332
+#: nazoos_welcome/backend.py:228 nazoos_welcome/backend.py:312
+#: nazoos_welcome/backend.py:355
 msgid "Done."
 msgstr ""
 
-#: nazoos_welcome/backend.py:281
+#: nazoos_welcome/backend.py:289
+msgid ""
+"The password for the Secure Boot key could not be prepared (openssl is "
+"missing)."
+msgstr ""
+
+#: nazoos_welcome/backend.py:304
 msgid "pkexec could not be started."
 msgstr ""
 
-#: nazoos_welcome/backend.py:294
+#: nazoos_welcome/backend.py:317
 msgid "Cancelled: no administrator password was given."
 msgstr ""
 
-#: nazoos_welcome/backend.py:298
+#: nazoos_welcome/backend.py:321
 msgid "Something went wrong."
 msgstr ""
 
-#: nazoos_welcome/backend.py:361
+#: nazoos_welcome/backend.py:384
 msgid "This program is not installed."
 msgstr ""
 
@@ -361,80 +367,103 @@ msgstr ""
 msgid "NazoOS Welcome"
 msgstr ""
 
-#: qml/Main.qml:84 qml/pages/WelcomePage.qml:15
+#: qml/Main.qml:95 qml/pages/WelcomePage.qml:15
 msgid "Welcome"
 msgstr ""
 
-#: qml/Main.qml:89 qml/pages/DriversPage.qml:16
+#: qml/Main.qml:100 qml/pages/DriversPage.qml:16
 msgid "Drivers & codecs"
 msgstr ""
 
-#: qml/Main.qml:95 qml/pages/GamingPage.qml:18
+#: qml/Main.qml:106 qml/pages/GamingPage.qml:18
 msgid "Gaming & performance"
 msgstr ""
 
-#: qml/Main.qml:101 qml/pages/KernelPage.qml:21
+#: qml/Main.qml:112 qml/pages/KernelPage.qml:21
 msgid "Kernel"
 msgstr ""
 
-#: qml/Main.qml:107 qml/pages/AppsPage.qml:27
+#: qml/Main.qml:118 qml/pages/AppsPage.qml:27
 msgid "Apps"
 msgstr ""
 
-#: qml/Main.qml:113 qml/pages/DrivesPage.qml:17
+#: qml/Main.qml:124 qml/pages/DrivesPage.qml:17
 msgid "Drives"
 msgstr ""
 
-#: qml/Main.qml:119 qml/pages/SystemPage.qml:16
+#: qml/Main.qml:130 qml/pages/SystemPage.qml:16
 msgid "System"
 msgstr ""
 
-#: qml/Main.qml:125 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:28
+#: qml/Main.qml:136 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:28
 #: qml/pages/RepairPage.qml:147 qml/pages/SystemPage.qml:100
 msgid "Repair"
 msgstr ""
 
-#: qml/Main.qml:131 qml/pages/HelpPage.qml:15
+#: qml/Main.qml:142 qml/pages/HelpPage.qml:15
 msgid "Help"
 msgstr ""
 
-#: qml/Main.qml:173
+#: qml/Main.qml:184 qml/Main.qml:242
 msgid "Continue"
 msgstr ""
 
-#: qml/Main.qml:181
+#: qml/Main.qml:192 qml/Main.qml:255
 msgid "Cancel"
 msgstr ""
 
-#: qml/Main.qml:191
-msgid "That did not work"
+#: qml/Main.qml:207
+msgid "Number for the NazoOS key"
 msgstr ""
 
-#: qml/Main.qml:195
-msgid "Try again"
+#: qml/Main.qml:208
+msgid ""
+"After the restart a blue screen (MokManager) asks you once to confirm the "
+"NazoOS key. Choose a number with 4 to 16 digits now and type it there. Only "
+"digits, because that screen may use a different keyboard layout."
 msgstr ""
 
-#: qml/Main.qml:204 qml/components/BusyBar.qml:31
-msgid "Show details"
-msgstr ""
-
-#: qml/Main.qml:209 qml/Main.qml:232
-msgid "Close"
-msgstr ""
-
-#: qml/Main.qml:218
-msgid "Details"
+#: qml/Main.qml:215
+msgid "Number (4 to 16 digits)"
 msgstr ""
 
 #: qml/Main.qml:224
+msgid "Repeat the number"
+msgstr ""
+
+#: qml/Main.qml:235
+msgid "The numbers do not match."
+msgstr ""
+
+#: qml/Main.qml:269
+msgid "That did not work"
+msgstr ""
+
+#: qml/Main.qml:273
+msgid "Try again"
+msgstr ""
+
+#: qml/Main.qml:285 qml/components/BusyBar.qml:31
+msgid "Show details"
+msgstr ""
+
+#: qml/Main.qml:290 qml/Main.qml:313
+msgid "Close"
+msgstr ""
+
+#: qml/Main.qml:299
+msgid "Details"
+msgstr ""
+
+#: qml/Main.qml:305
 msgid "Copy"
 msgstr ""
 
-#: qml/Main.qml:228 qml/pages/HelpPage.qml:79
+#: qml/Main.qml:309 qml/pages/HelpPage.qml:79
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: qml/Main.qml:258
+#: qml/Main.qml:339
 msgid "Nothing has run yet."
 msgstr ""
 
@@ -488,8 +517,8 @@ msgstr ""
 
 #: qml/pages/AppsPage.qml:110 qml/pages/AppsPage.qml:118
 #: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
-#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:61
-#: qml/pages/KernelPage.qml:66 qml/pages/KernelPage.qml:90
+#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:63
+#: qml/pages/KernelPage.qml:68 qml/pages/KernelPage.qml:92
 msgid "Remove"
 msgstr ""
 
@@ -1032,95 +1061,103 @@ msgstr ""
 
 #: qml/pages/KernelPage.qml:46
 msgid ""
-"Secure Boot is on: after the restart a blue screen (MokManager) asks to "
-"enroll the NazoOS key. Choose \"Enroll MOK\", \"Continue\", \"Yes\" and type "
-"your administrator (root) password."
+"After the restart a blue screen (MokManager) asks to enroll the NazoOS key. "
+"Choose \"Enroll MOK\", \"Continue\", \"Yes\" and type the number you choose "
+"in the next step."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:55
+#: qml/pages/KernelPage.qml:57
 msgid "Remove the openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:56
+#: qml/pages/KernelPage.qml:58
 msgid ""
 "Once the NazoOS kernel has started cleanly %1 times in a row, the openSUSE "
 "kernel can be removed. Updates then never install it again. Older NazoOS "
 "kernels and snapshots stay as fallback."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:57
+#: qml/pages/KernelPage.qml:59
 msgid "Clean starts in a row: %1 of %2"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:64
+#: qml/pages/KernelPage.qml:66
 msgid "Remove the openSUSE kernel?"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:65
+#: qml/pages/KernelPage.qml:67
 msgid ""
 "Only the NazoOS kernel stays installed. You can bring the openSUSE kernel "
 "back here at any time."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:74
+#: qml/pages/KernelPage.qml:76
 msgid "Back to the openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:75
+#: qml/pages/KernelPage.qml:77
 msgid ""
 "Makes the openSUSE kernel the default again and installs it if it was "
 "removed. The NazoOS kernel can then be removed while the openSUSE kernel is "
 "running."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:79
+#: qml/pages/KernelPage.qml:81
 msgid "Use openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:85
+#: qml/pages/KernelPage.qml:87
 msgid "Remove NazoOS kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:88
+#: qml/pages/KernelPage.qml:90
 msgid "Remove the NazoOS kernel?"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:89
+#: qml/pages/KernelPage.qml:91
 msgid ""
 "The NazoOS kernel and its driver modules are removed. You can install it "
 "again later."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:97
+#: qml/pages/KernelPage.qml:99
 msgid "Secure Boot"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:103
+#: qml/pages/KernelPage.qml:105
 msgid "NazoOS key (MOK)"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:104
+#: qml/pages/KernelPage.qml:107
 msgid ""
 "With Secure Boot the computer only starts kernels with a trusted key. The "
 "NazoOS key is added once in the blue MokManager screen that appears after a "
-"restart: \"Enroll MOK\" → \"Continue\" → \"Yes\", then the administrator "
-"(root) password. Until then the NazoOS kernel does not start; choose the "
-"openSUSE kernel in the boot menu."
+"restart: \"Enroll MOK\" → \"Continue\" → \"Yes\", then the number you chose. "
+"Until then the NazoOS kernel does not start; choose the openSUSE kernel in "
+"the boot menu."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:105
+#: qml/pages/KernelPage.qml:108
+msgid ""
+"Secure Boot is off, the NazoOS kernel starts without the key. Enroll it "
+"anyway: kernel updates expect it, and Secure Boot can be turned on later. It "
+"is added once in the blue MokManager screen that appears after a restart: "
+"\"Enroll MOK\" → \"Continue\" → \"Yes\", then the number you chose."
+msgstr ""
+
+#: qml/pages/KernelPage.qml:109
 msgid "Key enrolled"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:106
+#: qml/pages/KernelPage.qml:110
 msgid "Waiting for MokManager – restart the computer"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:107
+#: qml/pages/KernelPage.qml:111
 msgid "Key not enrolled"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:112
+#: qml/pages/KernelPage.qml:116
 msgid "Enroll key"
 msgstr ""
 

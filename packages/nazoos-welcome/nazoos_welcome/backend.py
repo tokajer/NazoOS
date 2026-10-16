@@ -245,7 +245,7 @@ class Backend(QObject):
         self.logChanged.emit()
 
     @Slot(str, "QVariantList")
-    def run(self, action, args):
+    def run(self, action, args, stdin=None):
         if self._busy:
             return
         if action not in ACTION_LABELS:
@@ -267,6 +267,29 @@ class Backend(QObject):
             lambda err: self._failed_start(action, proc, err))
         self._proc = proc
         proc.start("pkexec", [HELPER, action] + args)
+        if stdin is not None:
+            proc.write((stdin + "\n").encode())
+            proc.closeWriteChannel()
+
+    @Slot(str, "QVariantList", str)
+    def runMok(self, action, args, password):
+        """run() for actions that may queue the Secure Boot key (ADR 0024).
+        Only the SHA-512 crypt hash of the MokManager password leaves this
+        process, on the helper's stdin (not visible in the process list)."""
+        if self._busy:
+            return
+        try:
+            r = subprocess.run(["openssl", "passwd", "-6", "-stdin"],
+                               input=password, capture_output=True, text=True)
+            mok_hash = r.stdout.strip() if r.returncode == 0 else ""
+        except OSError:
+            mok_hash = ""
+        if not mok_hash.startswith("$6$"):
+            self.actionFinished.emit(action, False, self._tr.gettext(
+                "The password for the Secure Boot key could not be "
+                "prepared (openssl is missing)."))
+            return
+        self.run(action, args, mok_hash)
 
     def _read(self, proc):
         text = bytes(proc.readAllStandardOutput()).decode(errors="replace")

@@ -42,6 +42,12 @@ FSTAB = Path("/etc/fstab")
 SCX_DEFAULT = Path("/etc/default/scx")
 # Root part of nazoos-update: one update path for both apps
 UPDATE_HELPER = "/usr/libexec/nazoos-update/nazoos-update-helper"
+# Secure Boot key (ADR 0024): the GUI sends the SHA-512 crypt hash
+# (openssl passwd -6) of the password the user picked for MokManager on
+# stdin, never the password itself and never on the command line
+MOK_HASH = re.compile(r"\$6\$[./0-9A-Za-z]{1,16}\$[./0-9A-Za-z]{86}")
+CERT_PATH = re.compile(r"/etc/uefi/certs/\w+\.crt")
+RUN_DIR = Path("/run/nazoos-welcome")
 
 
 class Fail(Exception):
@@ -320,14 +326,37 @@ def kernel_install(_args):
     # repo has no build yet
     extra = [p for p in (f"{b}-kmp-nazoos" for b in catalog.KMP_NAZOOS_ONLY)
              if repo_has(alias, p)]
-    run(ZYPPER_IN + [catalog.KERNEL_PACKAGE]
-        + [p for p in kmps if p not in missing] + extra)
+    pkgs = [catalog.KERNEL_PACKAGE] + [p for p in kmps if p not in missing] \
+        + extra
+    queued = False
+    if uefi():
+        # The kernel's %post (cert-post) runs "mokutil --import --root-pw".
+        # That fails on Calamares installs (yescrypt root hash, ADR 0024)
+        # and zypper ends with 107. A request already waiting for
+        # MokManager makes it skip, so ours goes first: download, take the
+        # certificate out of the package, queue it, then install
+        if rpm_installed(catalog.KERNEL_PACKAGE):
+            cert = kernel_cert()
+        else:
+            run(ZYPPER_IN + ["--download-only"] + pkgs)
+            cert = cert_from_download(alias)
+        if cert is None:
+            raise Fail("kernel-nazoos has no signing certificate")
+        try:
+            queued = mok_queue(cert)
+        finally:
+            if cert.startswith(str(RUN_DIR)):
+                Path(cert).unlink(missing_ok=True)
+    run(ZYPPER_IN + pkgs)
     kernel.STATE.mkdir(parents=True, exist_ok=True)
     kernel.PREFER.touch()
     kernel.write_boots({"count": 0})
     kernel.ensure_grub_default(lambda m: print(m, flush=True))
     run(["systemctl", "enable", "nazoos-kernel-boot.service"])
-    print("Restart the computer to start the NazoOS kernel.", flush=True)
+    if queued:
+        print(MOK_RESTART, flush=True)
+    else:
+        print("Restart the computer to start the NazoOS kernel.", flush=True)
 
 
 def kernel_only(_args):
@@ -400,24 +429,108 @@ def kernel_sync(_args):
         run(ZYPPER_IN + new)
 
 
+MOK_RESTART = ("Restart: the blue MokManager screen appears. Choose "
+               "\"Enroll MOK\", \"Continue\", \"Yes\" and type the number "
+               "you chose.")
+
+
 def kernel_cert():
     files = output(["rpm", "-ql", catalog.KERNEL_PACKAGE]).split()
-    certs = [f for f in files if re.fullmatch(r"/etc/uefi/certs/\w+\.crt", f)]
+    certs = [f for f in files if CERT_PATH.fullmatch(f)]
     return certs[0] if certs else None
 
 
+def uefi():
+    """mokutil answers = UEFI. The kernel's cert-post script then calls
+    mokutil, with Secure Boot on or off."""
+    try:
+        return subprocess.run(["mokutil", "--sb-state"],
+                              capture_output=True).returncode == 0
+    except FileNotFoundError:
+        return False
+
+
+def cert_from_download(alias):
+    """Signing certificate inside the kernel package that
+    "zypper install --download-only" just put into the cache."""
+    cache = Path("/var/cache/zypp/packages") / alias
+    rpms = sorted(cache.rglob(f"{catalog.KERNEL_PACKAGE}-[0-9]*.rpm"),
+                  key=lambda f: f.stat().st_mtime)
+    if not rpms:
+        raise Fail("the downloaded kernel package was not found")
+    files = output(["rpm", "-qlp", str(rpms[-1])]).split()
+    certs = [f for f in files if CERT_PATH.fullmatch(f)]
+    if not certs:
+        return None
+    # rpm2cpio | cpio: the payload paths start with "./"
+    unpack = subprocess.Popen(["rpm2cpio", str(rpms[-1])],
+                              stdout=subprocess.PIPE)
+    data = subprocess.run(["cpio", "--extract", "--to-stdout", "--quiet",
+                           "." + certs[0]], stdin=unpack.stdout,
+                          capture_output=True).stdout
+    unpack.stdout.close()
+    unpack.wait()
+    if b"BEGIN CERTIFICATE" not in data and not data.startswith(b"\x30"):
+        raise Fail("the signing certificate could not be read")
+    RUN_DIR.mkdir(mode=0o700, exist_ok=True)
+    # Same file name as on the installed system
+    cert = RUN_DIR / Path(certs[0]).name
+    cert.write_bytes(data)
+    return str(cert)
+
+
+def mok_status(cert):
+    """enrolled, pending (waiting for MokManager) or missing."""
+    if "already enrolled" in output(["mokutil", "--test-key", cert]).lower():
+        return "enrolled"
+    fpr = output(["openssl", "x509", "-in", cert, "-noout", "-fingerprint",
+                  "-sha1"]).split("=")[-1].strip().replace(":", "").lower()
+    pending = output(["mokutil", "--list-new"]).lower().replace(":", "")
+    return "pending" if fpr and fpr in pending else "missing"
+
+
+def mok_queue(cert):
+    """Queue CERT for MokManager with the password from the GUI.
+    Returns False if nothing had to be done."""
+    status = mok_status(cert)
+    if status != "missing":
+        if status == "pending":
+            # Queued by someone else (cert-post): let the GUI show it too
+            kernel.STATE.mkdir(parents=True, exist_ok=True)
+            kernel.MOK_REQUESTED.touch()
+        print(f"Secure Boot key: {status}, nothing to do", flush=True)
+        return False
+    mok_hash = sys.stdin.readline().strip()
+    if not MOK_HASH.fullmatch(mok_hash):
+        raise Fail("a password for the Secure Boot key is needed")
+    RUN_DIR.mkdir(mode=0o700, exist_ok=True)
+    hash_file = RUN_DIR / "mok.hash"
+    fd = os.open(hash_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as f:
+        f.write(mok_hash + "\n")
+    try:
+        # Same options as cert-post: --ignore-keyring, or mokutil skips a
+        # key the running kernel already trusts (kernel-nazoos itself)
+        rc = run(["mokutil", "--import", cert, "--hash-file", str(hash_file),
+                  "--ca-check", "--ignore-keyring"], check=False)
+    finally:
+        hash_file.unlink(missing_ok=True)
+    if rc != 0:
+        raise Fail(f"the Secure Boot key could not be prepared (mokutil "
+                   f"exit code {rc})")
+    kernel.STATE.mkdir(parents=True, exist_ok=True)
+    kernel.MOK_REQUESTED.touch()
+    return True
+
+
 def mok_import(_args):
-    """Queue our signing certificate for MokManager (Secure Boot).
-    Same call as the kernel package's own cert-post script: the password
-    for MokManager is the root password."""
+    """Queue our signing certificate for MokManager again (button on the
+    kernel page), with a password the user picks (ADR 0024)."""
     cert = kernel_cert()
     if cert is None:
         raise Fail("kernel-nazoos has no signing certificate")
-    rc = run(["mokutil", "--import", cert, "--root-pw"], check=False)
-    if rc != 0:
-        raise Fail("mokutil failed; is a root password set?")
-    print("Restart: the blue MokManager screen appears. Choose \"Enroll MOK\","
-          " \"Continue\", \"Yes\" and type the root password.", flush=True)
+    if mok_queue(cert):
+        print(MOK_RESTART, flush=True)
 
 
 # --- Apps --------------------------------------------------------------------
