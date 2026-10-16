@@ -27,9 +27,11 @@
 # OneXPlayer audio and fan quirks, Steam Deck backlight (branch 7.2/handheld).
 # "local": refreshed by us, fetch-patches.sh keeps the file. Upstream:
 # https://raw.githubusercontent.com/CachyOS/kernel-patches/master/7.2/misc/0001-handheld.patch
-# Change: drivers/hid/Makefile hunk adapted (CachyOS' tree has Apple T2
-# lines that SUSE's tree does not have); amdgpu_dm backlight hunk: context
-# with "u32 millipercent" (new in 7.2.10)
+# Refreshed for 7.2.11 (CachyOS update 2026-10-16, hid-steam series now in
+# stable). Changes: drivers/hid/Makefile hunk adapted (CachyOS' tree has
+# Apple dockchannel/spi-hid lines that SUSE's tree does not have); alc269.c
+# enum hunk: context ALC274_FIXUP_HP_VERBS (CachyOS applies snd-codecs
+# first, we apply it later as 0029)
 0007-handheld.patch                local
 # tsc=directsync: CPUs without IA32_TSC_ADJUST (Steam Deck, Zen 2 APUs)
 # sync their TSCs by writing the TSC directly and restore it after sleep,
