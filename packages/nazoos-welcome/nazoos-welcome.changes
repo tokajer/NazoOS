@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Kernel: the kernel repository is added without a display name, so
+  zypper shows its alias nazoos-kernel like the other repositories
+  (was "NazoOS kernel")
+
+-------------------------------------------------------------------
 Fri Oct 16 19:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Waydroid: Android ran in UTC. The install now sets

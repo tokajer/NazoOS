@@ -309,8 +309,8 @@ def kernel_install(_args):
     alias = repo_with_url(fragment)
     if alias is None:
         alias = catalog.KERNEL_REPO_ALIAS
-        run(ZYPPER + ["addrepo", "--refresh", "--priority", "90", "--name",
-                      "NazoOS kernel", catalog.KERNEL_REPO_URL, alias])
+        run(ZYPPER + ["addrepo", "--refresh", "--priority", "90",
+                      catalog.KERNEL_REPO_URL, alias])
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
     # Same kernel modules as for kernel-default (NVIDIA, Xbox controllers).
     # Check first that our kernel project builds them: without its NVIDIA

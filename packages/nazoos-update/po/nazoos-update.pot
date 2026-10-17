@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 23:24+0200\n"
+"POT-Creation-Date: 2026-10-17 12:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,32 +18,32 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: helper/nazoos-update-helper:265
+#: helper/nazoos-update-helper:342
 #, no-python-format
 msgid "%Y-%m-%d %H:%M"
 msgstr ""
 
-#: helper/nazoos-update-helper:278
+#: helper/nazoos-update-helper:355
 msgid "Before update"
 msgstr ""
 
-#: helper/nazoos-update-helper:279
+#: helper/nazoos-update-helper:356
 msgid "Before software change"
 msgstr ""
 
-#: helper/nazoos-update-helper:281
+#: helper/nazoos-update-helper:358
 msgid "After update"
 msgstr ""
 
-#: helper/nazoos-update-helper:282
+#: helper/nazoos-update-helper:359
 msgid "After software change"
 msgstr ""
 
-#: helper/nazoos-update-helper:284
+#: helper/nazoos-update-helper:361
 msgid "Automatic snapshot"
 msgstr ""
 
-#: helper/nazoos-update-helper:291
+#: helper/nazoos-update-helper:368
 msgid "Before rollback"
 msgstr ""
 
@@ -230,8 +230,8 @@ msgstr ""
 #: qml/Main.qml:128
 msgid ""
 "The download servers do not have the newest Tumbleweed version yet (system: "
-"%1, servers: %2). Updates will appear as soon as they have it, usually "
-"within a day."
+"%1, servers: %2). Tumbleweed updates will appear as soon as they have it, "
+"usually within a day. NazoOS's own packages can be updated now."
 msgstr ""
 
 #: qml/Main.qml:150

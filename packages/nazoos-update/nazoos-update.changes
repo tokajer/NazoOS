@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 17 13:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Mirrors behind the installed Tumbleweed snapshot: still offer and
+  install the packages from the NazoOS repos ("zypper update --repo"),
+  only the Tumbleweed update waits for the mirrors
+
+-------------------------------------------------------------------
 Sat Oct 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Polkit: own actions for "check" and "rollback" (pkexec exec.argv1),

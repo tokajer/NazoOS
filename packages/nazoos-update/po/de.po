@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-11 23:24+0200\n"
+"POT-Creation-Date: 2026-10-17 12:54+0200\n"
 "PO-Revision-Date: 2026-10-10 15:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,32 +16,32 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: helper/nazoos-update-helper:265
+#: helper/nazoos-update-helper:342
 #, no-python-format
 msgid "%Y-%m-%d %H:%M"
 msgstr "%d.%m.%Y %H:%M"
 
-#: helper/nazoos-update-helper:278
+#: helper/nazoos-update-helper:355
 msgid "Before update"
 msgstr "Vor dem Update"
 
-#: helper/nazoos-update-helper:279
+#: helper/nazoos-update-helper:356
 msgid "Before software change"
 msgstr "Vor Software-Änderung"
 
-#: helper/nazoos-update-helper:281
+#: helper/nazoos-update-helper:358
 msgid "After update"
 msgstr "Nach dem Update"
 
-#: helper/nazoos-update-helper:282
+#: helper/nazoos-update-helper:359
 msgid "After software change"
 msgstr "Nach Software-Änderung"
 
-#: helper/nazoos-update-helper:284
+#: helper/nazoos-update-helper:361
 msgid "Automatic snapshot"
 msgstr "Automatischer Snapshot"
 
-#: helper/nazoos-update-helper:291
+#: helper/nazoos-update-helper:368
 msgid "Before rollback"
 msgstr "Vor dem Zurücksetzen"
 
@@ -245,12 +245,13 @@ msgstr "Myrlyn öffnen"
 #: qml/Main.qml:128
 msgid ""
 "The download servers do not have the newest Tumbleweed version yet (system: "
-"%1, servers: %2). Updates will appear as soon as they have it, usually "
-"within a day."
+"%1, servers: %2). Tumbleweed updates will appear as soon as they have it, "
+"usually within a day. NazoOS's own packages can be updated now."
 msgstr ""
 "Die Download-Server haben die neueste Tumbleweed-Version noch nicht (System: "
-"%1, Server: %2). Updates erscheinen, sobald sie dort ankommen, meist "
-"innerhalb eines Tages."
+"%1, Server: %2). Tumbleweed-Updates erscheinen, sobald sie dort ankommen, "
+"meist innerhalb eines Tages. Die eigenen NazoOS-Pakete lassen sich schon "
+"jetzt aktualisieren."
 
 #: qml/Main.qml:150
 msgid "%1 update available"
@@ -353,6 +354,15 @@ msgstr "In die Zwischenablage kopiert."
 #: qml/Main.qml:331
 msgid "Nothing has run yet."
 msgstr "Bisher ist noch nichts gelaufen."
+
+#~ msgid ""
+#~ "The download servers do not have the newest Tumbleweed version yet "
+#~ "(system: %1, servers: %2). Updates will appear as soon as they have it, "
+#~ "usually within a day."
+#~ msgstr ""
+#~ "Die Download-Server haben die neueste Tumbleweed-Version noch nicht "
+#~ "(System: %1, Server: %2). Updates erscheinen, sobald sie dort ankommen, "
+#~ "meist innerhalb eines Tages."
 
 #~ msgid ""
 #~ "The system was started from snapshot %1. It is read-only: changes are "
