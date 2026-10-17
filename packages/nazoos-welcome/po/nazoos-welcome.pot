@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-17 01:00+0200\n"
+"POT-Creation-Date: 2026-10-17 02:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -357,6 +357,10 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "Voice and text chat for gamers"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Voice chat on TeamSpeak 3 servers"
 msgstr ""
 
 #: nazoos_welcome/catalog.py

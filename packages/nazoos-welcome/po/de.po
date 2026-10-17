@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-17 01:00+0200\n"
+"POT-Creation-Date: 2026-10-17 02:25+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -369,6 +369,10 @@ msgstr "Videobearbeitung"
 #: nazoos_welcome/catalog.py
 msgid "Voice and text chat for gamers"
 msgstr "Sprach- und Text-Chat für Spieler"
+
+#: nazoos_welcome/catalog.py
+msgid "Voice chat on TeamSpeak 3 servers"
+msgstr "Sprach-Chat auf TeamSpeak-3-Servern"
 
 #: nazoos_welcome/catalog.py
 msgid "Wireless controllers, headsets, mice and keyboards"

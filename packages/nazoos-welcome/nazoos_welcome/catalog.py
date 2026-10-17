@@ -58,6 +58,10 @@ APPS = [
      "kind": "flatpak", "refs": ["dev.vencord.Vesktop"],
      "icon": "dev.vencord.Vesktop",
      "summary": "Discord client with working screen sharing on Wayland"},
+    {"id": "teamspeak3", "name": "TeamSpeak 3", "category": "social",
+     "kind": "flatpak", "refs": ["com.teamspeak.TeamSpeak3"],
+     "icon": "com.teamspeak.TeamSpeak3",
+     "summary": "Voice chat on TeamSpeak 3 servers"},
     # Recording and creative
     {"id": "obs", "name": "OBS Studio", "category": "media",
      "kind": "flatpak",
