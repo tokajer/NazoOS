@@ -26,3 +26,17 @@
 #licenseItemFullText {
     qproperty-wordWrap: true;
 }
+
+/*
+ * License page: the header (#mainText) is Calamares' fixed text "will
+ * install proprietary software ..." for required entries. That is wrong
+ * for the NazoOS disclaimer and not configurable, so the label is
+ * collapsed here instead of patching Calamares. Welcome and finished
+ * pages have a #mainText too, hence the #LicensePage scope.
+ */
+#LicensePage #mainText {
+    /* max-height, not qproperty-maximumHeight: the latter had no effect */
+    max-height: 0px;
+    margin: 0;
+    padding: 0;
+}

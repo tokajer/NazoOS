@@ -8,7 +8,8 @@ Sat Oct 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 - Language: nazoos-postinstall requests the installer's language for
   zypper (addlocale --no-packages), later installs get translations
 - License page: disclaimer text wraps instead of being cut off
-  (stylesheet qproperty-wordWrap)
+  (stylesheet qproperty-wordWrap); Calamares' header "will install
+  proprietary software" hidden (wrong for the disclaimer, not configurable)
 
 -------------------------------------------------------------------
 Fri Oct 16 20:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
