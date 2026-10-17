@@ -299,7 +299,7 @@ MOUNT_BASE = "/mnt"
 # Repair page (ADR 0012): the repos of openSUSE-repos-Tumbleweed (zypp
 # service "openSUSE", aliases openSUSE:repo-oss ...). Matched by URL path, so
 # cdn./download. hosts and the old plain repo files both count; the aliases
-# here are only used when the repair page has to add a missing one
+# name the finding and are only added by hand when no service provides them
 STANDARD_REPOS = [
     {"alias": "repo-oss",
      "url": "https://download.opensuse.org/tumbleweed/repo/oss/"},
@@ -307,6 +307,22 @@ STANDARD_REPOS = [
      "url": "https://download.opensuse.org/tumbleweed/repo/non-oss/"},
     {"alias": "repo-update",
      "url": "https://download.opensuse.org/update/tumbleweed/"},
+]
+# NazoOS repo of either channel (service "nazoos", ADR 0028)
+NAZOOS_REPO_PATHS = [
+    "/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/",
+    "/repositories/home:/Tokajer:/nazoos:/release/openSUSE_Tumbleweed/",
+]
+# zypp services (ADR 0028) that own these repos: a plain addrepo would be
+# moved away or duplicated by the next package update. "seed" is a repo
+# the package can be installed from when the service and its repos are gone
+REPO_SERVICES = [
+    {"name": "openSUSE", "package": "openSUSE-repos-Tumbleweed",
+     "dir": "/usr/share/zypp/local/service/openSUSE",
+     "seed": "https://download.opensuse.org/tumbleweed/repo/oss/"},
+    {"name": "nazoos", "package": "nazoos-repos",
+     "dir": "/usr/share/zypp/local/service/nazoos",
+     "seed": "https://download.opensuse.org" + NAZOOS_REPO_PATHS[0]},
 ]
 
 

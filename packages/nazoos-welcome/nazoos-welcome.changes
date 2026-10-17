@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Sat Oct 17 19:25:44 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Repair: repositories are restored through their zypp services
+  (openSUSE, nazoos; ADR 0028) instead of plain addrepo, which the next
+  refresh-services or package update would duplicate or move away.
+  Missing or disabled services and the NazoOS repo are found too;
+  a removed openSUSE-repos-Tumbleweed or nazoos-repos is reinstalled
+
+-------------------------------------------------------------------
 Sat Oct 17 18:11:05 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Apps: TeamSpeak 3 (Flathub com.teamspeak.TeamSpeak3) in "Chat"

@@ -754,13 +754,32 @@ def snapshot(_args):
 # Every action finds the broken parts itself; the caller only picks the action.
 
 def repair_repos(_args):
-    for repo in catalog.STANDARD_REPOS:
-        alias = repo_with_path(catalog.repo_path(repo["url"]))
-        if alias is None:
-            run(ZYPPER + ["addrepo", "--refresh", repo["url"],
-                          repo["alias"]])
+    # The repos belong to zypp services (ADR 0028): restore the service,
+    # refresh-services adds its removed repos again but keeps disabled ones
+    # disabled, so those are switched on afterwards
+    for svc in catalog.REPO_SERVICES:
+        if not Path(svc["dir"], "repo", "repoindex.xml").exists():
+            # Package removed or damaged; its %posttrans adds the service
+            run(ZYPPER + ["--gpg-auto-import-keys", "--plus-repo",
+                          svc["seed"], "install", "--force",
+                          "--auto-agree-with-licenses", svc["package"]])
+        elif not Path("/etc/zypp/services.d",
+                      svc["name"] + ".service").exists():
+            run(ZYPPER + ["addservice", svc["dir"], svc["name"]])
         else:
+            run(ZYPPER + ["modifyservice", "--enable", "--refresh",
+                          svc["name"]])
+    run(ZYPPER + ["refresh-services"])
+    paths = [catalog.repo_path(r["url"]) for r in catalog.STANDARD_REPOS]
+    for path in paths + catalog.NAZOOS_REPO_PATHS:
+        alias = repo_with_path(path)
+        if alias is not None:
             run(ZYPPER + ["modifyrepo", "--enable", "--refresh", alias])
+    missing = [r["alias"] for r in catalog.STANDARD_REPOS
+               if repo_with_path(catalog.repo_path(r["url"])) is None]
+    if missing:
+        raise Fail("still missing after restoring the services: "
+                   + ", ".join(missing))
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
 
 

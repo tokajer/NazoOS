@@ -23,25 +23,40 @@ def _finding(fid, items=(), fix="", user_only=False):
             "userOnly": user_only}
 
 
-def repos():
-    """Standard Tumbleweed repos that are missing or disabled."""
-    found = {}
-    for f in Path("/etc/zypp/repos.d").glob("*.repo"):
+def _sections(directory, pattern):
+    for f in Path(directory).glob(pattern):
         cp = configparser.ConfigParser(interpolation=None, strict=False)
         try:
             cp.read_string(_read(f))
         except configparser.Error:
             continue
         for alias in cp.sections():
-            url = cp[alias].get("baseurl", "")
-            enabled = cp[alias].get("enabled", "1").strip() == "1"
-            if url and "opensuse.org" in url:
-                path = catalog.repo_path(url)
-                found[path] = found.get(path, False) or enabled
-    bad = []
+            yield alias, cp[alias]
+
+
+def _enabled(section):
+    return section.get("enabled", "1").strip() == "1"
+
+
+def repos():
+    """Repo services, standard Tumbleweed repos and the NazoOS repo that
+    are missing or disabled."""
+    found = {}
+    for _alias, sec in _sections("/etc/zypp/repos.d", "*.repo"):
+        url = sec.get("baseurl", "")
+        if url and "opensuse.org" in url:
+            path = catalog.repo_path(url)
+            found[path] = found.get(path, False) or _enabled(sec)
+    services = {name: _enabled(sec) for name, sec
+                in _sections("/etc/zypp/services.d", "*.service")}
+    bad = [s["name"] for s in catalog.REPO_SERVICES
+           if not services.get(s["name"])]
     for repo in catalog.STANDARD_REPOS:
         if found.get(catalog.repo_path(repo["url"])) is not True:
             bad.append(repo["alias"])
+    if (not any(found.get(p) for p in catalog.NAZOOS_REPO_PATHS)
+            and "nazoos" not in bad):
+        bad.append("nazoos")
     return bad
 
 
