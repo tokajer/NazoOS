@@ -1,0 +1,13 @@
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<repoindex ttl="0">
+<repo url="https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/"
+    gpgkey="https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/repodata/repomd.xml.key"
+    alias="nazoos-devel"
+    name="NazoOS (beta)"
+    priority="90"
+    enabled="true"
+    autorefresh="true"/>
+</repoindex>

@@ -18,6 +18,9 @@ Provides:       pattern-visible()
 # Core: removing it would remove the pattern
 Requires:       nazoos-tweaks
 Requires:       nazoos-branding
+# Existing installs get the repo definitions with their next update; without
+# them an install cannot be moved to :release
+Requires:       nazoos-repos
 # Fallback: older Calamares configs wrote classic console keymap names;
 # Tumbleweed's kbd only ships XKB-generated ones, the rest is in kbd-legacy
 Requires:       kbd-legacy

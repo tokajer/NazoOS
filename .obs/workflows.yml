@@ -14,6 +14,9 @@ devel_build:
         package: nazoos-pattern
     - trigger_services:
         project: home:Tokajer:nazoos:devel
+        package: nazoos-repos
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
         package: nazoos-branding
     - trigger_services:
         project: home:Tokajer:nazoos:devel

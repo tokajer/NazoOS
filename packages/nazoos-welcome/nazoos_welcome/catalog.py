@@ -292,8 +292,10 @@ AUTOMOUNT_FS = ["ext4", "btrfs", "xfs", "ntfs", "exfat"]
 FSTAB_MARKER = "# nazoos-welcome automount"
 MOUNT_BASE = "/mnt"
 
-# Repair page (ADR 0012): repos every NazoOS system needs, same aliases and
-# URLs as kiwi/nazoos-image/config.sh
+# Repair page (ADR 0012): the repos of openSUSE-repos-Tumbleweed (zypp
+# service "openSUSE", aliases openSUSE:repo-oss ...). Matched by URL path, so
+# cdn./download. hosts and the old plain repo files both count; the aliases
+# here are only used when the repair page has to add a missing one
 STANDARD_REPOS = [
     {"alias": "repo-oss",
      "url": "https://download.opensuse.org/tumbleweed/repo/oss/"},

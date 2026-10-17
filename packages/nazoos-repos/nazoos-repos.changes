@@ -1,0 +1,10 @@
+-------------------------------------------------------------------
+Sat Oct 17 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- First version: the NazoOS OBS repos as zypp service "nazoos"
+  (beta = :devel, stable = :release, chosen by a symlink), the
+  Tumbleweed repos via openSUSE-repos-Tumbleweed
+- Moves the repo files of older images (nazoos-devel.repo,
+  nazoos.repo) to .rpmsave
+- Keeps installs of the release ISO (old nazoos.repo pointing at
+  :release) on the stable channel

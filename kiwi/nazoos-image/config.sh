@@ -4,6 +4,11 @@
 #
 # Runs by KIWI inside the image root after all packages are installed.
 # Docs: https://osinside.github.io/kiwi/concept_and_workflow/shell_scripts.html
+#
+# Only image-only settings belong here (hostname, live user, first defaults).
+# Everything installed systems must receive later goes into a package: files
+# under /usr, or a %post migration. This script never runs again on
+# installed systems.
 
 set -euxo pipefail
 
@@ -88,19 +93,15 @@ rpm --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-*.asc
 # if somebody wants it
 zypper --non-interactive removelock yast2
 
-# Online repos for the finished system; the OBS build repos are not kept
-zypper --non-interactive addrepo -f \
-  https://download.opensuse.org/tumbleweed/repo/oss/ repo-oss
-zypper --non-interactive addrepo -f \
-  https://download.opensuse.org/tumbleweed/repo/non-oss/ repo-non-oss
-zypper --non-interactive addrepo -f \
-  https://download.opensuse.org/update/tumbleweed/ repo-update
-# Priority 90 beats the default 99: our packages win over Tumbleweed's.
-# Release ISO: tested packages from :release; test/live images: :devel
+# Online repos come from packages (openSUSE-repos-Tumbleweed, nazoos-repos),
+# so installed systems get URL changes with updates. Test/live keep the
+# default channel beta (:devel); the release ISO switches to stable (:release)
 if has_profile release; then
-  zypper --non-interactive addrepo -f -p 90 \
-    https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/release/openSUSE_Tumbleweed/ nazoos
-else
-  zypper --non-interactive addrepo -f -p 90 \
-    https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/ nazoos-devel
+  ln -sf nazoos-stable-repoindex.xml /usr/share/zypp/local/service/nazoos/repo/repoindex.xml
+  zypper --non-interactive refresh-services
+  test -f /etc/zypp/repos.d/nazoos:nazoos.repo
 fi
+# Fail the build if a repo service is missing: the scriptlets of the
+# repo packages ignore errors
+test -f /etc/zypp/services.d/openSUSE.service
+test -f /etc/zypp/services.d/nazoos.service

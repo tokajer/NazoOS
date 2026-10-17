@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 17 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Require nazoos-repos: online repos come from packages now, so
+  existing installs receive them with their next update
+
+-------------------------------------------------------------------
 Sat Oct 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - New subpackage nazoos-translations: recommends the -lang packages

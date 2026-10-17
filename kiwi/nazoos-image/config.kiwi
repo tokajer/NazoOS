@@ -150,6 +150,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <package name="nazoos-branding"/>
     <package name="nazoos-branding-plymouth"/>
     <package name="nazoos-branding-grub2"/>
+    <!-- Repos of the installed system as zypp services; config.sh picks
+         the channel -->
+    <package name="nazoos-repos"/>
     <!-- Translations (-lang packages) of the desktop, ADR 0027: the
          image is built with zypper's locale "en" only. Also recommended
          by nazoos-pattern; listed here so OBS provides its Recommends -->
