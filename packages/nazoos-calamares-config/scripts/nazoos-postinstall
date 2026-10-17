@@ -18,6 +18,13 @@ user=${2:-}
 
 btrfs_opts="noatime,compress=zstd:1"
 root_uuid=$(findmnt -no UUID /)
+# Encrypted install (ADR 0006): / sits on a dm-crypt device. findmnt
+# shows btrfs as "/dev/mapper/luks-…[/@]"
+root_dev=$(findmnt -no SOURCE / | sed 's/\[.*//')
+root_crypt=""
+if [ "$(lsblk -no TYPE "$root_dev" 2>/dev/null)" = crypt ]; then
+  root_crypt=yes
+fi
 
 # 1. / follows the btrfs default subvolume instead of a fixed subvol=/@.
 #    snapper rollback switches the default subvolume, so this is what
@@ -75,6 +82,44 @@ case $device in
     ;;
 esac
 
+# 3c. Keyboard: systemd >= 258 keeps the X11 layout in /etc/vconsole.conf
+#     (XKBLAYOUT=…), read by localed, KWin and SDDM. Calamares still writes
+#     the chosen layout to xorg.conf.d/00-keyboard.conf and only KEYMAP to
+#     vconsole.conf, so the image's layout (KIWI keytable) stayed active on
+#     the desktop. Copy Calamares' choice over and derive the console
+#     keymap from it (its own guess turned "de nodeadkeys" with the image's
+#     model "microsoftpro" into the Mac keymap). Before dracut: the initrd
+#     asks for a LUKS passphrase with this keymap when GRUB does not
+#     hand over the key.
+kbd_x11=/etc/X11/xorg.conf.d/00-keyboard.conf
+vconsole=/etc/vconsole.conf
+xkb() {
+  sed -n "s/^[[:space:]]*Option[[:space:]]*\"$1\"[[:space:]]*\"\(.*\)\"/\1/p" \
+    "$kbd_x11" | head -n 1
+}
+set_vconsole() {
+  sed -i "/^$1=/d" "$vconsole"
+  if [ -n "$2" ]; then echo "$1=$2" >> "$vconsole"; fi
+}
+if [ -f "$kbd_x11" ]; then
+  layout=$(xkb XkbLayout)
+  variant=$(xkb XkbVariant)
+  model=$(xkb XkbModel)
+  if [ -n "$layout" ]; then
+    touch "$vconsole"
+    set_vconsole XKBLAYOUT "$layout"
+    set_vconsole XKBVARIANT "$variant"
+    set_vconsole XKBMODEL "${model:-pc105}"
+    keymap=${layout%%,*}
+    first_variant=${variant%%,*}
+    if [ -n "$first_variant" ] && \
+       ls /usr/share/kbd/keymaps/xkb/"$keymap-$first_variant".map* >/dev/null 2>&1; then
+      keymap="$keymap-$first_variant"
+    fi
+    set_vconsole KEYMAP "$keymap"
+  fi
+fi
+
 # 4. initrd for the installed system. Must exist before the GRUB config
 #    is generated, otherwise grub2-mkconfig writes entries without initrd
 #    (the live medium keeps its initrd on the ISO, not in /boot)
@@ -94,6 +139,13 @@ GRUB_GFXMODE="auto"
 GRUB_DISABLE_OS_PROBER="false"
 SUSE_BTRFS_SNAPSHOT_BOOTING="true"
 GRUB
+# /boot is inside the encrypted root: GRUB unlocks it itself (LUKS1 /
+# PBKDF2, ADR 0006). openSUSE's grub2 turns /etc/crypttab into
+# crypttab_entry lines and hands the key to the initrd, so the
+# passphrase is asked once
+if [ -n "$root_crypt" ]; then
+  echo 'GRUB_ENABLE_CRYPTODISK="y"' >> /etc/default/grub
+fi
 # NazoOS GRUB theme (nazoos-branding-grub2): copy to /boot, GRUB_THEME
 if [ -x /usr/share/grub2/themes/nazoos/activate-theme ]; then
   /usr/share/grub2/themes/nazoos/activate-theme

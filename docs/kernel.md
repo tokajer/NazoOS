@@ -35,7 +35,7 @@ autostart=false
 
 ## Step 1: install
 
-**Install** adds the NazoOS kernel repository and installs the kernel next to the openSUSE kernel, together with the matching driver modules (NVIDIA open driver, Xbox controllers, acpi_call). The NazoOS kernel becomes the default in the boot menu. The openSUSE kernel stays under **Advanced options**.
+**Install** adds the NazoOS kernel repository and installs the kernel next to the openSUSE kernel, together with the matching driver modules (NVIDIA open driver, Xbox controllers, acpi_call). The first boot menu entry **NazoOS** then starts the NazoOS kernel. The openSUSE kernel stays in the menu as **NazoOS (openSUSE kernel)** and under **Advanced options**.
 
 The closed NVIDIA driver for older cards (GTX 750 – GTX 10) only exists for the openSUSE kernel, and so does the older open driver series 580 (`nvidia-open-driver-G06-signed`). With either of them the NazoOS kernel cannot be installed; on GTX 16 / RTX 20 and newer switch to the open driver on the **Drivers** page first.
 
@@ -49,7 +49,7 @@ With Secure Boot on, the computer only starts kernels signed with a trusted key.
 4. Type the password from step 1. The blue screen uses the US keyboard layout: on a German keyboard **Z and Y are swapped**, so for `nazoos` type `nayoos` (NazoOS Welcome shows what to type).
 5. Choose **Reboot**.
 
-If you miss the screen, choose the openSUSE kernel in the boot menu, open **NazoOS Welcome → Kernel** and click **Enroll key**. Enter the password again, then restart.
+If you miss the screen, the computer starts the openSUSE kernel by itself after a few seconds (boot menu entry **NazoOS (openSUSE kernel)**): the NazoOS kernel cannot start before its key is enrolled. Open **NazoOS Welcome → Kernel**, click **Enroll key**, enter the password again and restart.
 
 ## Step 2: remove the openSUSE kernel (optional)
 
@@ -59,4 +59,4 @@ After the NazoOS kernel has started cleanly three times in a row, a notification
 
 **Use openSUSE kernel** makes the openSUSE kernel the default again and reinstalls it if it was removed. Restart, then **Remove NazoOS kernel** removes the NazoOS kernel completely.
 
-If the NazoOS kernel does not start at all: in the boot menu choose **Advanced options** and an entry ending with `-default`.
+If the NazoOS kernel does not start at all: choose **NazoOS (openSUSE kernel)** in the boot menu (or **Advanced options** and an entry ending with `-default`).

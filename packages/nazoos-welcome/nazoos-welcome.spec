@@ -61,6 +61,8 @@ install -Dm0755 helper/nazoos-welcome-helper \
   %{buildroot}%{_libexecdir}/nazoos-welcome/nazoos-welcome-helper
 install -Dm0755 helper/nazoos-kernel-boot \
   %{buildroot}%{_libexecdir}/nazoos-welcome/nazoos-kernel-boot
+install -Dm0755 data/grub.d/15_nazoos_fallback \
+  %{buildroot}%{_sysconfdir}/grub.d/15_nazoos_fallback
 install -Dm0644 data/nazoos-kernel-boot.service \
   %{buildroot}%{_unitdir}/nazoos-kernel-boot.service
 install -Dm0644 data/90-nazoos-welcome.preset \
@@ -104,12 +106,26 @@ done
 %postun
 %service_del_postun_without_restart nazoos-kernel-boot.service
 
+# Kernel installed or removed, by any tool (zypper, nazoos-update,
+# Discover): keep the chosen kernel behind the top boot menu entry
+# (GRUB_TOP_LEVEL names a version, ADR 0008). Runs once per transaction,
+# after the kernel scriptlets; does nothing without kernel-nazoos
+%transfiletriggerin -- /usr/lib/modules
+%{_libexecdir}/nazoos-welcome/nazoos-kernel-boot --grub-only >/dev/null 2>&1 || :
+
+%transfiletriggerpostun -- /usr/lib/modules
+%{_libexecdir}/nazoos-welcome/nazoos-kernel-boot --grub-only >/dev/null 2>&1 || :
+
 %files -f %{name}.lang
 %{_bindir}/nazoos-welcome
 %dir %{_libexecdir}/nazoos-welcome
 %{_libexecdir}/nazoos-welcome/nazoos-welcome-helper
 %{_libexecdir}/nazoos-welcome/nazoos-kernel-boot
 %{_unitdir}/nazoos-kernel-boot.service
+# Owned by grub2 too; a fallback to kernel-default while kernel-nazoos
+# is the top boot entry (ADR 0008)
+%dir %{_sysconfdir}/grub.d
+%config %{_sysconfdir}/grub.d/15_nazoos_fallback
 %{_presetdir}/90-nazoos-welcome.preset
 %{_datadir}/nazoos-welcome
 %{_datadir}/applications/org.nazoos.welcome.desktop

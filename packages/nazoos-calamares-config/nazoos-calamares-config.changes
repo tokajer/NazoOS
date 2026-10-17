@@ -1,4 +1,21 @@
 -------------------------------------------------------------------
+Fri Oct 16 20:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- nazoos-postinstall: the keyboard chosen in the installer reached
+  only the text console. systemd >= 258 keeps the desktop layout in
+  /etc/vconsole.conf (XKBLAYOUT), Calamares writes it to
+  xorg.conf.d/00-keyboard.conf, so the image's German layout stayed on
+  the desktop and login screen. The layout is now copied over, model
+  pc105 instead of the image's microsoftpro, console keymap derived
+  from layout+variant (German gave the Mac keymap before)
+- Partitions: "Encrypt system" offered (ADR 0006). LUKS1 so GRUB can
+  open it; /boot stays inside the encrypted root
+- nazoos-postinstall: GRUB_ENABLE_CRYPTODISK when / is on dm-crypt.
+  openSUSE's grub2 turns /etc/crypttab into crypttab_entry and hands
+  the key to the initrd: the passphrase is asked once, also when
+  booting a snapshot (tested with Secure Boot)
+
+-------------------------------------------------------------------
 Fri Oct 16 19:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Start page: minimum RAM 3.5 GiB instead of 4.0. Calamares compares

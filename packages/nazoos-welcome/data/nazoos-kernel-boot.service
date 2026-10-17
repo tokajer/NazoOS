@@ -1,12 +1,14 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# NazoOS kernel opt-in (ADR 0008): keeps kernel-nazoos as default boot
-# entry and counts clean boots. Type=simple, not oneshot: the script waits
-# for the end of the boot, which would never come if the boot waited for it.
+# NazoOS kernel opt-in (ADR 0008): keeps the chosen kernel (kernel-nazoos,
+# or kernel-default after "Use openSUSE kernel") as default boot entry and
+# counts clean boots. Enabled by the kernel install, disabled when
+# kernel-nazoos is removed; no condition on kernel-prefer, the way back
+# needs it too. Type=simple, not oneshot: the script waits for the end of
+# the boot, which would never come if the boot waited for it.
 [Unit]
 Description=NazoOS: kernel boot counter
-ConditionPathExists=/var/lib/nazoos/kernel-prefer
 After=multi-user.target
 
 [Service]

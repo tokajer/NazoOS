@@ -8,6 +8,7 @@ preferred (/var/lib/nazoos/kernel-prefer). Keeps kernel-nazoos as the
 default boot entry (a kernel update creates a new entry) and counts
 boots of a -nazoos kernel that reach "running". A degraded boot resets
 the counter. After 3 clean boots nazoos-update offers stage 2.
+After "Use openSUSE kernel" it keeps kernel-default the default instead.
 --grub-only: only fix the boot entry (nazoos-update after an update).
 """
 
@@ -26,13 +27,20 @@ from nazoos_welcome import kernel  # noqa: E402
 
 
 def main():
-    if not kernel.PREFER.exists():
+    # Keep the chosen kernel the default: kernel-nazoos while the user
+    # prefers it, else kernel-default as long as kernel-nazoos is still
+    # installed (the first menu entry would boot the newest of both)
+    if kernel.PREFER.exists():
+        flavor = "nazoos"
+    elif kernel.nazoos_entry():
+        flavor = "default"
+    else:
         return 0
     try:
-        kernel.ensure_grub_default()
+        kernel.ensure_grub_default(flavor=flavor)
     except (OSError, subprocess.CalledProcessError) as e:
         print(f"could not set the boot entry: {e}", file=sys.stderr)
-    if "--grub-only" in sys.argv:
+    if "--grub-only" in sys.argv or flavor != "nazoos":
         return 0
     release = os.uname().release
     if not release.endswith("-nazoos"):

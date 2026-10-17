@@ -36,8 +36,6 @@ Kirigami.ApplicationWindow {
         mokDialog.args = args || []
         mokPin.text = mokDialog.suggestion
         mokDialog.open()
-        mokPin.forceActiveFocus()
-        mokPin.selectAll()
     }
 
     function confirm(title, text, okText, callback) {
@@ -208,6 +206,12 @@ Kirigami.ApplicationWindow {
         // What a German keyboard has to type in MokManager
         readonly property string usLayout: mokPin.text.replace(/[yzYZ]/g,
             c => ({ y: "z", z: "y", Y: "Z", Z: "Y" })[c])
+        // Focus only once the dialog is open: before that the popup takes
+        // it away again and Enter/Tab reach the window behind it
+        onOpened: {
+            mokPin.forceActiveFocus()
+            mokPin.selectAll()
+        }
         title: L.tr("Password for the NazoOS key")
         subtitle: L.tr("After the restart a blue screen (MokManager) asks once for this password to enroll the NazoOS key. Suggested: \"nazoos\". 4 to 16 letters or digits.")
         standardButtons: Kirigami.Dialog.NoButton

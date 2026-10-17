@@ -32,6 +32,12 @@ Kirigami.ScrollablePage {
             subtitle: L.tr("The openSUSE kernel with gaming patches: BORE scheduler for smoother frame times, BBRv3, handheld drivers (Steam Deck, ROG Ally, MSI Claw, Zotac Zone and more), v4l2loopback for virtual cameras. It is installed next to the openSUSE kernel, which stays in the boot menu as a fallback.")
             status: page.k.blocked ? L.tr("Not possible with the closed NVIDIA driver (G06). Switch to the open driver first.")
                     : page.k.running ? L.tr("Running: %1").arg(page.k.release)
+                    // Secure Boot without the key: GRUB falls back to the
+                    // openSUSE kernel, a restart alone does not help
+                    : page.k.installed && page.k.secureBoot && page.k.mok === "missing"
+                      ? L.tr("Installed – enroll the NazoOS key below first (Secure Boot)")
+                    : page.k.installed && page.k.secureBoot && page.k.mok === "pending"
+                      ? L.tr("Installed – restart and enroll the key in the blue screen")
                     : page.k.installed ? L.tr("Installed – restart the computer to start it")
                     : ""
             statusType: page.k.blocked ? 3 : page.k.running ? 1 : page.k.installed ? 2 : 0

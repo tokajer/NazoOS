@@ -65,7 +65,7 @@ More in [docs/kernel.md](docs/kernel.md).
 - KDE Plasma 6 with **Breeze Dark**, **Wayland only** (Xwayland stays for Steam and older games)
 - Matching NazoOS theme for GRUB, the Plymouth boot splash, the login screen and the wallpaper
 - **Discover** (Flatpak, Flathub) and **Myrlyn** (RPM packages) for software
-- Calamares installer with a disclaimer page and the desktop/handheld choice
+- Calamares installer with a disclaimer page, the desktop/handheld choice and optional disk encryption
 
 ## Screenshots
 
@@ -102,6 +102,7 @@ There is no stable release yet. Development builds come from the [Open Build Ser
 
 ## Documentation
 
+- [Installing NazoOS](docs/install.md): the installer step by step, disk encryption
 - [NazoOS Welcome](docs/welcome.md): first steps after the installation
 - [NazoOS Update](docs/update.md): updates, notifications, going back to a snapshot
 - [NazoOS kernel](docs/kernel.md): the optional gaming kernel and Secure Boot

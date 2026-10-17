@@ -1,0 +1,65 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS (nazoos-welcome): while the top boot menu entry starts
+# kernel-nazoos (GRUB_TOP_LEVEL, ADR 0008), add a top-level entry
+# "NazoOS (openSUSE kernel)" for the newest kernel-default and make it
+# GRUB's fallback. If GRUB cannot load kernel-nazoos – Secure Boot with
+# the NazoOS key not enrolled yet ("bad shim loader signature") – it
+# starts the openSUSE kernel instead of stopping at "Failed to boot both
+# default and fallback entries". GRUB's "fallback" only takes the number
+# of a top-level entry (grub_strtoul in normal/menu.c), no id and nothing
+# inside "Advanced options": 10_linux writes "NazoOS" (0) and the submenu
+# (1), so this entry is 2 – or 3 when a snapshot is booted, 00_header
+# then puts "Help on bootable snapshot" first.
+# The entry is built like 10_linux's: same helpers, same command line.
+set -e
+
+. /usr/share/grub2/grub-mkconfig_lib
+
+case "$GRUB_TOP_LEVEL" in
+  */vmlinuz-*-nazoos) ;;
+  *) exit 0 ;;
+esac
+
+version=""
+for k in /boot/vmlinuz-*-default; do
+  [ -e "$k" ] || continue
+  version=$(printf '%s\n%s\n' "$version" "${k#/boot/vmlinuz-}" | sort -V | tail -n 1)
+done
+[ -n "$version" ] || exit 0
+
+if [ -n "$GRUB_DEVICE_UUID" ] && [ "$GRUB_DISABLE_LINUX_UUID" != true ]; then
+  root_device="UUID=$GRUB_DEVICE_UUID"
+else
+  root_device="$GRUB_DEVICE"
+fi
+cmdline="$GRUB_CMDLINE_LINUX"
+# Booting a snapshot passes rootflags=subvol=… in extra_cmdline
+if [ "$GRUB_FS" = btrfs ] && [ "$SUSE_BTRFS_SNAPSHOT_BOOTING" = true ]; then
+  cmdline="$cmdline \${extra_cmdline}"
+fi
+boot_dir=$(make_system_path_relative_to_its_root /boot)
+initrd=""
+[ -e "/boot/initrd-$version" ] && initrd="$boot_dir/initrd-$version"
+
+echo "menuentry 'NazoOS (openSUSE kernel)' --class nazoos --class gnu-linux --class gnu --class os \$menuentry_id_option 'nazoos-fallback-default' {"
+echo "	load_video"
+echo "	set gfxpayload=keep"
+echo "	insmod gzio"
+prepare_grub_to_access_device "$GRUB_DEVICE_BOOT" | sed -e 's/^/\t/'
+echo "	echo	'Loading Linux $version ...'"
+echo "	linux	$boot_dir/vmlinuz-$version root=$root_device $cmdline $GRUB_CMDLINE_LINUX_DEFAULT"
+if [ -n "$initrd" ]; then
+  echo "	echo	'Loading initial ramdisk ...'"
+  echo "	initrd	$initrd"
+fi
+echo "}"
+cat <<'FALLBACK'
+if [ -n "$extra_cmdline" ]; then
+  set fallback=3
+else
+  set fallback=2
+fi
+FALLBACK

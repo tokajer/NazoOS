@@ -1,4 +1,39 @@
 -------------------------------------------------------------------
+Fri Oct 16 19:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Waydroid: Android ran in UTC. The install now sets
+  persist.sys.timezone from the system time zone (before the first
+  Android start; an existing Android data folder keeps its zone)
+- Drives: NTFS drives added for automatic mounting failed with
+  "unknown filesystem type 'ntfs3'": suse-module-tools blacklists the
+  driver, which also blocks the fs-ntfs3 alias used by mount. Adding an
+  NTFS drive now links /etc/modprobe.d/60-blacklist_fs-ntfs3.conf to
+  /dev/null, like suse-module-tools' own unblacklist script does when
+  run in a terminal
+- "Remove NazoOS kernel" ended with zypper 107: the kernel's cert-postun
+  runs "mokutil --delete --root-pw" (yescrypt problem, ADR 0024).
+  efivarfs is mounted read-only for the removal, the script skips; the
+  key stays enrolled
+- Boot menu: while the NazoOS kernel is the default, a top-level entry
+  "NazoOS (openSUSE kernel)" is added and set as GRUB's fallback
+  (/etc/grub.d/15_nazoos_fallback). Secure Boot without the enrolled
+  key ("bad shim loader signature") now starts the openSUSE kernel by
+  itself instead of stopping at "Failed to boot both default and
+  fallback entries"
+- Kernel page: says "enroll the key first" instead of "restart" when
+  Secure Boot is on and the key is missing or waiting
+- Key password dialog: the text field gets the keyboard focus (Enter
+  and Tab reached the window behind it)
+- "Use openSUSE kernel" started kernel-nazoos again: it set the first
+  boot menu entry, which boots the newest kernel of any flavor
+- Boot menu: the top entry "NazoOS" now starts the chosen kernel
+  (GRUB_TOP_LEVEL) and is the default, instead of a highlighted
+  "Advanced options" submenu. Kept up to date after every kernel
+  install/removal by a file trigger on /usr/lib/modules and by
+  nazoos-kernel-boot.service (no condition on kernel-prefer any more,
+  the way back needs it too); removing kernel-nazoos drops it again
+
+-------------------------------------------------------------------
 Fri Oct 16 18:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Secure Boot key (ADR 0024): MokManager password comes from a dialog
