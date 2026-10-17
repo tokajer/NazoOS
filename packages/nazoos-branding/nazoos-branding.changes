@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 17 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New logo: plain "N" on the dark badge with a green ring, no
+  katanas or leopard print; GRUB logo and Plymouth watermark
+  regenerated from it
+
+-------------------------------------------------------------------
 Sat Oct 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Console login banner says "Welcome to NazoOS" instead of
