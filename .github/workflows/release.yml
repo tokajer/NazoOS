@@ -1,0 +1,101 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Release (ADR 0025): copies the tested binaries of every package from
+# home:Tokajer:nazoos:devel to :release via OBS release targets
+# (trigger="manual", no rebuild). Run by hand after the VM checklist
+# passed on the :devel ISO: Actions → Release → Run workflow.
+# :release then builds the release ISO against the new packages; it is
+# published by hand (mirror rule, see ADR 0025).
+# Package list = the :devel packages in .obs/workflows.yml, without
+# nazoos-image (the ISO has its own package in :release), plus OBS_ONLY:
+# packages that live only in OBS (Waydroid stack). New OBS-only package
+# in :devel → add it there, else :release misses it.
+# OBS allows release tokens only per package, not per project.
+# Secrets (maintainer account):
+# - OBS_RELEASE_TOKEN: `osc token --create --operation release` (no
+#   project/package: valid for every package)
+# - OBS_SERVICE_TOKEN: `osc token --create --operation runservice
+#   home:Tokajer:nazoos:release nazoos-image` – refetches the KIWI
+#   description from main, so the release ISO matches this commit
+# Doku: https://openbuildservice.org/help/manuals/obs-user-guide/ (release
+# targets, authorization tokens)
+
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      checklist:
+        description: The VM checklist passed on the current :devel ISO
+        type: boolean
+        default: false
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    env:
+      SOURCE: home:Tokajer:nazoos:devel
+      REPO: openSUSE_Tumbleweed
+      OBS_ONLY: libgbinder1 libglibutil1 python-gbinder python-pyclip waydroid
+    steps:
+      - name: Check input
+        if: ${{ !inputs.checklist }}
+        run: |
+          echo "::error::Run the VM checklist on the :devel ISO first, then tick the box"
+          exit 1
+
+      - uses: actions/checkout@v7
+
+      - name: Refresh the image description in :release
+        env:
+          TOKEN: ${{ secrets.OBS_SERVICE_TOKEN }}
+        run: |
+          [ -n "$TOKEN" ] || { echo "::error::secret OBS_SERVICE_TOKEN missing"; exit 1; }
+          curl -sS --fail-with-body -X POST -H "Authorization: Token $TOKEN" \
+            "https://api.opensuse.org/trigger/runservice?project=home:Tokajer:nazoos:release&package=nazoos-image"
+
+      - name: Release packages
+        env:
+          TOKEN: ${{ secrets.OBS_RELEASE_TOKEN }}
+        run: |
+          [ -n "$TOKEN" ] || { echo "::error::secret OBS_RELEASE_TOKEN missing"; exit 1; }
+          mapfile -t packages < <(
+            awk -v p="project: $SOURCE" '$0 ~ p"$" { getline; sub(/.*package: */, ""); print }' \
+              .obs/workflows.yml | grep -vx nazoos-image
+            printf '%s\n' $OBS_ONLY)
+          [ "${#packages[@]}" -gt 0 ] || { echo "::error::no packages found"; exit 1; }
+          failed=()
+          {
+            echo "## Release $(date -u +%F) from ${GITHUB_SHA::7}"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+          for pkg in "${packages[@]}"; do
+            if out=$(curl -sS --fail-with-body -X POST \
+                -H "Authorization: Token $TOKEN" \
+                "https://api.opensuse.org/trigger/release?project=$SOURCE&package=$pkg&repository=$REPO" 2>&1); then
+              echo "- $pkg ✓" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "::error::$pkg: $out"
+              echo "- $pkg ✗" >> "$GITHUB_STEP_SUMMARY"
+              failed+=("$pkg")
+            fi
+          done
+          cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+
+          Next: wait until `nazoos-image` in :release (repository `images`) has
+          built, boot test the release ISO (repo `nazoos`, no `nazoos-devel`),
+          check the mirror rule, then enable publishing of `images` (ADR 0025).
+          EOF
+          [ "${#failed[@]}" -eq 0 ] || exit 1
