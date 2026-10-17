@@ -15,7 +15,8 @@
 # "repository" parameter: with release targets OBS *skips* the target
 # whose repository has that name (app/models/token/release.rb), so
 # repository=openSUSE_Tumbleweed released nothing (run 2026-10-17).
-# Secrets (maintainer account):
+# Secrets (maintainer account, plus OBS_USER/OBS_PASSWORD of the kernel
+# bot – only to read the :devel build results):
 # - OBS_RELEASE_TOKEN: `osc token --create --operation release` (no
 #   project/package: valid for every package)
 # - OBS_SERVICE_TOKEN: `osc token --create --operation runservice
@@ -44,7 +45,7 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 75
     defaults:
       run:
         shell: bash
@@ -59,6 +60,45 @@ jobs:
           exit 1
 
       - uses: actions/checkout@v7
+
+      # Never release a half-rebuilt :devel (e.g. right after a push, which
+      # starts services and builds): wait until every package is finished,
+      # stop on failures. Reading needs a login; any account can read.
+      - name: Wait until :devel has finished building
+        env:
+          OBS_USER: ${{ secrets.OBS_USER }}
+          OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
+        run: |
+          [ -n "$OBS_USER" ] && [ -n "$OBS_PASSWORD" ] ||
+            { echo "::error::secrets OBS_USER / OBS_PASSWORD missing"; exit 1; }
+          for _ in $(seq 60); do
+            curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -o result.xml \
+              "https://api.opensuse.org/build/$SOURCE/_result?repository=openSUSE_Tumbleweed"
+            state=$(python3 - <<'EOF'
+          import xml.etree.ElementTree as ET
+          ok = {"succeeded", "disabled", "excluded"}
+          bad = {"failed", "unresolvable", "broken"}
+          res = ET.parse("result.xml").getroot().findall("result")
+          codes = {s.get("package"): s.get("code") for r in res for s in r}
+          failed = sorted(p for p, c in codes.items() if c in bad)
+          if failed:
+              print("failed " + " ".join(failed))
+          elif res and all(r.get("code") == "published" and not r.get("dirty")
+                           for r in res) and set(codes.values()) <= ok:
+              print("done")
+          else:
+              print("busy")
+          EOF
+            )
+            case $state in
+              done) echo ":devel finished"; exit 0 ;;
+              failed*) echo "::error:::devel has failed packages: ${state#failed }"; exit 1 ;;
+            esac
+            echo "still building, waiting"
+            sleep 60
+          done
+          echo "::error:::devel did not finish within 60 minutes"
+          exit 1
 
       - name: Refresh the image description in :release
         env:
