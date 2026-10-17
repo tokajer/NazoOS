@@ -10,7 +10,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <param name="revision">main</param>
     <param name="subdir">packages/nazoos-deck</param>
     <param name="filename">nazoos-deck</param>
-    <param name="versionformat">0.1.0+git%cd.%h</param>
+    <param name="versionformat">0.1.0+git%cd.%ct.%h</param>
     <param name="extract">nazoos-deck.spec</param>
     <param name="extract">nazoos-deck.changes</param>
   </service>

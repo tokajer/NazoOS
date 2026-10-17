@@ -10,7 +10,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <param name="revision">main</param>
     <param name="subdir">packages/nazoos-calamares-config</param>
     <param name="filename">nazoos-calamares-config</param>
-    <param name="versionformat">0.1.0+git%cd.%h</param>
+    <param name="versionformat">0.1.0+git%cd.%ct.%h</param>
     <param name="extract">nazoos-calamares-config.spec</param>
     <param name="extract">nazoos-calamares-config.changes</param>
   </service>
