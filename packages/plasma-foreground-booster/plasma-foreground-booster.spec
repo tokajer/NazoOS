@@ -68,6 +68,15 @@ DESTDIR=%{buildroot} cmake --install kcgroups-%{booster_commit}/build
 # (upstream fallback for sessions without systemd); Plasma on Tumbleweed
 # starts the systemd unit, so the copy is not needed
 rm %{buildroot}%{_sysconfdir}/xdg/autostart/org.kde.foreground-booster.desktop
+# Upstream's unit has no ordering against KWin: plasma-workspace.target
+# pulls it in at the same time as the compositor, Qt then finds no
+# Wayland display and aborts ("Failed to create wl_display", core dump
+# + crash notification at login; systemd restarts it). Wait for
+# plasma-core.target (after plasma-kwin_wayland.service) like Plasma's
+# own services. Drop-in, so the upstream unit stays untouched
+install -d %{buildroot}%{_userunitdir}/%{name}.service.d
+printf '[Unit]\nAfter=plasma-core.target\n' \
+  > %{buildroot}%{_userunitdir}/%{name}.service.d/10-nazoos-after-kwin.conf
 
 %post
 %systemd_user_post %{name}.service
@@ -82,6 +91,8 @@ rm %{buildroot}%{_sysconfdir}/xdg/autostart/org.kde.foreground-booster.desktop
 %license kcgroups-%{kcgroups_commit}/LICENSES/LGPL-2.1-or-later.txt
 %{_bindir}/foreground_booster
 %{_userunitdir}/%{name}.service
+%dir %{_userunitdir}/%{name}.service.d
+%{_userunitdir}/%{name}.service.d/10-nazoos-after-kwin.conf
 # KWin only grants the window management protocol to clients whose
 # .desktop file lists it (X-KDE-Wayland-Interfaces)
 %{_datadir}/applications/org.kde.foreground-booster.desktop

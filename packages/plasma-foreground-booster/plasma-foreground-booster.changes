@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 17 13:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Start after KWin (drop-in After=plasma-core.target): the booster
+  started together with the compositor, found no Wayland display and
+  aborted at login (core dump + crash notification)
+
+-------------------------------------------------------------------
 Sat Oct 10 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - First package for NazoOS: kcgroups branch dmemcg (d106f1c, linked
