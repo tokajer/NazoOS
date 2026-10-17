@@ -11,7 +11,10 @@
 # nazoos-image (the ISO has its own package in :release), plus OBS_ONLY:
 # packages that live only in OBS (Waydroid stack). New OBS-only package
 # in :devel → add it there, else :release misses it.
-# OBS allows release tokens only per package, not per project.
+# OBS allows release tokens only per package, not per project. No
+# "repository" parameter: with release targets OBS *skips* the target
+# whose repository has that name (app/models/token/release.rb), so
+# repository=openSUSE_Tumbleweed released nothing (run 2026-10-17).
 # Secrets (maintainer account):
 # - OBS_RELEASE_TOKEN: `osc token --create --operation release` (no
 #   project/package: valid for every package)
@@ -47,7 +50,6 @@ jobs:
         shell: bash
     env:
       SOURCE: home:Tokajer:nazoos:devel
-      REPO: openSUSE_Tumbleweed
       OBS_ONLY: libgbinder1 libglibutil1 python-gbinder python-pyclip waydroid
     steps:
       - name: Check input
@@ -84,7 +86,7 @@ jobs:
           for pkg in "${packages[@]}"; do
             if out=$(curl -sS --fail-with-body -X POST \
                 -H "Authorization: Token $TOKEN" \
-                "https://api.opensuse.org/trigger/release?project=$SOURCE&package=$pkg&repository=$REPO" 2>&1); then
+                "https://api.opensuse.org/trigger/release?project=$SOURCE&package=$pkg" 2>&1); then
               echo "- $pkg ✓" >> "$GITHUB_STEP_SUMMARY"
             else
               echo "::error::$pkg: $out"
