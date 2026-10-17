@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Live medium: first-login setup (Gaming Mode desktop shortcut,
+  on-screen keyboard) only on a detected handheld, not on every PC
+  that boots the ISO
+
+-------------------------------------------------------------------
 Mon Oct 12 21:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Do not recommend jupiter-dock-updater-bin: its install script

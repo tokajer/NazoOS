@@ -150,6 +150,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <package name="nazoos-branding"/>
     <package name="nazoos-branding-plymouth"/>
     <package name="nazoos-branding-grub2"/>
+    <!-- Translations (-lang packages) of the desktop, ADR 0027: the
+         image is built with zypper's locale "en" only. Also recommended
+         by nazoos-pattern; listed here so OBS provides its Recommends -->
+    <package name="nazoos-translations"/>
     <package name="plymouth"/>
     <!-- Steam gaming mode as login session (also pulled by the pattern) -->
     <package name="nazoos-session"/>

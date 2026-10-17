@@ -21,4 +21,20 @@ if [ -x "$detect" ] && model=$("$detect"); then
     "/usr/share/calamares/modules/$conf" > "/etc/calamares/modules/$conf"
 fi
 
+# Keyboard page: Calamares switches the live session's layout through
+# org.freedesktop.locale1 (KWin follows it, kwinrc FollowLocale1 from
+# KIWI config.sh), so passwords are typed with the chosen layout.
+# Calamares' QDBusInterface does not D-Bus-activate systemd-localed, and
+# localed quits after 30 s idle ("Interface org.freedesktop.locale1 is
+# not valid" in the session log, layout stayed German). Start it and
+# keep it busy while Calamares runs; exec keeps this PID
+installer_pid=$$
+systemctl start systemd-localed.service || :
+(
+  while sleep 15 && kill -0 "$installer_pid" 2>/dev/null; do
+    busctl get-property org.freedesktop.locale1 /org/freedesktop/locale1 \
+      org.freedesktop.locale1 X11Layout >/dev/null 2>&1 || :
+  done
+) &
+
 exec /usr/bin/calamares "$@"

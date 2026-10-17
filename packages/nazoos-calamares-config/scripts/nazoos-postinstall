@@ -120,6 +120,21 @@ if [ -f "$kbd_x11" ]; then
   fi
 fi
 
+# 3d. Language: zypper installs translations (-lang packages, dictionaries,
+#     …) only for the languages in /var/lib/zypp/RequestedLocales. The
+#     image was built with "en" only, so apps installed later stayed
+#     English. Request the installer's language (localecfg wrote
+#     /etc/locale.conf). --no-packages: no download here; the desktop's
+#     translations are already on the medium (nazoos-translations, ADR 0027)
+lang=$(sed -n 's/^LANG=//p' /etc/locale.conf 2>/dev/null | tr -d '"' | head -n 1)
+lang=${lang%%.*}
+if [ -n "$lang" ] && [ "$lang" != C ] && [ "$lang" != POSIX ]; then
+  locales=("${lang%%_*}")
+  [ "$lang" != "${lang%%_*}" ] && locales+=("$lang")
+  zypper --non-interactive --no-refresh addlocale --no-packages "${locales[@]}" \
+    || echo "could not request locale $lang"
+fi
+
 # 4. initrd for the installed system. Must exist before the GRUB config
 #    is generated, otherwise grub2-mkconfig writes entries without initrd
 #    (the live medium keeps its initrd on the ISO, not in /boot)

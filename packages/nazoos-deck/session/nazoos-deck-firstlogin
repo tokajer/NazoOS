@@ -15,6 +15,15 @@ state=${XDG_STATE_HOME:-$HOME/.local/state}/nazoos-deck
 marker=$state/firstlogin-done
 [ -e "$marker" ] && exit 0
 
+# Live medium: one ISO for all devices carries this package (ADR 0020),
+# desktop installs remove it. In the live session only set up a real
+# handheld, not every PC that boots the ISO. The installer starter is
+# there only on the live medium
+if [ -x /usr/libexec/nazoos-calamares/nazoos-installer ] && \
+   ! /usr/libexec/nazoos-session/nazoos-detect-handheld >/dev/null 2>&1; then
+  exit 0
+fi
+
 shortcut=/usr/share/applications/org.nazoos.session.gaming.desktop
 if [ -f "$shortcut" ]; then
   desktop_dir=$(xdg-user-dir DESKTOP 2>/dev/null || echo "$HOME/Desktop")

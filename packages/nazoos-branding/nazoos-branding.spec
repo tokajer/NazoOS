@@ -39,7 +39,8 @@ Desktop defaults for NazoOS: the NazoOS global theme for KDE Plasma
 screen), Breeze cursors (also as system default cursor theme), the
 NazoOS website in System Settings, tearing allowed for fullscreen games
 and file indexing limited to file names. /etc/os-release names the
-system NazoOS (based on openSUSE-release, ID stays opensuse-tumbleweed).
+system NazoOS (based on openSUSE-release, ID stays opensuse-tumbleweed),
+so does the console login banner.
 
 %package plymouth
 Summary:        NazoOS boot splash (Plymouth theme)
@@ -97,6 +98,11 @@ install -Dm0644 logo/nazoos-logo.svg \
 install -Dm0644 icons/index.theme %{buildroot}%{_datadir}/icons/default/index.theme
 install -Dm0755 os-release/nazoos-os-release \
   %{buildroot}%{_libexecdir}/nazoos-branding/nazoos-os-release
+# Console login banner: agetty reads /usr/lib/issue.d, a file with the
+# same name in /etc/issue.d replaces openSUSE-release's "Welcome to
+# openSUSE Tumbleweed". \S = PRETTY_NAME from os-release (NazoOS)
+install -Dm0644 issue/10-openSUSE.issue \
+  %{buildroot}%{_sysconfdir}/issue.d/10-openSUSE.issue
 # Plymouth
 install -Dm0644 -t %{buildroot}%{_datadir}/plymouth/themes/nazoos \
   plymouth/nazoos.plymouth plymouth/watermark.png
@@ -164,6 +170,8 @@ fi
 %dir %{_datadir}/icons/default
 %{_datadir}/icons/default/index.theme
 %{_libexecdir}/nazoos-branding
+%dir %{_sysconfdir}/issue.d
+%config(noreplace) %{_sysconfdir}/issue.d/10-openSUSE.issue
 
 %files plymouth
 %dir %{_datadir}/plymouth

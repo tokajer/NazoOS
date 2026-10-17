@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Sat Oct 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Keyboard: the live session now follows the chosen layout.
+  nazoos-installer starts systemd-localed and keeps it running
+  (Calamares does not D-Bus-activate it, localed quits after 30 s);
+  keyboard.conf sets useLocale1 explicitly
+- Language: nazoos-postinstall requests the installer's language for
+  zypper (addlocale --no-packages), later installs get translations
+- License page: disclaimer text wraps instead of being cut off
+  (stylesheet qproperty-wordWrap)
+
+-------------------------------------------------------------------
 Fri Oct 16 20:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - nazoos-postinstall: the keyboard chosen in the installer reached

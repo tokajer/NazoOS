@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Sat Oct 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Polkit: own actions for "check" and "rollback" (pkexec exec.argv1),
+  so the password dialog no longer says "install updates" when only
+  checking; "Check now" needs no password at the computer itself
+  (same as the timer, which already checks as root)
+
+-------------------------------------------------------------------
 Fri Oct 16 18:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Update with kernel-nazoos whose Secure Boot key is not enrolled:

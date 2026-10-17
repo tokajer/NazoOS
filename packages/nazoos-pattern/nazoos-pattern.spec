@@ -101,6 +101,8 @@ Recommends:     libfuse2
 # Desktop
 Recommends:     MozillaFirefox
 Recommends:     kate
+# Translations of the desktop (subpackage below)
+Recommends:     nazoos-translations
 
 %description
 Installs the NazoOS gaming desktop: system tweaks, Steam, Lutris,
@@ -108,6 +110,215 @@ Wine, Gamescope with Steam's gaming mode, MangoHud, GameMode, hardware
 tools, graphical software management (Discover with Flatpak, Myrlyn),
 updates with notifications (nazoos-update) and snapshots (Btrfs
 Assistant).
+
+%package -n nazoos-translations
+Summary:        Translations for the NazoOS desktop
+# Tumbleweed splits translations into <package>-lang subpackages (all
+# languages in one package). zypper adds them only for the languages in
+# /var/lib/zypp/RequestedLocales, and KIWI builds the image with "en"
+# only, so a German install showed Plasma, SDDM and polkit dialogs in
+# English (ADR 0027). Weak dependencies on purpose: a package that is
+# renamed or dropped in Tumbleweed must not block "zypper dup".
+# List = every <name>-lang whose <name> is in the image; refresh it with
+# notes/translations.md (2026-10-17: 192 packages).
+Recommends:     accountsservice-lang
+Recommends:     appstream-glib-lang
+Recommends:     AppStream-lang
+Recommends:     at-spi2-core-lang
+Recommends:     aurorae6-lang
+Recommends:     avahi-lang
+Recommends:     baloo-widgets-lang
+Recommends:     bash-lang
+Recommends:     bluedevil6-lang
+Recommends:     breeze6-style-lang
+Recommends:     coreutils-lang
+Recommends:     cpio-lang
+Recommends:     cryptsetup-lang
+Recommends:     cups-pk-helper-lang
+Recommends:     dialog-lang
+Recommends:     diffutils-lang
+Recommends:     discover6-lang
+Recommends:     dolphin-part-lang
+Recommends:     drkonqi6-lang
+Recommends:     elfutils-lang
+Recommends:     findutils-lang
+Recommends:     firewalld-lang
+Recommends:     flatpak-kcm6-lang
+Recommends:     fontconfig-lang
+Recommends:     fwupd-lang
+Recommends:     gcab-lang
+Recommends:     glib-networking-lang
+Recommends:     glibc-lang
+Recommends:     gpg2-lang
+Recommends:     grep-lang
+Recommends:     gsettings-desktop-schemas-lang
+Recommends:     gstreamer-lang
+Recommends:     gstreamer-plugins-bad-lang
+Recommends:     gstreamer-plugins-base-lang
+Recommends:     gstreamer-plugins-good-lang
+Recommends:     gvfs-lang
+Recommends:     kaccounts-integration-lang
+Recommends:     kaccounts-providers-lang
+Recommends:     kactivitymanagerd6-lang
+Recommends:     kate-lang
+Recommends:     kcoreaddons-lang
+Recommends:     kde-cli-tools6-lang
+Recommends:     kded-lang
+Recommends:     kdenetwork-filesharing-lang
+Recommends:     kdeplasma6-addons-lang
+Recommends:     kdialog-lang
+Recommends:     kdoctools-lang
+Recommends:     kf6-kauth-lang
+Recommends:     kf6-kcmutils-lang
+Recommends:     kf6-kcoreaddons-lang
+Recommends:     kf6-kded-lang
+Recommends:     kf6-kdoctools-lang
+Recommends:     kf6-kfilemetadata-lang
+Recommends:     kf6-kio-lang
+Recommends:     kf6-kpackage-lang
+Recommends:     kf6-kservice-lang
+Recommends:     kf6-ktexteditor-lang
+Recommends:     kf6-kuserfeedback-lang
+Recommends:     kf6-kwallet-tools-lang
+Recommends:     kf6-purpose-lang
+Recommends:     kf6-qqc2-desktop-style-lang
+Recommends:     kgamma6-lang
+Recommends:     khelpcenter-lang
+Recommends:     kinfocenter6-lang
+Recommends:     kinit-lang
+Recommends:     kio-extras-lang
+Recommends:     kio-lang
+Recommends:     kirigami-addons6-lang
+Recommends:     kirigami2-lang
+Recommends:     kmenuedit6-lang
+Recommends:     konsole-part-lang
+Recommends:     kpmcore-lang
+Recommends:     kscreen6-lang
+Recommends:     kscreenlocker6-lang
+Recommends:     kservice-lang
+Recommends:     ksystemstats6-lang
+Recommends:     kuiviewer-lang
+Recommends:     kwalletd6-lang
+Recommends:     kwalletmanager-lang
+Recommends:     kwin6-lang
+Recommends:     libgphoto2-6-lang
+Recommends:     libkdecorations3-6-lang
+Recommends:     libKF5Archive5-lang
+Recommends:     libKF5Auth5-lang
+Recommends:     libKF5Bookmarks5-lang
+Recommends:     libKF5Codecs5-lang
+Recommends:     libKF5Completion5-lang
+Recommends:     libKF5ConfigCore5-lang
+Recommends:     libKF5ConfigWidgets5-lang
+Recommends:     libKF5DBusAddons5-lang
+Recommends:     libKF5GlobalAccel5-lang
+Recommends:     libKF5I18n5-lang
+Recommends:     libKF5IconThemes5-lang
+Recommends:     libKF5ItemViews5-lang
+Recommends:     libKF5JobWidgets5-lang
+Recommends:     libKF5Notifications5-lang
+Recommends:     libKF5Solid5-lang
+Recommends:     libKF5SonnetCore5-lang
+Recommends:     libKF5TextWidgets5-lang
+Recommends:     libKF5WidgetsAddons5-lang
+Recommends:     libKF5WindowSystem5-lang
+Recommends:     libKF5XmlGui5-lang
+Recommends:     libKF6Archive6-lang
+Recommends:     libKF6Baloo6-lang
+Recommends:     libKF6Bookmarks6-lang
+Recommends:     libKF6CalendarEvents6-lang
+Recommends:     libKF6Codecs6-lang
+Recommends:     libKF6ColorScheme6-lang
+Recommends:     libKF6Completion6-lang
+Recommends:     libKF6ConfigCore6-lang
+Recommends:     libKF6ConfigWidgets6-lang
+Recommends:     libKF6Contacts6-lang
+Recommends:     libKF6DBusAddons6-lang
+Recommends:     libKF6DNSSD6-lang
+Recommends:     libKF6GlobalAccel6-lang
+Recommends:     libKF6Holidays6-lang
+Recommends:     libKF6I18n6-lang
+Recommends:     libKF6IconThemes6-lang
+Recommends:     libKF6ItemViews6-lang
+Recommends:     libKF6JobWidgets6-lang
+Recommends:     libKF6KCMUtils6-lang
+Recommends:     libKF6NewStuffCore6-lang
+Recommends:     libKF6NotifyConfig6-lang
+Recommends:     libKF6Parts6-lang
+Recommends:     libKF6Pty6-lang
+Recommends:     libKF6Screen8-lang
+Recommends:     libKF6Solid6-lang
+Recommends:     libKF6SonnetCore6-lang
+Recommends:     libKF6StatusNotifierItem6-lang
+Recommends:     libKF6Su6-lang
+Recommends:     libKF6SyntaxHighlighting6-lang
+Recommends:     libKF6TextWidgets6-lang
+Recommends:     libKF6UnitConversion6-lang
+Recommends:     libKF6WidgetsAddons6-lang
+Recommends:     libKF6WindowSystem6-lang
+Recommends:     libKF6XmlGui6-lang
+Recommends:     libKPipeWire6-lang
+Recommends:     libksysguard6-lang
+Recommends:     libPlasma5Support6-lang
+Recommends:     lutris-lang
+Recommends:     maliit-keyboard-lang
+Recommends:     markdownpart-lang
+Recommends:     milou6-lang
+Recommends:     ModemManager-lang
+Recommends:     MozillaFirefox-translations-common
+Recommends:     NetworkManager-lang
+Recommends:     notification-daemon-lang
+Recommends:     PackageKit-lang
+Recommends:     parted-lang
+Recommends:     partitionmanager-lang
+Recommends:     pipewire-lang
+Recommends:     plasma6-browser-integration-lang
+Recommends:     plasma6-desktop-lang
+Recommends:     plasma6-disks-lang
+Recommends:     plasma6-firewall-lang
+Recommends:     plasma6-integration-plugin-lang
+Recommends:     plasma6-nm-lang
+Recommends:     plasma6-pa-lang
+Recommends:     plasma6-print-manager-lang
+Recommends:     plasma6-systemmonitor-lang
+Recommends:     plasma6-thunderbolt-lang
+Recommends:     plasma6-workspace-lang
+Recommends:     plymouth-lang
+Recommends:     polkit-kde-agent-6-lang
+Recommends:     powerdevil6-lang
+Recommends:     procps-lang
+Recommends:     psmisc-lang
+Recommends:     qqc2-desktop-style-lang
+Recommends:     qrca-lang
+Recommends:     samba-client-lang
+Recommends:     samba-winbind-libs-lang
+Recommends:     sddm-kcm6-lang
+Recommends:     sed-lang
+Recommends:     shared-mime-info-lang
+Recommends:     snapper-lang
+Recommends:     svgpart-lang
+Recommends:     system-config-printer-common-lang
+Recommends:     systemd-lang
+Recommends:     systemsettings6-lang
+Recommends:     tar-lang
+Recommends:     udisks2-lang
+Recommends:     upower-lang
+Recommends:     util-linux-lang
+Recommends:     wget-lang
+Recommends:     wireplumber-lang
+Recommends:     xdg-desktop-portal-gtk-lang
+Recommends:     xdg-desktop-portal-kde6-lang
+Recommends:     xdg-desktop-portal-lang
+Recommends:     xdg-user-dirs-lang
+Recommends:     xkeyboard-config-lang
+Recommends:     xz-lang
+Recommends:     zenity-lang
+
+%description -n nazoos-translations
+Pulls in the translations (-lang packages) of the programs on the
+NazoOS desktop, so the installer's language choice reaches KDE Plasma,
+the login screen and password dialogs without a download after the
+installation.
 
 %prep
 # Nothing to unpack: a pattern only carries dependencies
@@ -120,9 +331,16 @@ Assistant).
 mkdir -p %{buildroot}%{_docdir}/patterns
 echo 'This file marks the pattern nazoos to be installed.' \
   > %{buildroot}%{_docdir}/patterns/nazoos.txt
+mkdir -p %{buildroot}%{_docdir}/nazoos-translations
+echo 'Meta package: pulls in the -lang packages of the NazoOS desktop.' \
+  > %{buildroot}%{_docdir}/nazoos-translations/README
 
 %files
 %dir %{_docdir}/patterns
 %{_docdir}/patterns/nazoos.txt
+
+%files -n nazoos-translations
+%dir %{_docdir}/nazoos-translations
+%{_docdir}/nazoos-translations/README
 
 %changelog

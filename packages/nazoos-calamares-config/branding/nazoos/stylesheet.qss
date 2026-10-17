@@ -16,3 +16,13 @@
     border-radius: 3px;
     padding: 6px 10px;
 }
+
+/*
+ * License page: Calamares shows the disclaimer (disclaimer.html) in a
+ * QLabel without word wrap, so long lines were cut off on the right.
+ * Q_PROPERTYs can be set from a stylesheet with "qproperty-<name>".
+ * https://doc.qt.io/qt-6/stylesheet-syntax.html#setting-qobject-properties
+ */
+#licenseItemFullText {
+    qproperty-wordWrap: true;
+}

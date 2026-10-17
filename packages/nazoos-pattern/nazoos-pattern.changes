@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New subpackage nazoos-translations: recommends the -lang packages
+  of the desktop (192), so a German install shows Plasma, SDDM and
+  polkit dialogs in German without a download (ADR 0027)
+
+-------------------------------------------------------------------
 Mon Oct 12 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend fuse + libfuse2: AppImages with the older runtime need

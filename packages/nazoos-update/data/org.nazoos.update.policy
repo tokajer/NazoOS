@@ -5,7 +5,14 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 Allows nazoos-update to start its root helper via pkexec. The helper
 only knows the actions check, update and rollback.
+pkexec picks the action by program path and first argument
+(exec.argv1); "update" has no argv1 and catches the rest. Own actions
+so the password dialog says what really happens.
+"check" needs no password at the computer itself: it only refreshes the
+repos and does a dry run, the same as nazoos-update-check.timer does
+as root every few hours.
 Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
+      https://www.freedesktop.org/software/polkit/docs/latest/pkexec.1.html
 -->
 <!DOCTYPE policyconfig PUBLIC
  "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
@@ -26,5 +33,33 @@ Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
       <allow_active>auth_admin_keep</allow_active>
     </defaults>
     <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-update/nazoos-update-helper</annotate>
+  </action>
+
+  <action id="org.nazoos.update.check">
+    <description>Check for updates with NazoOS Update</description>
+    <description xml:lang="de">Mit NazoOS Aktualisierung nach Updates suchen</description>
+    <message>NazoOS Update needs administrator rights to check for updates.</message>
+    <message xml:lang="de">NazoOS Aktualisierung benötigt Administratorrechte, um nach Updates zu suchen.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-update/nazoos-update-helper</annotate>
+    <annotate key="org.freedesktop.policykit.exec.argv1">check</annotate>
+  </action>
+
+  <action id="org.nazoos.update.rollback">
+    <description>Make a snapshot permanent with NazoOS Update</description>
+    <description xml:lang="de">Mit NazoOS Aktualisierung einen Snapshot dauerhaft übernehmen</description>
+    <message>NazoOS Update needs administrator rights to make the started snapshot permanent.</message>
+    <message xml:lang="de">NazoOS Aktualisierung benötigt Administratorrechte, um den gestarteten Snapshot dauerhaft zu übernehmen.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-update/nazoos-update-helper</annotate>
+    <annotate key="org.freedesktop.policykit.exec.argv1">rollback</annotate>
   </action>
 </policyconfig>

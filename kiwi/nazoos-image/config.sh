@@ -62,6 +62,14 @@ if has_profile live; then
   printf '[Daemon]\nAutolock=false\nLockOnResume=false\n' \
     > /home/live/.config/kscreenlockerrc
   chown live:users /home/live/.config/kscreenlockerrc
+  # Keyboard: the installer sets the chosen layout through
+  # org.freedesktop.locale1 (Calamares keyboard module), but Plasma's KWin
+  # reads it from the user's kxkbrc. With FollowLocale1 KWin follows
+  # locale1 like SDDM's KWin does, so passwords and the LUKS passphrase
+  # are typed with the layout the installed system gets. Live user only:
+  # installed systems keep the per-user layout from System Settings
+  printf '[Wayland]\nFollowLocale1=true\n' > /home/live/.config/kwinrc
+  chown live:users /home/live/.config/kwinrc
   # Handheld services (nazoos-deck, live profile only): they start only on
   # matching hardware; desktop installs remove the packages
   systemctl preset jupiter-fan-control.service pipewire-sysconf.service \
