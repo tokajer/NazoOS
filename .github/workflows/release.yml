@@ -5,8 +5,8 @@
 # home:Tokajer:nazoos:devel to :release via OBS release targets
 # (trigger="manual", no rebuild). Run by hand after the VM checklist
 # passed on the :devel ISO: Actions → Release → Run workflow.
-# :release then builds the release ISO against the new packages; it is
-# published by hand (mirror rule, see ADR 0025).
+# :release then builds the release ISO against the new packages;
+# release-iso.yml publishes it (mirror rule, ADR 0025).
 # Package list = the :devel packages in .obs/workflows.yml, without
 # nazoos-image (the ISO has its own package in :release), plus OBS_ONLY:
 # packages that live only in OBS (Waydroid stack). New OBS-only package
@@ -136,8 +136,8 @@ jobs:
           done
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
 
-          Next: wait until `nazoos-image` in :release (repository `images`) has
-          built, boot test the release ISO (repo `nazoos`, no `nazoos-devel`),
-          check the mirror rule, then enable publishing of `images` (ADR 0025).
+          The release ISO builds in :release now; the "Release ISO" workflow
+          (every 3 hours, or Actions → Release ISO → Run workflow) publishes
+          it once it is built and the mirrors have its Tumbleweed snapshot.
           EOF
           [ "${#failed[@]}" -eq 0 ] || exit 1

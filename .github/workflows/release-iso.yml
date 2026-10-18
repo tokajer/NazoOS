@@ -1,0 +1,89 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Publishes the release ISO (ADR 0025). Publishing of repository "images"
+# in home:Tokajer:nazoos:release stays disabled: OBS rebuilds the ISO on
+# every Tumbleweed change, and only this workflow may put one online.
+# Every 3 hours (and after each release): if OBS has a successfully built
+# nazoos-image:release that is not published yet, and the Tumbleweed
+# mirrors have its snapshot (.github/scripts/release-iso-check.py), it
+# enables publishing, waits until download.opensuse.org serves that ISO,
+# and disables publishing again.
+# Tumbleweed is rolling, so the ISO may follow it; only our packages go
+# through the release gate (release.yml).
+# Secrets: OBS_USER/OBS_PASSWORD – tokajer-bot, maintainer of
+# home:Tokajer:nazoos:release (set_flag needs project maintainer rights).
+# Doku: https://openbuildservice.org/help/manuals/obs-user-guide/ (flags)
+
+name: Release ISO
+
+on:
+  schedule:
+    - cron: "23 */3 * * *"
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      OBS_USER:
+        required: true
+      OBS_PASSWORD:
+        required: true
+
+concurrency:
+  group: release-iso
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        shell: bash
+    env:
+      OBS_USER: ${{ secrets.OBS_USER }}
+      OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
+      FLAG_URL: "https://api.opensuse.org/source/home:Tokajer:nazoos:release?cmd=set_flag&flag=publish&repository=images"
+      PUBLISHED: "https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/release/images/iso/NazoOS.x86_64-release.iso.sha256"
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check the built ISO
+        id: check
+        run: |
+          [ -n "$OBS_USER" ] && [ -n "$OBS_PASSWORD" ] ||
+            { echo "::error::secrets OBS_USER / OBS_PASSWORD missing"; exit 1; }
+          python3 .github/scripts/release-iso-check.py | tee -a "$GITHUB_OUTPUT"
+
+      - name: Publish
+        if: steps.check.outputs.publish == 'true'
+        env:
+          SHA: ${{ steps.check.outputs.sha }}
+          REASON: ${{ steps.check.outputs.reason }}
+        run: |
+          curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -X POST "$FLAG_URL&status=enable"
+          for _ in $(seq 60); do
+            sleep 60
+            if [ "$(curl -sfL "$PUBLISHED" | awk '{print $1}')" = "$SHA" ]; then
+              echo "## Release ISO published" >> "$GITHUB_STEP_SUMMARY"
+              echo "$REASON, sha256 \`$SHA\`" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          done
+          echo "::error::download.opensuse.org did not serve the new ISO within 60 minutes"
+          exit 1
+
+      # Always: a failed or cancelled run must not leave publishing on
+      - name: Disable publishing again
+        if: always() && steps.check.outputs.publish == 'true'
+        run: |
+          curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -X POST "$FLAG_URL&status=disable"
+
+      - name: Summary
+        if: steps.check.outputs.publish != 'true'
+        env:
+          REASON: ${{ steps.check.outputs.reason }}
+        run: |
+          echo "Nothing published: $REASON" >> "$GITHUB_STEP_SUMMARY"
