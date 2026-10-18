@@ -96,7 +96,9 @@ More in [docs/kernel.md](docs/kernel.md).
 
 ## Download
 
-There is no stable release yet. Development builds come from the [Open Build Service](https://build.opensuse.org/project/show/home:Tokajer:nazoos:devel). Get **`NazoOS.x86_64-live.iso`** (live system with the installer) from the [image folder](https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/images/). While a new image is building, the folder can be empty for a while.
+**Stable:** [**`NazoOS.x86_64-release.iso`**](https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/release/images/iso/NazoOS.x86_64-release.iso) – live system with the installer, built from tested packages. Checksum and signature are in the [image folder](https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/release/images/iso/) (`.sha256`, `.sha256.asc`). Installed systems get updates from the stable repository.
+
+**Development builds** (newest changes, not tested): `NazoOS.x86_64-live.iso` from the [:devel image folder](https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/images/). While a new image is building, the folder can be empty for a while.
 
 **Requirements:** x86-64 PC with UEFI, 4 GB RAM, 30 GB disk. Write the ISO to a USB stick with [Fedora Media Writer](https://flathub.org/apps/org.fedoraproject.MediaWriter), [Impression](https://flathub.org/apps/io.gitlab.adhami3310.Impression) or `dd`.
 

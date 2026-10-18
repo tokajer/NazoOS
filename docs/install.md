@@ -1,6 +1,6 @@
 # Installing NazoOS
 
-Start the computer from the live medium (USB stick with `NazoOS.x86_64-live.iso`). The live desktop opens and the installer starts by itself. If you closed it, start it again from the application menu (**Install NazoOS**).
+Start the computer from the live medium (USB stick with `NazoOS.x86_64-release.iso`, or `NazoOS.x86_64-live.iso` for a development build). The live desktop opens and the installer starts by itself. If you closed it, start it again from the application menu (**Install NazoOS**).
 
 NazoOS needs a computer with UEFI, at least 30 GB of disk space and 4 GB of RAM. Secure Boot can stay on.
 
