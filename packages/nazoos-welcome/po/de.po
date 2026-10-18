@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-17 02:25+0200\n"
+"POT-Creation-Date: 2026-10-18 20:47+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,16 +16,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: nazoos_welcome/backend.py:223
+#: nazoos_welcome/backend.py:224
 msgid "These services still fail after a restart: %1"
 msgstr "Diese Dienste schlagen auch nach dem Neustart fehl: %1"
 
-#: nazoos_welcome/backend.py:228 nazoos_welcome/backend.py:312
-#: nazoos_welcome/backend.py:355
+#: nazoos_welcome/backend.py:229 nazoos_welcome/backend.py:313
+#: nazoos_welcome/backend.py:356
 msgid "Done."
 msgstr "Fertig."
 
-#: nazoos_welcome/backend.py:289
+#: nazoos_welcome/backend.py:290
 msgid ""
 "The password for the Secure Boot key could not be prepared (openssl is "
 "missing)."
@@ -33,19 +33,19 @@ msgstr ""
 "Das Passwort für den Secure-Boot-Schlüssel konnte nicht vorbereitet werden "
 "(openssl fehlt)."
 
-#: nazoos_welcome/backend.py:304
+#: nazoos_welcome/backend.py:305
 msgid "pkexec could not be started."
 msgstr "pkexec konnte nicht gestartet werden."
 
-#: nazoos_welcome/backend.py:317
+#: nazoos_welcome/backend.py:318
 msgid "Cancelled: no administrator password was given."
 msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
 
-#: nazoos_welcome/backend.py:321
+#: nazoos_welcome/backend.py:322
 msgid "Something went wrong."
 msgstr "Etwas ist schiefgelaufen."
 
-#: nazoos_welcome/backend.py:384
+#: nazoos_welcome/backend.py:385
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
@@ -355,6 +355,10 @@ msgid "Switching codecs to Packman"
 msgstr "Codecs werden auf Packman umgestellt"
 
 #: nazoos_welcome/catalog.py
+msgid "Switching the update channel"
+msgstr "Update-Kanal wird gewechselt"
+
+#: nazoos_welcome/catalog.py
 msgid "Unlocks clock and voltage controls in LACT"
 msgstr "Schaltet Takt- und Spannungsregler in LACT frei"
 
@@ -411,7 +415,7 @@ msgid "System"
 msgstr "System"
 
 #: qml/Main.qml:134 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:28
-#: qml/pages/RepairPage.qml:147 qml/pages/SystemPage.qml:100
+#: qml/pages/RepairPage.qml:147 qml/pages/SystemPage.qml:125
 msgid "Repair"
 msgstr "Reparieren"
 
@@ -772,8 +776,8 @@ msgstr "Nicht eingebunden"
 
 #: qml/pages/DrivesPage.qml:56 qml/pages/HelpPage.qml:31
 #: qml/pages/HelpPage.qml:40 qml/pages/HelpPage.qml:49
-#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:103
-#: qml/pages/SystemPage.qml:112 qml/pages/WelcomePage.qml:128
+#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:128
+#: qml/pages/SystemPage.qml:137 qml/pages/WelcomePage.qml:128
 #: qml/pages/WelcomePage.qml:137 qml/pages/WelcomePage.qml:146
 #: qml/pages/WelcomePage.qml:155
 msgid "Open"
@@ -825,7 +829,7 @@ msgstr ""
 msgid "Active: %1"
 msgstr "Aktiv: %1"
 
-#: qml/pages/GamingPage.qml:31 qml/pages/SystemPage.qml:82
+#: qml/pages/GamingPage.qml:31 qml/pages/SystemPage.qml:107
 msgid "Enabled, but not running"
 msgstr "Eingeschaltet, läuft aber nicht"
 
@@ -1621,15 +1625,66 @@ msgstr ""
 msgid "Update"
 msgstr "Aktualisieren"
 
-#: qml/pages/SystemPage.qml:44
+#: qml/pages/SystemPage.qml:50
+msgid "Update channel"
+msgstr "Update-Kanal"
+
+#: qml/pages/SystemPage.qml:51
+msgid ""
+"Stable gets NazoOS updates after they were tested. Beta gets them right "
+"away: newest changes, but things can break. Tumbleweed and the NazoOS kernel "
+"are the same in both."
+msgstr "Stabil bekommt NazoOS-Updates, nachdem sie getestet wurden. Beta bekommt sie sofort: neueste Änderungen, aber es kann etwas kaputtgehen. Tumbleweed und der NazoOS-Kernel sind in beiden gleich."
+
+#: qml/pages/SystemPage.qml:52
+msgid "Beta (test versions)"
+msgstr "Beta (Testversionen)"
+
+#: qml/pages/SystemPage.qml:52
+msgid "Stable"
+msgstr "Stabil"
+
+#: qml/pages/SystemPage.qml:56
+msgid "Switch to Beta"
+msgstr "Zu Beta wechseln"
+
+#: qml/pages/SystemPage.qml:56
+msgid "Switch to Stable"
+msgstr "Zu Stabil wechseln"
+
+#: qml/pages/SystemPage.qml:60
+msgid "Switch to the beta channel?"
+msgstr "Zum Beta-Kanal wechseln?"
+
+#: qml/pages/SystemPage.qml:60
+msgid "Switch to the stable channel?"
+msgstr "Zum stabilen Kanal wechseln?"
+
+#: qml/pages/SystemPage.qml:61
+msgid ""
+"NazoOS packages are replaced by their newest, untested versions. A snapshot "
+"is taken first, so you can go back. Report problems on GitHub."
+msgstr "NazoOS-Pakete werden durch ihre neuesten, ungetesteten Versionen ersetzt. Vorher wird ein Snapshot erstellt, du kannst also zurück. Probleme bitte auf GitHub melden."
+
+#: qml/pages/SystemPage.qml:62
+msgid ""
+"NazoOS packages go back to the tested versions; some can become older. A "
+"snapshot is taken first."
+msgstr "NazoOS-Pakete gehen zurück auf die getesteten Versionen; manche werden dabei älter. Vorher wird ein Snapshot erstellt."
+
+#: qml/pages/SystemPage.qml:63
+msgid "Switch"
+msgstr "Wechseln"
+
+#: qml/pages/SystemPage.qml:69
 msgid "Snapshots and rollback"
 msgstr "Snapshots und Rollback"
 
-#: qml/pages/SystemPage.qml:48
+#: qml/pages/SystemPage.qml:73
 msgid "Snapshots"
 msgstr "Snapshots"
 
-#: qml/pages/SystemPage.qml:49
+#: qml/pages/SystemPage.qml:74
 msgid ""
 "If the system does not start or misbehaves after an update: restart, choose "
 "\"Start bootloader from a read-only snapshot\" in the boot menu and pick the "
@@ -1641,27 +1696,27 @@ msgstr ""
 "den Stand vor dem Update auswählen. NazoOS Aktualisierung bietet dann an, "
 "diesen Stand dauerhaft zu übernehmen."
 
-#: qml/pages/SystemPage.qml:52
+#: qml/pages/SystemPage.qml:77
 msgid "Create snapshot"
 msgstr "Snapshot erstellen"
 
-#: qml/pages/SystemPage.qml:63
+#: qml/pages/SystemPage.qml:88
 msgid "Services"
 msgstr "Dienste"
 
-#: qml/pages/SystemPage.qml:80
+#: qml/pages/SystemPage.qml:105
 msgid "Not installed – switching on installs it"
 msgstr "Nicht installiert – wird beim Einschalten installiert"
 
-#: qml/pages/SystemPage.qml:81
+#: qml/pages/SystemPage.qml:106
 msgid "Running"
 msgstr "Läuft"
 
-#: qml/pages/SystemPage.qml:96
+#: qml/pages/SystemPage.qml:121
 msgid "Maintenance"
 msgstr "Wartung"
 
-#: qml/pages/SystemPage.qml:101
+#: qml/pages/SystemPage.qml:126
 msgid ""
 "Checks the system for common problems and fixes them. Also: refresh "
 "repositories, clean caches, repair Flatpak, bug report."
@@ -1669,11 +1724,11 @@ msgstr ""
 "Prüft das System auf häufige Probleme und behebt sie. Außerdem: Paketquellen "
 "aktualisieren, Caches leeren, Flatpak reparieren, Fehlerbericht."
 
-#: qml/pages/SystemPage.qml:109
+#: qml/pages/SystemPage.qml:134
 msgid "System settings"
 msgstr "Systemeinstellungen"
 
-#: qml/pages/SystemPage.qml:110
+#: qml/pages/SystemPage.qml:135
 msgid ""
 "Displays, sound, network, appearance and everything else of the desktop."
 msgstr ""

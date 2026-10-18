@@ -41,6 +41,31 @@ Kirigami.ScrollablePage {
             }
         }
 
+        SettingCard {
+            id: channelCard
+            // Hidden in the live session and without nazoos-repos
+            visible: !page.st.live && (page.st.channel || "") !== ""
+            readonly property bool beta: page.st.channel === "beta"
+            iconName: "server-database"
+            title: L.tr("Update channel")
+            subtitle: L.tr("Stable gets NazoOS updates after they were tested. Beta gets them right away: newest changes, but things can break. Tumbleweed and the NazoOS kernel are the same in both.")
+            status: beta ? L.tr("Beta (test versions)") : L.tr("Stable")
+            statusType: beta ? 2 : 1
+            QQC2.Button {
+                enabled: !backend.busy
+                text: channelCard.beta ? L.tr("Switch to Stable") : L.tr("Switch to Beta")
+                onClicked: {
+                    const toBeta = !channelCard.beta
+                    page.app.confirm(
+                        toBeta ? L.tr("Switch to the beta channel?") : L.tr("Switch to the stable channel?"),
+                        toBeta ? L.tr("NazoOS packages are replaced by their newest, untested versions. A snapshot is taken first, so you can go back. Report problems on GitHub.")
+                               : L.tr("NazoOS packages go back to the tested versions; some can become older. A snapshot is taken first."),
+                        L.tr("Switch"),
+                        () => page.app.runAction("channel", [toBeta ? "beta" : "stable"]))
+                }
+            }
+        }
+
         SectionHeader { text: L.tr("Snapshots and rollback") }
 
         SettingCard {

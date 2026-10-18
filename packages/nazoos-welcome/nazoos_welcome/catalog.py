@@ -313,6 +313,11 @@ NAZOOS_REPO_PATHS = [
     "/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/",
     "/repositories/home:/Tokajer:/nazoos:/release/openSUSE_Tumbleweed/",
 ]
+# Update channel (ADR 0025/0028): this symlink of nazoos-repos points the
+# service "nazoos" at :release (stable) or :devel (beta)
+CHANNEL_LINK = "/usr/share/zypp/local/service/nazoos/repo/repoindex.xml"
+CHANNEL_REPO_PATHS = {"beta": NAZOOS_REPO_PATHS[0],
+                      "stable": NAZOOS_REPO_PATHS[1]}
 # zypp services (ADR 0028) that own these repos: a plain addrepo would be
 # moved away or duplicated by the next package update. "seed" is a repo
 # the package can be installed from when the service and its repos are gone

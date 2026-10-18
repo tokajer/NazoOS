@@ -14,7 +14,7 @@ Whenever a step changes the system, a password dialog appears. Enter the passwor
 | Kernel | Optional NazoOS kernel with gaming patches, Secure Boot key, way back to the openSUSE kernel ([details](kernel.md)) |
 | Apps | Install popular apps with one click (Discord, OBS Studio, Heroic, ProtonUp-Qt, …) |
 | Drives | Mount internal drives automatically, e.g. for a Steam library |
-| System | Updates, snapshots, services (Bluetooth, LACT, CoolerControl, SSH, profile-sync-daemon), maintenance |
+| System | Updates, update channel (stable/beta), snapshots, services (Bluetooth, LACT, CoolerControl, SSH, profile-sync-daemon), maintenance |
 | Help | Links and system information for bug reports |
 
 ## NVIDIA

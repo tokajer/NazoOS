@@ -311,6 +311,18 @@ def session_state():
     }
 
 
+def update_channel():
+    """"stable", "beta" or "" (nazoos-repos missing or link unknown)."""
+    try:
+        target = os.readlink(catalog.CHANNEL_LINK)
+    except OSError:
+        return ""
+    for name in catalog.CHANNEL_REPO_PATHS:
+        if target == f"nazoos-{name}-repoindex.xml":
+            return name
+    return ""
+
+
 def collect():
     """Full state for the UI, as plain JSON-friendly data."""
     gpu_list = gpus()
@@ -398,6 +410,7 @@ def collect():
         "session": session_state(),
         "drives": drives(),
         "kernel": kernel_state(),
+        "channel": update_channel(),
         "hasBtrfsAssistant": shutil.which("btrfs-assistant") is not None,
         "hasNazoosUpdate": shutil.which("nazoos-update") is not None,
         "hasLact": shutil.which("lact") is not None,

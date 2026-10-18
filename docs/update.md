@@ -37,6 +37,15 @@ If the system does not start or misbehaves after an update:
 
 **Btrfs Assistant** (application menu, or **Snapshots** in NazoOS Update) shows all snapshots, can create and delete them and restore single files.
 
+## Stable and beta
+
+NazoOS has two update channels for its own packages (Welcome, Update, settings, branding):
+
+- **Stable** (default): updates arrive after they were tested.
+- **Beta**: updates arrive right away. You get new features first and help find problems, but something can break.
+
+Switch in **NazoOS Welcome → System → Update channel**. A snapshot is taken first. Going back to stable can make some NazoOS packages a bit older again, that is expected. Tumbleweed itself and the NazoOS kernel are the same in both channels.
+
 ## For advanced users
 
 - Background check: `nazoos-update-check.timer` (system), result in `/var/lib/nazoos-update/status.json`.
@@ -45,3 +54,4 @@ If the system does not start or misbehaves after an update:
 - The boot menu names come from the snapper userdata `bootloader`, set by `nazoos-update-label.path` as soon as a snapshot appears and by NazoOS Update after each update (`snapper list` shows the original descriptions).
 - When the download servers still have an older Tumbleweed snapshot than the installed system (right after installing from a new image), no system update is offered: `zypper dup` would only go back to the older versions.
 - In a terminal, `sudo zypper dup` does not have this check: in the first hours after installing it may list many packages going *down* a version (compare `VERSION_ID` in `/etc/os-release` with `curl -sL https://download.opensuse.org/tumbleweed/repo/oss/media.1/products`). That is harmless – the system just matches the servers again and the next update moves forward – but you can also simply wait. `zypper up` never downgrades, but on Tumbleweed `dup` is the right command. Do not set `solver.dupAllowDowngrade = false`: Tumbleweed sometimes goes back a version on purpose when a new one was broken.
+- Update channel: `/usr/share/zypp/local/service/nazoos/repo/repoindex.xml` (from `nazoos-repos`) links to `nazoos-stable-repoindex.xml` or `nazoos-beta-repoindex.xml`. The switch changes the link, runs `zypper refresh-services` (repo `nazoos:nazoos` ↔ `nazoos:nazoos-devel`) and `zypper dup --from <that repo>`. The link survives package updates.

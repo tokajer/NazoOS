@@ -60,6 +60,7 @@ ACTION_LABELS = {
     "flatpak-unused": "Removing unused Flatpak runtimes",
     "flatpak-repair": "Repairing Flatpak",
     "snapshot": "Creating a snapshot",
+    "channel": "Switching the update channel",
     "repair-repos": "Repairing repositories",
     "repair-rpmdb": "Rebuilding the package database",
     "repair-deps": "Installing missing dependencies",
