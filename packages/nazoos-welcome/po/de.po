@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-18 20:47+0200\n"
+"POT-Creation-Date: 2026-10-19 14:19+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,16 +16,60 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: nazoos_welcome/backend.py:224
-msgid "These services still fail after a restart: %1"
-msgstr "Diese Dienste schlagen auch nach dem Neustart fehl: %1"
+#: ../nazoos-common/nazoos_common/helper.py:48
+#, python-brace-format
+msgid "'{cmd}' failed (exit code {rc})"
+msgstr "„{cmd}“ ist fehlgeschlagen (Exit-Code {rc})"
 
-#: nazoos_welcome/backend.py:229 nazoos_welcome/backend.py:313
-#: nazoos_welcome/backend.py:356
+#: ../nazoos-common/nazoos_common/helper.py:68
+msgid "missing argument"
+msgstr "Angabe fehlt"
+
+#: ../nazoos-common/nazoos_common/helper.py:70
+#, python-brace-format
+msgid "invalid argument: {arg}"
+msgstr "ungültige Angabe: {arg}"
+
+#: ../nazoos-common/nazoos_common/helper.py:79
+msgid "must run as root (via pkexec)"
+msgstr "muss mit Administratorrechten laufen (über pkexec)"
+
+#: ../nazoos-common/nazoos_common/helper.py:83
+msgid "unknown action"
+msgstr "unbekannte Aktion"
+
+#: ../nazoos-common/nazoos_common/helper.py:94
+#, python-brace-format
+msgid "system error: {detail}"
+msgstr "Systemfehler: {detail}"
+
+#: ../nazoos-common/nazoos_common/helper.py:98
+#, python-brace-format
+msgid "program error: {detail}"
+msgstr "Programmfehler: {detail}"
+
+#: ../nazoos-common/nazoos_common/qt.py:92
+msgid "pkexec could not be started."
+msgstr "pkexec konnte nicht gestartet werden."
+
+#: ../nazoos-common/nazoos_common/qt.py:100 nazoos_welcome/backend.py:198
+#: nazoos_welcome/backend.py:314
 msgid "Done."
 msgstr "Fertig."
 
-#: nazoos_welcome/backend.py:290
+#: ../nazoos-common/nazoos_common/qt.py:104
+msgid "Cancelled: no administrator password was given."
+msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
+
+#: ../nazoos-common/nazoos_common/qt.py:106
+msgid "Something went wrong."
+msgstr "Etwas ist schiefgelaufen."
+
+#: nazoos_welcome/backend.py:195
+msgid "These services still fail after a restart: %1"
+msgstr "Diese Dienste schlagen auch nach dem Neustart fehl: %1"
+
+#: nazoos_welcome/backend.py:268
 msgid ""
 "The password for the Secure Boot key could not be prepared (openssl is "
 "missing)."
@@ -33,19 +77,7 @@ msgstr ""
 "Das Passwort für den Secure-Boot-Schlüssel konnte nicht vorbereitet werden "
 "(openssl fehlt)."
 
-#: nazoos_welcome/backend.py:305
-msgid "pkexec could not be started."
-msgstr "pkexec konnte nicht gestartet werden."
-
-#: nazoos_welcome/backend.py:318
-msgid "Cancelled: no administrator password was given."
-msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
-
-#: nazoos_welcome/backend.py:322
-msgid "Something went wrong."
-msgstr "Etwas ist schiefgelaufen."
-
-#: nazoos_welcome/backend.py:385
+#: nazoos_welcome/backend.py:335
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
@@ -382,60 +414,219 @@ msgstr "Sprach-Chat auf TeamSpeak-3-Servern"
 msgid "Wireless controllers, headsets, mice and keyboards"
 msgstr "Kabellose Controller, Headsets, Mäuse und Tastaturen"
 
+#: nazoos_welcome/root/apps.py:43 nazoos_welcome/root/apps.py:73
+msgid "unknown app"
+msgstr "unbekannte App"
+
+#: nazoos_welcome/root/apps.py:45
+#, python-brace-format
+msgid "{app} needs the NazoOS kernel (Kernel page)"
+msgstr "{app} braucht den NazoOS-Kernel (Seite „Kernel“)"
+
+#: nazoos_welcome/root/base.py:77
+msgid "unknown user"
+msgstr "unbekannter Benutzer"
+
+#: nazoos_welcome/root/base.py:97
+#, python-brace-format
+msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
+msgstr "GRUB_CMDLINE_LINUX_DEFAULT nicht in {file} gefunden"
+
+#: nazoos_welcome/root/drivers.py:57
+msgid "gaming mode is not installed (nazoos-session)"
+msgstr "der Gaming-Modus ist nicht installiert (nazoos-session)"
+
+#: nazoos_welcome/root/drives.py:88
+msgid "drive not found or file system not supported"
+msgstr "Laufwerk nicht gefunden oder Dateisystem nicht unterstützt"
+
+#: nazoos_welcome/root/drives.py:90
+msgid "this drive is already in /etc/fstab"
+msgstr "dieses Laufwerk steht schon in /etc/fstab"
+
+#: nazoos_welcome/root/drives.py:94
+#, python-brace-format
+msgid "this drive is already used by the system ({mountpoint})"
+msgstr "dieses Laufwerk wird schon vom System benutzt ({mountpoint})"
+
+#: nazoos_welcome/root/drives.py:129
+msgid "only drives added by NazoOS Welcome can be removed here"
+msgstr ""
+"hier lassen sich nur Laufwerke entfernen, die NazoOS Welcome hinzugefügt hat"
+
+#: nazoos_welcome/root/kernel_switch.py:23
+msgid ""
+"the closed NVIDIA driver (G06) only exists for the openSUSE kernel; switch "
+"to the open driver first"
+msgstr ""
+"den geschlossenen NVIDIA-Treiber (G06) gibt es nur für den openSUSE-Kernel; "
+"wechseln Sie zuerst zum offenen Treiber"
+
+#: nazoos_welcome/root/kernel_switch.py:39
+#, python-brace-format
+msgid ""
+"the NazoOS kernel has no build of your NVIDIA driver ({packages}); switch to "
+"the open NVIDIA driver on the Drivers page first"
+msgstr ""
+"für den NazoOS-Kernel gibt es Ihren NVIDIA-Treiber nicht ({packages}); "
+"wechseln Sie zuerst auf der Seite „Treiber & Codecs“ zum offenen NVIDIA-"
+"Treiber"
+
+#: nazoos_welcome/root/kernel_switch.py:65
+msgid "start the NazoOS kernel first"
+msgstr "starten Sie zuerst den NazoOS-Kernel"
+
+#: nazoos_welcome/root/kernel_switch.py:88
+msgid "the openSUSE kernel is not in /boot"
+msgstr "der openSUSE-Kernel ist nicht in /boot"
+
+#: nazoos_welcome/root/kernel_switch.py:95
+msgid "start the openSUSE kernel first (boot menu)"
+msgstr "starten Sie zuerst den openSUSE-Kernel (Startmenü)"
+
+#: nazoos_welcome/root/kernel_switch.py:97
+msgid "the openSUSE kernel is not installed"
+msgstr "der openSUSE-Kernel ist nicht installiert"
+
+#: nazoos_welcome/root/maintenance.py:20
+msgid "unknown service"
+msgstr "unbekannter Dienst"
+
+#: nazoos_welcome/root/maintenance.py:81
+msgid "nazoos-repos is not installed"
+msgstr "nazoos-repos ist nicht installiert"
+
+#: nazoos_welcome/root/maintenance.py:94
+#, python-brace-format
+msgid "the {channel} repository did not appear after refreshing the services"
+msgstr ""
+"die Paketquelle {channel} ist nach dem Aktualisieren der Dienste nicht "
+"erschienen"
+
+#: nazoos_welcome/root/mok.py:37
+msgid "the downloaded kernel package was not found"
+msgstr "das heruntergeladene Kernel-Paket wurde nicht gefunden"
+
+#: nazoos_welcome/root/mok.py:51
+msgid "the signing certificate could not be read"
+msgstr "das Signaturzertifikat konnte nicht gelesen werden"
+
+#: nazoos_welcome/root/mok.py:71
+msgid "a password for the Secure Boot key is needed"
+msgstr "für den Secure-Boot-Schlüssel wird ein Passwort gebraucht"
+
+#: nazoos_welcome/root/mok.py:85
+#, python-brace-format
+msgid "the Secure Boot key could not be prepared (mokutil exit code {rc})"
+msgstr ""
+"der Secure-Boot-Schlüssel konnte nicht vorbereitet werden (mokutil-Exit-Code "
+"{rc})"
+
+#: nazoos_welcome/root/mok.py:114 nazoos_welcome/root/mok.py:127
+msgid "kernel-nazoos has no signing certificate"
+msgstr "kernel-nazoos hat kein Signaturzertifikat"
+
+#: nazoos_welcome/root/repairs.py:43
+#, python-brace-format
+msgid "still missing after restoring the services: {repos}"
+msgstr "fehlt auch nach dem Wiederherstellen der Dienste noch: {repos}"
+
+#: nazoos_welcome/root/repairs.py:61
+msgid "Packman is not set up; install the codecs first"
+msgstr "Packman ist nicht eingerichtet; installieren Sie zuerst die Codecs"
+
+#: nazoos_welcome/root/repairs.py:81
+msgid "no NVIDIA driver is installed"
+msgstr "es ist kein NVIDIA-Treiber installiert"
+
+#: nazoos_welcome/root/repairs.py:103
+#, python-brace-format
+msgid "still failing: {units}"
+msgstr "schlägt weiterhin fehl: {units}"
+
+#: nazoos_welcome/root/tuning.py:21
+#, python-brace-format
+msgid "{scheduler} is not part of the installed scx package"
+msgstr "{scheduler} gehört nicht zum installierten scx-Paket"
+
+#: nazoos_welcome/root/tuning.py:48
+msgid "unknown kernel option"
+msgstr "unbekannte Kernel-Option"
+
+#: nazoos_welcome/root/tuning.py:71
+msgid "needs the NazoOS kernel"
+msgstr "braucht den NazoOS-Kernel"
+
+#: nazoos_welcome/root/tuning.py:74
+msgid "invalid device id"
+msgstr "ungültige Geräte-ID"
+
+#: nazoos_welcome/root/tuning.py:85
+msgid "this device is not connected"
+msgstr "dieses Gerät ist nicht angeschlossen"
+
+#: nazoos_welcome/root/tuning.py:88
+msgid ""
+"too many devices with their own polling rate; reset one of them to the "
+"device default first"
+msgstr ""
+"zu viele Geräte mit eigener Abfragerate; setzen Sie zuerst eines davon auf "
+"den Gerätestandard zurück"
+
 #: qml/Main.qml:13
 msgid "NazoOS Welcome"
 msgstr "NazoOS Willkommen"
 
-#: qml/Main.qml:93 qml/pages/WelcomePage.qml:15
+#: qml/Main.qml:96 qml/pages/WelcomePage.qml:15
 msgid "Welcome"
 msgstr "Willkommen"
 
-#: qml/Main.qml:98 qml/pages/DriversPage.qml:16
+#: qml/Main.qml:101 qml/pages/DriversPage.qml:16
 msgid "Drivers & codecs"
 msgstr "Treiber & Codecs"
 
-#: qml/Main.qml:104 qml/pages/GamingPage.qml:18
+#: qml/Main.qml:107 qml/pages/GamingPage.qml:18
 msgid "Gaming & performance"
 msgstr "Gaming & Leistung"
 
-#: qml/Main.qml:110 qml/pages/KernelPage.qml:21
+#: qml/Main.qml:113 qml/pages/KernelPage.qml:21
 msgid "Kernel"
 msgstr "Kernel"
 
-#: qml/Main.qml:116 qml/pages/AppsPage.qml:27
+#: qml/Main.qml:119 qml/pages/AppsPage.qml:27
 msgid "Apps"
 msgstr "Apps"
 
-#: qml/Main.qml:122 qml/pages/DrivesPage.qml:17
+#: qml/Main.qml:125 qml/pages/DrivesPage.qml:17
 msgid "Drives"
 msgstr "Laufwerke"
 
-#: qml/Main.qml:128 qml/pages/SystemPage.qml:16
+#: qml/Main.qml:131 qml/pages/SystemPage.qml:16
 msgid "System"
 msgstr "System"
 
-#: qml/Main.qml:134 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:28
-#: qml/pages/RepairPage.qml:147 qml/pages/SystemPage.qml:125
+#: qml/Main.qml:137 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:38
+#: qml/pages/RepairPage.qml:157 qml/pages/SystemPage.qml:125
 msgid "Repair"
 msgstr "Reparieren"
 
-#: qml/Main.qml:140 qml/pages/HelpPage.qml:15
+#: qml/Main.qml:143 qml/pages/HelpPage.qml:15
 msgid "Help"
 msgstr "Hilfe"
 
-#: qml/Main.qml:182 qml/Main.qml:239
+#: qml/Main.qml:185 qml/Main.qml:242
 msgid "Continue"
 msgstr "Weiter"
 
-#: qml/Main.qml:190 qml/Main.qml:251
+#: qml/Main.qml:193 qml/Main.qml:254
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: qml/Main.qml:215
+#: qml/Main.qml:218
 msgid "Password for the NazoOS key"
 msgstr "Passwort für den NazoOS-Schlüssel"
 
-#: qml/Main.qml:216
+#: qml/Main.qml:219
 msgid ""
 "After the restart a blue screen (MokManager) asks once for this password to "
 "enroll the NazoOS key. Suggested: \"nazoos\". 4 to 16 letters or digits."
@@ -444,11 +635,11 @@ msgstr ""
 "diesem Passwort, um den NazoOS-Schlüssel einzutragen. Vorschlag: „nazoos“. 4 "
 "bis 16 Buchstaben oder Ziffern."
 
-#: qml/Main.qml:223
+#: qml/Main.qml:226
 msgid "Password (4 to 16 letters or digits)"
 msgstr "Passwort (4 bis 16 Buchstaben oder Ziffern)"
 
-#: qml/Main.qml:232
+#: qml/Main.qml:235
 msgid ""
 "Z and Y are swapped in the blue screen on a German keyboard: type \"%1\" "
 "there."
@@ -456,35 +647,35 @@ msgstr ""
 "Im blauen Bildschirm sind Z und Y auf einer deutschen Tastatur vertauscht: "
 "Geben Sie dort „%1“ ein."
 
-#: qml/Main.qml:264
+#: qml/Main.qml:267
 msgid "That did not work"
 msgstr "Das hat nicht geklappt"
 
-#: qml/Main.qml:268
+#: qml/Main.qml:271
 msgid "Try again"
 msgstr "Erneut versuchen"
 
-#: qml/Main.qml:280 qml/components/BusyBar.qml:31
+#: qml/Main.qml:283 qml/components/BusyBar.qml:31
 msgid "Show details"
 msgstr "Details anzeigen"
 
-#: qml/Main.qml:285 qml/Main.qml:308
+#: qml/Main.qml:288 qml/Main.qml:311
 msgid "Close"
 msgstr "Schließen"
 
-#: qml/Main.qml:294
+#: qml/Main.qml:297
 msgid "Details"
 msgstr "Details"
 
-#: qml/Main.qml:300
+#: qml/Main.qml:303
 msgid "Copy"
 msgstr "Kopieren"
 
-#: qml/Main.qml:304 qml/pages/HelpPage.qml:79
+#: qml/Main.qml:307 qml/pages/HelpPage.qml:79
 msgid "Copied to the clipboard."
 msgstr "In die Zwischenablage kopiert."
 
-#: qml/Main.qml:334
+#: qml/Main.qml:337
 msgid "Nothing has run yet."
 msgstr "Bisher wurde nichts ausgeführt."
 
@@ -683,7 +874,7 @@ msgstr ""
 msgid "Packman is enabled, codecs are not installed yet"
 msgstr "Packman ist eingerichtet, die Codecs sind noch nicht installiert"
 
-#: qml/pages/DriversPage.qml:120 qml/pages/RepairPage.qml:37
+#: qml/pages/DriversPage.qml:120 qml/pages/RepairPage.qml:47
 msgid "Reinstall"
 msgstr "Neu installieren"
 
@@ -1012,7 +1203,7 @@ msgstr ""
 "aktualisieren. Lädt bei der Installation Valves Updater (proprietär) "
 "herunter."
 
-#: qml/pages/GamingPage.qml:253 qml/pages/RepairPage.qml:114
+#: qml/pages/GamingPage.qml:253 qml/pages/RepairPage.qml:124
 msgid "Tools"
 msgstr "Werkzeuge"
 
@@ -1300,11 +1491,19 @@ msgstr "Schlüssel nicht eingetragen"
 msgid "Enroll key"
 msgstr "Schlüssel eintragen"
 
-#: qml/pages/RepairPage.qml:23
+#: qml/pages/RepairPage.qml:25
+msgid "Saved: %1"
+msgstr "Gespeichert: %1"
+
+#: qml/pages/RepairPage.qml:26
+msgid "Show"
+msgstr "Anzeigen"
+
+#: qml/pages/RepairPage.qml:33
 msgid "Package database is damaged"
 msgstr "Paketdatenbank ist beschädigt"
 
-#: qml/pages/RepairPage.qml:24
+#: qml/pages/RepairPage.qml:34
 msgid ""
 "The list of installed packages cannot be read. Rebuilding it fixes most "
 "cases."
@@ -1312,16 +1511,16 @@ msgstr ""
 "Die Liste der installierten Pakete kann nicht gelesen werden. Ein Neuaufbau "
 "behebt das meistens."
 
-#: qml/pages/RepairPage.qml:25 qml/pages/RepairPage.qml:158
-#: qml/pages/RepairPage.qml:168 qml/pages/RepairPage.qml:172
+#: qml/pages/RepairPage.qml:35 qml/pages/RepairPage.qml:168
+#: qml/pages/RepairPage.qml:178 qml/pages/RepairPage.qml:182
 msgid "Rebuild"
 msgstr "Neu aufbauen"
 
-#: qml/pages/RepairPage.qml:26
+#: qml/pages/RepairPage.qml:36
 msgid "Standard repositories missing or disabled"
 msgstr "Standard-Paketquellen fehlen oder sind ausgeschaltet"
 
-#: qml/pages/RepairPage.qml:27
+#: qml/pages/RepairPage.qml:37
 msgid ""
 "Without them there are no updates. The missing ones are added again and all "
 "are switched on."
@@ -1329,11 +1528,11 @@ msgstr ""
 "Ohne sie gibt es keine Updates. Fehlende werden wieder hinzugefügt und alle "
 "eingeschaltet."
 
-#: qml/pages/RepairPage.qml:29
+#: qml/pages/RepairPage.qml:39
 msgid "Packages with missing dependencies"
 msgstr "Pakete mit fehlenden Abhängigkeiten"
 
-#: qml/pages/RepairPage.qml:30
+#: qml/pages/RepairPage.qml:40
 msgid ""
 "Something these packages need is not installed. The missing parts are "
 "installed. If that needs a decision, Myrlyn shows the choices."
@@ -1342,15 +1541,15 @@ msgstr ""
 "werden installiert. Falls dafür eine Entscheidung nötig ist, zeigt Myrlyn "
 "die Möglichkeiten."
 
-#: qml/pages/RepairPage.qml:31
+#: qml/pages/RepairPage.qml:41
 msgid "Install missing"
 msgstr "Fehlendes installieren"
 
-#: qml/pages/RepairPage.qml:32
+#: qml/pages/RepairPage.qml:42
 msgid "Mixed multimedia packages"
 msgstr "Gemischte Multimedia-Pakete"
 
-#: qml/pages/RepairPage.qml:33
+#: qml/pages/RepairPage.qml:43
 msgid ""
 "Some codec libraries come from openSUSE, others from Packman. That breaks "
 "video playback. All of them are switched to Packman."
@@ -1358,15 +1557,15 @@ msgstr ""
 "Einige Codec-Bibliotheken stammen von openSUSE, andere von Packman. Dadurch "
 "funktioniert die Videowiedergabe nicht. Alle werden auf Packman umgestellt."
 
-#: qml/pages/RepairPage.qml:34
+#: qml/pages/RepairPage.qml:44
 msgid "Switch to Packman"
 msgstr "Auf Packman umstellen"
 
-#: qml/pages/RepairPage.qml:35
+#: qml/pages/RepairPage.qml:45
 msgid "NVIDIA driver missing for this kernel"
 msgstr "NVIDIA-Treiber fehlt für diesen Kernel"
 
-#: qml/pages/RepairPage.qml:36
+#: qml/pages/RepairPage.qml:46
 msgid ""
 "The NVIDIA kernel module is not built for the running kernel, so the desktop "
 "runs without the NVIDIA driver. It is installed again; restart afterwards."
@@ -1375,11 +1574,11 @@ msgstr ""
 "Desktop ohne NVIDIA-Treiber. Es wird neu installiert; starten Sie danach den "
 "Computer neu."
 
-#: qml/pages/RepairPage.qml:38
+#: qml/pages/RepairPage.qml:48
 msgid "Services that failed to start"
 msgstr "Dienste, die nicht starten konnten"
 
-#: qml/pages/RepairPage.qml:39
+#: qml/pages/RepairPage.qml:49
 msgid ""
 "These background services stopped with an error. They are restarted. If one "
 "keeps failing, create a bug report below."
@@ -1388,15 +1587,15 @@ msgstr ""
 "gestartet. Falls einer weiter fehlschlägt, erstellen Sie unten einen "
 "Fehlerbericht."
 
-#: qml/pages/RepairPage.qml:40
+#: qml/pages/RepairPage.qml:50
 msgid "Restart"
 msgstr "Neu starten"
 
-#: qml/pages/RepairPage.qml:41
+#: qml/pages/RepairPage.qml:51
 msgid "Little free disk space"
 msgstr "Wenig freier Speicherplatz"
 
-#: qml/pages/RepairPage.qml:42
+#: qml/pages/RepairPage.qml:52
 msgid ""
 "Updates can fail when the disk is full. Old snapshots, the package cache and "
 "unused Flatpak runtimes are removed."
@@ -1404,53 +1603,53 @@ msgstr ""
 "Updates können fehlschlagen, wenn die Festplatte voll ist. Alte Snapshots, "
 "der Paket-Cache und ungenutzte Flatpak-Laufzeitumgebungen werden entfernt."
 
-#: qml/pages/RepairPage.qml:43
+#: qml/pages/RepairPage.qml:53
 msgid "Free space"
 msgstr "Platz freigeben"
 
-#: qml/pages/RepairPage.qml:44
+#: qml/pages/RepairPage.qml:54
 msgid "Flathub is missing"
 msgstr "Flathub fehlt"
 
-#: qml/pages/RepairPage.qml:45
+#: qml/pages/RepairPage.qml:55
 msgid "Discover cannot show Flatpak apps without Flathub. It is added again."
 msgstr ""
 "Ohne Flathub kann Discover keine Flatpak-Apps anzeigen. Es wird wieder "
 "hinzugefügt."
 
-#: qml/pages/RepairPage.qml:46
+#: qml/pages/RepairPage.qml:56
 msgid "Add Flathub"
 msgstr "Flathub hinzufügen"
 
-#: qml/pages/RepairPage.qml:47
+#: qml/pages/RepairPage.qml:57
 msgid "The check itself failed"
 msgstr "Die Prüfung selbst ist fehlgeschlagen"
 
-#: qml/pages/RepairPage.qml:48
+#: qml/pages/RepairPage.qml:58
 msgid "Please create a bug report below."
 msgstr "Bitte erstellen Sie unten einen Fehlerbericht."
 
-#: qml/pages/RepairPage.qml:66
+#: qml/pages/RepairPage.qml:76
 msgid "Check"
 msgstr "Prüfung"
 
-#: qml/pages/RepairPage.qml:72
+#: qml/pages/RepairPage.qml:82
 msgid "Checking the system …"
 msgstr "System wird geprüft …"
 
-#: qml/pages/RepairPage.qml:73
+#: qml/pages/RepairPage.qml:83
 msgid "System check"
 msgstr "Systemprüfung"
 
-#: qml/pages/RepairPage.qml:74
+#: qml/pages/RepairPage.qml:84
 msgid "No known problems found"
 msgstr "Keine bekannten Probleme gefunden"
 
-#: qml/pages/RepairPage.qml:75
+#: qml/pages/RepairPage.qml:85
 msgid "Problems found: %1"
 msgstr "Gefundene Probleme: %1"
 
-#: qml/pages/RepairPage.qml:76
+#: qml/pages/RepairPage.qml:86
 msgid ""
 "Looks for common problems: package database, repositories, missing "
 "dependencies, codec mix, NVIDIA module, failed services, disk space and "
@@ -1460,15 +1659,15 @@ msgstr ""
 "Abhängigkeiten, Codec-Mischung, NVIDIA-Modul, fehlgeschlagene Dienste, "
 "Speicherplatz und Flathub."
 
-#: qml/pages/RepairPage.qml:83
+#: qml/pages/RepairPage.qml:93
 msgid "Check again"
 msgstr "Erneut prüfen"
 
-#: qml/pages/RepairPage.qml:118
+#: qml/pages/RepairPage.qml:128
 msgid "Refresh repositories"
 msgstr "Paketquellen aktualisieren"
 
-#: qml/pages/RepairPage.qml:119
+#: qml/pages/RepairPage.qml:129
 msgid ""
 "Reloads the package lists. Helps when Discover or an installation reports "
 "outdated or broken repository data."
@@ -1476,15 +1675,15 @@ msgstr ""
 "Lädt die Paketlisten neu. Hilft, wenn Discover oder eine Installation "
 "veraltete oder fehlerhafte Paketquellen meldet."
 
-#: qml/pages/RepairPage.qml:122
+#: qml/pages/RepairPage.qml:132
 msgid "Refresh"
 msgstr "Aktualisieren"
 
-#: qml/pages/RepairPage.qml:128
+#: qml/pages/RepairPage.qml:138
 msgid "Clean package cache"
 msgstr "Paket-Cache leeren"
 
-#: qml/pages/RepairPage.qml:129
+#: qml/pages/RepairPage.qml:139
 msgid ""
 "Deletes downloaded package files and cached repository data to free disk "
 "space."
@@ -1492,15 +1691,15 @@ msgstr ""
 "Löscht heruntergeladene Pakete und zwischengespeicherte Paketquellen-Daten, "
 "um Speicherplatz freizugeben."
 
-#: qml/pages/RepairPage.qml:132
+#: qml/pages/RepairPage.qml:142
 msgid "Clean"
 msgstr "Leeren"
 
-#: qml/pages/RepairPage.qml:138
+#: qml/pages/RepairPage.qml:148
 msgid "Flatpak cleanup"
 msgstr "Flatpak aufräumen"
 
-#: qml/pages/RepairPage.qml:139
+#: qml/pages/RepairPage.qml:149
 msgid ""
 "Removes runtimes no app needs anymore, or repairs a broken Flatpak "
 "installation."
@@ -1508,24 +1707,24 @@ msgstr ""
 "Entfernt Laufzeitumgebungen, die keine App mehr braucht, oder repariert eine "
 "defekte Flatpak-Installation."
 
-#: qml/pages/RepairPage.qml:142
+#: qml/pages/RepairPage.qml:152
 msgid "Remove unused"
 msgstr "Unbenutzte entfernen"
 
-#: qml/pages/RepairPage.qml:154
+#: qml/pages/RepairPage.qml:164
 msgid "Rebuild package database"
 msgstr "Paketdatenbank neu aufbauen"
 
-#: qml/pages/RepairPage.qml:155
+#: qml/pages/RepairPage.qml:165
 msgid "Helps when installing or updating stops with an \"rpmdb\" error."
 msgstr ""
 "Hilft, wenn Installation oder Update mit einem „rpmdb“-Fehler abbricht."
 
-#: qml/pages/RepairPage.qml:164
+#: qml/pages/RepairPage.qml:174
 msgid "Rebuild boot files"
 msgstr "Startdateien neu erstellen"
 
-#: qml/pages/RepairPage.qml:165
+#: qml/pages/RepairPage.qml:175
 msgid ""
 "Creates the initramfs of every kernel and the boot menu again. Helps when "
 "the system hangs at startup or a driver is missing after a kernel update."
@@ -1533,19 +1732,19 @@ msgstr ""
 "Erstellt die Initramfs aller Kernel und das Bootmenü neu. Hilft, wenn das "
 "System beim Start hängt oder nach einem Kernel-Update ein Treiber fehlt."
 
-#: qml/pages/RepairPage.qml:170
+#: qml/pages/RepairPage.qml:180
 msgid "Rebuild boot files?"
 msgstr "Startdateien neu erstellen?"
 
-#: qml/pages/RepairPage.qml:171
+#: qml/pages/RepairPage.qml:181
 msgid "This takes a minute or two. Restart the computer afterwards."
 msgstr "Das dauert ein bis zwei Minuten. Starten Sie den Computer danach neu."
 
-#: qml/pages/RepairPage.qml:178
+#: qml/pages/RepairPage.qml:188
 msgid "Go back to an earlier state"
 msgstr "Zu einem früheren Zustand zurückkehren"
 
-#: qml/pages/RepairPage.qml:179
+#: qml/pages/RepairPage.qml:189
 msgid ""
 "If nothing here helps: restart, choose \"Start bootloader from a read-only "
 "snapshot\" in the boot menu and pick the state before the problem. NazoOS "
@@ -1555,15 +1754,15 @@ msgstr ""
 "read-only snapshot“ wählen und den Zustand vor dem Problem auswählen. NazoOS "
 "Update bietet dann an, diesen Zustand dauerhaft zu übernehmen."
 
-#: qml/pages/RepairPage.qml:187
+#: qml/pages/RepairPage.qml:197
 msgid "Get help"
 msgstr "Hilfe bekommen"
 
-#: qml/pages/RepairPage.qml:191
+#: qml/pages/RepairPage.qml:201
 msgid "Bug report"
 msgstr "Fehlerbericht"
 
-#: qml/pages/RepairPage.qml:192
+#: qml/pages/RepairPage.qml:202
 msgid ""
 "Saves system information, errors since startup, repositories and recent "
 "updates to a text file in your home folder. Look through it before you share "
@@ -1573,19 +1772,11 @@ msgstr ""
 "letzten Updates in einer Textdatei in Ihrem Persönlichen Ordner. Sehen Sie "
 "sie vor dem Teilen durch: Sie enthält Gerätenamen und Ihren Benutzernamen."
 
-#: qml/pages/RepairPage.qml:194
+#: qml/pages/RepairPage.qml:204
 msgid "Create report"
 msgstr "Bericht erstellen"
 
-#: qml/pages/RepairPage.qml:200
-msgid "Saved: %1"
-msgstr "Gespeichert: %1"
-
-#: qml/pages/RepairPage.qml:201
-msgid "Show"
-msgstr "Anzeigen"
-
-#: qml/pages/RepairPage.qml:206
+#: qml/pages/RepairPage.qml:209
 msgid "Report on GitHub"
 msgstr "Auf GitHub melden"
 
@@ -1634,7 +1825,10 @@ msgid ""
 "Stable gets NazoOS updates after they were tested. Beta gets them right "
 "away: newest changes, but things can break. Tumbleweed and the NazoOS kernel "
 "are the same in both."
-msgstr "Stabil bekommt NazoOS-Updates, nachdem sie getestet wurden. Beta bekommt sie sofort: neueste Änderungen, aber es kann etwas kaputtgehen. Tumbleweed und der NazoOS-Kernel sind in beiden gleich."
+msgstr ""
+"Stabil bekommt NazoOS-Updates, nachdem sie getestet wurden. Beta bekommt sie "
+"sofort: neueste Änderungen, aber es kann etwas kaputtgehen. Tumbleweed und "
+"der NazoOS-Kernel sind in beiden gleich."
 
 #: qml/pages/SystemPage.qml:52
 msgid "Beta (test versions)"
@@ -1664,13 +1858,18 @@ msgstr "Zum stabilen Kanal wechseln?"
 msgid ""
 "NazoOS packages are replaced by their newest, untested versions. A snapshot "
 "is taken first, so you can go back. Report problems on GitHub."
-msgstr "NazoOS-Pakete werden durch ihre neuesten, ungetesteten Versionen ersetzt. Vorher wird ein Snapshot erstellt, du kannst also zurück. Probleme bitte auf GitHub melden."
+msgstr ""
+"NazoOS-Pakete werden durch ihre neuesten, ungetesteten Versionen ersetzt. "
+"Vorher wird ein Snapshot erstellt, du kannst also zurück. Probleme bitte auf "
+"GitHub melden."
 
 #: qml/pages/SystemPage.qml:62
 msgid ""
 "NazoOS packages go back to the tested versions; some can become older. A "
 "snapshot is taken first."
-msgstr "NazoOS-Pakete gehen zurück auf die getesteten Versionen; manche werden dabei älter. Vorher wird ein Snapshot erstellt."
+msgstr ""
+"NazoOS-Pakete gehen zurück auf die getesteten Versionen; manche werden dabei "
+"älter. Vorher wird ein Snapshot erstellt."
 
 #: qml/pages/SystemPage.qml:63
 msgid "Switch"

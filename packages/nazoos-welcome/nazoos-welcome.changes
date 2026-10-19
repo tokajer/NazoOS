@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Oct 19 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Error messages of the root helper are translated (German).
+- The root helper is split into modules (nazoos_welcome/root/); the
+  shared helper frame, Secure Boot key check, kernel opt-in state and
+  the Qt helper runner come from the new package nazoos-common.
+
+-------------------------------------------------------------------
 Mon Oct 19 10:00:23 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Kernel modules: after an update, a module rebuilt for the same

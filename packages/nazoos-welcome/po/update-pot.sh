@@ -14,9 +14,13 @@ trap 'rm -rf "$tmp"' EXIT
 # QML: L.tr("...")
 xgettext --from-code=UTF-8 --language=JavaScript --keyword=tr \
   --package-name=nazoos-welcome --output="$tmp/qml.pot" qml/*.qml qml/*/*.qml
-# Python: gettext("...") in the backend
+# Python: gettext("...") in the backend; Fail("...") and encode("...")
+# are the helper's error templates, translated by the GUI (ADR 0030),
+# also those of nazoos-common (helper frame, "Done." etc.)
 xgettext --from-code=UTF-8 --language=Python --keyword=gettext \
-  --output="$tmp/py.pot" nazoos_welcome/*.py
+  --keyword=Fail --keyword=encode --output="$tmp/py.pot" \
+  nazoos_welcome/*.py nazoos_welcome/root/*.py \
+  ../nazoos-common/nazoos_common/*.py
 # Catalog: app, service and option names/summaries, ACTION_LABELS
 python3 - "$tmp/catalog.pot" <<'PY'
 import sys

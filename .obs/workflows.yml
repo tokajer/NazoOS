@@ -23,6 +23,9 @@ devel_build:
         package: nazoos-calamares-config
     - trigger_services:
         project: home:Tokajer:nazoos:devel
+        package: nazoos-common
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
         package: nazoos-welcome
     - trigger_services:
         project: home:Tokajer:nazoos:devel

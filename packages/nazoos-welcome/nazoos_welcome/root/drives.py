@@ -1,0 +1,136 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Extra drives mounted at boot (fstab lines with catalog.FSTAB_MARKER)."""
+
+import json
+import os
+import re
+from pathlib import Path
+
+from .. import catalog
+from .base import Fail, arg, caller, output, run, say
+
+FSTAB = Path("/etc/fstab")
+# suse-module-tools blacklists ntfs3; an /etc file of the same name wins
+NTFS3_BLACKLIST = "60-blacklist_fs-ntfs3.conf"
+
+
+def lsblk():
+    data = json.loads(output(["lsblk", "--json", "--list", "--output",
+                              "PATH,UUID,FSTYPE,LABEL,MOUNTPOINTS"]))
+    return data.get("blockdevices", [])
+
+
+def sanitize(name):
+    name = re.sub(r"[^A-Za-z0-9._-]+", "-", name).strip("-.")
+    return name[:40]
+
+
+def unblacklist_ntfs3():
+    """suse-module-tools blacklists the ntfs3 driver ("not supported by
+    SUSE"). The blacklist also blocks the alias fs-ntfs3 the kernel asks
+    for when mounting, so an fstab entry fails with "unknown filesystem
+    type". Its own way out, "modprobe ntfs3" in a terminal, links the
+    same file name in /etc/modprobe.d to /dev/null (unblacklist script);
+    without a terminal it does nothing. Do the same here, only when the
+    user adds an NTFS drive. Dolphin is not affected: udisks falls back
+    to ntfs-3g (FUSE)."""
+    vendor = Path("/usr/lib/modprobe.d", NTFS3_BLACKLIST)
+    local = Path("/etc/modprobe.d", NTFS3_BLACKLIST)
+    if not vendor.exists() or local.is_symlink() or local.exists():
+        return
+    local.parent.mkdir(parents=True, exist_ok=True)
+    local.symlink_to("/dev/null")
+    say(f"ntfs3 driver allowed: {local} -> /dev/null")
+
+
+def mount_options(fstype, uid, gid):
+    """(file system type, mount options) for the fstab line."""
+    opts = "nofail,x-systemd.device-timeout=10s,noatime"
+    if fstype == "ntfs":
+        fstype = "ntfs3"
+        opts += f",uid={uid},gid={gid},umask=022,windows_names"
+        unblacklist_ntfs3()
+    elif fstype == "exfat":
+        opts += f",uid={uid},gid={gid},umask=022"
+    elif fstype == "btrfs":
+        opts += ",compress=zstd:1"
+    return fstype, opts
+
+
+def _write_fstab(text):
+    tmp = FSTAB.with_name("fstab.nazoos-welcome.tmp")
+    tmp.write_text(text)
+    os.chmod(tmp, 0o644)
+    os.replace(tmp, FSTAB)
+
+
+def without_entry(text, uuid):
+    """(fstab text without our entry for UUID, its mount point or None)."""
+    lines = text.splitlines()
+    out, mnt, i = [], None, 0
+    while i < len(lines):
+        line = lines[i]
+        nxt = lines[i + 1] if i + 1 < len(lines) else ""
+        if line == catalog.FSTAB_MARKER and nxt.startswith(f"UUID={uuid} "):
+            mnt = nxt.split()[1]
+            i += 2
+            continue
+        out.append(line)
+        i += 1
+    return "\n".join(out) + "\n", mnt
+
+
+def automount_add(args):
+    uuid = arg(args, 0)
+    dev = next((d for d in lsblk() if d.get("uuid") == uuid), None)
+    if dev is None or dev.get("fstype") not in catalog.AUTOMOUNT_FS:
+        raise Fail("drive not found or file system not supported")
+    if uuid in FSTAB.read_text():
+        raise Fail("this drive is already in /etc/fstab")
+    # Only drives that are unmounted or mounted on demand by Dolphin
+    for mp in dev.get("mountpoints") or []:
+        if mp and not mp.startswith("/run/media/"):
+            raise Fail("this drive is already used by the system "
+                       "({mountpoint})", mountpoint=mp)
+    fstype = dev["fstype"]
+    base = sanitize(dev.get("label") or "") or uuid[:8]
+    mnt = Path(catalog.MOUNT_BASE, base)
+    n = 2
+    while mnt.exists() and any(mnt.iterdir()):
+        mnt = Path(catalog.MOUNT_BASE, f"{base}-{n}")
+        n += 1
+    uid = caller()[0]
+    gid = int(output(["id", "-g", str(uid)]).strip() or 100)
+    fstype, opts = mount_options(fstype, uid, gid)
+    mnt.mkdir(parents=True, exist_ok=True)
+    line = f"UUID={uuid} {mnt} {fstype} {opts} 0 0"
+    text = FSTAB.read_text()
+    if not text.endswith("\n"):
+        text += "\n"
+    _write_fstab(text + f"{catalog.FSTAB_MARKER}\n{line}\n")
+    say(line)
+    run(["systemctl", "daemon-reload"])
+    run(["mount", str(mnt)])
+    # A fresh Linux file system belongs to root: give it to the user so
+    # Steam can put a library there. Existing data is left alone.
+    if fstype in ("ext4", "btrfs", "xfs"):
+        st = mnt.stat()
+        content = [p.name for p in mnt.iterdir()]
+        if st.st_uid == 0 and set(content) <= {"lost+found"}:
+            os.chown(mnt, uid, gid)
+            say(f"{mnt} now belongs to uid {uid}")
+
+
+def automount_remove(args):
+    uuid = arg(args, 0)
+    text, mnt = without_entry(FSTAB.read_text(), uuid)
+    if mnt is None:
+        raise Fail("only drives added by NazoOS Welcome can be removed here")
+    run(["umount", mnt], check=False)
+    _write_fstab(text)
+    run(["systemctl", "daemon-reload"])
+    try:
+        Path(mnt).rmdir()
+    except OSError:
+        pass

@@ -11,6 +11,8 @@ URL:            https://github.com/tokajer/NazoOS
 Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  desktop-file-utils
 BuildRequires:  gettext-tools
+# %check imports the helper's actions
+BuildRequires:  nazoos-common
 BuildRequires:  python3
 BuildRequires:  systemd-rpm-macros
 BuildArch:      noarch
@@ -20,6 +22,8 @@ Requires:       kf6-qqc2-desktop-style
 Requires:       python3
 Requires:       python3-pyside6
 Requires:       qt6-declarative-imports
+# Helper frame, error messages, MOK check, kernel opt-in state (ADR 0030)
+Requires:       nazoos-common
 # Root actions via pkexec + our Polkit policy
 Requires:       polkit
 # System probes (lspci, lsblk/findmnt) and actions
@@ -69,6 +73,8 @@ install -Dm0644 data/90-nazoos-welcome.preset \
   %{buildroot}%{_presetdir}/90-nazoos-welcome.preset
 install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-welcome/nazoos_welcome \
   nazoos_welcome/*.py
+install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-welcome/nazoos_welcome/root \
+  nazoos_welcome/root/*.py
 install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-welcome/qml qml/*.qml
 install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-welcome/qml/components \
   qml/components/*.qml

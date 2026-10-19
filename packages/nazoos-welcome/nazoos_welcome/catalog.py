@@ -286,9 +286,7 @@ KMP_DEFAULT_ONLY = ["nvidia-driver-G06-kmp-default"]
 # Only built for kernel-nazoos, installed and removed with it (<base>-kmp-
 # nazoos): acpi_call for handheld TDP tools (Handheld Daemon, SimpleDeckyTDP)
 KMP_NAZOOS_ONLY = ["acpi_call"]
-# State of the boot counter and the "prefer kernel-nazoos" switch
-KERNEL_STATE_DIR = "/var/lib/nazoos"
-KERNEL_STABLE_BOOTS = 3
+# State files of the opt-in: nazoos_common.kernelstate
 
 # Drives: file systems offered for automatic mounting, and the marker that
 # identifies fstab lines written by nazoos-welcome

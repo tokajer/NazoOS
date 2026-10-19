@@ -1,0 +1,80 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""nazoos_common.mok and kernelstate without mokutil or rpm."""
+
+import pytest
+
+from nazoos_common import kernelstate, mok
+
+FPR = "SHA1 Fingerprint=AB:CD:EF:01\n"
+
+
+@pytest.fixture
+def tools(monkeypatch):
+    """Fake answers of mokutil/openssl, by command line."""
+    answers = {}
+
+    def out(cmd):
+        return answers.get(" ".join(cmd[:2]), "")
+
+    monkeypatch.setattr(mok, "_out", out)
+    return answers
+
+
+def test_status_enrolled(tools):
+    tools["mokutil --test-key"] = "/c.crt is already enrolled\n"
+    assert mok.status("/c.crt") == "enrolled"
+
+
+def test_status_pending_matches_the_fingerprint(tools):
+    tools["openssl x509"] = FPR
+    tools["mokutil --list-new"] = "SHA1 Fingerprint: ab:cd:ef:01\n"
+    assert mok.status("/c.crt") == "pending"
+
+
+def test_status_missing(tools):
+    tools["openssl x509"] = FPR
+    tools["mokutil --list-new"] = "MokNew is empty\n"
+    assert mok.status("/c.crt") == "missing"
+    # No fingerprint (openssl missing): never "pending"
+    del tools["openssl x509"]
+    assert mok.status("/c.crt") == "missing"
+
+
+def test_signing_cert(tools):
+    tools["rpm -ql"] = ("/boot/vmlinuz-7.2.11-1-nazoos\n"
+                        "/etc/uefi/certs/4D7A1A2B.crt\n")
+    assert mok.signing_cert() == "/etc/uefi/certs/4D7A1A2B.crt"
+    tools["rpm -ql"] = "package kernel-nazoos is not installed\n"
+    assert mok.signing_cert() is None
+
+
+@pytest.fixture
+def state(monkeypatch, tmp_path):
+    monkeypatch.setattr(kernelstate, "STATE", tmp_path)
+    monkeypatch.setattr(kernelstate, "PREFER", tmp_path / "kernel-prefer")
+    monkeypatch.setattr(kernelstate, "BOOTS", tmp_path / "boots.json")
+    return tmp_path
+
+
+def test_boots_round_trip(state):
+    assert kernelstate.read_boots() == {}
+    kernelstate.write_boots({"count": 2})
+    assert kernelstate.read_boots() == {"count": 2}
+    (state / "boots.json").write_text("{broken")
+    assert kernelstate.read_boots() == {}
+
+
+@pytest.mark.parametrize("prefer, count, installed, expected", [
+    (True, 3, {"kernel-default"}, True),
+    (True, 2, {"kernel-default"}, False),
+    (False, 5, {"kernel-default"}, False),
+    (True, 3, {"kernel-default", "nazoos-kernel-only"}, False),
+    (True, 3, set(), False),
+])
+def test_stable(monkeypatch, state, prefer, count, installed, expected):
+    if prefer:
+        kernelstate.PREFER.touch()
+    kernelstate.write_boots({"count": count})
+    monkeypatch.setattr(kernelstate, "_installed", lambda n: n in installed)
+    assert kernelstate.stable() is expected

@@ -17,6 +17,8 @@ import time
 import uuid
 from pathlib import Path
 
+from nazoos_common import kernelstate
+
 from . import status
 from .i18n import _, ngettext
 
@@ -114,7 +116,7 @@ def main():
                 "them."),
               _("Open"), "update", icon="system-reboot")
 
-    if status.kernel_stable() and shutil.which("nazoos-welcome"):
+    if kernelstate.stable() and shutil.which("nazoos-welcome"):
         _send("kernel-stable",
               _("NazoOS kernel runs stable"),
               _("The NazoOS kernel started cleanly several times in a row. "

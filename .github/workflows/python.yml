@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Lint (ruff) and unit tests (pytest) for the Python code of
+# nazoos-common, nazoos-welcome and nazoos-update (ADR 0030).
+# Settings: pyproject.toml. Locally: pip install pytest ruff
+# PySide6-Essentials, then "ruff check ." and "pytest".
+# Doku: https://docs.astral.sh/ruff/ , https://docs.pytest.org/
+
+name: Python
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/nazoos-common/**"
+      - "packages/nazoos-welcome/**"
+      - "packages/nazoos-update/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - ".github/workflows/python.yml"
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          # Tumbleweed's python3
+          python-version: "3.13"
+      - name: Install tools
+        # PySide6 only for tests/test_qt.py (QCoreApplication, no display)
+        run: pip install pytest ruff PySide6-Essentials
+      - name: ruff
+        run: ruff check --output-format github .
+      - name: pytest
+        run: pytest -v

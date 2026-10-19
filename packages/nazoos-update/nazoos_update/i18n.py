@@ -2,14 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """gettext translations; the notifier uses _(), QML uses L.tr()."""
 
-import gettext
 import os
+
+from nazoos_common.i18n import translation
 
 DOMAIN = "nazoos-update"
 
-_t = gettext.translation(DOMAIN,
-                         localedir=os.environ.get("NAZOOS_UPDATE_LOCALEDIR"),
-                         fallback=True)
+_t = translation([DOMAIN], localedir=os.environ.get("NAZOOS_UPDATE_LOCALEDIR"))
 
 
 def _(text):
@@ -21,15 +20,6 @@ def ngettext(singular, plural, n):
 
 
 def qml_translator():
-    from PySide6.QtCore import QObject, Slot
+    from nazoos_common.qt import Translator
 
-    class Translator(QObject):
-        @Slot(str, result=str)
-        def tr(self, text):
-            return _(text)
-
-        @Slot(str, str, int, result=str)
-        def trn(self, singular, plural, n):
-            return ngettext(singular, plural, n).replace("%1", str(n))
-
-    return Translator()
+    return Translator(_t)

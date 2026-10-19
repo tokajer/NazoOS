@@ -1,36 +1,25 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""NazoOS kernel opt-in (ADR 0008): boot entry and boot counter state.
+"""NazoOS kernel opt-in (ADR 0008): the kernel behind the boot entry.
 
 The GUI only reads here; the root helper and nazoos-kernel-boot write.
+State files: nazoos_common.kernelstate, Secure Boot key: nazoos_common.mok.
 No Qt imports here.
 """
 
-import json
 import re
 import subprocess
 from pathlib import Path
 
-from . import catalog
-
-STATE = Path(catalog.KERNEL_STATE_DIR)
-# Exists while the user wants kernel-nazoos as the default boot entry
-PREFER = STATE / "kernel-prefer"
-# Boot counter, written by nazoos-kernel-boot.service
-BOOTS = STATE / "kernel-boots.json"
-# Written by the helper when it queues the Secure Boot key. MokNew is
-# readable only by root, so the GUI cannot see the request itself; it
-# lives until the next boot (shim runs MokManager and deletes it)
-MOK_REQUESTED = STATE / "mok-requested"
 GRUB_CFG = Path("/boot/grub2/grub.cfg")
 GRUB_DEFAULT_FILE = Path("/etc/default/grub")
 BOOT = Path("/boot")
 CMDLINE_RE = re.compile(r'^GRUB_CMDLINE_LINUX_DEFAULT=(["\']?)(.*?)\1\s*$',
                         re.M)
-CERT_PATH = re.compile(r"/etc/uefi/certs/\w+\.crt")
 
 # Top entry "NazoOS" (id gnulinux-simple-<uuid>) and its kernel
-_SIMPLE = re.compile(r"^menuentry .*\$menuentry_id_option '(gnulinux-simple-[^']+)'")
+_SIMPLE = re.compile(
+    r"^menuentry .*\$menuentry_id_option '(gnulinux-simple-[^']+)'")
 _LINUX = re.compile(r"^\s+linux\s+(\S+)")
 
 
@@ -123,40 +112,3 @@ def clear_grub_top_level(log=print):
         subprocess.run(["grub2-mkconfig", "-o", str(GRUB_CFG)], check=True,
                        stdout=subprocess.DEVNULL)
     subprocess.run(["grub2-set-default", "0"], check=True)
-
-
-def signing_cert():
-    """Path of the certificate that signs kernel-nazoos, or None."""
-    try:
-        files = subprocess.run(
-            ["rpm", "-ql", catalog.KERNEL_PACKAGE], capture_output=True,
-            text=True, timeout=30).stdout.split()
-    except (OSError, subprocess.TimeoutExpired):
-        return None
-    certs = [f for f in files if CERT_PATH.fullmatch(f)]
-    return certs[0] if certs else None
-
-
-def mok_enrolled(cert):
-    """The Secure Boot key CERT is already enrolled."""
-    try:
-        r = subprocess.run(["mokutil", "--test-key", cert],
-                           capture_output=True, text=True, timeout=30)
-    except (OSError, subprocess.TimeoutExpired):
-        return False
-    return "already enrolled" in r.stdout.lower()
-
-
-def read_boots():
-    try:
-        return json.loads(BOOTS.read_text())
-    except (OSError, ValueError):
-        return {}
-
-
-def write_boots(data):
-    STATE.mkdir(parents=True, exist_ok=True)
-    tmp = BOOTS.with_suffix(".tmp")
-    tmp.write_text(json.dumps(data))
-    tmp.chmod(0o644)
-    tmp.replace(BOOTS)

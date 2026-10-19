@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 19 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Error messages of the root helper are translated (German).
+- Uses nazoos-common for the helper frame, the Secure Boot key check,
+  the kernel opt-in state and the Qt helper runner.
+
+-------------------------------------------------------------------
 Mon Oct 19 10:00:23 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - After "Make permanent" the restart notice says that the snapshot

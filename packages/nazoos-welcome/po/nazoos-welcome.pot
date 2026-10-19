@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-18 20:47+0200\n"
+"POT-Creation-Date: 2026-10-19 14:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,34 +17,66 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: nazoos_welcome/backend.py:224
-msgid "These services still fail after a restart: %1"
+#: ../nazoos-common/nazoos_common/helper.py:48
+#, python-brace-format
+msgid "'{cmd}' failed (exit code {rc})"
 msgstr ""
 
-#: nazoos_welcome/backend.py:229 nazoos_welcome/backend.py:313
-#: nazoos_welcome/backend.py:356
+#: ../nazoos-common/nazoos_common/helper.py:68
+msgid "missing argument"
+msgstr ""
+
+#: ../nazoos-common/nazoos_common/helper.py:70
+#, python-brace-format
+msgid "invalid argument: {arg}"
+msgstr ""
+
+#: ../nazoos-common/nazoos_common/helper.py:79
+msgid "must run as root (via pkexec)"
+msgstr ""
+
+#: ../nazoos-common/nazoos_common/helper.py:83
+msgid "unknown action"
+msgstr ""
+
+#: ../nazoos-common/nazoos_common/helper.py:94
+#, python-brace-format
+msgid "system error: {detail}"
+msgstr ""
+
+#: ../nazoos-common/nazoos_common/helper.py:98
+#, python-brace-format
+msgid "program error: {detail}"
+msgstr ""
+
+#: ../nazoos-common/nazoos_common/qt.py:92
+msgid "pkexec could not be started."
+msgstr ""
+
+#: ../nazoos-common/nazoos_common/qt.py:100 nazoos_welcome/backend.py:198
+#: nazoos_welcome/backend.py:314
 msgid "Done."
 msgstr ""
 
-#: nazoos_welcome/backend.py:290
+#: ../nazoos-common/nazoos_common/qt.py:104
+msgid "Cancelled: no administrator password was given."
+msgstr ""
+
+#: ../nazoos-common/nazoos_common/qt.py:106
+msgid "Something went wrong."
+msgstr ""
+
+#: nazoos_welcome/backend.py:195
+msgid "These services still fail after a restart: %1"
+msgstr ""
+
+#: nazoos_welcome/backend.py:268
 msgid ""
 "The password for the Secure Boot key could not be prepared (openssl is "
 "missing)."
 msgstr ""
 
-#: nazoos_welcome/backend.py:305
-msgid "pkexec could not be started."
-msgstr ""
-
-#: nazoos_welcome/backend.py:318
-msgid "Cancelled: no administrator password was given."
-msgstr ""
-
-#: nazoos_welcome/backend.py:322
-msgid "Something went wrong."
-msgstr ""
-
-#: nazoos_welcome/backend.py:385
+#: nazoos_welcome/backend.py:335
 msgid "This program is not installed."
 msgstr ""
 
@@ -371,104 +403,251 @@ msgstr ""
 msgid "Wireless controllers, headsets, mice and keyboards"
 msgstr ""
 
+#: nazoos_welcome/root/apps.py:43 nazoos_welcome/root/apps.py:73
+msgid "unknown app"
+msgstr ""
+
+#: nazoos_welcome/root/apps.py:45
+#, python-brace-format
+msgid "{app} needs the NazoOS kernel (Kernel page)"
+msgstr ""
+
+#: nazoos_welcome/root/base.py:77
+msgid "unknown user"
+msgstr ""
+
+#: nazoos_welcome/root/base.py:97
+#, python-brace-format
+msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
+msgstr ""
+
+#: nazoos_welcome/root/drivers.py:57
+msgid "gaming mode is not installed (nazoos-session)"
+msgstr ""
+
+#: nazoos_welcome/root/drives.py:88
+msgid "drive not found or file system not supported"
+msgstr ""
+
+#: nazoos_welcome/root/drives.py:90
+msgid "this drive is already in /etc/fstab"
+msgstr ""
+
+#: nazoos_welcome/root/drives.py:94
+#, python-brace-format
+msgid "this drive is already used by the system ({mountpoint})"
+msgstr ""
+
+#: nazoos_welcome/root/drives.py:129
+msgid "only drives added by NazoOS Welcome can be removed here"
+msgstr ""
+
+#: nazoos_welcome/root/kernel_switch.py:23
+msgid ""
+"the closed NVIDIA driver (G06) only exists for the openSUSE kernel; switch "
+"to the open driver first"
+msgstr ""
+
+#: nazoos_welcome/root/kernel_switch.py:39
+#, python-brace-format
+msgid ""
+"the NazoOS kernel has no build of your NVIDIA driver ({packages}); switch to "
+"the open NVIDIA driver on the Drivers page first"
+msgstr ""
+
+#: nazoos_welcome/root/kernel_switch.py:65
+msgid "start the NazoOS kernel first"
+msgstr ""
+
+#: nazoos_welcome/root/kernel_switch.py:88
+msgid "the openSUSE kernel is not in /boot"
+msgstr ""
+
+#: nazoos_welcome/root/kernel_switch.py:95
+msgid "start the openSUSE kernel first (boot menu)"
+msgstr ""
+
+#: nazoos_welcome/root/kernel_switch.py:97
+msgid "the openSUSE kernel is not installed"
+msgstr ""
+
+#: nazoos_welcome/root/maintenance.py:20
+msgid "unknown service"
+msgstr ""
+
+#: nazoos_welcome/root/maintenance.py:81
+msgid "nazoos-repos is not installed"
+msgstr ""
+
+#: nazoos_welcome/root/maintenance.py:94
+#, python-brace-format
+msgid "the {channel} repository did not appear after refreshing the services"
+msgstr ""
+
+#: nazoos_welcome/root/mok.py:37
+msgid "the downloaded kernel package was not found"
+msgstr ""
+
+#: nazoos_welcome/root/mok.py:51
+msgid "the signing certificate could not be read"
+msgstr ""
+
+#: nazoos_welcome/root/mok.py:71
+msgid "a password for the Secure Boot key is needed"
+msgstr ""
+
+#: nazoos_welcome/root/mok.py:85
+#, python-brace-format
+msgid "the Secure Boot key could not be prepared (mokutil exit code {rc})"
+msgstr ""
+
+#: nazoos_welcome/root/mok.py:114 nazoos_welcome/root/mok.py:127
+msgid "kernel-nazoos has no signing certificate"
+msgstr ""
+
+#: nazoos_welcome/root/repairs.py:43
+#, python-brace-format
+msgid "still missing after restoring the services: {repos}"
+msgstr ""
+
+#: nazoos_welcome/root/repairs.py:61
+msgid "Packman is not set up; install the codecs first"
+msgstr ""
+
+#: nazoos_welcome/root/repairs.py:81
+msgid "no NVIDIA driver is installed"
+msgstr ""
+
+#: nazoos_welcome/root/repairs.py:103
+#, python-brace-format
+msgid "still failing: {units}"
+msgstr ""
+
+#: nazoos_welcome/root/tuning.py:21
+#, python-brace-format
+msgid "{scheduler} is not part of the installed scx package"
+msgstr ""
+
+#: nazoos_welcome/root/tuning.py:48
+msgid "unknown kernel option"
+msgstr ""
+
+#: nazoos_welcome/root/tuning.py:71
+msgid "needs the NazoOS kernel"
+msgstr ""
+
+#: nazoos_welcome/root/tuning.py:74
+msgid "invalid device id"
+msgstr ""
+
+#: nazoos_welcome/root/tuning.py:85
+msgid "this device is not connected"
+msgstr ""
+
+#: nazoos_welcome/root/tuning.py:88
+msgid ""
+"too many devices with their own polling rate; reset one of them to the "
+"device default first"
+msgstr ""
+
 #: qml/Main.qml:13
 msgid "NazoOS Welcome"
 msgstr ""
 
-#: qml/Main.qml:93 qml/pages/WelcomePage.qml:15
+#: qml/Main.qml:96 qml/pages/WelcomePage.qml:15
 msgid "Welcome"
 msgstr ""
 
-#: qml/Main.qml:98 qml/pages/DriversPage.qml:16
+#: qml/Main.qml:101 qml/pages/DriversPage.qml:16
 msgid "Drivers & codecs"
 msgstr ""
 
-#: qml/Main.qml:104 qml/pages/GamingPage.qml:18
+#: qml/Main.qml:107 qml/pages/GamingPage.qml:18
 msgid "Gaming & performance"
 msgstr ""
 
-#: qml/Main.qml:110 qml/pages/KernelPage.qml:21
+#: qml/Main.qml:113 qml/pages/KernelPage.qml:21
 msgid "Kernel"
 msgstr ""
 
-#: qml/Main.qml:116 qml/pages/AppsPage.qml:27
+#: qml/Main.qml:119 qml/pages/AppsPage.qml:27
 msgid "Apps"
 msgstr ""
 
-#: qml/Main.qml:122 qml/pages/DrivesPage.qml:17
+#: qml/Main.qml:125 qml/pages/DrivesPage.qml:17
 msgid "Drives"
 msgstr ""
 
-#: qml/Main.qml:128 qml/pages/SystemPage.qml:16
+#: qml/Main.qml:131 qml/pages/SystemPage.qml:16
 msgid "System"
 msgstr ""
 
-#: qml/Main.qml:134 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:28
-#: qml/pages/RepairPage.qml:147 qml/pages/SystemPage.qml:125
+#: qml/Main.qml:137 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:38
+#: qml/pages/RepairPage.qml:157 qml/pages/SystemPage.qml:125
 msgid "Repair"
 msgstr ""
 
-#: qml/Main.qml:140 qml/pages/HelpPage.qml:15
+#: qml/Main.qml:143 qml/pages/HelpPage.qml:15
 msgid "Help"
 msgstr ""
 
-#: qml/Main.qml:182 qml/Main.qml:239
+#: qml/Main.qml:185 qml/Main.qml:242
 msgid "Continue"
 msgstr ""
 
-#: qml/Main.qml:190 qml/Main.qml:251
+#: qml/Main.qml:193 qml/Main.qml:254
 msgid "Cancel"
 msgstr ""
 
-#: qml/Main.qml:215
+#: qml/Main.qml:218
 msgid "Password for the NazoOS key"
 msgstr ""
 
-#: qml/Main.qml:216
+#: qml/Main.qml:219
 msgid ""
 "After the restart a blue screen (MokManager) asks once for this password to "
 "enroll the NazoOS key. Suggested: \"nazoos\". 4 to 16 letters or digits."
 msgstr ""
 
-#: qml/Main.qml:223
+#: qml/Main.qml:226
 msgid "Password (4 to 16 letters or digits)"
 msgstr ""
 
-#: qml/Main.qml:232
+#: qml/Main.qml:235
 msgid ""
 "Z and Y are swapped in the blue screen on a German keyboard: type \"%1\" "
 "there."
 msgstr ""
 
-#: qml/Main.qml:264
+#: qml/Main.qml:267
 msgid "That did not work"
 msgstr ""
 
-#: qml/Main.qml:268
+#: qml/Main.qml:271
 msgid "Try again"
 msgstr ""
 
-#: qml/Main.qml:280 qml/components/BusyBar.qml:31
+#: qml/Main.qml:283 qml/components/BusyBar.qml:31
 msgid "Show details"
 msgstr ""
 
-#: qml/Main.qml:285 qml/Main.qml:308
+#: qml/Main.qml:288 qml/Main.qml:311
 msgid "Close"
 msgstr ""
 
-#: qml/Main.qml:294
+#: qml/Main.qml:297
 msgid "Details"
 msgstr ""
 
-#: qml/Main.qml:300
+#: qml/Main.qml:303
 msgid "Copy"
 msgstr ""
 
-#: qml/Main.qml:304 qml/pages/HelpPage.qml:79
+#: qml/Main.qml:307 qml/pages/HelpPage.qml:79
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: qml/Main.qml:334
+#: qml/Main.qml:337
 msgid "Nothing has run yet."
 msgstr ""
 
@@ -647,7 +826,7 @@ msgstr ""
 msgid "Packman is enabled, codecs are not installed yet"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:120 qml/pages/RepairPage.qml:37
+#: qml/pages/DriversPage.qml:120 qml/pages/RepairPage.qml:47
 msgid "Reinstall"
 msgstr ""
 
@@ -931,7 +1110,7 @@ msgid ""
 "Valve's updater (proprietary) during installation."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:253 qml/pages/RepairPage.qml:114
+#: qml/pages/GamingPage.qml:253 qml/pages/RepairPage.qml:124
 msgid "Tools"
 msgstr ""
 
@@ -1175,255 +1354,255 @@ msgstr ""
 msgid "Enroll key"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:23
+#: qml/pages/RepairPage.qml:25
+msgid "Saved: %1"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:26
+msgid "Show"
+msgstr ""
+
+#: qml/pages/RepairPage.qml:33
 msgid "Package database is damaged"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:24
+#: qml/pages/RepairPage.qml:34
 msgid ""
 "The list of installed packages cannot be read. Rebuilding it fixes most "
 "cases."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:25 qml/pages/RepairPage.qml:158
-#: qml/pages/RepairPage.qml:168 qml/pages/RepairPage.qml:172
+#: qml/pages/RepairPage.qml:35 qml/pages/RepairPage.qml:168
+#: qml/pages/RepairPage.qml:178 qml/pages/RepairPage.qml:182
 msgid "Rebuild"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:26
+#: qml/pages/RepairPage.qml:36
 msgid "Standard repositories missing or disabled"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:27
+#: qml/pages/RepairPage.qml:37
 msgid ""
 "Without them there are no updates. The missing ones are added again and all "
 "are switched on."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:29
+#: qml/pages/RepairPage.qml:39
 msgid "Packages with missing dependencies"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:30
+#: qml/pages/RepairPage.qml:40
 msgid ""
 "Something these packages need is not installed. The missing parts are "
 "installed. If that needs a decision, Myrlyn shows the choices."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:31
+#: qml/pages/RepairPage.qml:41
 msgid "Install missing"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:32
+#: qml/pages/RepairPage.qml:42
 msgid "Mixed multimedia packages"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:33
+#: qml/pages/RepairPage.qml:43
 msgid ""
 "Some codec libraries come from openSUSE, others from Packman. That breaks "
 "video playback. All of them are switched to Packman."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:34
+#: qml/pages/RepairPage.qml:44
 msgid "Switch to Packman"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:35
+#: qml/pages/RepairPage.qml:45
 msgid "NVIDIA driver missing for this kernel"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:36
+#: qml/pages/RepairPage.qml:46
 msgid ""
 "The NVIDIA kernel module is not built for the running kernel, so the desktop "
 "runs without the NVIDIA driver. It is installed again; restart afterwards."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:38
+#: qml/pages/RepairPage.qml:48
 msgid "Services that failed to start"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:39
+#: qml/pages/RepairPage.qml:49
 msgid ""
 "These background services stopped with an error. They are restarted. If one "
 "keeps failing, create a bug report below."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:40
+#: qml/pages/RepairPage.qml:50
 msgid "Restart"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:41
+#: qml/pages/RepairPage.qml:51
 msgid "Little free disk space"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:42
+#: qml/pages/RepairPage.qml:52
 msgid ""
 "Updates can fail when the disk is full. Old snapshots, the package cache and "
 "unused Flatpak runtimes are removed."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:43
+#: qml/pages/RepairPage.qml:53
 msgid "Free space"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:44
+#: qml/pages/RepairPage.qml:54
 msgid "Flathub is missing"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:45
+#: qml/pages/RepairPage.qml:55
 msgid "Discover cannot show Flatpak apps without Flathub. It is added again."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:46
+#: qml/pages/RepairPage.qml:56
 msgid "Add Flathub"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:47
+#: qml/pages/RepairPage.qml:57
 msgid "The check itself failed"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:48
+#: qml/pages/RepairPage.qml:58
 msgid "Please create a bug report below."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:66
+#: qml/pages/RepairPage.qml:76
 msgid "Check"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:72
+#: qml/pages/RepairPage.qml:82
 msgid "Checking the system …"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:73
+#: qml/pages/RepairPage.qml:83
 msgid "System check"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:74
+#: qml/pages/RepairPage.qml:84
 msgid "No known problems found"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:75
+#: qml/pages/RepairPage.qml:85
 msgid "Problems found: %1"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:76
+#: qml/pages/RepairPage.qml:86
 msgid ""
 "Looks for common problems: package database, repositories, missing "
 "dependencies, codec mix, NVIDIA module, failed services, disk space and "
 "Flathub."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:83
+#: qml/pages/RepairPage.qml:93
 msgid "Check again"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:118
+#: qml/pages/RepairPage.qml:128
 msgid "Refresh repositories"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:119
+#: qml/pages/RepairPage.qml:129
 msgid ""
 "Reloads the package lists. Helps when Discover or an installation reports "
 "outdated or broken repository data."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:122
+#: qml/pages/RepairPage.qml:132
 msgid "Refresh"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:128
+#: qml/pages/RepairPage.qml:138
 msgid "Clean package cache"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:129
+#: qml/pages/RepairPage.qml:139
 msgid ""
 "Deletes downloaded package files and cached repository data to free disk "
 "space."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:132
+#: qml/pages/RepairPage.qml:142
 msgid "Clean"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:138
+#: qml/pages/RepairPage.qml:148
 msgid "Flatpak cleanup"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:139
+#: qml/pages/RepairPage.qml:149
 msgid ""
 "Removes runtimes no app needs anymore, or repairs a broken Flatpak "
 "installation."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:142
+#: qml/pages/RepairPage.qml:152
 msgid "Remove unused"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:154
+#: qml/pages/RepairPage.qml:164
 msgid "Rebuild package database"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:155
+#: qml/pages/RepairPage.qml:165
 msgid "Helps when installing or updating stops with an \"rpmdb\" error."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:164
+#: qml/pages/RepairPage.qml:174
 msgid "Rebuild boot files"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:165
+#: qml/pages/RepairPage.qml:175
 msgid ""
 "Creates the initramfs of every kernel and the boot menu again. Helps when "
 "the system hangs at startup or a driver is missing after a kernel update."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:170
+#: qml/pages/RepairPage.qml:180
 msgid "Rebuild boot files?"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:171
+#: qml/pages/RepairPage.qml:181
 msgid "This takes a minute or two. Restart the computer afterwards."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:178
+#: qml/pages/RepairPage.qml:188
 msgid "Go back to an earlier state"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:179
+#: qml/pages/RepairPage.qml:189
 msgid ""
 "If nothing here helps: restart, choose \"Start bootloader from a read-only "
 "snapshot\" in the boot menu and pick the state before the problem. NazoOS "
 "Update then offers to make that state permanent."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:187
+#: qml/pages/RepairPage.qml:197
 msgid "Get help"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:191
+#: qml/pages/RepairPage.qml:201
 msgid "Bug report"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:192
+#: qml/pages/RepairPage.qml:202
 msgid ""
 "Saves system information, errors since startup, repositories and recent "
 "updates to a text file in your home folder. Look through it before you share "
 "it: it contains device names and your user name."
 msgstr ""
 
-#: qml/pages/RepairPage.qml:194
+#: qml/pages/RepairPage.qml:204
 msgid "Create report"
 msgstr ""
 
-#: qml/pages/RepairPage.qml:200
-msgid "Saved: %1"
-msgstr ""
-
-#: qml/pages/RepairPage.qml:201
-msgid "Show"
-msgstr ""
-
-#: qml/pages/RepairPage.qml:206
+#: qml/pages/RepairPage.qml:209
 msgid "Report on GitHub"
 msgstr ""
 

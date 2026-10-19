@@ -11,6 +11,8 @@ URL:            https://github.com/tokajer/NazoOS
 Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  desktop-file-utils
 BuildRequires:  gettext-tools
+# %check imports the helper
+BuildRequires:  nazoos-common
 BuildRequires:  python3
 BuildRequires:  systemd-rpm-macros
 BuildArch:      noarch
@@ -20,6 +22,8 @@ Requires:       kf6-qqc2-desktop-style
 Requires:       python3
 Requires:       python3-pyside6
 Requires:       qt6-declarative-imports
+# Helper frame, error messages, MOK check, kernel opt-in state (ADR 0030)
+Requires:       nazoos-common
 # Notifications with an "Update now" button
 Requires:       libnotify-tools
 Requires:       polkit

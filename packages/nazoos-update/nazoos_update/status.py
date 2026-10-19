@@ -11,10 +11,6 @@ import subprocess
 from pathlib import Path
 
 STATUS = Path("/var/lib/nazoos-update/status.json")
-# Written by nazoos-welcome (NazoOS kernel opt-in, ADR 0008)
-KERNEL_PREFER = Path("/var/lib/nazoos/kernel-prefer")
-KERNEL_BOOTS = Path("/var/lib/nazoos/kernel-boots.json")
-KERNEL_STABLE_BOOTS = 3
 # btrfs subvolume flags: BTRFS_IOC_SUBVOL_GETFLAGS
 # needs no root rights
 BTRFS_IOC_SUBVOL_GETFLAGS = 0x80089419
@@ -60,22 +56,6 @@ def booted_snapshot():
 def is_live():
     # nazoos-calamares-config exists only on the live medium
     return Path("/usr/share/calamares/settings.conf").exists()
-
-
-def kernel_stable():
-    """True when kernel-nazoos started cleanly 3 times in a row and the
-    openSUSE kernel is still installed: time to offer stage 2."""
-    if not KERNEL_PREFER.exists():
-        return False
-    try:
-        boots = json.loads(KERNEL_BOOTS.read_text())
-    except (OSError, ValueError):
-        return False
-    if boots.get("count", 0) < KERNEL_STABLE_BOOTS:
-        return False
-    q = subprocess.run(["rpm", "-q", "--quiet", "kernel-default"])
-    only = subprocess.run(["rpm", "-q", "--quiet", "nazoos-kernel-only"])
-    return q.returncode == 0 and only.returncode != 0
 
 
 def collect():

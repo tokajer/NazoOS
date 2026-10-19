@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Only settings for the checks in .github/workflows/python.yml (ADR 0030);
+# the packages are built by their .spec files, not from here.
+# Doku: https://docs.pytest.org/en/stable/reference/customize.html ,
+#       https://docs.astral.sh/ruff/configuration/
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# The modules live below packages/, like in /usr/share/nazoos-*
+pythonpath = [
+    "packages/nazoos-common",
+    "packages/nazoos-welcome",
+    "packages/nazoos-update",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+# The root helpers are Python scripts without .py
+extend-include = [
+    "packages/nazoos-welcome/helper/*",
+    "packages/nazoos-update/helper/*",
+]
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, bugbear
+select = ["E", "F", "W", "B"]
+
+[tool.ruff.lint.per-file-ignores]
+# Sample command output (grub.cfg, zypper XML) has long lines
+"tests/*" = ["E501"]

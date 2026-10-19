@@ -18,11 +18,15 @@ import sys
 import time
 from pathlib import Path
 
-for base in (Path("/usr/share/nazoos-welcome"),
-             Path(__file__).resolve().parent.parent):
-    if (base / "nazoos_welcome" / "kernel.py").is_file():
+# Our modules from the installed location (or the git checkout)
+_src = Path(__file__).resolve().parent.parent
+for pkg, bases in (("nazoos_welcome", ("/usr/share/nazoos-welcome", _src)),
+                   ("nazoos_common", ("/usr/share/nazoos-common",
+                                      _src.parent / "nazoos-common"))):
+    base = next((b for b in map(Path, bases) if (b / pkg).is_dir()), None)
+    if base is not None:
         sys.path.insert(0, str(base))
-        break
+from nazoos_common import kernelstate  # noqa: E402
 from nazoos_welcome import kernel  # noqa: E402
 
 
@@ -30,7 +34,7 @@ def main():
     # Keep the chosen kernel the default: kernel-nazoos while the user
     # prefers it, else kernel-default as long as kernel-nazoos is still
     # installed (the first menu entry would boot the newest of both)
-    if kernel.PREFER.exists():
+    if kernelstate.PREFER.exists():
         flavor = "nazoos"
     elif kernel.nazoos_entry():
         flavor = "default"
@@ -49,10 +53,10 @@ def main():
     # Waits until the boot is finished: "running" or "degraded"
     state = subprocess.run(["systemctl", "is-system-running", "--wait"],
                            capture_output=True, text=True).stdout.strip()
-    boots = kernel.read_boots()
+    boots = kernelstate.read_boots()
     count = boots.get("count", 0) + 1 if state == "running" else 0
-    kernel.write_boots({"count": count, "kernel": release, "state": state,
-                        "time": int(time.time())})
+    kernelstate.write_boots({"count": count, "kernel": release,
+                             "state": state, "time": int(time.time())})
     print(f"{release}: {state}, clean boots in a row: {count}")
     return 0
 

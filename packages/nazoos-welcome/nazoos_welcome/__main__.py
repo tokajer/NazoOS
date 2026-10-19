@@ -16,7 +16,7 @@ from PySide6.QtWidgets import QApplication
 
 from . import system
 from .backend import Backend
-from .i18n import Translator
+from .i18n import translator as make_translator
 from .single import Instance
 
 VERSION = "0.1.0"
@@ -75,7 +75,7 @@ def main():
                                       QIcon.fromTheme("start-here")))
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    translator = Translator()
+    translator = make_translator()
     backend = Backend(translator)
 
     engine = QQmlApplicationEngine()

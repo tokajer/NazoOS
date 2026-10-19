@@ -2,16 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Bridge between the QML pages and the system."""
 
-import glob
 import os
-import shutil
 import subprocess
 import threading
 import traceback
-from pathlib import Path
 
-from PySide6.QtCore import (Property, QObject, QProcess, QProcessEnvironment,
-                            Signal, Slot)
+from nazoos_common.qt import HelperProcess, launch
+from PySide6.QtCore import Property, QObject, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 
 from . import catalog, repair, system
@@ -36,17 +33,8 @@ LAUNCHERS = {
 }
 
 
-def _desktop_file(patterns):
-    dirs = [Path.home() / ".local/share"] + [
-        Path(d) for d in os.environ.get(
-            "XDG_DATA_DIRS", "/usr/local/share:/usr/share").split(":")]
-    dirs.append(Path("/var/lib/flatpak/exports/share"))
-    for pattern in patterns:
-        for d in dirs:
-            hits = sorted(glob.glob(str(d / "applications" / pattern)))
-            if hits:
-                return hits[0]
-    return None
+# Flatpak apps (LACT, CoolerControl) have their desktop files here
+FLATPAK_EXPORTS = ["/var/lib/flatpak/exports/share"]
 
 
 class Backend(QObject):
@@ -69,7 +57,6 @@ class Backend(QObject):
         self._log = ""
         self._task = ""
         self._proc = None
-        self._on_success = None
         self._refreshing = False
         self._refresh_again = False
         self._call.connect(lambda f: f())
@@ -255,24 +242,13 @@ class Backend(QObject):
             return
         if action not in catalog.ACTION_LABELS:
             return
-        args = [str(a) for a in args]
         self._begin(action)
-        self._on_success = on_success
-        self._errline = ""
-        proc = QProcess(self)
-        proc.setProcessChannelMode(QProcess.MergedChannels)
-        env = QProcessEnvironment.systemEnvironment()
-        proc.setProcessEnvironment(env)
-        proc.readyReadStandardOutput.connect(lambda: self._read(proc))
+        proc = HelperProcess(HELPER, self._tr.gettext, self)
+        proc.output.connect(self._append)
         proc.finished.connect(
-            lambda code, status: self._finished(action, args, code, status))
-        proc.errorOccurred.connect(
-            lambda err: self._failed_start(action, proc, err))
+            lambda ok, msg: self._finished(action, ok, msg, on_success))
         self._proc = proc
-        proc.start("pkexec", [HELPER, action] + args)
-        if stdin is not None:
-            proc.write((stdin + "\n").encode())
-            proc.closeWriteChannel()
+        proc.start(args, stdin)
 
     @Slot(str, "QVariantList", str)
     def runMok(self, action, args, password):
@@ -294,35 +270,11 @@ class Backend(QObject):
             return
         self.run(action, args, mok_hash)
 
-    def _read(self, proc):
-        text = bytes(proc.readAllStandardOutput()).decode(errors="replace")
-        for line in text.splitlines():
-            if line.startswith("@@error "):
-                self._errline = line[8:]
-        self._append(text)
-
-    def _failed_start(self, action, proc, err):
-        if err == QProcess.FailedToStart:
-            self._done(action, False,
-                       self._tr.gettext("pkexec could not be started."))
-            self._on_success = None
-
-    def _finished(self, action, args, code, _status):
-        then, self._on_success = self._on_success, None
-        if code == 0:
-            def done():
-                self._done(action, True, self._tr.gettext("Done."))
-            then(done) if then else done()
-        elif code in (126, 127) and not self._errline:
-            # pkexec: dialog dismissed or not authorized
-            self._done(action, False,
-                       self._tr.gettext("Cancelled: no administrator "
-                                        "password was given."))
+    def _finished(self, action, ok, message, then):
+        if ok and then:
+            then(lambda: self._done(action, True, message))
         else:
-            msg = self._tr.gettext("Something went wrong.")
-            if self._errline:
-                msg += " " + self._errline
-            self._done(action, False, msg)
+            self._done(action, ok, message)
 
     def _done(self, action, ok, message):
         self._end_busy()
@@ -377,17 +329,7 @@ class Backend(QObject):
         entry = LAUNCHERS.get(launcher_id)
         if entry is None:
             return
-        patterns, fallback = entry
-        desktop = _desktop_file(patterns) if patterns else None
-        if desktop and shutil.which("kioclient"):
-            subprocess.Popen(["kioclient", "exec", desktop],
-                             start_new_session=True)
-        elif desktop and shutil.which("gio"):
-            subprocess.Popen(["gio", "launch", desktop],
-                             start_new_session=True)
-        elif fallback and shutil.which(fallback[0]):
-            subprocess.Popen(fallback, start_new_session=True)
-        else:
+        if not launch(*entry, extra_dirs=FLATPAK_EXPORTS):
             self.actionFinished.emit(
                 "launch", False,
                 self._tr.gettext("This program is not installed."))

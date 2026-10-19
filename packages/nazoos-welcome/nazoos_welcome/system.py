@@ -11,6 +11,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from nazoos_common import kernelstate, mok
+
 from . import catalog, kernel
 
 AUTOSTART_NAME = "nazoos-welcome.desktop"
@@ -239,10 +241,10 @@ def pollrate_state():
 
 
 def _requested_this_boot():
-    """The helper queued the key after the last start (kernel.MOK_REQUESTED);
+    """The helper queued the key after the last start (MOK_REQUESTED);
     a request from an earlier boot was already shown by MokManager."""
     try:
-        requested = kernel.MOK_REQUESTED.stat().st_mtime
+        requested = kernelstate.MOK_REQUESTED.stat().st_mtime
         btime = next(int(line.split()[1]) for line in
                      Path("/proc/stat").read_text().splitlines()
                      if line.startswith("btime "))
@@ -263,27 +265,27 @@ def kernel_state():
     # "SecureBoot enabled/disabled": UEFI, the kernel package queues its
     # key for MokManager either way (ADR 0024)
     uefi = "secureboot" in sb
-    mok = ""
+    key = ""
     if uefi and catalog.KERNEL_PACKAGE in rpms:
-        cert = kernel.signing_cert()
+        cert = mok.signing_cert()
         if cert:
-            mok = ("enrolled" if kernel.mok_enrolled(cert)
+            key = ("enrolled" if mok.enrolled(cert)
                    else "pending" if _requested_this_boot()
                    else "missing")
-    boots = kernel.read_boots()
+    boots = kernelstate.read_boots()
     return {
         "release": release,
         "running": release.endswith("-nazoos"),
         "installed": catalog.KERNEL_PACKAGE in rpms,
         "defaultInstalled": catalog.KERNEL_DEFAULT in rpms,
         "only": catalog.KERNEL_ONLY_PACKAGE in rpms,
-        "preferred": kernel.PREFER.exists(),
+        "preferred": kernelstate.PREFER.exists(),
         "boots": boots.get("count", 0),
-        "stableBoots": catalog.KERNEL_STABLE_BOOTS,
+        "stableBoots": kernelstate.STABLE_BOOTS,
         "blocked": any(p in rpms for p in catalog.KMP_DEFAULT_ONLY),
         "secureBoot": secure_boot,
         "uefi": uefi,
-        "mok": mok,
+        "mok": key,
         "sbState": sb_raw,
     }
 

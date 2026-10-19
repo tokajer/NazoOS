@@ -8,28 +8,31 @@ via pkexec ("check", "update", "rollback"); "label" by
 nazoos-update-label.service. Takes no other arguments.
 The status of the last check is written to STATUS as JSON, readable by
 every user; the GUI and the notifier only read it.
-The last output line "@@error <text>" carries a message for the user.
+The last output line "@@error {...}" carries a message for the user
+(nazoos_common.errors).
 """
 
 import gettext
 import json
 import os
 import re
-import subprocess
 import sys
 import time
-import traceback
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
 
-# pkexec clears PYTHONPATH; load nazoos_update/status.py from the installed
-# location (or from the source tree when run from a git checkout)
-for base in (Path("/usr/share/nazoos-update"),
-             Path(__file__).resolve().parent.parent):
-    if (base / "nazoos_update" / "status.py").is_file():
+# pkexec clears PYTHONPATH: load our modules from the installed location
+# (or from the git checkout)
+_src = Path(__file__).resolve().parent.parent
+for pkg, bases in (("nazoos_update", ("/usr/share/nazoos-update", _src)),
+                   ("nazoos_common", ("/usr/share/nazoos-common",
+                                      _src.parent / "nazoos-common"))):
+    base = next((b for b in map(Path, bases) if (b / pkg).is_dir()), None)
+    if base is not None:
         sys.path.insert(0, str(base))
-        break
+from nazoos_common import helper, mok  # noqa: E402
+from nazoos_common.helper import Fail, capture, run  # noqa: E402
 from nazoos_update import status  # noqa: E402
 
 KERNEL_BOOT = "/usr/libexec/nazoos-welcome/nazoos-kernel-boot"
@@ -46,23 +49,6 @@ ZYPPER_SCRIPT_FAILED = 107
 # Package names that need a restart after the update
 REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
                          r"libQt6|plasma|kwin|sddm)")
-
-
-class Fail(Exception):
-    pass
-
-
-def run(cmd, check=True):
-    print("$ " + " ".join(cmd), flush=True)
-    rc = subprocess.run(cmd, stdin=subprocess.DEVNULL).returncode
-    if check and rc != 0:
-        raise Fail(f"'{cmd[0]}' failed (exit code {rc})")
-    return rc
-
-
-def capture(cmd):
-    return subprocess.run(cmd, stdin=subprocess.DEVNULL,
-                          capture_output=True, text=True)
 
 
 def write_status(data):
@@ -119,7 +105,7 @@ def dup_preview(cmd=("dist-upgrade", "--auto-agree-with-licenses")):
     try:
         root = ET.fromstring(r.stdout)
     except ET.ParseError:
-        raise Fail("zypper returned no readable answer")
+        raise Fail("zypper returned no readable answer") from None
     problems = [p.findtext("description") or ""
                 for p in root.iter("problem")]
     # Exit code 4: the solver found a problem the user has to decide
@@ -128,8 +114,10 @@ def dup_preview(cmd=("dist-upgrade", "--auto-agree-with-licenses")):
     if problems:
         return None, problems
     if r.returncode not in ZYPPER_OK:
-        raise Fail(" ".join(zypper_messages(root))
-                   or f"zypper failed (exit code {r.returncode})")
+        messages = " ".join(zypper_messages(root))
+        if messages:
+            raise Fail("zypper reported: {detail}", detail=messages)
+        raise Fail("zypper failed (exit code {rc})", rc=r.returncode)
     pkgs = []
     summary = root.find("install-summary")
     if summary is None:
@@ -206,7 +194,8 @@ def check(_args=None):
     print(f"{len(result['packages'])} package changes, "
           f"{len(result['flatpaks'])} Flatpak updates", flush=True)
     if problems:
-        raise Fail("the update needs a decision: " + problems[0])
+        raise Fail("the update needs a decision: {problem}",
+                   problem=problems[0])
 
 
 # --- update -----------------------------------------------------------------
@@ -216,27 +205,10 @@ def nazoos_key_missing():
     for MokManager: the kernel's cert-post script then fails on every
     kernel update ("mokutil --root-pw" cannot read the yescrypt root
     hash Calamares writes, ADR 0024)."""
-    if capture(["mokutil", "--sb-state"]).returncode != 0:
+    if not mok.uefi():
         return False
-    certs = [f for f in capture(["rpm", "-ql", "kernel-nazoos"]).stdout.split()
-             if re.fullmatch(r"/etc/uefi/certs/\w+\.crt", f)]
-    if not certs:
-        return False
-    if "already enrolled" in capture(["mokutil", "--test-key",
-                                      certs[0]]).stdout.lower():
-        return False
-    fpr = capture(["openssl", "x509", "-in", certs[0], "-noout",
-                   "-fingerprint", "-sha1"]).stdout
-    fpr = fpr.split("=")[-1].strip().replace(":", "").lower()
-    pending = capture(["mokutil", "--list-new"]).stdout.lower()
-    return not fpr or fpr not in pending.replace(":", "")
-
-
-def key_missing_quietly():
-    try:
-        return nazoos_key_missing()
-    except OSError:   # no mokutil/openssl: not our case
-        return False
+    cert = mok.signing_cert()
+    return cert is not None and mok.status(cert) == "missing"
 
 
 def update(_args):
@@ -255,13 +227,14 @@ def update(_args):
         # snapper-zypp-plugin creates a pre/post snapshot pair around this
         rc = run(ZYPPER + cmd, check=False)
         label_snapshots(update_after=last)
-        if rc == ZYPPER_SCRIPT_FAILED and key_missing_quietly():
+        if rc == ZYPPER_SCRIPT_FAILED and nazoos_key_missing():
             # Installed, only the key import failed: finish the update
             # (boot entry, modules) and say what to do at the end
             key_missing = True
         elif rc not in ZYPPER_OK:
             check_quietly()
-            raise Fail(f"the system update failed (zypper exit code {rc})")
+            raise Fail("the system update failed (zypper exit code {rc})",
+                       rc=rc)
         # dup only updates what is installed: kernel modules for
         # kernel-nazoos that came later (acpi_call). nazoos-welcome has
         # the list; a module missing from the repo is skipped there
@@ -415,26 +388,5 @@ ACTIONS = {"check": check, "update": update, "rollback": rollback,
            "label": label}
 
 
-def main():
-    if os.geteuid() != 0:
-        print("@@error must run as root (via pkexec)", flush=True)
-        return 1
-    if len(sys.argv) != 2 or sys.argv[1] not in ACTIONS:
-        print("@@error unknown action", flush=True)
-        return 2
-    os.environ["ZYPP_LOCK_TIMEOUT"] = "300"
-    os.environ["LC_ALL"] = "C.UTF-8"
-    try:
-        ACTIONS[sys.argv[1]](sys.argv[2:])
-    except (Fail, OSError) as e:
-        print(f"@@error {e}", flush=True)
-        return 1
-    except Exception as e:  # a bug must still reach the user as a message
-        traceback.print_exc(file=sys.stdout)
-        print(f"@@error {type(e).__name__}: {e}", flush=True)
-        return 1
-    return 0
-
-
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(helper.main(ACTIONS, lock_timeout=300, max_args=0))

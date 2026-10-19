@@ -2,14 +2,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Bridge between the QML window and the system."""
 
-import glob
 import os
 import shutil
 import subprocess
-from pathlib import Path
 
-from PySide6.QtCore import (Property, QFileSystemWatcher, QObject, QProcess,
-                            Signal, Slot)
+from nazoos_common.qt import HelperProcess, launch
+from PySide6.QtCore import Property, QFileSystemWatcher, QObject, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 
 from . import status
@@ -34,18 +32,6 @@ LAUNCHERS = {
 }
 
 
-def _desktop_file(patterns):
-    dirs = [Path.home() / ".local/share"] + [
-        Path(d) for d in os.environ.get(
-            "XDG_DATA_DIRS", "/usr/local/share:/usr/share").split(":")]
-    for pattern in patterns:
-        for d in dirs:
-            hits = sorted(glob.glob(str(d / "applications" / pattern)))
-            if hits:
-                return hits[0]
-    return None
-
-
 class Backend(QObject):
     stateChanged = Signal()
     busyChanged = Signal()
@@ -58,7 +44,6 @@ class Backend(QObject):
         self._busy = False
         self._task = ""
         self._log = ""
-        self._errline = ""
         self._reboot = False
         # The snapshot was made permanent; only a restart is left to do
         self._rolled_back = False
@@ -125,43 +110,21 @@ class Backend(QObject):
             return
         self._task = _(ACTION_LABELS[action])
         self._busy = True
-        self._errline = ""
         self.busyChanged.emit()
         self._append(f"\n=== {self._task} ===\n")
-        proc = QProcess(self)
-        proc.setProcessChannelMode(QProcess.MergedChannels)
-        proc.readyReadStandardOutput.connect(lambda: self._read(proc))
-        proc.finished.connect(lambda code, _s: self._finished(action, code))
-        proc.errorOccurred.connect(lambda err: self._failed_start(action, err))
+        proc = HelperProcess(HELPER, _, self)
+        proc.output.connect(self._append)
+        proc.finished.connect(
+            lambda ok, msg: self._finished(action, proc, ok, msg))
         self._proc = proc
-        proc.start("pkexec", [HELPER, action])
+        proc.start([action])
 
-    def _read(self, proc):
-        text = bytes(proc.readAllStandardOutput()).decode(errors="replace")
-        for line in text.splitlines():
-            if line.startswith("@@error "):
-                self._errline = line[8:]
-            elif line == "@@reboot":
-                self._reboot = True
-        self._append(text)
-
-    def _failed_start(self, action, err):
-        if err == QProcess.FailedToStart:
-            self._done(action, False, _("pkexec could not be started."))
-
-    def _finished(self, action, code):
-        if code == 0:
-            if action == "rollback":
-                self._rolled_back = True
-            self._done(action, True, _("Done."))
-        elif code in (126, 127) and not self._errline:
-            self._done(action, False,
-                       _("Cancelled: no administrator password was given."))
-        else:
-            msg = _("Something went wrong.")
-            if self._errline:
-                msg += " " + self._errline
-            self._done(action, False, msg)
+    def _finished(self, action, proc, ok, message):
+        if proc.reboot:
+            self._reboot = True
+        if ok and action == "rollback":
+            self._rolled_back = True
+        self._done(action, ok, message)
 
     def _done(self, action, ok, message):
         self._busy = False
@@ -186,14 +149,7 @@ class Backend(QObject):
         entry = LAUNCHERS.get(launcher_id)
         if entry is None:
             return
-        patterns, fallback = entry
-        desktop = _desktop_file(patterns)
-        if desktop and shutil.which("kioclient"):
-            subprocess.Popen(["kioclient", "exec", desktop],
-                             start_new_session=True)
-        elif shutil.which(fallback[0]):
-            subprocess.Popen(fallback, start_new_session=True)
-        else:
+        if not launch(*entry):
             self.actionFinished.emit("launch", False,
                                      _("This program is not installed."))
 

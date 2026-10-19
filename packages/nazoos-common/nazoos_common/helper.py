@@ -1,0 +1,101 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Skeleton of the root helpers started via pkexec (no Qt here).
+
+Every user-facing text is an English template for gettext:
+Fail("'{cmd}' failed (exit code {rc})", cmd=..., rc=...). The GUI
+translates it (errors.py); xgettext collects it with --keyword=Fail.
+"""
+
+import os
+import subprocess
+import sys
+import traceback
+
+from . import errors
+
+# zypper exit codes >= 100 that mean "done, but note this"
+# (man zypper, EXIT CODES)
+ZYPPER_INFO = {
+    102: "restart the computer to finish the update",
+    103: "zypper updated itself; run the action again if something is missing",
+    106: "some repositories could not be refreshed and were skipped",
+}
+
+
+class Fail(Exception):
+    """An error the user sees: TEMPLATE with {name} fields from PARAMS."""
+
+    def __init__(self, template, **params):
+        super().__init__(errors.fill(template, params))
+        self.template = template
+        self.params = params
+
+
+def say(text):
+    print(text, flush=True)
+
+
+def run(cmd, check=True):
+    """Run CMD with its output in the log. zypper's ZYPPER_INFO codes
+    count as success (a note is logged)."""
+    say("$ " + " ".join(cmd))
+    rc = subprocess.run(cmd, stdin=subprocess.DEVNULL).returncode
+    if cmd[0] == "zypper" and rc in ZYPPER_INFO:
+        say(f"Note: {ZYPPER_INFO[rc]}")
+        return 0
+    if check and rc != 0:
+        raise Fail("'{cmd}' failed (exit code {rc})", cmd=cmd[0], rc=rc)
+    return rc
+
+
+def capture(cmd):
+    return subprocess.run(cmd, stdin=subprocess.DEVNULL,
+                          capture_output=True, text=True)
+
+
+def output(cmd):
+    return capture(cmd).stdout
+
+
+def rpm_installed(name):
+    return subprocess.run(["rpm", "-q", "--quiet", name],
+                          stdin=subprocess.DEVNULL).returncode == 0
+
+
+def arg(args, i, allowed=None):
+    if len(args) <= i:
+        raise Fail("missing argument")
+    if allowed is not None and args[i] not in allowed:
+        raise Fail("invalid argument: {arg}", arg=args[i])
+    return args[i]
+
+
+def main(actions, lock_timeout, max_args=None, argv=None):
+    """Run the action named in ARGV[1] with the rest as arguments; the
+    last output line "@@error ..." carries the reason of a failure."""
+    argv = sys.argv if argv is None else argv
+    if os.geteuid() != 0:
+        say(errors.encode("must run as root (via pkexec)"))
+        return 1
+    if (len(argv) < 2 or argv[1] not in actions
+            or (max_args is not None and len(argv) - 2 > max_args)):
+        say(errors.encode("unknown action"))
+        return 2
+    # Wait for a running zypper/PackageKit instead of failing at once
+    os.environ["ZYPP_LOCK_TIMEOUT"] = str(lock_timeout)
+    os.environ["LC_ALL"] = "C.UTF-8"
+    try:
+        actions[argv[1]](argv[2:])
+    except Fail as e:
+        say(errors.encode(e.template, e.params))
+        return 1
+    except OSError as e:
+        say(errors.encode("system error: {detail}", {"detail": str(e)}))
+        return 1
+    except Exception as e:  # a bug must still reach the user as a message
+        traceback.print_exc(file=sys.stdout)
+        say(errors.encode("program error: {detail}",
+                          {"detail": f"{type(e).__name__}: {e}"}))
+        return 1
+    return 0

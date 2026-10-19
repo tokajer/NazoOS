@@ -1,0 +1,6 @@
+-------------------------------------------------------------------
+Mon Oct 19 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New package: code shared by nazoos-welcome and nazoos-update
+  (root helper frame with translatable error messages, Secure Boot
+  key check, kernel opt-in state, Qt helper runner), ADR 0030.
