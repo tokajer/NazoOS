@@ -62,6 +62,9 @@ Kirigami.ApplicationWindow {
         }
         if (!(name in comps)) name = "welcome"
         if (name === currentPage) return
+        // Drives, services or packages may have changed outside the app
+        // since the last action (__main__.py loads it once at start)
+        if (currentPage !== "") backend.refresh()
         currentPage = name
         pageStack.clear()
         pageStack.push(comps[name])

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 19 10:00:23 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- After "Make permanent" the restart notice says that the snapshot
+  was made permanent (not "Updates were installed"); the snapshot
+  notice hides until the restart.
+
+-------------------------------------------------------------------
 Mon Oct 19 07:16:42 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The helper reports unexpected errors as a message.

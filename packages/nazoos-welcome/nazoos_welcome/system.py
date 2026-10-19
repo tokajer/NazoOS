@@ -435,7 +435,12 @@ def sysinfo(state=None):
     mem = re.search(r"^MemTotal:\s*(\d+)", _read("/proc/meminfo"), re.M)
     sb = (state or {}).get("kernel", {}).get("sbState")
     if not sb:
-        sb = _out(["mokutil", "--sb-state"]).strip() or "unknown"
+        sb = _out(["mokutil", "--sb-state"]).strip()
+    if not sb:
+        # mokutil explains on stderr only: firmware without Secure Boot
+        # (some VMs) or legacy BIOS
+        sb = ("not supported" if shutil.which("mokutil")
+              else "unknown (mokutil missing)")
     lines = [
         f"OS: {osr.get('PRETTY_NAME', 'unknown')} "
         f"({osr.get('VERSION_ID', '')})",

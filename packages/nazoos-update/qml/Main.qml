@@ -63,7 +63,7 @@ Kirigami.ApplicationWindow {
             // --- started from a snapshot: offer rollback --------------------
             Kirigami.InlineMessage {
                 Layout.fillWidth: true
-                visible: root.snapshot > 0
+                visible: root.snapshot > 0 && !backend.rolledBack
                 type: Kirigami.MessageType.Warning
                 text: L.tr("The system was started from snapshot %1. It is read-only: nothing can be installed or changed. If everything works now, make this state permanent.").replace("%1", root.snapshot)
                 actions: [
@@ -76,12 +76,14 @@ Kirigami.ApplicationWindow {
                 ]
             }
 
-            // --- restart after an update ------------------------------------
+            // --- restart after an update or rollback ------------------------
             Kirigami.InlineMessage {
                 Layout.fillWidth: true
                 visible: backend.rebootNeeded
                 type: Kirigami.MessageType.Information
-                text: L.tr("Updates were installed. Restart the computer to use them.")
+                text: backend.rolledBack
+                      ? L.tr("The snapshot was made permanent. Restart the computer to start from it.")
+                      : L.tr("Updates were installed. Restart the computer to use them.")
                 actions: [
                     Kirigami.Action {
                         text: L.tr("Restart now")

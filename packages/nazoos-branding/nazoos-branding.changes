@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 19 10:00:23 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- GRUB: GRUB_DISABLE_BOOTNEXT="true". grub2 2.16 lists every UEFI
+  boot option above "Start bootloader from a read-only snapshot",
+  which fell off the bottom of the menu.
+
+-------------------------------------------------------------------
 Sat Oct 17 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - New logo: plain "N" on the dark badge with a green ring, no

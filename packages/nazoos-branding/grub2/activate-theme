@@ -30,3 +30,7 @@ set_key() {
 }
 set_key GRUB_THEME "$dst/theme.txt"
 set_key GRUB_BACKGROUND "$dst/background.jpg"
+# The menu shows 8 rows: grub2 2.16's UEFI boot option entries
+# (31_efi_bootnext) push "Start bootloader from a read-only snapshot" out
+# of sight. Also set by nazoos-postinstall; here for existing installs
+set_key GRUB_DISABLE_BOOTNEXT "true"

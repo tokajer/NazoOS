@@ -143,6 +143,10 @@ dracut --regenerate-all --force
 # 5. Bootloader: GRUB with shim (Secure Boot) via openSUSE's perl-Bootloader.
 #    SUSE_BTRFS_SNAPSHOT_BOOTING lets GRUB find /boot in the default
 #    subvolume and offer snapshots in the boot menu (grub2-snapper-plugin).
+#    GRUB_DISABLE_BOOTNEXT: grub2 2.16 lists every UEFI boot option
+#    (31_efi_bootnext) above the snapshot entry, which then falls off the
+#    bottom of the theme's menu (VM 2026-10-19); the firmware's own boot
+#    menu and "UEFI Firmware Settings" still reach them.
 cat > /etc/default/grub <<GRUB
 GRUB_DISTRIBUTOR="NazoOS"
 GRUB_DEFAULT=saved
@@ -153,6 +157,7 @@ GRUB_TERMINAL_OUTPUT="gfxterm"
 GRUB_GFXMODE="auto"
 GRUB_DISABLE_OS_PROBER="false"
 SUSE_BTRFS_SNAPSHOT_BOOTING="true"
+GRUB_DISABLE_BOOTNEXT="true"
 GRUB
 # /boot is inside the encrypted root: GRUB unlocks it itself (LUKS1 /
 # PBKDF2, ADR 0006). openSUSE's grub2 turns /etc/crypttab into

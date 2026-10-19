@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Oct 19 10:00:23 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New installs: GRUB_DISABLE_BOOTNEXT="true" in /etc/default/grub
+  (snapshot entry stays visible in the boot menu).
+
+-------------------------------------------------------------------
 Sat Oct 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Keyboard: the live session now follows the chosen layout.

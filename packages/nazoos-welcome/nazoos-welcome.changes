@@ -1,4 +1,17 @@
 -------------------------------------------------------------------
+Mon Oct 19 10:00:23 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Kernel modules: after an update, a module rebuilt for the same
+  kernel replaces the old build (zypper dup keeps it otherwise,
+  KMPs conflict per kernel version).
+- Secure Boot key: no MokManager notice when mokutil skips an
+  already enrolled key (running NazoOS kernel).
+- The state is read again on every page change, e.g. a drive
+  formatted while the window is open now shows up.
+- System information: "not supported" instead of "unknown" when
+  the firmware has no Secure Boot.
+
+-------------------------------------------------------------------
 Mon Oct 19 07:16:42 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The helper reports unexpected errors as a message instead of

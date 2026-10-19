@@ -17,6 +17,7 @@ import subprocess
 import sys
 import time
 import traceback
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 # pkexec clears PYTHONPATH; load catalog.py from the installed location
@@ -475,6 +476,45 @@ def kernel_sync(_args):
            if not rpm_installed(p) and repo_has(alias, p)]
     if new:
         run(ZYPPER_IN + new)
+    rebuilt = kmp_rebuilds(alias, wanted)
+    if rebuilt:
+        # KMPs are multiversion and conflict per kernel version: zypper
+        # dup keeps the old build of a module rebuilt for the same kernel
+        # forever. With the exact edition named, the only conflict to
+        # resolve is the old build itself (VM 2026-10-19)
+        run(ZYPPER_IN + ["--force-resolution"] + rebuilt)
+
+
+def kmp_rebuilds(alias, names):
+    """"name = edition" of repo builds of installed NAMES for a kernel
+    version that is installed in another build (OBS rebuilt the module
+    without a kernel update)."""
+    installed = {}
+    query = ["rpm", "-q", "--qf", "%{NAME} %{VERSION}-%{RELEASE}\n"]
+    for line in output(query + names).splitlines():
+        parts = line.split()
+        if len(parts) == 2:
+            installed.setdefault(parts[0], set()).add(parts[1])
+    if not installed:
+        return []
+    try:
+        root = ET.fromstring(output(
+            ZYPPER + ["--xmlout", "search", "--details", "--match-exact",
+                      "--type", "package", "--repo", alias]
+            + sorted(installed)))
+    except ET.ParseError:
+        return []
+    result = []
+    for s in root.iter("solvable"):
+        name, edition = s.get("name"), s.get("edition") or ""
+        # VERSION ends with the kernel version (_k7.2.11_1), RELEASE is
+        # the OBS build counter
+        version = edition.rsplit("-", 1)[0]
+        builds = installed.get(name, set())
+        if (edition not in builds
+                and any(b.rsplit("-", 1)[0] == version for b in builds)):
+            result.append(f"{name} = {edition}")
+    return result
 
 
 MOK_RESTART = ("Restart: the blue MokManager screen appears. Choose "
@@ -560,6 +600,13 @@ def mok_queue(cert):
     if rc != 0:
         raise Fail(f"the Secure Boot key could not be prepared (mokutil "
                    f"exit code {rc})")
+    # On a running kernel-nazoos, root's "mokutil --test-key" answers
+    # "already in the built-in trusted keyring" instead of "already
+    # enrolled", so an enrolled key looks missing; the import then only
+    # prints "CA enrolled. Skip" with exit code 0 (VM 2026-10-19)
+    if mok_status(cert) != "pending":
+        print("Secure Boot key: already enrolled, nothing to do", flush=True)
+        return False
     kernel.STATE.mkdir(parents=True, exist_ok=True)
     kernel.MOK_REQUESTED.touch()
     return True

@@ -60,6 +60,8 @@ class Backend(QObject):
         self._log = ""
         self._errline = ""
         self._reboot = False
+        # The snapshot was made permanent; only a restart is left to do
+        self._rolled_back = False
         self._proc = None
         # Reload when the root check writes a new status
         self._watch = QFileSystemWatcher(self)
@@ -90,6 +92,11 @@ class Backend(QObject):
         return self._reboot or bool(self._state.get("needs_reboot"))
 
     rebootNeeded = Property(bool, _get_reboot, notify=stateChanged)
+
+    def _get_rolled_back(self):
+        return self._rolled_back
+
+    rolledBack = Property(bool, _get_rolled_back, notify=stateChanged)
 
     def _get_can_repair(self):
         # Repair page of nazoos-welcome (ADR 0012)
@@ -144,6 +151,8 @@ class Backend(QObject):
 
     def _finished(self, action, code):
         if code == 0:
+            if action == "rollback":
+                self._rolled_back = True
             self._done(action, True, _("Done."))
         elif code in (126, 127) and not self._errline:
             self._done(action, False,
