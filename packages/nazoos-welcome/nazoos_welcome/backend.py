@@ -34,46 +34,6 @@ LAUNCHERS = {
     "gaming-mode": ([], ["nazoos-session-select", "gaming"]),
 }
 
-# Root actions of the helper, with the text shown while they run
-ACTION_LABELS = {
-    "codecs-install": "Installing multimedia codecs",
-    "nvidia-install": "Installing the NVIDIA driver",
-    "scx-enable": "Enabling the scheduler",
-    "scx-disable": "Disabling the scheduler",
-    "kparam": "Changing kernel options",
-    "pollrate": "Changing the USB polling rate",
-    "rocm-install": "Installing ROCm",
-    "rocm-remove": "Removing ROCm",
-    "deck-install": "Installing the handheld pattern",
-    "session-boot-mode": "Changing the start mode",
-    "kernel-install": "Installing the NazoOS kernel",
-    "kernel-only": "Removing the openSUSE kernel",
-    "kernel-restore": "Switching back to the openSUSE kernel",
-    "kernel-remove": "Removing the NazoOS kernel",
-    "mok-import": "Preparing the Secure Boot key",
-    "app-install": "Installing",
-    "app-remove": "Removing",
-    "service": "Changing service",
-    "system-update": "Updating the system",
-    "repo-refresh": "Refreshing repositories",
-    "cache-clean": "Cleaning the package cache",
-    "flatpak-unused": "Removing unused Flatpak runtimes",
-    "flatpak-repair": "Repairing Flatpak",
-    "snapshot": "Creating a snapshot",
-    "channel": "Switching the update channel",
-    "repair-repos": "Repairing repositories",
-    "repair-rpmdb": "Rebuilding the package database",
-    "repair-deps": "Installing missing dependencies",
-    "repair-packman": "Switching codecs to Packman",
-    "repair-nvidia": "Reinstalling the NVIDIA kernel module",
-    "repair-units": "Restarting failed services",
-    "repair-space": "Freeing disk space",
-    "repair-flathub": "Adding Flathub",
-    "repair-boot": "Rebuilding boot files",
-    "automount-add": "Adding drive",
-    "automount-remove": "Removing drive",
-}
-
 
 def _desktop_file(patterns):
     dirs = [Path.home() / ".local/share"] + [
@@ -108,6 +68,7 @@ class Backend(QObject):
         self._proc = None
         self._pending_user_service = None
         self._refreshing = False
+        self._refresh_again = False
         self._stateReady.connect(self._set_state)
         # Repair page: None = not checked yet
         self._findings = None
@@ -167,6 +128,7 @@ class Backend(QObject):
     @Slot()
     def refresh(self):
         if self._refreshing:
+            self._refresh_again = True
             return
         self._refreshing = True
 
@@ -183,6 +145,9 @@ class Backend(QObject):
         self._refreshing = False
         self._state = st
         self.stateChanged.emit()
+        if self._refresh_again:
+            self._refresh_again = False
+            self.refresh()
 
     # --- repair page (ADR 0012) ----------------------------------------------
 
@@ -249,10 +214,10 @@ class Backend(QObject):
     def run(self, action, args, stdin=None):
         if self._busy:
             return
-        if action not in ACTION_LABELS:
+        if action not in catalog.ACTION_LABELS:
             return
         args = [str(a) for a in args]
-        self._task = self._tr.gettext(ACTION_LABELS[action])
+        self._task = self._tr.gettext(catalog.ACTION_LABELS[action])
         self._busy = True
         self.busyChanged.emit()
         self._append(f"\n=== {self._task} ===\n")

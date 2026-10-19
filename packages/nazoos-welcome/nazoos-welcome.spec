@@ -90,9 +90,21 @@ python3 -m compileall -q --invalidation-mode checked-hash \
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/org.nazoos.welcome.desktop
 desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/nazoos-welcome.desktop
-for f in helper/nazoos-welcome-helper helper/nazoos-kernel-boot; do
-  python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" "$f"
-done
+python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" helper/nazoos-kernel-boot
+# A helper action without label is silently ignored by the GUI; a label
+# without action fails at runtime. The helper itself is syntax-checked by
+# running it below.
+python3 -B - <<'PY'
+import runpy
+from nazoos_welcome import catalog
+actions = set(runpy.run_path("helper/nazoos-welcome-helper")["ACTIONS"])
+known = set(catalog.ACTION_LABELS) | catalog.INTERNAL_ACTIONS
+missing, extra = known - actions, actions - known
+if missing or extra:
+    raise SystemExit("helper ACTIONS mismatch: label without action "
+                     f"{sorted(missing)}, action without label "
+                     f"{sorted(extra)}")
+PY
 
 %pre
 %service_add_pre nazoos-kernel-boot.service

@@ -21,13 +21,13 @@ xgettext --from-code=UTF-8 --language=Python --keyword=gettext \
 python3 - "$tmp/catalog.pot" <<'PY'
 import sys
 sys.path.insert(0, ".")
-from nazoos_welcome import catalog, backend
+from nazoos_welcome import catalog
 texts = []
 for a in catalog.APPS:
     texts.append(a["summary"])
 for s in catalog.SERVICES + catalog.KERNEL_PARAMS:
     texts += [s["name"], s["summary"]]
-texts += list(backend.ACTION_LABELS.values())
+texts += list(catalog.ACTION_LABELS.values())
 seen, out = set(), []
 for t in texts:
     if t not in seen:

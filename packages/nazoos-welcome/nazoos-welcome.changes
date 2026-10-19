@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Oct 19 06:56:31 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Action labels moved to catalog.py; the build checks that every
+  helper action has a label (or is internal). A refresh requested
+  while another one runs is no longer lost: the page showed the
+  state from before an action.
+
+-------------------------------------------------------------------
 Sun Oct 18 18:59:29 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - System: "Update channel" card, switch between stable (:release)
