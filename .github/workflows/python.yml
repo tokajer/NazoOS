@@ -31,9 +31,16 @@ jobs:
           # Tumbleweed's python3
           python-version: "3.13"
       - name: Install tools
-        # PySide6 only for tests/test_qt.py (QCoreApplication, no display)
-        run: pip install pytest ruff PySide6-Essentials
+        # PySide6 only for tests/test_qt.py (QCoreApplication, no display).
+        # QtGui (imported by the backends) links EGL/GL, xkbcommon and
+        # fontconfig even without a display; the runner image lacks libEGL
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q libegl1 libgl1 libxkbcommon0 libfontconfig1
+          pip install pytest ruff PySide6-Essentials
       - name: ruff
         run: ruff check --output-format github .
       - name: pytest
+        env:
+          QT_QPA_PLATFORM: offscreen
         run: pytest -v
