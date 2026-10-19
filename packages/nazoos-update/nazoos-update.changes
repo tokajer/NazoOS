@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Oct 19 07:16:42 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The helper reports unexpected errors as a message.
+- The helper reuses nazoos_update.status for snapshot detection.
+
+-------------------------------------------------------------------
 Sat Oct 17 13:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Mirrors behind the installed Tumbleweed snapshot: still offer and

@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import threading
+import traceback
 from pathlib import Path
 
 from PySide6.QtCore import (Property, QObject, QProcess, QProcessEnvironment,
@@ -54,9 +55,11 @@ class Backend(QObject):
     logChanged = Signal()
     # action, success, message (already translated)
     actionFinished = Signal(str, bool, str)
-    _stateReady = Signal(object)
     findingsChanged = Signal()
-    _findingsReady = Signal(object)
+    # Path of a saved bug report
+    reportSaved = Signal(str)
+    # Runs a callable on the GUI thread (see _background)
+    _call = Signal(object)
 
     def __init__(self, translator):
         super().__init__()
@@ -66,14 +69,14 @@ class Backend(QObject):
         self._log = ""
         self._task = ""
         self._proc = None
-        self._pending_user_service = None
+        self._on_success = None
         self._refreshing = False
         self._refresh_again = False
-        self._stateReady.connect(self._set_state)
+        self._call.connect(lambda f: f())
         # Repair page: None = not checked yet
         self._findings = None
         self._checking = False
-        self._findingsReady.connect(self._set_findings)
+        self._reporting = False
 
     # --- properties ---------------------------------------------------------
 
@@ -123,6 +126,21 @@ class Backend(QObject):
 
     catalog = Property("QVariantMap", _get_catalog, constant=True)
 
+    def _background(self, work, done, failed):
+        """Run WORK in a thread, then DONE(result) on the GUI thread.
+
+        FAILED(exception) runs there instead if WORK raises, so the busy
+        flags of the callers cannot get stuck."""
+        def target():
+            try:
+                result = work()
+            except Exception as e:
+                traceback.print_exc()
+                self._call.emit(lambda e=e: failed(e))
+                return
+            self._call.emit(lambda: done(result))
+        threading.Thread(target=target, daemon=True).start()
+
     # --- state ----------------------------------------------------------------
 
     @Slot()
@@ -132,14 +150,10 @@ class Backend(QObject):
             return
         self._refreshing = True
 
-        def work():
-            try:
-                st = system.collect()
-            except Exception as e:  # never kill the UI over a probe
-                st = dict(self._state, error=str(e))
-            self._stateReady.emit(st)
-
-        threading.Thread(target=work, daemon=True).start()
+        # never kill the UI over a probe
+        self._background(
+            system.collect, self._set_state,
+            lambda e: self._set_state(dict(self._state, error=str(e))))
 
     def _set_state(self, st):
         self._refreshing = False
@@ -158,15 +172,11 @@ class Backend(QObject):
         self._checking = True
         self.findingsChanged.emit()
 
-        def work():
-            try:
-                found = repair.check()
-            except Exception as e:  # a broken probe is a finding too
-                found = [{"id": "error", "items": [str(e)], "fix": "",
-                          "userOnly": False}]
-            self._findingsReady.emit(found)
+        def failed(e):  # a broken probe is a finding too
+            self._set_findings([{"id": "error", "items": [str(e)],
+                                 "fix": "", "userOnly": False}])
 
-        threading.Thread(target=work, daemon=True).start()
+        self._background(repair.check, self._set_findings, failed)
 
     def _set_findings(self, found):
         self._checking = False
@@ -178,29 +188,45 @@ class Backend(QObject):
         """Fix one finding. Failed user units need no password."""
         if self._busy:
             return
-        still = []
-        if action in ("repair-units", ""):
-            log, still = repair.restart_user_units()
-            self._append(log)
+        if action not in ("repair-units", ""):
+            self.run(action, [])
+            return
+        self._begin("repair-units")
+        self._background(
+            repair.restart_user_units,
+            lambda r: self._user_units_fixed(action, *r),
+            lambda e: self._done("repair-units", False, str(e)))
+
+    def _user_units_fixed(self, action, log, still):
+        self._append(log)
         if action:
+            # The system units follow, with the password dialog
+            self._end_busy()
             self.run(action, [])
         elif still:
-            self.actionFinished.emit("repair-units", False, self._tr.gettext(
+            self._done("repair-units", False, self._tr.gettext(
                 "These services still fail after a restart: %1")
                 .replace("%1", ", ".join(still)))
-            self.checkSystem()
         else:
-            self.actionFinished.emit("repair-units", True,
-                                     self._tr.gettext("Done."))
-            self.checkSystem()
+            self._done("repair-units", True, self._tr.gettext("Done."))
 
-    @Slot(result=str)
+    @Slot()
     def saveReport(self):
-        try:
-            return repair.report(self._state, self._findings, self._log)
-        except OSError as e:
+        if self._reporting:
+            return
+        self._reporting = True
+        state, findings, log = self._state, self._findings, self._log
+
+        def done(path):
+            self._reporting = False
+            self.reportSaved.emit(path)
+
+        def failed(e):
+            self._reporting = False
             self.actionFinished.emit("report", False, str(e))
-            return ""
+
+        self._background(
+            lambda: repair.report(state, findings, log), done, failed)
 
     # --- root actions ---------------------------------------------------------
 
@@ -210,17 +236,28 @@ class Backend(QObject):
             self._log = self._log[-150_000:]
         self.logChanged.emit()
 
+    def _begin(self, action):
+        self._task = self._tr.gettext(catalog.ACTION_LABELS[action])
+        self._busy = True
+        self.busyChanged.emit()
+        self._append(f"\n=== {self._task} ===\n")
+
+    def _end_busy(self):
+        self._busy = False
+        self._task = ""
+        self.busyChanged.emit()
+
     @Slot(str, "QVariantList")
-    def run(self, action, args, stdin=None):
+    def run(self, action, args, stdin=None, on_success=None):
+        """ON_SUCCESS(done), if given, runs after exit code 0 and must
+        call done() to finish the task."""
         if self._busy:
             return
         if action not in catalog.ACTION_LABELS:
             return
         args = [str(a) for a in args]
-        self._task = self._tr.gettext(catalog.ACTION_LABELS[action])
-        self._busy = True
-        self.busyChanged.emit()
-        self._append(f"\n=== {self._task} ===\n")
+        self._begin(action)
+        self._on_success = on_success
         self._errline = ""
         proc = QProcess(self)
         proc.setProcessChannelMode(QProcess.MergedChannels)
@@ -268,31 +305,27 @@ class Backend(QObject):
         if err == QProcess.FailedToStart:
             self._done(action, False,
                        self._tr.gettext("pkexec could not be started."))
+            self._on_success = None
 
     def _finished(self, action, args, code, _status):
+        then, self._on_success = self._on_success, None
         if code == 0:
-            if self._pending_user_service:
-                svc, on = self._pending_user_service
-                self._pending_user_service = None
-                self._user_service(svc, on)
-            self._done(action, True, self._tr.gettext("Done."))
+            def done():
+                self._done(action, True, self._tr.gettext("Done."))
+            then(done) if then else done()
         elif code in (126, 127) and not self._errline:
             # pkexec: dialog dismissed or not authorized
-            self._pending_user_service = None
             self._done(action, False,
                        self._tr.gettext("Cancelled: no administrator "
                                         "password was given."))
         else:
-            self._pending_user_service = None
             msg = self._tr.gettext("Something went wrong.")
             if self._errline:
                 msg += " " + self._errline
             self._done(action, False, msg)
 
     def _done(self, action, ok, message):
-        self._busy = False
-        self._task = ""
-        self.busyChanged.emit()
+        self._end_busy()
         self.actionFinished.emit(action, ok, message)
         self.refresh()
         if action.startswith("repair-") and self._findings is not None:
@@ -300,12 +333,20 @@ class Backend(QObject):
 
     # --- user-level actions -----------------------------------------------------
 
-    def _user_service(self, svc, on):
+    def _user_service(self, svc, on, then):
         cmd = ["systemctl", "--user", "enable" if on else "disable", "--now",
                svc["unit"]]
-        self._append("$ " + " ".join(cmd) + "\n")
-        r = subprocess.run(cmd, capture_output=True, text=True)
-        self._append(r.stdout + r.stderr)
+
+        def work():
+            r = subprocess.run(cmd, capture_output=True, text=True)
+            return "$ " + " ".join(cmd) + "\n" + r.stdout + r.stderr
+
+        def done(log):
+            self._append(log)
+            then()
+
+        self._background(
+            work, done, lambda e: self._done("service", False, str(e)))
 
     @Slot(str, bool)
     def setService(self, service_id, on):
@@ -316,12 +357,14 @@ class Backend(QObject):
             service_id, {}).get("installed", False)
         if svc["user"]:
             if installed or not on:
-                self._user_service(svc, on)
-                self.actionFinished.emit("service", True,
-                                         self._tr.gettext("Done."))
-                self.refresh()
+                self._begin("service")
+                self._user_service(svc, on, lambda: self._done(
+                    "service", True, self._tr.gettext("Done.")))
                 return
-            self._pending_user_service = (svc, on)
+            self.run("service", [service_id, "on" if on else "off"],
+                     on_success=lambda done: self._user_service(
+                         svc, on, done))
+            return
         self.run("service", [service_id, "on" if on else "off"])
 
     @Slot(bool)
@@ -349,13 +392,9 @@ class Backend(QObject):
                 "launch", False,
                 self._tr.gettext("This program is not installed."))
 
-    @Slot(result=str)
-    def sysinfo(self):
-        return system.sysinfo(self._state)
-
     @Slot()
     def copySysinfo(self):
-        QGuiApplication.clipboard().setText(system.sysinfo(self._state))
+        QGuiApplication.clipboard().setText(self._state.get("sysinfo", ""))
 
     @Slot()
     def copyLog(self):

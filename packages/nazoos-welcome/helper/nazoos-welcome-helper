@@ -16,6 +16,7 @@ import re
 import subprocess
 import sys
 import time
+import traceback
 from pathlib import Path
 
 # pkexec clears PYTHONPATH; load catalog.py from the installed location
@@ -25,7 +26,8 @@ for base in (Path("/usr/share/nazoos-welcome"),
     if (base / "nazoos_welcome" / "catalog.py").is_file():
         sys.path.insert(0, str(base))
         break
-from nazoos_welcome import catalog, kernel  # noqa: E402
+from nazoos_welcome import (  # noqa: E402
+    catalog, kernel, repair, system)
 
 ZYPPER = ["zypper", "--non-interactive"]
 ZYPPER_IN = ZYPPER + ["install", "--auto-agree-with-licenses"]
@@ -38,7 +40,6 @@ ZYPPER_INFO = {
     106: "some repositories could not be refreshed and were skipped",
 }
 FLATHUB_URL = "https://dl.flathub.org/repo/flathub.flatpakrepo"
-GRUB_DEFAULT = Path("/etc/default/grub")
 FSTAB = Path("/etc/fstab")
 SCX_DEFAULT = Path("/etc/default/scx")
 # Root part of nazoos-update: one update path for both apps
@@ -47,7 +48,6 @@ UPDATE_HELPER = "/usr/libexec/nazoos-update/nazoos-update-helper"
 # (openssl passwd -6) of the password the user picked for MokManager on
 # stdin, never the password itself and never on the command line
 MOK_HASH = re.compile(r"\$6\$[./0-9A-Za-z]{1,16}\$[./0-9A-Za-z]{86}")
-CERT_PATH = re.compile(r"/etc/uefi/certs/\w+\.crt")
 RUN_DIR = Path("/run/nazoos-welcome")
 EFIVARS = "/sys/firmware/efi/efivars"
 # suse-module-tools blacklists ntfs3; an /etc file of the same name wins
@@ -95,6 +95,11 @@ def repo_with_url(fragment):
     return None
 
 
+def kernel_repo():
+    """Alias of the NazoOS kernel repository, None if not configured."""
+    return repo_with_url(catalog.KERNEL_REPO_URL.split("/repositories/")[1])
+
+
 def repo_with_path(path):
     """Alias of an opensuse.org repo by URL path (any mirror host)."""
     for f in Path("/etc/zypp/repos.d").glob("*.repo"):
@@ -120,8 +125,9 @@ def packman_switch(alias):
 
 
 def codecs_install(_args):
-    alias = repo_with_url("/packman/") or catalog.PACKMAN_ALIAS
-    if not repo_with_url("/packman/"):
+    found = repo_with_url("/packman/")
+    alias = found or catalog.PACKMAN_ALIAS
+    if not found:
         run(ZYPPER + ["addrepo", "--refresh", "--priority",
                       catalog.PACKMAN_PRIORITY, "--name", "Packman",
                       catalog.PACKMAN_URL, alias])
@@ -132,8 +138,9 @@ def codecs_install(_args):
 
 def nvidia_install(args):
     variant = arg(args, 0, catalog.NVIDIA_DRIVERS)
-    alias = repo_with_url("download.nvidia.com") or catalog.NVIDIA_REPO_ALIAS
-    if not repo_with_url("download.nvidia.com"):
+    found = repo_with_url("download.nvidia.com")
+    alias = found or catalog.NVIDIA_REPO_ALIAS
+    if not found:
         run(ZYPPER + ["addrepo", "--refresh", "--name", "NVIDIA",
                       catalog.NVIDIA_REPO_URL, alias])
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
@@ -183,11 +190,11 @@ def scx_disable(_args):
 
 def cmdline():
     """GRUB file text, match of GRUB_CMDLINE_LINUX_DEFAULT, its options."""
-    text = GRUB_DEFAULT.read_text()
-    m = re.search(r'^GRUB_CMDLINE_LINUX_DEFAULT=(["\']?)(.*?)\1\s*$',
-                  text, re.M)
+    text = kernel.GRUB_DEFAULT_FILE.read_text()
+    m = kernel.CMDLINE_RE.search(text)
     if m is None:
-        raise Fail(f"GRUB_CMDLINE_LINUX_DEFAULT not found in {GRUB_DEFAULT}")
+        raise Fail("GRUB_CMDLINE_LINUX_DEFAULT not found in "
+                   f"{kernel.GRUB_DEFAULT_FILE}")
     return text, m, m.group(2).split()
 
 
@@ -198,7 +205,8 @@ def cmdline_set(key, option):
     if option is not None:
         opts.append(option)
     line = 'GRUB_CMDLINE_LINUX_DEFAULT="' + " ".join(opts) + '"'
-    GRUB_DEFAULT.write_text(text[:m.start()] + line + text[m.end():])
+    kernel.GRUB_DEFAULT_FILE.write_text(
+        text[:m.start()] + line + text[m.end():])
     print(line, flush=True)
     grub_refresh()
 
@@ -269,6 +277,15 @@ def deck_install(_args):
     run(ZYPPER_IN + ["--type", "pattern", catalog.DECK_PATTERN])
 
 
+def caller():
+    """(uid, name) of the user who started the helper via pkexec."""
+    uid = int(os.environ.get("PKEXEC_UID", "-1"))
+    name = output(["id", "-nu", str(uid)]).strip()
+    if uid < 1000 or not name:
+        raise Fail("unknown user")
+    return uid, name
+
+
 def session_boot_mode(args):
     """Start in Steam's gaming mode (autologin of the calling user) or
     with the normal login screen (nazoos-session-ctl)."""
@@ -276,11 +293,7 @@ def session_boot_mode(args):
     if not Path(catalog.SESSION_CTL).exists():
         raise Fail("gaming mode is not installed (nazoos-session)")
     if mode == "gaming":
-        uid = int(os.environ.get("PKEXEC_UID", "-1"))
-        user = output(["id", "-nu", str(uid)]).strip()
-        if uid < 1000 or not user:
-            raise Fail("unknown user")
-        run([catalog.SESSION_CTL, "boot-mode", "gaming", user])
+        run([catalog.SESSION_CTL, "boot-mode", "gaming", caller()[1]])
     else:
         run([catalog.SESSION_CTL, "boot-mode", "desktop"])
 
@@ -299,14 +312,38 @@ def repo_has(alias, name):
         stderr=subprocess.DEVNULL).returncode == 0
 
 
+def prepare_mok(alias, pkgs):
+    """Queue the kernel's Secure Boot key before PKGS are installed.
+    Returns True if MokManager has to run at the next boot."""
+    queued = False
+    if uefi():
+        # The kernel's %post (cert-post) runs "mokutil --import --root-pw".
+        # That fails on Calamares installs (yescrypt root hash, ADR 0024)
+        # and zypper ends with 107. A request already waiting for
+        # MokManager makes it skip, so ours goes first: download, take the
+        # certificate out of the package, queue it, then install
+        if rpm_installed(catalog.KERNEL_PACKAGE):
+            cert = kernel.signing_cert()
+        else:
+            run(ZYPPER_IN + ["--download-only"] + pkgs)
+            cert = cert_from_download(alias)
+        if cert is None:
+            raise Fail("kernel-nazoos has no signing certificate")
+        try:
+            queued = mok_queue(cert)
+        finally:
+            if cert.startswith(str(RUN_DIR)):
+                Path(cert).unlink(missing_ok=True)
+    return queued
+
+
 def kernel_install(_args):
     """Stage 1: kernel-nazoos next to kernel-default, default boot entry."""
     blockers = [p for p in catalog.KMP_DEFAULT_ONLY if rpm_installed(p)]
     if blockers:
         raise Fail("the closed NVIDIA driver (G06) only exists for the "
                    "openSUSE kernel; switch to the open driver first")
-    fragment = catalog.KERNEL_REPO_URL.split("/repositories/")[1]
-    alias = repo_with_url(fragment)
+    alias = kernel_repo()
     if alias is None:
         alias = catalog.KERNEL_REPO_ALIAS
         run(ZYPPER + ["addrepo", "--refresh", "--priority", "90",
@@ -332,25 +369,7 @@ def kernel_install(_args):
              if repo_has(alias, p)]
     pkgs = [catalog.KERNEL_PACKAGE] + [p for p in kmps if p not in missing] \
         + extra
-    queued = False
-    if uefi():
-        # The kernel's %post (cert-post) runs "mokutil --import --root-pw".
-        # That fails on Calamares installs (yescrypt root hash, ADR 0024)
-        # and zypper ends with 107. A request already waiting for
-        # MokManager makes it skip, so ours goes first: download, take the
-        # certificate out of the package, queue it, then install
-        if rpm_installed(catalog.KERNEL_PACKAGE):
-            cert = kernel_cert()
-        else:
-            run(ZYPPER_IN + ["--download-only"] + pkgs)
-            cert = cert_from_download(alias)
-        if cert is None:
-            raise Fail("kernel-nazoos has no signing certificate")
-        try:
-            queued = mok_queue(cert)
-        finally:
-            if cert.startswith(str(RUN_DIR)):
-                Path(cert).unlink(missing_ok=True)
+    queued = prepare_mok(alias, pkgs)
     run(ZYPPER_IN + pkgs)
     kernel.STATE.mkdir(parents=True, exist_ok=True)
     kernel.PREFER.touch()
@@ -444,8 +463,7 @@ def kernel_sync(_args):
     """
     if not rpm_installed(catalog.KERNEL_PACKAGE):
         return
-    fragment = catalog.KERNEL_REPO_URL.split("/repositories/")[1]
-    alias = repo_with_url(fragment)
+    alias = kernel_repo()
     if alias is None:
         print("Note: the NazoOS kernel repository is missing, kernel "
               "modules are not checked", flush=True)
@@ -462,12 +480,6 @@ def kernel_sync(_args):
 MOK_RESTART = ("Restart: the blue MokManager screen appears. Choose "
                "\"Enroll MOK\", \"Continue\", \"Yes\" and type the password "
                "you chose (suggested: nazoos).")
-
-
-def kernel_cert():
-    files = output(["rpm", "-ql", catalog.KERNEL_PACKAGE]).split()
-    certs = [f for f in files if CERT_PATH.fullmatch(f)]
-    return certs[0] if certs else None
 
 
 def uefi():
@@ -489,7 +501,7 @@ def cert_from_download(alias):
     if not rpms:
         raise Fail("the downloaded kernel package was not found")
     files = output(["rpm", "-qlp", str(rpms[-1])]).split()
-    certs = [f for f in files if CERT_PATH.fullmatch(f)]
+    certs = [f for f in files if kernel.CERT_PATH.fullmatch(f)]
     if not certs:
         return None
     # rpm2cpio | cpio: the payload paths start with "./"
@@ -511,7 +523,7 @@ def cert_from_download(alias):
 
 def mok_status(cert):
     """enrolled, pending (waiting for MokManager) or missing."""
-    if "already enrolled" in output(["mokutil", "--test-key", cert]).lower():
+    if kernel.mok_enrolled(cert):
         return "enrolled"
     fpr = output(["openssl", "x509", "-in", cert, "-noout", "-fingerprint",
                   "-sha1"]).split("=")[-1].strip().replace(":", "").lower()
@@ -556,7 +568,7 @@ def mok_queue(cert):
 def mok_import(_args):
     """Queue our signing certificate for MokManager again (button on the
     kernel page), with a password the user picks (ADR 0024)."""
-    cert = kernel_cert()
+    cert = kernel.signing_cert()
     if cert is None:
         raise Fail("kernel-nazoos has no signing certificate")
     if mok_queue(cert):
@@ -640,11 +652,6 @@ def app_remove(args):
         firewall_trust(app.get("trusted", []), False)
 
 
-def in_vm():
-    return subprocess.run(["systemd-detect-virt", "--vm", "--quiet"]
-                          ).returncode == 0
-
-
 def waydroid_config():
     """Android properties for Waydroid: the time zone of the system
     (Android runs in UTC otherwise) and, in a VM, software rendering
@@ -657,7 +664,7 @@ def waydroid_config():
                  "--value"]).strip()
     if re.fullmatch(r"[A-Za-z0-9_+-]+(/[A-Za-z0-9_+-]+)*", tz):
         wanted["persist.sys.timezone"] = tz
-    if in_vm():
+    if system.in_vm():
         wanted.update(catalog.WAYDROID_SOFTWARE)
     path = Path(catalog.WAYDROID_CONFIG)
     cfg = configparser.ConfigParser(interpolation=None)
@@ -667,7 +674,7 @@ def waydroid_config():
     props = cfg["properties"]
     if all(props.get(k) == v for k, v in wanted.items()):
         return
-    if in_vm():
+    if system.in_vm():
         print("Virtual machine: Waydroid uses software rendering", flush=True)
     props.update(wanted)
     # 0755 like Waydroid's own: the GUI reads the config as the user
@@ -854,16 +861,8 @@ def repair_nvidia(_args):
     print("Restart the computer to load the NVIDIA driver.", flush=True)
 
 
-def failed_units():
-    units = [line.split()[0] for line in output(
-        ["systemctl", "list-units", "--failed", "--plain",
-         "--no-legend"]).splitlines() if line.strip()]
-    return [u for u in units if u not in catalog.IGNORED_UNITS
-            and not re.fullmatch(catalog.IGNORED_UNIT_PATTERN, u)]
-
-
 def repair_units(_args):
-    units = failed_units()
+    units = repair.failed_units()
     for unit in units:
         if unit.endswith((".service", ".mount", ".socket")):
             run(["systemctl", "restart", unit], check=False)
@@ -872,7 +871,7 @@ def repair_units(_args):
     # Check only after a moment, and never reset-failed before: that
     # hid units that fail again right after the restart
     time.sleep(catalog.UNIT_SETTLE_SECONDS)
-    still = failed_units()
+    still = repair.failed_units()
     fixed = [u for u in units if u not in still]
     if fixed:
         run(["systemctl", "reset-failed"] + fixed)
@@ -929,6 +928,20 @@ def unblacklist_ntfs3():
     print(f"ntfs3 driver allowed: {local} -> /dev/null", flush=True)
 
 
+def mount_options(fstype, uid, gid):
+    """(file system type, mount options) for the fstab line."""
+    opts = "nofail,x-systemd.device-timeout=10s,noatime"
+    if fstype == "ntfs":
+        fstype = "ntfs3"
+        opts += f",uid={uid},gid={gid},umask=022,windows_names"
+        unblacklist_ntfs3()
+    elif fstype == "exfat":
+        opts += f",uid={uid},gid={gid},umask=022"
+    elif fstype == "btrfs":
+        opts += ",compress=zstd:1"
+    return fstype, opts
+
+
 def automount_add(args):
     uuid = arg(args, 0)
     dev = next((d for d in lsblk() if d.get("uuid") == uuid), None)
@@ -947,17 +960,9 @@ def automount_add(args):
     while mnt.exists() and any(mnt.iterdir()):
         mnt = Path(catalog.MOUNT_BASE, f"{base}-{n}")
         n += 1
-    uid = int(os.environ.get("PKEXEC_UID", "1000"))
+    uid = caller()[0]
     gid = int(output(["id", "-g", str(uid)]).strip() or 100)
-    opts = "nofail,x-systemd.device-timeout=10s,noatime"
-    if fstype == "ntfs":
-        fstype = "ntfs3"
-        opts += f",uid={uid},gid={gid},umask=022,windows_names"
-        unblacklist_ntfs3()
-    elif fstype == "exfat":
-        opts += f",uid={uid},gid={gid},umask=022"
-    elif fstype == "btrfs":
-        opts += ",compress=zstd:1"
+    fstype, opts = mount_options(fstype, uid, gid)
     mnt.mkdir(parents=True, exist_ok=True)
     line = f"UUID={uuid} {mnt} {fstype} {opts} 0 0"
     text = FSTAB.read_text()
@@ -1060,11 +1065,12 @@ def main():
     os.environ["LC_ALL"] = "C.UTF-8"
     try:
         ACTIONS[sys.argv[1]](sys.argv[2:])
-    except Fail as e:
+    except (Fail, OSError) as e:
         print(f"@@error {e}", flush=True)
         return 1
-    except OSError as e:
-        print(f"@@error {e}", flush=True)
+    except Exception as e:  # a bug must still reach the user as a message
+        traceback.print_exc(file=sys.stdout)
+        print(f"@@error {type(e).__name__}: {e}", flush=True)
         return 1
     return 0
 

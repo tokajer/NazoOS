@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """NazoOS kernel opt-in (ADR 0008): boot entry and boot counter state.
 
-Used by the GUI (read only), the root helper and nazoos-kernel-boot.
+The GUI only reads here; the root helper and nazoos-kernel-boot write.
 No Qt imports here.
 """
 
@@ -25,6 +25,9 @@ MOK_REQUESTED = STATE / "mok-requested"
 GRUB_CFG = Path("/boot/grub2/grub.cfg")
 GRUB_DEFAULT_FILE = Path("/etc/default/grub")
 BOOT = Path("/boot")
+CMDLINE_RE = re.compile(r'^GRUB_CMDLINE_LINUX_DEFAULT=(["\']?)(.*?)\1\s*$',
+                        re.M)
+CERT_PATH = re.compile(r"/etc/uefi/certs/\w+\.crt")
 
 # Top entry "NazoOS" (id gnulinux-simple-<uuid>) and its kernel
 _SIMPLE = re.compile(r"^menuentry .*\$menuentry_id_option '(gnulinux-simple-[^']+)'")
@@ -120,6 +123,28 @@ def clear_grub_top_level(log=print):
         subprocess.run(["grub2-mkconfig", "-o", str(GRUB_CFG)], check=True,
                        stdout=subprocess.DEVNULL)
     subprocess.run(["grub2-set-default", "0"], check=True)
+
+
+def signing_cert():
+    """Path of the certificate that signs kernel-nazoos, or None."""
+    try:
+        files = subprocess.run(
+            ["rpm", "-ql", catalog.KERNEL_PACKAGE], capture_output=True,
+            text=True, timeout=30).stdout.split()
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    certs = [f for f in files if CERT_PATH.fullmatch(f)]
+    return certs[0] if certs else None
+
+
+def mok_enrolled(cert):
+    """The Secure Boot key CERT is already enrolled."""
+    try:
+        r = subprocess.run(["mokutil", "--test-key", cert],
+                           capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return "already enrolled" in r.stdout.lower()
 
 
 def read_boots():

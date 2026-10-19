@@ -18,6 +18,16 @@ Kirigami.ScrollablePage {
     readonly property var st: app.st
     title: L.tr("Repair")
 
+    Connections {
+        target: backend
+        function onReportSaved(path) {
+            page.app.showPassiveNotification(
+                L.tr("Saved: %1").replace("%1", path), "long",
+                L.tr("Show"),
+                () => page.app.openUrl("file://" + path.substring(0, path.lastIndexOf("/"))))
+        }
+    }
+
     // Texts per finding id (ids from nazoos_welcome/repair.py)
     readonly property var texts: ({
         rpmdb: { icon: "package-broken", title: L.tr("Package database is damaged"),
@@ -193,14 +203,7 @@ Kirigami.ScrollablePage {
             QQC2.Button {
                 text: L.tr("Create report")
                 icon.name: "document-save"
-                onClicked: {
-                    const path = backend.saveReport()
-                    if (path !== "")
-                        page.app.showPassiveNotification(
-                            L.tr("Saved: %1").replace("%1", path), "long",
-                            L.tr("Show"),
-                            () => page.app.openUrl("file://" + path.substring(0, path.lastIndexOf("/"))))
-                }
+                onClicked: backend.saveReport()
             }
             QQC2.Button {
                 text: L.tr("Report on GitHub")

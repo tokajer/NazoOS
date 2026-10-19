@@ -68,7 +68,7 @@ Kirigami.ScrollablePage {
             readOnly: true
             wrapMode: TextEdit.Wrap
             font.family: "monospace"
-            text: { page.app.st; return backend.sysinfo() }
+            text: page.app.st.sysinfo || ""
             Layout.fillWidth: true
         }
         QQC2.Button {

@@ -15,7 +15,7 @@ STATUS = Path("/var/lib/nazoos-update/status.json")
 KERNEL_PREFER = Path("/var/lib/nazoos/kernel-prefer")
 KERNEL_BOOTS = Path("/var/lib/nazoos/kernel-boots.json")
 KERNEL_STABLE_BOOTS = 3
-# btrfs subvolume flags (same as the helper): BTRFS_IOC_SUBVOL_GETFLAGS
+# btrfs subvolume flags: BTRFS_IOC_SUBVOL_GETFLAGS
 # needs no root rights
 BTRFS_IOC_SUBVOL_GETFLAGS = 0x80089419
 BTRFS_SUBVOL_RDONLY = 1 << 1
@@ -45,8 +45,8 @@ def subvol_readonly(path="/"):
 
 def booted_snapshot():
     """Number of the read-only snapshot the system was started from,
-    or 0 when it runs normally (same test as the helper). The snapshot
-    is mounted "rw"; only the subvolume itself is read-only."""
+    or 0 when it runs normally. The snapshot is mounted "rw";
+    only the subvolume itself is read-only."""
     r = subprocess.run(["findmnt", "--noheadings", "--output", "OPTIONS",
                         "/"], capture_output=True, text=True)
     opts = r.stdout.strip().split(",")

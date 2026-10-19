@@ -83,6 +83,7 @@ python3 -m compileall -q --invalidation-mode checked-hash \
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/org.nazoos.update.desktop
 python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" helper/nazoos-update-helper
+python3 -B -c "import runpy; runpy.run_path('helper/nazoos-update-helper')"
 
 %pre
 %service_add_pre nazoos-update-check.service nazoos-update-check.timer nazoos-update-label.service nazoos-update-label.path

@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Mon Oct 19 07:16:42 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The helper reports unexpected errors as a message instead of
+  ending silently. Slow work (user services, restarting failed
+  services, bug report, system information) no longer blocks the
+  window.
+- The helper reuses the kernel, system and repair code of the app
+  instead of its own copies.
+- Drives and gaming mode refuse an unknown caller instead of
+  assuming uid 1000.
+
+-------------------------------------------------------------------
 Mon Oct 19 06:56:31 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Action labels moved to catalog.py; the build checks that every

@@ -11,20 +11,27 @@ every user; the GUI and the notifier only read it.
 The last output line "@@error <text>" carries a message for the user.
 """
 
-import fcntl
 import gettext
 import json
 import os
 import re
-import struct
 import subprocess
 import sys
 import time
+import traceback
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
 
-STATUS = Path("/var/lib/nazoos-update/status.json")
+# pkexec clears PYTHONPATH; load nazoos_update/status.py from the installed
+# location (or from the source tree when run from a git checkout)
+for base in (Path("/usr/share/nazoos-update"),
+             Path(__file__).resolve().parent.parent):
+    if (base / "nazoos_update" / "status.py").is_file():
+        sys.path.insert(0, str(base))
+        break
+from nazoos_update import status  # noqa: E402
+
 KERNEL_BOOT = "/usr/libexec/nazoos-welcome/nazoos-kernel-boot"
 WELCOME_HELPER = "/usr/libexec/nazoos-welcome/nazoos-welcome-helper"
 ZYPPER = ["zypper", "--non-interactive"]
@@ -32,16 +39,11 @@ FLATPAK = ["flatpak", "--system"]
 # zypper exit codes that are not errors: 100-103 = informational
 # (updates/reboot needed), 106 = a repository was skipped
 ZYPPER_OK = (0, 100, 101, 102, 103, 106)
-# btrfs ioctl BTRFS_IOC_SUBVOL_GETFLAGS = _IOR(0x94, 25, u64) and the
-# read-only flag. A snapshot booted from GRUB is mounted "rw", only the
-# subvolume itself is read-only (notes/update.md)
-BTRFS_IOC_SUBVOL_GETFLAGS = 0x80089419
-BTRFS_SUBVOL_RDONLY = 1 << 1
 # Package whose version is the Tumbleweed snapshot (YYYYMMDD)
 RELEASE_PKG = "openSUSE-release"
-# Package names that need a restart after the update
 # zypper: a %post script failed, the packages are installed
 ZYPPER_SCRIPT_FAILED = 107
+# Package names that need a restart after the update
 REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
                          r"libQt6|plasma|kwin|sddm)")
 
@@ -69,19 +71,12 @@ def write_status(data):
     # Time of the last check that worked: the notifier only complains
     # about failing checks when they keep failing (laptop offline, ...)
     data["last_ok"] = now if not data.get("error") else \
-        read_status().get("last_ok", 0)
-    STATUS.parent.mkdir(parents=True, exist_ok=True)
-    tmp = STATUS.with_suffix(".tmp")
+        status.read_status().get("last_ok", 0)
+    status.STATUS.parent.mkdir(parents=True, exist_ok=True)
+    tmp = status.STATUS.with_suffix(".tmp")
     tmp.write_text(json.dumps(data, indent=1))
     os.chmod(tmp, 0o644)
-    os.replace(tmp, STATUS)
-
-
-def read_status():
-    try:
-        return json.loads(STATUS.read_text())
-    except (OSError, ValueError):
-        return {}
+    os.replace(tmp, status.STATUS)
 
 
 # --- check ------------------------------------------------------------------
@@ -178,37 +173,38 @@ def flatpak_updates():
 
 
 def check(_args=None):
-    status = {"error": "", "problems": [], "packages": [], "flatpaks": []}
+    result = {"error": "", "problems": [], "packages": [], "flatpaks": []}
     r = capture(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
     print(r.stdout, end="", flush=True)
     if r.returncode != 0:
-        status["error"] = "refresh"
-        status["detail"] = (r.stderr or r.stdout).strip()[-600:]
-        write_status(status)
+        result["error"] = "refresh"
+        result["detail"] = (r.stderr or r.stdout).strip()[-600:]
+        write_status(result)
         raise Fail("the package sources could not be refreshed "
                    "(no internet connection?)")
     pkgs, problems = dup_preview()
+    behind = None if problems else mirrors_behind(pkgs)
     if problems:
-        status["error"] = "conflict"
-        status["problems"] = problems
-    elif mirrors_behind(pkgs):
+        result["error"] = "conflict"
+        result["problems"] = problems
+    elif behind:
         # Tumbleweed waits until the mirrors have the snapshot, our own
         # packages (branding, tweaks, ...) do not depend on it
-        status["behind"] = list(mirrors_behind(pkgs))
+        result["behind"] = list(behind)
         cmd = own_update_cmd()
         if cmd:
             own, own_problems = dup_preview(cmd)
-            status["packages"] = [] if own_problems else own
+            result["packages"] = [] if own_problems else own
     else:
-        status["packages"] = pkgs
-    status["reboot"] = any(REBOOT_HINT.match(p["name"] or "")
-                           for p in status["packages"]
+        result["packages"] = pkgs
+    result["reboot"] = any(REBOOT_HINT.match(p["name"] or "")
+                           for p in result["packages"]
                            if p["type"] == "package")
-    status["flatpaks"] = flatpak_updates()
-    write_status(status)
+    result["flatpaks"] = flatpak_updates()
+    write_status(result)
     label_snapshots()
-    print(f"{len(status['packages'])} package changes, "
-          f"{len(status['flatpaks'])} Flatpak updates", flush=True)
+    print(f"{len(result['packages'])} package changes, "
+          f"{len(result['flatpaks'])} Flatpak updates", flush=True)
     if problems:
         raise Fail("the update needs a decision: " + problems[0])
 
@@ -329,6 +325,30 @@ def system_translation():
                                else None, fallback=True)
 
 
+def snapshot_label(s, zypp_pre, is_update, _):
+    """Menu text for snapshot S, None if it gets no label. _ is gettext."""
+    num = s["number"]
+    if s["type"] == "pre" and num in zypp_pre:
+        return _("Before update") if is_update \
+            else _("Before software change")
+    elif s["type"] == "post" and s.get("pre-number") in zypp_pre:
+        return _("After update") if is_update \
+            else _("After software change")
+    elif s["type"] == "single" and s.get("description") == "timeline":
+        return _("Automatic snapshot")
+    elif s["type"] == "single" \
+            and (s.get("description") or "").startswith(
+                "nazoos-update: rollback") \
+            and status.subvol_readonly(f"/.snapshots/{num}/snapshot"):
+        # The read-only backup snapper keeps of the state before the
+        # rollback; the writable copy (new root) keeps its description
+        return _("Before rollback")
+    elif s["type"] == "single" and s.get("description"):
+        # Made by hand, nazoos-welcome or a rollback: its own text
+        return s["description"]
+    return None
+
+
 def label_snapshots(update_after=None):
     """Readable boot menu entries. Snapshots of the update that started
     after snapshot UPDATE_AFTER get "Before/After update", other zypper
@@ -352,25 +372,8 @@ def label_snapshots(update_after=None):
         if num == 0 or ("bootloader" in (s.get("userdata") or {})
                         and not is_update):
             continue
-        if s["type"] == "pre" and num in zypp_pre:
-            text = _("Before update") if is_update \
-                else _("Before software change")
-        elif s["type"] == "post" and s.get("pre-number") in zypp_pre:
-            text = _("After update") if is_update \
-                else _("After software change")
-        elif s["type"] == "single" and s.get("description") == "timeline":
-            text = _("Automatic snapshot")
-        elif s["type"] == "single" \
-                and (s.get("description") or "").startswith(
-                    "nazoos-update: rollback") \
-                and subvol_readonly(f"/.snapshots/{num}/snapshot"):
-            # The read-only backup snapper keeps of the state before the
-            # rollback; the writable copy (new root) keeps its description
-            text = _("Before rollback")
-        elif s["type"] == "single" and s.get("description"):
-            # Made by hand, nazoos-welcome or a rollback: its own text
-            text = s["description"]
-        else:
+        text = snapshot_label(s, zypp_pre, is_update, _)
+        if text is None:
             continue
         try:
             date = datetime.strptime(s["date"], "%Y-%m-%d %H:%M:%S")
@@ -387,37 +390,9 @@ def label_snapshots(update_after=None):
 
 # --- rollback ---------------------------------------------------------------
 
-def subvol_readonly(path="/"):
-    try:
-        fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY)
-    except OSError:
-        return False
-    try:
-        buf = bytearray(8)
-        fcntl.ioctl(fd, BTRFS_IOC_SUBVOL_GETFLAGS, buf)
-        return bool(struct.unpack("=Q", buf)[0] & BTRFS_SUBVOL_RDONLY)
-    except OSError:
-        return False
-    finally:
-        os.close(fd)
-
-
-def booted_snapshot():
-    """Number of the read-only snapshot the system was started from.
-    KIWI images run from snapshot 1 normally, so the path alone is not
-    enough: the subvolume must be read-only (or mounted ro)."""
-    r = capture(["findmnt", "--noheadings", "--output", "OPTIONS", "/"])
-    opts = r.stdout.strip().split(",")
-    for o in opts:
-        m = re.fullmatch(r"subvol=/@/\.snapshots/(\d+)/snapshot", o)
-        if m and ("ro" in opts or subvol_readonly("/")):
-            return int(m.group(1))
-    return None
-
-
 def rollback(_args):
-    num = booted_snapshot()
-    if num is None:
+    num = status.booted_snapshot()
+    if not num:
         raise Fail("the system was not started from a snapshot")
     # --ambit classic: also works on installs whose root subvolume is not
     # snapshot 1 (Calamares, ADR 0005). Snapper makes a backup snapshot of
@@ -453,6 +428,10 @@ def main():
         ACTIONS[sys.argv[1]](sys.argv[2:])
     except (Fail, OSError) as e:
         print(f"@@error {e}", flush=True)
+        return 1
+    except Exception as e:  # a bug must still reach the user as a message
+        traceback.print_exc(file=sys.stdout)
+        print(f"@@error {type(e).__name__}: {e}", flush=True)
         return 1
     return 0
 

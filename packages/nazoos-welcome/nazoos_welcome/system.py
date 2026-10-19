@@ -43,7 +43,7 @@ def _read(path):
         return ""
 
 
-def rpm_installed(names):
+def rpm_vendors(names):
     """Installed names out of `names`, with their vendor."""
     if not names:
         return {}
@@ -90,8 +90,7 @@ def unit_state(unit, user=False):
 
 
 def grub_cmdline():
-    m = re.search(r'^GRUB_CMDLINE_LINUX_DEFAULT=(["\']?)(.*?)\1\s*$',
-                  _read("/etc/default/grub"), re.M)
+    m = kernel.CMDLINE_RE.search(_read(kernel.GRUB_DEFAULT_FILE))
     return m.group(2).split() if m else []
 
 
@@ -256,20 +255,19 @@ def kernel_state():
     """NazoOS kernel opt-in (ADR 0008), without root rights."""
     names = ([catalog.KERNEL_PACKAGE, catalog.KERNEL_DEFAULT,
               catalog.KERNEL_ONLY_PACKAGE] + catalog.KMP_DEFAULT_ONLY)
-    rpms = rpm_installed(names)
+    rpms = rpm_vendors(names)
     release = platform.release()
-    sb = _out(["mokutil", "--sb-state"]).lower()
+    sb_raw = _out(["mokutil", "--sb-state"]).strip()
+    sb = sb_raw.lower()
     secure_boot = "secureboot enabled" in sb
     # "SecureBoot enabled/disabled": UEFI, the kernel package queues its
     # key for MokManager either way (ADR 0024)
     uefi = "secureboot" in sb
     mok = ""
     if uefi and catalog.KERNEL_PACKAGE in rpms:
-        certs = [f for f in _out(["rpm", "-ql", catalog.KERNEL_PACKAGE]).split()
-                 if re.fullmatch(r"/etc/uefi/certs/\w+\.crt", f)]
-        if certs:
-            test = _out(["mokutil", "--test-key", certs[0]]).lower()
-            mok = ("enrolled" if "already enrolled" in test
+        cert = kernel.signing_cert()
+        if cert:
+            mok = ("enrolled" if kernel.mok_enrolled(cert)
                    else "pending" if _requested_this_boot()
                    else "missing")
     boots = kernel.read_boots()
@@ -286,6 +284,7 @@ def kernel_state():
         "secureBoot": secure_boot,
         "uefi": uefi,
         "mok": mok,
+        "sbState": sb_raw,
     }
 
 
@@ -337,7 +336,7 @@ def collect():
                  + [s["package"] for s in catalog.SERVICES]
                  + [r for a in catalog.APPS if a["kind"] == "rpm"
                     for r in a["refs"]])
-    rpms = rpm_installed(sorted(set(rpm_names)))
+    rpms = rpm_vendors(sorted(set(rpm_names)))
     flatpaks = flatpak_installed()
 
     apps = {}
@@ -376,7 +375,7 @@ def collect():
          "search", "--type", "pattern", "--match-exact",
          catalog.DECK_PATTERN]) == 0
 
-    return {
+    result = {
         "live": is_live(),
         "autostart": autostart_enabled(),
         "gpus": gpu_list,
@@ -418,6 +417,11 @@ def collect():
         "hasDiscover": shutil.which("plasma-discover") is not None,
         "hasMyrlyn": shutil.which("myrlyn") is not None,
     }
+    try:
+        result["sysinfo"] = sysinfo(result)
+    except Exception as e:
+        result["sysinfo"] = str(e)
+    return result
 
 
 def sysinfo(state=None):
@@ -429,7 +433,9 @@ def sysinfo(state=None):
             osr[k] = v.strip('"')
     cpu = re.search(r"^model name\s*:\s*(.+)$", _read("/proc/cpuinfo"), re.M)
     mem = re.search(r"^MemTotal:\s*(\d+)", _read("/proc/meminfo"), re.M)
-    sb = _out(["mokutil", "--sb-state"]).strip() or "unknown"
+    sb = (state or {}).get("kernel", {}).get("sbState")
+    if not sb:
+        sb = _out(["mokutil", "--sb-state"]).strip() or "unknown"
     lines = [
         f"OS: {osr.get('PRETTY_NAME', 'unknown')} "
         f"({osr.get('VERSION_ID', '')})",
@@ -442,7 +448,7 @@ def sysinfo(state=None):
         f"Secure Boot: {sb}",
     ]
     state = state or {}
-    for g in state.get("gpus", gpus()):
+    for g in state["gpus"] if "gpus" in state else gpus():
         lines.append(f"GPU: {g['name']}")
     if state:
         lines.append(f"NVIDIA driver: {state.get('nvidiaDriver') or '-'}"

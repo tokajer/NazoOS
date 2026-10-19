@@ -88,7 +88,7 @@ def packman_mix():
 
 def nvidia_module_missing():
     """NVIDIA driver installed, but no module for the running kernel."""
-    if not system.rpm_installed(["nvidia-video-G07", "nvidia-video-G06"]):
+    if not system.rpm_vendors(["nvidia-video-G07", "nvidia-video-G06"]):
         return False
     release = platform.release()
     moddir = Path("/usr/lib/modules", release)
@@ -179,7 +179,7 @@ def report(state, findings, log):
         return f"\n===== {title} =====\n{text.strip() or '-'}\n"
 
     text = "NazoOS bug report " + time.strftime("%Y-%m-%d %H:%M") + "\n"
-    text += section("System", system.sysinfo(state))
+    text += section("System", state.get("sysinfo") or system.sysinfo(state))
     text += section("Repair check", "\n".join(
         f"{f['id']}: {', '.join(f['items'])}" for f in findings)
         if findings is not None else "not run")
