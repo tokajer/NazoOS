@@ -18,7 +18,7 @@
 set -euo pipefail
 
 BRANCH=stable                 # SUSE/kernel-source branch = Kernel:stable
-KERNEL_SERIES=7.2             # series patches.list is made for
+KERNEL_SERIES=7.3             # series patches.list is made for
 FLAVOR=nazoos
 REPO=https://github.com/SUSE/kernel-source.git
 
@@ -91,9 +91,9 @@ The NazoOS Gaming Kernel
 The openSUSE kernel with gaming patches for NazoOS: BORE scheduler,
 1000 Hz timer, full preemption, BBRv3, ACS override, v4l2loopback,
 handheld drivers (Steam Deck, ROG Ally, MSI Claw, Zotac Zone, Ayaneo,
-GPD, OneXPlayer), tsc=directsync for handhelds, VRAM protection for
-the foreground game (dmem cgroup), HDMI 2.1 VRR for AMD, USB poll
-rate override, Binder for Waydroid and hardware quirks from Nobara.
+GPD, OneXPlayer), tsc=directsync for handhelds, HDMI 2.1 VRR for
+AMD, USB poll rate override, Binder for Waydroid, Samsung Galaxy Book
+speakers and hardware quirks from Nobara.
 Installed next to kernel-default.
 DESC
 

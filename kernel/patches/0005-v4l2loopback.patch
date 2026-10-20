@@ -1,4 +1,4 @@
-From bc0047b275d8be1ba6193375fadacbb8bff0229e Mon Sep 17 00:00:00 2001
+From 930f739a020241d2725a50a90ef1461358e3919c Mon Sep 17 00:00:00 2001
 From: Peter Jung <admin@ptr1337.dev>
 Date: Thu, 4 Apr 2024 21:40:32 +0200
 Subject: [PATCH] CACHY: v4l2-core: add v4l2loopback
@@ -8,10 +8,10 @@ Signed-off-by: Eric Naim <dnaim@cachyos.org>
 ---
  drivers/media/v4l2-core/Kconfig               |    5 +
  drivers/media/v4l2-core/Makefile              |    2 +
- drivers/media/v4l2-core/v4l2loopback.c        | 3331 +++++++++++++++++
+ drivers/media/v4l2-core/v4l2loopback.c        | 3375 +++++++++++++++++
  drivers/media/v4l2-core/v4l2loopback.h        |  108 +
  .../media/v4l2-core/v4l2loopback_formats.h    |  445 +++
- 5 files changed, 3891 insertions(+)
+ 5 files changed, 3935 insertions(+)
  create mode 100644 drivers/media/v4l2-core/v4l2loopback.c
  create mode 100644 drivers/media/v4l2-core/v4l2loopback.h
  create mode 100644 drivers/media/v4l2-core/v4l2loopback_formats.h
@@ -46,10 +46,10 @@ index 329f0eadce994c..dd34e32edb02cd 100644
  obj-$(CONFIG_VIDEO_DEV) += v4l2-dv-timings.o videodev.o
 diff --git a/drivers/media/v4l2-core/v4l2loopback.c b/drivers/media/v4l2-core/v4l2loopback.c
 new file mode 100644
-index 00000000000000..22e2707171912b
+index 00000000000000..af9ec3e39e5909
 --- /dev/null
 +++ b/drivers/media/v4l2-core/v4l2loopback.c
-@@ -0,0 +1,3331 @@
+@@ -0,0 +1,3375 @@
 +/* -*- c-file-style: "linux" -*- */
 +/*
 + * v4l2loopback.c  --  video4linux2 loopback driver
@@ -931,7 +931,9 @@ index 00000000000000..22e2707171912b
 +
 +/* forward declarations */
 +static void client_usage_queue_event(struct video_device *vdev);
-+static bool any_buffers_mapped(struct v4l2_loopback_device *dev);
++static bool any_mapped_buffer(struct v4l2_loopback_device *dev);
++static void get_buffer(struct v4l2l_buffer *buf);
++static void put_buffer(struct v4l2l_buffer *buf);
 +static int allocate_buffers(struct v4l2_loopback_device *dev,
 +			    struct v4l2_pix_format *pix_format);
 +static void init_buffers(struct v4l2_loopback_device *dev, u32 bytes_used,
@@ -1424,7 +1426,7 @@ index 00000000000000..22e2707171912b
 +		if (result < 0)
 +			return result;
 +		if (!dev->keep_format) {
-+			if (has_no_owners(dev) && !any_buffers_mapped(dev))
++			if (has_no_owners(dev) && !any_mapped_buffer(dev))
 +				free_buffers(dev);
 +		}
 +		mutex_unlock(&dev->image_mutex);
@@ -1637,13 +1639,25 @@ index 00000000000000..22e2707171912b
 +		flags |= V4L2_BUF_FLAG_DONE;    \
 +	} while (0)
 +
-+static bool any_buffers_mapped(struct v4l2_loopback_device *dev)
++static bool any_mapped_buffer(struct v4l2_loopback_device *dev)
 +{
 +	u32 index;
 +	for (index = 0; index < dev->buffer_count; ++index)
 +		if (dev->buffers[index].buffer.flags & V4L2_BUF_FLAG_MAPPED)
 +			return true;
 +	return false;
++}
++
++static void get_buffer(struct v4l2l_buffer *buf)
++{
++	if (atomic_inc_return(&buf->use_count))
++		buf->buffer.flags |= V4L2_BUF_FLAG_MAPPED;
++}
++
++static void put_buffer(struct v4l2l_buffer *buf)
++{
++	if (atomic_dec_and_test(&buf->use_count))
++		buf->buffer.flags &= ~V4L2_BUF_FLAG_MAPPED;
 +}
 +
 +static void prepare_buffer_queue(struct v4l2_loopback_device *dev, int count)
@@ -1702,6 +1716,9 @@ index 00000000000000..22e2707171912b
 +		"[used/max]\n",
 +		reqbuf->memory, req_count, dev->used_buffer_count,
 +		dev->buffer_count);
++
++	if (req_count > dev->buffer_count)
++		req_count = dev->buffer_count;
 +
 +	switch (reqbuf->memory) {
 +	case V4L2_MEMORY_MMAP:
@@ -1771,7 +1788,7 @@ index 00000000000000..22e2707171912b
 +	if (has_other_owners(opener, dev) && dev->used_buffer_count > 0) {
 +		/* allow 'allocation' of existing number of buffers */
 +		req_count = dev->used_buffer_count;
-+	} else if (any_buffers_mapped(dev)) {
++	} else if (any_mapped_buffer(dev)) {
 +		/* do not allow re-allocation if buffers are mapped */
 +		result = -EBUSY;
 +		goto exit_reqbufs_unlock;
@@ -1779,10 +1796,6 @@ index 00000000000000..22e2707171912b
 +
 +	MARK();
 +	opener->buffer_count = 0;
-+
-+	if (req_count > dev->buffer_count)
-+		req_count = dev->buffer_count;
-+
 +	if (has_no_owners(dev)) {
 +		result = allocate_buffers(dev, &dev->pix_format);
 +		if (result < 0)
@@ -1862,17 +1875,24 @@ index 00000000000000..22e2707171912b
 +	timer_delete_sync(&dev->sustain_timer);
 +	timer_delete_sync(&dev->timeout_timer);
 +
-+	spin_lock_bh(&dev->list_lock);
-+	list_move_tail(&buf->list_head, &dev->outbufs_list);
-+	spin_unlock_bh(&dev->list_lock);
++	mutex_lock(&dev->image_mutex);
++	if (dev->used_buffer_count != 0) {
++		spin_lock_bh(&dev->list_lock);
++		list_move_tail(&buf->list_head, &dev->outbufs_list);
++		spin_unlock_bh(&dev->list_lock);
++
++		spin_lock_bh(&dev->lock);
++		dev->bufpos2index[v4l2l_mod64(dev->write_position,
++					      dev->used_buffer_count)] =
++			buf->buffer.index;
++
++		++dev->write_position;
++		dev->reread_count = 0;
++		spin_unlock_bh(&dev->lock);
++	}
++	mutex_unlock(&dev->image_mutex);
 +
 +	spin_lock_bh(&dev->lock);
-+	dev->bufpos2index[v4l2l_mod64(dev->write_position,
-+				      dev->used_buffer_count)] =
-+		buf->buffer.index;
-+	++dev->write_position;
-+	dev->reread_count = 0;
-+
 +	check_timers(dev);
 +	spin_unlock_bh(&dev->lock);
 +}
@@ -1986,6 +2006,11 @@ index 00000000000000..22e2707171912b
 +		return -EAGAIN;
 +	wait_event_interruptible(dev->read_event, can_read(dev, opener));
 +
++	mutex_lock(&dev->image_mutex);
++	if (!dev->image || dev->used_buffer_count == 0) {
++		mutex_unlock(&dev->image_mutex);
++		return -EINVAL;
++	}
 +	spin_lock_bh(&dev->lock);
 +	if (dev->write_position == opener->read_position) {
 +		if (dev->reread_count > opener->reread_count + 2)
@@ -2005,21 +2030,20 @@ index 00000000000000..22e2707171912b
 +	}
 +	timeout_happened = dev->timeout_happened && (dev->timeout_jiffies > 0);
 +	dev->timeout_happened = 0;
-+	spin_unlock_bh(&dev->lock);
-+
 +	index = dev->bufpos2index[pos];
++	if (timeout_happened)
++		get_buffer(&dev->buffers[index]);
++
++	spin_unlock_bh(&dev->lock);
++	mutex_unlock(&dev->image_mutex);
++
 +	if (timeout_happened) {
-+		if (index >= dev->used_buffer_count) {
-+			dprintkrw("get_capture_buffer() read position is at "
-+				  "an unallocated buffer [index=%u]\n",
-+				  index);
-+			return -EFAULT;
-+		}
 +		/* although allocated on-demand, timeout_image is freed only
 +		 * in free_buffers(), so we don't need to worry about it being
 +		 * deallocated suddenly */
 +		memcpy(dev->image + dev->buffers[index].buffer.m.offset,
 +		       dev->timeout_image, dev->buffer_size);
++		put_buffer(&dev->buffers[index]);
 +	}
 +	return (int)index;
 +}
@@ -2234,22 +2258,16 @@ index 00000000000000..22e2707171912b
 +/* file operations */
 +static void vm_open(struct vm_area_struct *vma)
 +{
-+	struct v4l2l_buffer *buf;
++	struct v4l2l_buffer *buf = vma->vm_private_data;
 +	MARK();
-+
-+	buf = vma->vm_private_data;
-+	atomic_inc(&buf->use_count);
-+	buf->buffer.flags |= V4L2_BUF_FLAG_MAPPED;
++	get_buffer(buf);
 +}
 +
 +static void vm_close(struct vm_area_struct *vma)
 +{
-+	struct v4l2l_buffer *buf;
++	struct v4l2l_buffer *buf = vma->vm_private_data;
 +	MARK();
-+
-+	buf = vma->vm_private_data;
-+	if (atomic_dec_and_test(&buf->use_count))
-+		buf->buffer.flags &= ~V4L2_BUF_FLAG_MAPPED;
++	put_buffer(buf);
 +}
 +
 +static struct vm_operations_struct vm_ops = {
@@ -2326,8 +2344,8 @@ index 00000000000000..22e2707171912b
 +
 +	vma->vm_ops = &vm_ops;
 +	vma->vm_private_data = buffer;
++	get_buffer(buffer);
 +
-+	vm_open(vma);
 +exit_mmap_unlock:
 +	mutex_unlock(&dev->image_mutex);
 +	return result;
@@ -2506,14 +2524,26 @@ index 00000000000000..22e2707171912b
 +	index = get_capture_buffer(file);
 +	if (index < 0)
 +		return index;
++
++	mutex_lock(&dev->image_mutex);
++	if (!dev->image) {
++		mutex_unlock(&dev->image_mutex);
++		return -EINVAL;
++	}
++	get_buffer(&dev->buffers[index]);
++	mutex_unlock(&dev->image_mutex);
++
 +	b = &dev->buffers[index].buffer;
 +	if (count > b->bytesused)
 +		count = b->bytesused;
++
 +	if (copy_to_user((void *)buf, (void *)(dev->image + b->m.offset),
 +			 count)) {
 +		printk(KERN_ERR "v4l2-loopback read() failed copy_to_user()\n");
++		put_buffer(&dev->buffers[index]);
 +		return -EFAULT;
 +	}
++	put_buffer(&dev->buffers[index]);
 +	return count;
 +}
 +
@@ -2532,15 +2562,25 @@ index 00000000000000..22e2707171912b
 +
 +	if (count > dev->buffer_size)
 +		count = dev->buffer_size;
-+	index = v4l2l_mod64(dev->write_position, dev->used_buffer_count);
-+	b = &dev->buffers[index].buffer;
 +
++	mutex_lock(&dev->image_mutex);
++	if (!dev->image || dev->used_buffer_count == 0) {
++		mutex_unlock(&dev->image_mutex);
++		return -EINVAL;
++	}
++	index = v4l2l_mod64(dev->write_position, dev->used_buffer_count);
++	get_buffer(&dev->buffers[index]);
++	mutex_unlock(&dev->image_mutex);
++
++	b = &dev->buffers[index].buffer;
 +	if (copy_from_user((void *)(dev->image + b->m.offset), (void *)buf,
 +			   count)) {
 +		printk(KERN_ERR
 +		       "v4l2-loopback write() failed copy_from_user()\n");
++		put_buffer(&dev->buffers[index]);
 +		return -EFAULT;
 +	}
++	put_buffer(&dev->buffers[index]);
 +	b->bytesused = count;
 +
 +	v4l2l_get_timestamp(b);
@@ -2560,7 +2600,7 @@ index 00000000000000..22e2707171912b
 +	dprintk("free_buffers() with image@%p\n", dev->image);
 +	if (!dev->image)
 +		return;
-+	if (!has_no_owners(dev) || any_buffers_mapped(dev))
++	if (!has_no_owners(dev) || any_mapped_buffer(dev))
 +		/* maybe an opener snuck in before image_mutex was acquired */
 +		printk(KERN_WARNING
 +		       "v4l2-loopback free_buffers() buffers of video device "
@@ -2610,7 +2650,7 @@ index 00000000000000..22e2707171912b
 +		image_size, buffer_size, dev->buffer_count);
 +	if (dev->image) {
 +		/* check that no buffers are expected in user-space */
-+		if (!has_no_owners(dev) || any_buffers_mapped(dev))
++		if (!has_no_owners(dev) || any_mapped_buffer(dev))
 +			return -EBUSY;
 +		dprintk("allocate_buffers() existing size=%lubytes\n",
 +			dev->image_size);
@@ -2813,6 +2853,10 @@ index 00000000000000..22e2707171912b
 +	struct v4l2_format _fmt;
 +
 +	int nr = -1;
++
++	/* Fix: Ensure buffer count does not exceed the statically allocated array size */
++	if (_max_buffers > MAX_BUFFERS)
++		_max_buffers = MAX_BUFFERS;
 +
 +	if (conf) {
 +		const int output_nr = conf->output_nr;
@@ -3383,7 +3427,7 @@ index 00000000000000..22e2707171912b
 +module_exit(v4l2loopback_cleanup_module);
 diff --git a/drivers/media/v4l2-core/v4l2loopback.h b/drivers/media/v4l2-core/v4l2loopback.h
 new file mode 100644
-index 00000000000000..8961a98eff5811
+index 00000000000000..0006385a329851
 --- /dev/null
 +++ b/drivers/media/v4l2-core/v4l2loopback.h
 @@ -0,0 +1,108 @@
@@ -3401,7 +3445,7 @@ index 00000000000000..8961a98eff5811
 +
 +#define V4L2LOOPBACK_VERSION_MAJOR 0
 +#define V4L2LOOPBACK_VERSION_MINOR 15
-+#define V4L2LOOPBACK_VERSION_BUGFIX 3
++#define V4L2LOOPBACK_VERSION_BUGFIX 4
 +
 +/* /dev/v4l2loopback interface */
 +

@@ -24,7 +24,7 @@ NazoOS starts with the openSUSE kernel (`kernel-default`). It works everywhere, 
 
 ## VRAM for the game in front
 
-Two background services come with NazoOS: *dmemcg-booster* and *plasma-foreground-booster*. They mark the window you are using as important. With the NazoOS kernel, the graphics driver then moves other programs' data out of VRAM before the game's data, which helps most on graphics cards with 8 GB or less. With the openSUSE kernel the protection is weaker, but the services do no harm.
+Two background services come with NazoOS: *dmemcg-booster* and *plasma-foreground-booster*. They mark the window you are using as important. The graphics driver then moves other programs' data out of VRAM before the game's data, which helps most on graphics cards with 8 GB or less. This needs Linux 7.3 or newer: the NazoOS kernel has it, the openSUSE kernel from version 7.3 on. With an older kernel the protection is weaker, but the services do no harm.
 
 To switch the foreground booster off, put this into `~/.config/kcgroupsrc` and log in again:
 

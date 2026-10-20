@@ -1,4 +1,4 @@
-From 126fbb2ff4ede43132064b96d39292684bc47fcf Mon Sep 17 00:00:00 2001
+From 63239e08d7ef25b4dd360f17f99a2772e9580877 Mon Sep 17 00:00:00 2001
 From: Steven Noonan <steven@uplinklabs.net>
 Date: Wed, 17 Nov 2021 00:26:20 -0800
 Subject: [PATCH] x86: save/restore TSC counter value during sleep/wake
@@ -12,11 +12,11 @@ Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
  3 files changed, 20 insertions(+)
 
 diff --git a/arch/x86/kernel/acpi/sleep.c b/arch/x86/kernel/acpi/sleep.c
-index 91fa262f0e3056..31761a44ce59bf 100644
+index 8dfe98784bf92d..110b105a9a821e 100644
 --- a/arch/x86/kernel/acpi/sleep.c
 +++ b/arch/x86/kernel/acpi/sleep.c
-@@ -104,6 +104,11 @@ int x86_acpi_suspend_lowlevel(void)
- 			header->pmode_misc_en_high))
+@@ -98,6 +98,11 @@ int x86_acpi_suspend_lowlevel(void)
+ 	    !wrmsrq_safe(MSR_IA32_MISC_ENABLE, val.q))
  		header->pmode_behavior |=
  			(1 << WAKEUP_BEHAVIOR_RESTORE_MISC_ENABLE);
 +	if (!rdmsr_safe(MSR_IA32_TSC,
@@ -24,9 +24,9 @@ index 91fa262f0e3056..31761a44ce59bf 100644
 +	                &header->pmode_tsc_high))
 +		header->pmode_behavior |=
 +			(1 << WAKEUP_BEHAVIOR_RESTORE_TSC);
+ 	header->pmode_misc_en_low = val.l;
+ 	header->pmode_misc_en_high = val.h;
  	header->realmode_flags = acpi_realmode_flags;
- 	header->real_magic = 0x12345678;
- 
 diff --git a/arch/x86/realmode/rm/wakeup.h b/arch/x86/realmode/rm/wakeup.h
 index 3b6d8fa82d3e10..e52c5046c55364 100644
 --- a/arch/x86/realmode/rm/wakeup.h

@@ -1,4 +1,4 @@
-From fdcdef08df6c4da3aa474007fd6e6f4c864e4cdb Mon Sep 17 00:00:00 2001
+From d77c58de788154e442e66d2d20bb06d03b573d91 Mon Sep 17 00:00:00 2001
 From: Steven Noonan <steven@uplinklabs.net>
 Date: Wed, 17 Nov 2021 00:25:26 -0800
 Subject: [PATCH] x86: implement tsc=directsync for systems without
@@ -16,10 +16,10 @@ Signed-off-by: Robert Beckett <bob.beckett@collabora.com>
  4 files changed, 44 insertions(+), 10 deletions(-)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index e33adffb2032d6..0b4a48030193c1 100644
+index a57dcdb88fb78b..bcd2297518196d 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -7951,6 +7951,8 @@ Kernel parameters
+@@ -8025,6 +8025,8 @@ Kernel parameters
  			obtained from HW or FW using either an MSR or CPUID(0x15).
  			Warn if the difference is more than 500 ppm.
  			[x86] watchdog: Enforce the clocksource watchdog on TSC
@@ -41,7 +41,7 @@ index 4d2d2f21ff063f..77fa6e627ae0a3 100644
  
  /*
 diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-index ce10ae4b298b79..1728df73e2a34e 100644
+index 723347e2cf7f80..fc10dd929075d5 100644
 --- a/arch/x86/kernel/tsc.c
 +++ b/arch/x86/kernel/tsc.c
 @@ -52,6 +52,7 @@ static unsigned int __initdata tsc_early_khz;
@@ -62,7 +62,7 @@ index ce10ae4b298b79..1728df73e2a34e 100644
  }
  __setup("tsc=", tsc_setup);
 diff --git a/arch/x86/kernel/tsc_sync.c b/arch/x86/kernel/tsc_sync.c
-index ec3aa340d351dc..91d816e074ad33 100644
+index ec3aa340d351dc..fec57c84631e3d 100644
 --- a/arch/x86/kernel/tsc_sync.c
 +++ b/arch/x86/kernel/tsc_sync.c
 @@ -34,6 +34,8 @@ struct tsc_adjust {
@@ -113,10 +113,10 @@ index ec3aa340d351dc..91d816e074ad33 100644
 +{
 +	cycles_t adjval, nextval;
 +
-+	rdmsrl(MSR_IA32_TSC, adjval);
++	rdmsrq(MSR_IA32_TSC, adjval);
 +	adjval += adjustment;
-+	wrmsrl(MSR_IA32_TSC, adjval);
-+	rdmsrl(MSR_IA32_TSC, nextval);
++	wrmsrq(MSR_IA32_TSC, adjval);
++	rdmsrq(MSR_IA32_TSC, nextval);
 +
 +	/*
 +	 * Estimated clock cycle overhead for wrmsr + rdmsr

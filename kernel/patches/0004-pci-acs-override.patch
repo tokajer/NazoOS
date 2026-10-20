@@ -1,4 +1,4 @@
-From a9689a07cd0a753f1b35b3568a09de952cd2befe Mon Sep 17 00:00:00 2001
+From 16acc33ed00407fe3097d90f35c61efd7689c815 Mon Sep 17 00:00:00 2001
 From: Peter Jung <admin@ptr1337.dev>
 Date: Mon, 6 Mar 2023 18:34:25 +0100
 Subject: [PATCH] drivers/pci: Add ACS override support
@@ -12,10 +12,10 @@ Signed-off-by: Eric Naim <dnaim@cachyos.org>
  2 files changed, 110 insertions(+)
 
 diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index b5493a7f8f2281..fccdb8f878362f 100644
+index 68647ff4bdd24b..150b1ec7779e01 100644
 --- a/Documentation/admin-guide/kernel-parameters.txt
 +++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -5063,6 +5063,15 @@ Kernel parameters
+@@ -5128,6 +5128,15 @@ Kernel parameters
  		nomsi		[MSI] If the PCI_MSI kernel config parameter is
  				enabled, this kernel boot option can be used to
  				disable the use of MSI interrupts system-wide.
@@ -32,10 +32,10 @@ index b5493a7f8f2281..fccdb8f878362f 100644
  				Safety option to keep boot IRQs enabled. This
  				should never be necessary.
 diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index b09f27f7846fcd..012ca0c9a71614 100644
+index de9bbccda21fd1..f9bdfd59539510 100644
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -3744,6 +3744,106 @@ static void quirk_no_bus_reset(struct pci_dev *dev)
+@@ -3747,6 +3747,106 @@ static void quirk_no_bus_reset(struct pci_dev *dev)
  	dev->dev_flags |= PCI_DEV_FLAGS_NO_BUS_RESET;
  }
  
@@ -142,7 +142,7 @@ index b09f27f7846fcd..012ca0c9a71614 100644
  /*
   * After asserting Secondary Bus Reset to downstream devices via a GB10
   * Root Port, the link may not retrain correctly.
-@@ -5242,6 +5342,7 @@ static const struct pci_dev_acs_enabled {
+@@ -5245,6 +5345,7 @@ static const struct pci_dev_acs_enabled {
  	{ PCI_VENDOR_ID_ZHAOXIN, PCI_ANY_ID, pci_quirk_zhaoxin_pcie_ports_acs },
  	/* Wangxun nics */
  	{ PCI_VENDOR_ID_WANGXUN, PCI_ANY_ID, pci_quirk_wangxun_nic_acs },

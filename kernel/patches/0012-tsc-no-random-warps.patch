@@ -1,4 +1,4 @@
-From 2c30d51f14f9ba58b5eefd1975c21dfd54ceb5dd Mon Sep 17 00:00:00 2001
+From e5c2a5fd8c3a7fdf0f38947d801dda0d2eec4236 Mon Sep 17 00:00:00 2001
 From: Steven Noonan <steven@uplinklabs.net>
 Date: Wed, 17 Nov 2021 19:42:32 -0800
 Subject: [PATCH] x86: don't check for random warps if using direct sync
@@ -14,7 +14,7 @@ Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/x86/kernel/tsc_sync.c b/arch/x86/kernel/tsc_sync.c
-index 91d816e074ad33..ec518e4310a252 100644
+index fec57c84631e3d..70e39037fb450d 100644
 --- a/arch/x86/kernel/tsc_sync.c
 +++ b/arch/x86/kernel/tsc_sync.c
 @@ -399,7 +399,7 @@ static void check_tsc_sync_source(void *__cpu)

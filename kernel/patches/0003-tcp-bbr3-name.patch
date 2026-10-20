@@ -1,4 +1,4 @@
-From 7235d70addc6fb9f9b974aa07930d3fd87ca6311 Mon Sep 17 00:00:00 2001
+From a52f724cc56d9bbd996d87eee693cc21c2520777 Mon Sep 17 00:00:00 2001
 From: Peter Jung <admin@ptr1337.dev>
 Date: Sat, 27 Jun 2026 18:35:15 +0200
 Subject: [PATCH] bbr: Fix bbr name to bbr3
