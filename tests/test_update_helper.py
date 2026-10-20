@@ -34,6 +34,17 @@ PROBLEM_XML = """<?xml version='1.0'?>
 </stream>
 """
 
+PROMPT_XML = """<?xml version='1.0'?>
+<stream>
+<prompt id="1"><description>Problem: 1: nothing provides 'libfoo.so.1' needed by the to be installed bar-1.0-1.1.x86_64
+ Solution 1: do not install bar-1.0-1.1.x86_64
+ Solution 2: break bar-1.0-1.1.x86_64 by ignoring some of its dependencies
+
+Choose from above solutions by number or cancel [1/2/c/d/?] (c): </description>
+</prompt>
+</stream>
+"""
+
 
 def fake_zypper(monkeypatch, helper, stdout, rc=0):
     calls = []
@@ -62,6 +73,21 @@ def test_dup_preview_problems(monkeypatch, update_helper):
     fake_zypper(monkeypatch, update_helper, PROBLEM_XML, rc=4)
     assert update_helper.dup_preview() == (
         None, ["nothing provides libfoo.so.1 needed by bar"])
+
+
+def test_dup_preview_problem_from_prompt(monkeypatch, update_helper):
+    fake_zypper(monkeypatch, update_helper, PROMPT_XML, rc=4)
+    assert update_helper.dup_preview() == (None, [
+        "nothing provides 'libfoo.so.1' needed by the to be installed "
+        "bar-1.0-1.1.x86_64"])
+
+
+def test_reboot_hint_only_for_desktop_plasma(update_helper):
+    hint = update_helper.REBOOT_HINT
+    for name in ("plasma6-workspace", "plasma6-workspace-libs",
+                 "kernel-default"):
+        assert hint.match(name)
+    assert not hint.match("plasma-foreground-booster")
 
 
 def test_dup_preview_error_messages(monkeypatch, update_helper):

@@ -51,7 +51,7 @@ ZYPPER_SCRIPT_FAILED = 107
 SCRIPTLET_FAILED = re.compile(r"%\w+\((\S+)-[^-]+-[^-]+\) scriptlet failed")
 # Package names that need a restart after the update
 REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
-                         r"libQt6|plasma|kwin|sddm)")
+                         r"libQt6|plasma6-workspace|plasma6-desktop|kwin|sddm)")
 
 
 def write_status(data):
@@ -73,6 +73,25 @@ def write_status(data):
 def zypper_messages(root):
     return [m.text or "" for m in root.iter("message")
             if m.get("type") == "error"]
+
+
+def prompt_problems(root):
+    """Solver problems from the prompts: zypper's XML has no <problem>
+    element in dry-run mode, only the "Problem: N: ..." prompt text."""
+    problems = []
+    for p in root.iter("prompt"):
+        text = (p.findtext("description") or "").strip()
+        if not text.startswith("Problem:"):
+            continue
+        lines = []
+        for line in text.splitlines():
+            if line.strip().startswith("Solution"):
+                break
+            if line.strip():
+                lines.append(line.strip())
+        lines[0] = re.sub(r"^Problem:\s*(\d+:\s*)?", "", lines[0])
+        problems.append(" ".join(lines))
+    return problems
 
 
 def own_repos():
@@ -113,7 +132,8 @@ def dup_preview(cmd=("dist-upgrade", "--auto-agree-with-licenses")):
                 for p in root.iter("problem")]
     # Exit code 4: the solver found a problem the user has to decide
     if r.returncode == 4 and not problems:
-        problems = zypper_messages(root) or ["dependency problem"]
+        problems = (prompt_problems(root) or zypper_messages(root)
+                    or ["dependency problem"])
     if problems:
         return None, problems
     if r.returncode not in ZYPPER_OK:

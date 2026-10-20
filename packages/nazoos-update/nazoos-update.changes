@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Tue Oct 20 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The restart notice is no longer shown for plasma packages that are
+  not part of the desktop.
+- An update conflict now shows the actual problem instead of a
+  generic message.
+- The Myrlyn hint names the Dist-Upgrade view where the conflict
+  can be resolved.
+- Neutral icon instead of a green check before the first check.
+
+-------------------------------------------------------------------
 Mon Oct 19 15:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - An update no longer fails when only the key import of an openSUSE

@@ -370,8 +370,7 @@ def collect():
         if pkgs[1] in rpms:
             nvidia_variant = variant
 
-    deck_installed = _rc(["rpm", "-q", "--whatprovides",
-                          f"pattern() = {catalog.DECK_PATTERN}"]) == 0
+    deck_installed = _rc(["rpm", "-q", catalog.DECK_PATTERN]) == 0
     deck_available = deck_installed or _rc(
         ["zypper", "--non-interactive", "--no-refresh", "--quiet",
          "search", "--type", "pattern", "--match-exact",

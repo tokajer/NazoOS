@@ -113,7 +113,7 @@ Kirigami.ApplicationWindow {
                 type: Kirigami.MessageType.Warning
                 text: L.tr("The update needs a decision that cannot be made automatically:") + "\n"
                       + (root.st.problems || []).join("\n")
-                      + "\n" + L.tr("Myrlyn shows the conflict and offers solutions to choose from.")
+                      + "\n" + L.tr("In Myrlyn, Updates → Dist-Upgrade shows the conflict and the solutions to choose from.")
                 actions: [
                     Kirigami.Action {
                         text: L.tr("Open Myrlyn"); icon.name: "system-software-install"
@@ -138,7 +138,8 @@ Kirigami.ApplicationWindow {
                 contentItem: RowLayout {
                     spacing: Kirigami.Units.largeSpacing
                     Kirigami.Icon {
-                        source: root.count > 0 ? "system-software-update" : "checkmark"
+                        source: root.count > 0 ? "system-software-update"
+                              : (root.st.checked ? "checkmark" : "view-refresh")
                         Layout.preferredWidth: Kirigami.Units.iconSizes.huge
                         Layout.preferredHeight: Kirigami.Units.iconSizes.huge
                     }

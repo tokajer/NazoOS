@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Oct 20 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Steam Deck/handheld card recognizes the installed nazoos-deck
+  pattern.
+
+-------------------------------------------------------------------
 Mon Oct 19 15:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Fix: every action failed with "unknown action" (action name was
