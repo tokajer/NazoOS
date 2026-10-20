@@ -46,6 +46,9 @@ ZYPPER_OK = (0, 100, 101, 102, 103, 106)
 RELEASE_PKG = "openSUSE-release"
 # zypper: a %post script failed, the packages are installed
 ZYPPER_SCRIPT_FAILED = 107
+# rpm's line for it, e.g. "warning: %post(xpadneo-ueficert-0.10.1-1.32
+# .x86_64) scriptlet failed, exit status 255"
+SCRIPTLET_FAILED = re.compile(r"%\w+\((\S+)-[^-]+-[^-]+\) scriptlet failed")
 # Package names that need a restart after the update
 REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
                          r"libQt6|plasma|kwin|sddm)")
@@ -211,8 +214,29 @@ def nazoos_key_missing():
     return cert is not None and mok.status(cert) == "missing"
 
 
+def only_trusted_certs(failed):
+    """All failed scripts were the key import of *-ueficert packages whose
+    key needs no MokManager: Tumbleweed's KMP keys are signed by the
+    openSUSE CA in shim, but cert-post still imports them with
+    "--root-pw", which cannot read Calamares' yescrypt root hash
+    (ADR 0024). Nothing is missing then."""
+    if not failed or not all(n.endswith("-ueficert") for n in failed):
+        return False
+    certs = [f for name in failed
+             for f in helper.output(["rpm", "-ql", name]).split()
+             if mok.CERT_PATH.fullmatch(f)]
+    return bool(certs) and all(mok.covered(c) for c in certs)
+
+
 def update(_args):
     key_missing = False
+    failed = []
+
+    def watch(line):
+        m = SCRIPTLET_FAILED.search(line)
+        if m:
+            failed.append(m.group(1))
+
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
     pkgs, _problems = dup_preview()
     behind = mirrors_behind(pkgs or [])
@@ -225,9 +249,12 @@ def update(_args):
     if cmd:
         last = last_snapshot()
         # snapper-zypp-plugin creates a pre/post snapshot pair around this
-        rc = run(ZYPPER + cmd, check=False)
+        rc = run(ZYPPER + cmd, check=False, on_line=watch)
         label_snapshots(update_after=last)
-        if rc == ZYPPER_SCRIPT_FAILED and nazoos_key_missing():
+        if rc == ZYPPER_SCRIPT_FAILED and only_trusted_certs(failed):
+            print("Note: the key import of " + ", ".join(failed)
+                  + " failed, but the key is already trusted", flush=True)
+        elif rc == ZYPPER_SCRIPT_FAILED and nazoos_key_missing():
             # Installed, only the key import failed: finish the update
             # (boot entry, modules) and say what to do at the end
             key_missing = True
@@ -322,6 +349,17 @@ def snapshot_label(s, zypp_pre, is_update, _):
     return None
 
 
+def wait_for_cleanup(timeout=600):
+    """snapper-cleanup fails with "Config is locked" when snapshots are
+    named while it deletes some (VM 2026-10-19: every hourly run that
+    woke nazoos-update-label.path); wait until it has finished."""
+    end = time.monotonic() + timeout
+    while time.monotonic() < end and capture(
+            ["systemctl", "is-active", "--quiet",
+             "snapper-cleanup.service"]).returncode == 0:
+        time.sleep(2)
+
+
 def label_snapshots(update_after=None):
     """Readable boot menu entries. Snapshots of the update that started
     after snapshot UPDATE_AFTER get "Before/After update", other zypper
@@ -330,6 +368,7 @@ def label_snapshots(update_after=None):
     already have a label are left alone."""
     if not Path("/usr/bin/snapper").exists():
         return 0
+    wait_for_cleanup()
     named = 0
     _ = system_translation().gettext
     # xgettext:no-python-format

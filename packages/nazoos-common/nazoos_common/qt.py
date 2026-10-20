@@ -104,7 +104,9 @@ class HelperProcess(QObject):
                 False, _("Cancelled: no administrator password was given."))
         else:
             msg = _("Something went wrong.")
-            self.finished.emit(False, f"{msg} {self._error}".strip())
+            # Templates start lower case; here they follow a full stop
+            reason = self._error[:1].upper() + self._error[1:]
+            self.finished.emit(False, f"{msg} {reason}".strip())
 
 
 def desktop_file(patterns, extra_dirs=()):

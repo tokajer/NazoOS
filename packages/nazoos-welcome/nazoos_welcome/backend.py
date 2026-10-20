@@ -248,7 +248,7 @@ class Backend(QObject):
         proc.finished.connect(
             lambda ok, msg: self._finished(action, ok, msg, on_success))
         self._proc = proc
-        proc.start(args, stdin)
+        proc.start([action, *args], stdin)
 
     @Slot(str, "QVariantList", str)
     def runMok(self, action, args, password):

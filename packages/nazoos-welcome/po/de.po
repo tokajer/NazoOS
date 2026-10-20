@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 14:19+0200\n"
+"POT-Creation-Date: 2026-10-19 17:32+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,34 +16,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../nazoos-common/nazoos_common/helper.py:48
+#: ../nazoos-common/nazoos_common/helper.py:59
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr "„{cmd}“ ist fehlgeschlagen (Exit-Code {rc})"
 
-#: ../nazoos-common/nazoos_common/helper.py:68
+#: ../nazoos-common/nazoos_common/helper.py:79
 msgid "missing argument"
 msgstr "Angabe fehlt"
 
-#: ../nazoos-common/nazoos_common/helper.py:70
+#: ../nazoos-common/nazoos_common/helper.py:81
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr "ungültige Angabe: {arg}"
 
-#: ../nazoos-common/nazoos_common/helper.py:79
+#: ../nazoos-common/nazoos_common/helper.py:90
 msgid "must run as root (via pkexec)"
 msgstr "muss mit Administratorrechten laufen (über pkexec)"
 
-#: ../nazoos-common/nazoos_common/helper.py:83
+#: ../nazoos-common/nazoos_common/helper.py:94
 msgid "unknown action"
 msgstr "unbekannte Aktion"
 
-#: ../nazoos-common/nazoos_common/helper.py:94
+#: ../nazoos-common/nazoos_common/helper.py:105
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr "Systemfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/helper.py:98
+#: ../nazoos-common/nazoos_common/helper.py:109
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr "Programmfehler: {detail}"
@@ -522,7 +522,7 @@ msgstr ""
 "der Secure-Boot-Schlüssel konnte nicht vorbereitet werden (mokutil-Exit-Code "
 "{rc})"
 
-#: nazoos_welcome/root/mok.py:114 nazoos_welcome/root/mok.py:127
+#: nazoos_welcome/root/mok.py:112 nazoos_welcome/root/mok.py:125
 msgid "kernel-nazoos has no signing certificate"
 msgstr "kernel-nazoos hat kein Signaturzertifikat"
 
@@ -724,15 +724,15 @@ msgstr "Software-Rendering (langsamer)"
 #: qml/pages/AppsPage.qml:110 qml/pages/DriversPage.qml:55
 #: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
 #: qml/pages/DriversPage.qml:120 qml/pages/GamingPage.qml:227
-#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:47
-#: qml/pages/KernelPage.qml:53 qml/pages/WelcomePage.qml:103
+#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:49
+#: qml/pages/KernelPage.qml:55 qml/pages/WelcomePage.qml:103
 msgid "Install"
 msgstr "Installieren"
 
 #: qml/pages/AppsPage.qml:110 qml/pages/AppsPage.qml:118
 #: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
-#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:69
-#: qml/pages/KernelPage.qml:74 qml/pages/KernelPage.qml:98
+#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:72
+#: qml/pages/KernelPage.qml:77 qml/pages/KernelPage.qml:101
 msgid "Remove"
 msgstr "Entfernen"
 
@@ -1142,7 +1142,7 @@ msgid ""
 "Logs you in automatically and starts Steam, like a console. The desktop is "
 "then used for one session only."
 msgstr ""
-"Meldet dich automatisch an und startet Steam, wie bei einer Konsole. Der "
+"Meldet Sie automatisch an und startet Steam, wie bei einer Konsole. Der "
 "Desktop gilt dann jeweils nur für eine Sitzung."
 
 #: qml/pages/GamingPage.qml:203
@@ -1158,9 +1158,9 @@ msgid ""
 "This ends the desktop session. Save your work first. Steam starts in gaming "
 "mode; \"Switch to Desktop\" in Steam's power menu brings you back."
 msgstr ""
-"Das beendet die Desktop-Sitzung. Speichere vorher deine Arbeit. Steam "
+"Das beendet die Desktop-Sitzung. Speichern Sie vorher Ihre Arbeit. Steam "
 "startet im Gaming-Modus; „Zum Desktop wechseln“ im Ein/Aus-Menü von Steam "
-"bringt dich zurück."
+"bringt Sie zurück."
 
 #: qml/pages/GamingPage.qml:208
 msgid "Switch to gaming mode"
@@ -1346,15 +1346,19 @@ msgid "Installed – restart and enroll the key in the blue screen"
 msgstr ""
 "Installiert – neu starten und den Schlüssel im blauen Bildschirm eintragen"
 
-#: qml/pages/KernelPage.qml:41
+#: qml/pages/KernelPage.qml:42
+msgid "Installed, but the openSUSE kernel starts by default"
+msgstr "Installiert, aber standardmäßig startet der openSUSE-Kernel"
+
+#: qml/pages/KernelPage.qml:43
 msgid "Installed – restart the computer to start it"
 msgstr "Installiert – starten Sie den Computer neu, um ihn zu verwenden"
 
-#: qml/pages/KernelPage.qml:50
+#: qml/pages/KernelPage.qml:52
 msgid "Install the NazoOS kernel?"
 msgstr "NazoOS-Kernel installieren?"
 
-#: qml/pages/KernelPage.qml:51
+#: qml/pages/KernelPage.qml:53
 msgid ""
 "The NazoOS kernel becomes the default in the boot menu. The openSUSE kernel "
 "stays installed: if something does not work, pick it under \"Advanced "
@@ -1364,7 +1368,7 @@ msgstr ""
 "installiert: Wenn etwas nicht funktioniert, wählen Sie ihn im Bootmenü unter "
 "„Advanced options“."
 
-#: qml/pages/KernelPage.qml:52
+#: qml/pages/KernelPage.qml:54
 msgid ""
 "After the restart a blue screen (MokManager) asks to enroll the NazoOS key. "
 "Choose \"Enroll MOK\", \"Continue\", \"Yes\" and type the password from the "
@@ -1375,11 +1379,11 @@ msgstr ""
 "„Yes“ und geben Sie das Passwort aus dem nächsten Schritt ein (Vorschlag: "
 "nazoos)."
 
-#: qml/pages/KernelPage.qml:63
+#: qml/pages/KernelPage.qml:66
 msgid "Remove the openSUSE kernel"
 msgstr "openSUSE-Kernel entfernen"
 
-#: qml/pages/KernelPage.qml:64
+#: qml/pages/KernelPage.qml:67
 msgid ""
 "Once the NazoOS kernel has started cleanly %1 times in a row, the openSUSE "
 "kernel can be removed. Updates then never install it again. Older NazoOS "
@@ -1389,15 +1393,15 @@ msgstr ""
 "kann der openSUSE-Kernel entfernt werden. Updates installieren ihn dann "
 "nicht wieder. Ältere NazoOS-Kernel und Snapshots bleiben als Rückfalloption."
 
-#: qml/pages/KernelPage.qml:65
+#: qml/pages/KernelPage.qml:68
 msgid "Clean starts in a row: %1 of %2"
 msgstr "Fehlerfreie Starts hintereinander: %1 von %2"
 
-#: qml/pages/KernelPage.qml:72
+#: qml/pages/KernelPage.qml:75
 msgid "Remove the openSUSE kernel?"
 msgstr "openSUSE-Kernel entfernen?"
 
-#: qml/pages/KernelPage.qml:73
+#: qml/pages/KernelPage.qml:76
 msgid ""
 "Only the NazoOS kernel stays installed. You can bring the openSUSE kernel "
 "back here at any time."
@@ -1405,11 +1409,11 @@ msgstr ""
 "Nur der NazoOS-Kernel bleibt installiert. Sie können den openSUSE-Kernel "
 "hier jederzeit zurückholen."
 
-#: qml/pages/KernelPage.qml:82
+#: qml/pages/KernelPage.qml:85
 msgid "Back to the openSUSE kernel"
 msgstr "Zurück zum openSUSE-Kernel"
 
-#: qml/pages/KernelPage.qml:83
+#: qml/pages/KernelPage.qml:86
 msgid ""
 "Makes the openSUSE kernel the default again and installs it if it was "
 "removed. The NazoOS kernel can then be removed while the openSUSE kernel is "
@@ -1419,19 +1423,19 @@ msgstr ""
 "entfernt wurde. Der NazoOS-Kernel kann dann entfernt werden, während der "
 "openSUSE-Kernel läuft."
 
-#: qml/pages/KernelPage.qml:87
+#: qml/pages/KernelPage.qml:90
 msgid "Use openSUSE kernel"
 msgstr "openSUSE-Kernel verwenden"
 
-#: qml/pages/KernelPage.qml:93
+#: qml/pages/KernelPage.qml:96
 msgid "Remove NazoOS kernel"
 msgstr "NazoOS-Kernel entfernen"
 
-#: qml/pages/KernelPage.qml:96
+#: qml/pages/KernelPage.qml:99
 msgid "Remove the NazoOS kernel?"
 msgstr "NazoOS-Kernel entfernen?"
 
-#: qml/pages/KernelPage.qml:97
+#: qml/pages/KernelPage.qml:100
 msgid ""
 "The NazoOS kernel and its driver modules are removed. You can install it "
 "again later."
@@ -1439,15 +1443,15 @@ msgstr ""
 "Der NazoOS-Kernel und seine Treibermodule werden entfernt. Sie können ihn "
 "später wieder installieren."
 
-#: qml/pages/KernelPage.qml:105
+#: qml/pages/KernelPage.qml:108
 msgid "Secure Boot"
 msgstr "Secure Boot"
 
-#: qml/pages/KernelPage.qml:111
+#: qml/pages/KernelPage.qml:114
 msgid "NazoOS key (MOK)"
 msgstr "NazoOS-Schlüssel (MOK)"
 
-#: qml/pages/KernelPage.qml:113
+#: qml/pages/KernelPage.qml:116
 msgid ""
 "With Secure Boot the computer only starts kernels with a trusted key. The "
 "NazoOS key is added once in the blue MokManager screen that appears after a "
@@ -1461,7 +1465,7 @@ msgstr ""
 "„Yes“, dann das gewählte Passwort (Vorschlag: nazoos). Bis dahin startet der "
 "NazoOS-Kernel nicht; wählen Sie im Startmenü den openSUSE-Kernel."
 
-#: qml/pages/KernelPage.qml:114
+#: qml/pages/KernelPage.qml:117
 msgid ""
 "Secure Boot is off, the NazoOS kernel starts without the key. Enroll it "
 "anyway: kernel updates expect it, and Secure Boot can be turned on later. It "
@@ -1475,19 +1479,19 @@ msgstr ""
 "Bildschirm nach einem Neustart eingetragen: „Enroll MOK“ → „Continue“ → "
 "„Yes“, dann das gewählte Passwort (Vorschlag: nazoos)."
 
-#: qml/pages/KernelPage.qml:115
+#: qml/pages/KernelPage.qml:118
 msgid "Key enrolled"
 msgstr "Schlüssel eingetragen"
 
-#: qml/pages/KernelPage.qml:116
+#: qml/pages/KernelPage.qml:119
 msgid "Waiting for MokManager – restart the computer"
 msgstr "Wartet auf MokManager – starten Sie den Computer neu"
 
-#: qml/pages/KernelPage.qml:117
+#: qml/pages/KernelPage.qml:120
 msgid "Key not enrolled"
 msgstr "Schlüssel nicht eingetragen"
 
-#: qml/pages/KernelPage.qml:122
+#: qml/pages/KernelPage.qml:125
 msgid "Enroll key"
 msgstr "Schlüssel eintragen"
 
@@ -1860,8 +1864,8 @@ msgid ""
 "is taken first, so you can go back. Report problems on GitHub."
 msgstr ""
 "NazoOS-Pakete werden durch ihre neuesten, ungetesteten Versionen ersetzt. "
-"Vorher wird ein Snapshot erstellt, du kannst also zurück. Probleme bitte auf "
-"GitHub melden."
+"Vorher wird ein Snapshot erstellt, Sie können also zurück. Probleme bitte "
+"auf GitHub melden."
 
 #: qml/pages/SystemPage.qml:62
 msgid ""
@@ -1960,7 +1964,7 @@ msgid ""
 "Welcome no longer opens at login. You find it in the application menu as "
 "\"NazoOS Welcome\"."
 msgstr ""
-"Welcome öffnet sich nicht mehr bei der Anmeldung. Du findest es im "
+"Welcome öffnet sich nicht mehr bei der Anmeldung. Sie finden es im "
 "Anwendungsmenü als „NazoOS Willkommen“."
 
 #: qml/pages/WelcomePage.qml:60

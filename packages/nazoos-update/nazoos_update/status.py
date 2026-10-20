@@ -58,8 +58,22 @@ def is_live():
     return Path("/usr/share/calamares/settings.conf").exists()
 
 
+def boot_time():
+    """Start of the running system (seconds since 1970), or 0."""
+    try:
+        for line in Path("/proc/stat").read_text().splitlines():
+            if line.startswith("btime "):
+                return int(line.split()[1])
+    except (OSError, ValueError):
+        pass
+    return 0
+
+
 def collect():
     st = read_status()
+    # Restarted since the update: no restart needed any more
+    if st.get("needs_reboot") and st.get("updated", 0) < boot_time():
+        st["needs_reboot"] = False
     st["snapshot"] = booted_snapshot()
     st["live"] = is_live()
     st["packages"] = st.get("packages") or []

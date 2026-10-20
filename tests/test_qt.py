@@ -60,14 +60,14 @@ def test_error_line_is_translated(app, tmp_path):
         app, tmp_path, f"print({line!r})", 1,
         translate=lambda s: german.get(s, s))
     assert not ok
-    assert msg == "Etwas ist schiefgegangen. schlägt weiter fehl: a.service"
+    assert msg == "Etwas ist schiefgegangen. Schlägt weiter fehl: a.service"
 
 
 def test_last_line_without_newline(app, tmp_path):
     line = errors.encode("unknown user")
     (ok, msg), _log, _p = run_fake(
         app, tmp_path, f"sys.stdout.write({line!r})", 1)
-    assert msg == "Something went wrong. unknown user"
+    assert msg == "Something went wrong. Unknown user"
 
 
 def test_pkexec_cancelled(app, tmp_path):
@@ -112,3 +112,23 @@ def test_refresh_survives_a_broken_probe(app, monkeypatch):
     b.refresh()
     wait(app, lambda: not b._refreshing)
     assert b.state.get("error") == "no lspci"
+
+
+def test_welcome_passes_the_action_to_the_helper(app, tmp_path,
+                                                 monkeypatch):
+    from nazoos_welcome import backend, i18n
+
+    script = tmp_path / "helper"
+    script.write_text("import sys\nprint('argv', sys.argv[1:])\n")
+    monkeypatch.setattr(backend, "HELPER", str(script))
+    monkeypatch.setattr(
+        backend, "HelperProcess",
+        lambda helper, tr, parent: HelperProcess(
+            helper, tr, parent, launcher=(sys.executable,)))
+    b = backend.Backend(i18n.translator())
+    b.refresh = lambda: None
+    seen = []
+    b.actionFinished.connect(lambda *a: seen.append(a))
+    b.run("automount-remove", ["uuid-1"])
+    wait(app, lambda: seen)
+    assert "argv ['automount-remove', 'uuid-1']" in b._log

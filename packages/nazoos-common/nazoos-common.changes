@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Oct 19 15:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Secure Boot key check also finds an enrolled key on a running
+  NazoOS kernel (root sees "built-in trusted keyring" there).
+- New covered(): key or its CA is enrolled, no MokManager needed.
+- Helper errors after "Something went wrong." start capitalised.
+
+-------------------------------------------------------------------
 Mon Oct 19 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - New package: code shared by nazoos-welcome and nazoos-update

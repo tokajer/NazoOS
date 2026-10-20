@@ -2,12 +2,14 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Secure Boot key of kernel-nazoos (ADR 0024), no Qt here.
 
-enrolled() works as a user; pending() and status() need root
+enrolled() works as a user; pending(), status() and covered() need root
 (mokutil --list-new reads MokNew).
 """
 
 import re
 import subprocess
+import tempfile
+from pathlib import Path
 
 KERNEL_PACKAGE = "kernel-nazoos"
 CERT_PATH = re.compile(r"/etc/uefi/certs/\w+\.crt")
@@ -42,10 +44,44 @@ def signing_cert(package=KERNEL_PACKAGE):
 
 def enrolled(cert):
     """The key CERT is already enrolled. On a running kernel-nazoos
-    root gets "already in the built-in trusted keyring" instead, so an
-    enrolled key may look missing there (VM 2026-10-19)."""
-    return "already enrolled" in _out(["mokutil", "--test-key",
-                                       cert]).lower()
+    root's "mokutil --test-key" answers "already in the built-in trusted
+    keyring" instead (VM 2026-10-19), so the fingerprint is also looked
+    up in the enrolled list."""
+    if "already enrolled" in _out(["mokutil", "--test-key", cert]).lower():
+        return True
+    fpr = fingerprint(cert)
+    listed = _out(["mokutil", "--list-enrolled"]).lower().replace(":", "")
+    return bool(fpr) and fpr in listed
+
+
+def covered(cert):
+    """Root only: CERT or the CA that signed it is enrolled, so it needs
+    no MokManager ("mokutil --import --ca-check" skips it). openSUSE's
+    KMP keys are signed by the openSUSE CA that shim brings along."""
+    if enrolled(cert):
+        return True
+    with tempfile.TemporaryDirectory() as d:
+        try:
+            subprocess.run(["mokutil", "--export"], cwd=d,
+                           stdin=subprocess.DEVNULL, capture_output=True,
+                           timeout=30)
+        except (OSError, subprocess.TimeoutExpired):
+            return False
+        pems = "".join(_out(["openssl", "x509", "-inform", "DER", "-in",
+                             str(der)])
+                       for der in sorted(Path(d).glob("MOK-*.der")))
+        if not pems:
+            return False
+        bundle = Path(d, "enrolled.pem")
+        bundle.write_text(pems)
+        try:
+            return subprocess.run(
+                ["openssl", "verify", "-partial_chain", "-no_check_time",
+                 "-CAfile", str(bundle), cert],
+                stdin=subprocess.DEVNULL, capture_output=True,
+                timeout=30).returncode == 0
+        except (OSError, subprocess.TimeoutExpired):
+            return False
 
 
 def fingerprint(cert):

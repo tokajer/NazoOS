@@ -36,11 +36,22 @@ def say(text):
     print(text, flush=True)
 
 
-def run(cmd, check=True):
+def run(cmd, check=True, on_line=None):
     """Run CMD with its output in the log. zypper's ZYPPER_INFO codes
-    count as success (a note is logged)."""
+    count as success (a note is logged). ON_LINE(text), if given, also
+    sees every output line."""
     say("$ " + " ".join(cmd))
-    rc = subprocess.run(cmd, stdin=subprocess.DEVNULL).returncode
+    if on_line is None:
+        rc = subprocess.run(cmd, stdin=subprocess.DEVNULL).returncode
+    else:
+        with subprocess.Popen(cmd, stdin=subprocess.DEVNULL,
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT) as proc:
+            for raw in proc.stdout:
+                sys.stdout.buffer.write(raw)
+                sys.stdout.flush()
+                on_line(raw.decode(errors="replace"))
+        rc = proc.returncode
     if cmd[0] == "zypper" and rc in ZYPPER_INFO:
         say(f"Note: {ZYPPER_INFO[rc]}")
         return 0

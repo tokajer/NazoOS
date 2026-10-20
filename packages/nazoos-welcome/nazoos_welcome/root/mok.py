@@ -84,10 +84,8 @@ def mok_queue(cert):
     if rc != 0:
         raise Fail("the Secure Boot key could not be prepared (mokutil "
                    "exit code {rc})", rc=rc)
-    # On a running kernel-nazoos, root's "mokutil --test-key" answers
-    # "already in the built-in trusted keyring" instead of "already
-    # enrolled", so an enrolled key looks missing; the import then only
-    # prints "CA enrolled. Skip" with exit code 0 (VM 2026-10-19)
+    # mokutil may skip the import with exit code 0 ("CA enrolled. Skip"):
+    # only a key that waits in MokNew means MokManager at the next boot
     if mok.status(cert) != "pending":
         say("Secure Boot key: already enrolled, nothing to do")
         return False

@@ -143,3 +143,38 @@ def test_nazoos_key_missing(monkeypatch, update_helper, uefi, cert, status,
     monkeypatch.setattr(mok, "signing_cert", lambda: cert)
     monkeypatch.setattr(mok, "status", lambda _c: status)
     assert update_helper.nazoos_key_missing() is expected
+
+
+def test_scriptlet_failed_names_the_package(update_helper):
+    line = ("warning: %post(xpadneo-ueficert-0.10.1-1.32.x86_64) "
+            "scriptlet failed, exit status 255\n")
+    m = update_helper.SCRIPTLET_FAILED.search(line)
+    assert m.group(1) == "xpadneo-ueficert"
+
+
+@pytest.mark.parametrize("failed, covered, expected", [
+    (["xpadneo-ueficert"], True, True),
+    (["xpadneo-ueficert"], False, False),
+    (["xpadneo-ueficert", "kernel-default"], True, False),
+    ([], True, False),
+])
+def test_only_trusted_certs(monkeypatch, update_helper, failed, covered,
+                            expected):
+    monkeypatch.setattr(update_helper.helper, "output",
+                        lambda cmd: "/etc/uefi\n/etc/uefi/certs/F8CEAA94.crt\n")
+    monkeypatch.setattr(update_helper.mok, "covered", lambda c: covered)
+    assert update_helper.only_trusted_certs(failed) is expected
+
+
+def test_label_waits_for_snapper_cleanup(monkeypatch, update_helper):
+    states = iter([0, 0, 3])     # active, active, inactive
+    calls = []
+
+    def capture(cmd):
+        calls.append(cmd[0])
+        return subprocess.CompletedProcess(cmd, next(states), "", "")
+
+    monkeypatch.setattr(update_helper, "capture", capture)
+    monkeypatch.setattr(update_helper.time, "sleep", lambda s: None)
+    update_helper.wait_for_cleanup()
+    assert calls == ["systemctl"] * 3

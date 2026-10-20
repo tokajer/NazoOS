@@ -26,6 +26,15 @@ def test_status_enrolled(tools):
     assert mok.status("/c.crt") == "enrolled"
 
 
+def test_enrolled_by_fingerprint_on_kernel_nazoos(tools):
+    # root on a running kernel-nazoos: --test-key names the keyring
+    tools["mokutil --test-key"] = ("/c.crt is already in the built-in "
+                                   "trusted keyring\n")
+    tools["openssl x509"] = FPR
+    tools["mokutil --list-enrolled"] = "SHA1 Fingerprint: ab:cd:ef:01\n"
+    assert mok.status("/c.crt") == "enrolled"
+
+
 def test_status_pending_matches_the_fingerprint(tools):
     tools["openssl x509"] = FPR
     tools["mokutil --list-new"] = "SHA1 Fingerprint: ab:cd:ef:01\n"
@@ -78,3 +87,14 @@ def test_stable(monkeypatch, state, prefer, count, installed, expected):
     kernelstate.write_boots({"count": count})
     monkeypatch.setattr(kernelstate, "_installed", lambda n: n in installed)
     assert kernelstate.stable() is expected
+
+
+@pytest.mark.parametrize("updated, expected", [(50, False), (150, True)])
+def test_restart_clears_needs_reboot(monkeypatch, updated, expected):
+    from nazoos_update import status
+
+    monkeypatch.setattr(status, "read_status", lambda: {
+        "needs_reboot": True, "updated": updated})
+    monkeypatch.setattr(status, "boot_time", lambda: 100)
+    monkeypatch.setattr(status, "booted_snapshot", lambda: 0)
+    assert status.collect()["needs_reboot"] is expected

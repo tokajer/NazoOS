@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Mon Oct 19 15:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Fix: every action failed with "unknown action" (action name was
+  not passed to the helper since the nazoos-common split).
+- Kernel page: no offer to remove the openSUSE kernel right after
+  going back to it; clearer status for a kernel that is installed
+  but not the default.
+- German: formal "Sie" in all texts.
+
+-------------------------------------------------------------------
 Mon Oct 19 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Error messages of the root helper are translated (German).

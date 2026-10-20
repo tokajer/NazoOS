@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Mon Oct 19 15:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- An update no longer fails when only the key import of an openSUSE
+  driver package (*-ueficert) fails while its key is already trusted.
+- "Restart required" disappears after the restart.
+- Naming snapshots waits for snapper-cleanup, which failed with
+  "Config is locked" before.
+
+-------------------------------------------------------------------
 Mon Oct 19 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Error messages of the root helper are translated (German).

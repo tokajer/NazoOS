@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 14:19+0200\n"
+"POT-Creation-Date: 2026-10-19 17:32+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,34 +17,34 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../nazoos-common/nazoos_common/helper.py:48
+#: ../nazoos-common/nazoos_common/helper.py:59
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:68
+#: ../nazoos-common/nazoos_common/helper.py:79
 msgid "missing argument"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:70
+#: ../nazoos-common/nazoos_common/helper.py:81
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:79
+#: ../nazoos-common/nazoos_common/helper.py:90
 msgid "must run as root (via pkexec)"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:83
+#: ../nazoos-common/nazoos_common/helper.py:94
 msgid "unknown action"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:94
+#: ../nazoos-common/nazoos_common/helper.py:105
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:98
+#: ../nazoos-common/nazoos_common/helper.py:109
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr ""
@@ -501,7 +501,7 @@ msgstr ""
 msgid "the Secure Boot key could not be prepared (mokutil exit code {rc})"
 msgstr ""
 
-#: nazoos_welcome/root/mok.py:114 nazoos_welcome/root/mok.py:127
+#: nazoos_welcome/root/mok.py:112 nazoos_welcome/root/mok.py:125
 msgid "kernel-nazoos has no signing certificate"
 msgstr ""
 
@@ -694,15 +694,15 @@ msgstr ""
 #: qml/pages/AppsPage.qml:110 qml/pages/DriversPage.qml:55
 #: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
 #: qml/pages/DriversPage.qml:120 qml/pages/GamingPage.qml:227
-#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:47
-#: qml/pages/KernelPage.qml:53 qml/pages/WelcomePage.qml:103
+#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:49
+#: qml/pages/KernelPage.qml:55 qml/pages/WelcomePage.qml:103
 msgid "Install"
 msgstr ""
 
 #: qml/pages/AppsPage.qml:110 qml/pages/AppsPage.qml:118
 #: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
-#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:69
-#: qml/pages/KernelPage.qml:74 qml/pages/KernelPage.qml:98
+#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:72
+#: qml/pages/KernelPage.qml:77 qml/pages/KernelPage.qml:101
 msgid "Remove"
 msgstr ""
 
@@ -1236,91 +1236,95 @@ msgstr ""
 msgid "Installed – restart and enroll the key in the blue screen"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:41
+#: qml/pages/KernelPage.qml:42
+msgid "Installed, but the openSUSE kernel starts by default"
+msgstr ""
+
+#: qml/pages/KernelPage.qml:43
 msgid "Installed – restart the computer to start it"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:50
+#: qml/pages/KernelPage.qml:52
 msgid "Install the NazoOS kernel?"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:51
+#: qml/pages/KernelPage.qml:53
 msgid ""
 "The NazoOS kernel becomes the default in the boot menu. The openSUSE kernel "
 "stays installed: if something does not work, pick it under \"Advanced "
 "options\" in the boot menu."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:52
+#: qml/pages/KernelPage.qml:54
 msgid ""
 "After the restart a blue screen (MokManager) asks to enroll the NazoOS key. "
 "Choose \"Enroll MOK\", \"Continue\", \"Yes\" and type the password from the "
 "next step (suggested: nazoos)."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:63
+#: qml/pages/KernelPage.qml:66
 msgid "Remove the openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:64
+#: qml/pages/KernelPage.qml:67
 msgid ""
 "Once the NazoOS kernel has started cleanly %1 times in a row, the openSUSE "
 "kernel can be removed. Updates then never install it again. Older NazoOS "
 "kernels and snapshots stay as fallback."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:65
+#: qml/pages/KernelPage.qml:68
 msgid "Clean starts in a row: %1 of %2"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:72
+#: qml/pages/KernelPage.qml:75
 msgid "Remove the openSUSE kernel?"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:73
+#: qml/pages/KernelPage.qml:76
 msgid ""
 "Only the NazoOS kernel stays installed. You can bring the openSUSE kernel "
 "back here at any time."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:82
+#: qml/pages/KernelPage.qml:85
 msgid "Back to the openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:83
+#: qml/pages/KernelPage.qml:86
 msgid ""
 "Makes the openSUSE kernel the default again and installs it if it was "
 "removed. The NazoOS kernel can then be removed while the openSUSE kernel is "
 "running."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:87
+#: qml/pages/KernelPage.qml:90
 msgid "Use openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:93
+#: qml/pages/KernelPage.qml:96
 msgid "Remove NazoOS kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:96
+#: qml/pages/KernelPage.qml:99
 msgid "Remove the NazoOS kernel?"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:97
+#: qml/pages/KernelPage.qml:100
 msgid ""
 "The NazoOS kernel and its driver modules are removed. You can install it "
 "again later."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:105
+#: qml/pages/KernelPage.qml:108
 msgid "Secure Boot"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:111
+#: qml/pages/KernelPage.qml:114
 msgid "NazoOS key (MOK)"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:113
+#: qml/pages/KernelPage.qml:116
 msgid ""
 "With Secure Boot the computer only starts kernels with a trusted key. The "
 "NazoOS key is added once in the blue MokManager screen that appears after a "
@@ -1329,7 +1333,7 @@ msgid ""
 "choose the openSUSE kernel in the boot menu."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:114
+#: qml/pages/KernelPage.qml:117
 msgid ""
 "Secure Boot is off, the NazoOS kernel starts without the key. Enroll it "
 "anyway: kernel updates expect it, and Secure Boot can be turned on later. It "
@@ -1338,19 +1342,19 @@ msgid ""
 "(suggested: nazoos)."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:115
+#: qml/pages/KernelPage.qml:118
 msgid "Key enrolled"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:116
+#: qml/pages/KernelPage.qml:119
 msgid "Waiting for MokManager – restart the computer"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:117
+#: qml/pages/KernelPage.qml:120
 msgid "Key not enrolled"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:122
+#: qml/pages/KernelPage.qml:125
 msgid "Enroll key"
 msgstr ""
 

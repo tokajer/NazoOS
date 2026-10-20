@@ -38,6 +38,8 @@ Kirigami.ScrollablePage {
                       ? L.tr("Installed – enroll the NazoOS key below first (Secure Boot)")
                     : page.k.installed && page.k.secureBoot && page.k.mok === "pending"
                       ? L.tr("Installed – restart and enroll the key in the blue screen")
+                    // After "Back to the openSUSE kernel" a restart starts that one
+                    : page.k.installed && !page.k.preferred ? L.tr("Installed, but the openSUSE kernel starts by default")
                     : page.k.installed ? L.tr("Installed – restart the computer to start it")
                     : ""
             statusType: page.k.blocked ? 3 : page.k.running ? 1 : page.k.installed ? 2 : 0
@@ -58,7 +60,8 @@ Kirigami.ScrollablePage {
         }
 
         SettingCard {
-            visible: page.k.running === true && page.k.defaultInstalled === true && !page.k.only
+            // Like kernelstate.stable(): not after "Back to the openSUSE kernel"
+            visible: page.k.running === true && page.k.preferred === true && page.k.defaultInstalled === true && !page.k.only
             iconName: "edit-delete"
             title: L.tr("Remove the openSUSE kernel")
             subtitle: L.tr("Once the NazoOS kernel has started cleanly %1 times in a row, the openSUSE kernel can be removed. Updates then never install it again. Older NazoOS kernels and snapshots stay as fallback.").arg(page.k.stableBoots)
