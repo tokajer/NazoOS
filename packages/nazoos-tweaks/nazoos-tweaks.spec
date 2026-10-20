@@ -24,7 +24,8 @@ TCP BBR, transparent huge page defrag tuning, Nvidia driver options,
 a journal size limit, the i2c group for DDC/CI and RGB devices,
 larger shader caches, GameMode defaults, a lower PipeWire default
 latency, the SDDM greeter on Wayland, the NazoOS firewall zone and the
-signing key of the NazoOS package repository and a timer that downloads
+signing key of the NazoOS package repository, a polkit rule that lets
+fwupd-refresh.service load firmware metadata and a timer that downloads
 the Xbox wireless dongle firmware once the system is online, tuned for gaming and desktop
 responsiveness on NazoOS.
 
@@ -60,6 +61,9 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/environment.d \
 install -Dm0644 sysusers.d/nazoos-i2c.conf %{buildroot}%{_sysusersdir}/nazoos-i2c.conf
 # Firewall zone, made the default zone by kiwi config.sh (ADR 0021)
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/firewalld/zones firewalld/nazoos.xml
+# Before openSUSE's 90-default-privs.rules, which would deny fwupd-refresh
+install -Dm0644 -t %{buildroot}%{_datadir}/polkit-1/rules.d \
+  polkit/49-nazoos-fwupd-refresh.rules
 install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
 # Signing key of the OBS projects home:Tokajer:nazoos:* (osc signkey
 # home:Tokajer). Same place as openSUSE-build-key; the image imports all
@@ -111,6 +115,9 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/rpm/gnupg/keys rpm-keys/*.asc
 %dir %{_prefix}/lib/firewalld
 %dir %{_prefix}/lib/firewalld/zones
 %{_prefix}/lib/firewalld/zones/nazoos.xml
+%dir %{_datadir}/polkit-1
+%dir %{_datadir}/polkit-1/rules.d
+%{_datadir}/polkit-1/rules.d/49-nazoos-fwupd-refresh.rules
 %config(noreplace) %{_sysconfdir}/gamemode.ini
 %dir %{_prefix}/lib/rpm/gnupg
 %dir %{_prefix}/lib/rpm/gnupg/keys

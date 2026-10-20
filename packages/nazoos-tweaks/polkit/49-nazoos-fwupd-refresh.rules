@@ -1,0 +1,15 @@
+// SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+// Let fwupd-refresh.service (enabled by our preset) load new firmware
+// metadata. fwupd's own rule (org.freedesktop.fwupd.rules) allows the same,
+// but polkit runs rules in file name order and openSUSE's
+// 90-default-privs.rules answers auth_admin first, so the unit failed with
+// "Failed to obtain auth" whenever the LVFS had new metadata.
+polkit.addRule(function(action, subject) {
+    if ((action.id == "org.freedesktop.fwupd.get-remotes" ||
+            action.id == "org.freedesktop.fwupd.refresh-remote") &&
+        subject.user == "fwupd-refresh") {
+        return polkit.Result.YES;
+    }
+});

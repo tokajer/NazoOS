@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Oct 20 07:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Polkit rule 49-nazoos-fwupd-refresh.rules: fwupd-refresh.service
+  failed with "Failed to obtain auth" whenever new LVFS metadata was
+  available, because openSUSE's 90-default-privs.rules runs before
+  fwupd's own rule and asks for the admin password
+
+-------------------------------------------------------------------
 Mon Oct 12 21:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Timer nazoos-xone-firmware: downloads the Xbox wireless dongle
