@@ -133,24 +133,71 @@ def test_changed_card_is_read_before_the_full_refresh(app, monkeypatch):
     assert not b._quick
 
 
-def test_welcome_passes_the_action_to_the_helper(app, tmp_path,
-                                                 monkeypatch):
+@pytest.fixture
+def welcome(app, tmp_path, monkeypatch):
+    """A welcome Backend whose helper is a fake script run without pkexec.
+    Returns (backend, finished results)."""
+    from nazoos_common import qt
     from nazoos_welcome import backend, i18n
 
     script = tmp_path / "helper"
-    script.write_text("import sys\nprint('argv', sys.argv[1:])\n")
+    script.write_text(
+        "import sys\nprint('argv', sys.argv[1:])\n"
+        "sys.exit(1 if sys.argv[1] == 'fails' else 0)\n")
     monkeypatch.setattr(backend, "HELPER", str(script))
     monkeypatch.setattr(
-        backend, "HelperProcess",
+        qt, "HelperProcess",
         lambda helper, tr, parent: HelperProcess(
             helper, tr, parent, launcher=(sys.executable,)))
+    monkeypatch.setitem(backend.catalog.ACTION_LABELS, "fails", "Failing")
     b = backend.Backend(i18n.translator())
     b.refresh = lambda: None
     seen = []
     b.actionFinished.connect(lambda *a: seen.append(a))
+    return b, seen
+
+
+def test_welcome_passes_the_action_to_the_helper(app, welcome):
+    b, seen = welcome
     b.run("automount-remove", ["uuid-1"])
     wait(app, lambda: seen)
     assert "argv ['automount-remove', 'uuid-1']" in b._log
+
+
+def test_retry_repeats_the_failed_action(app, welcome):
+    b, seen = welcome
+    assert not b.canRetry
+    b.run("fails", ["x"])
+    wait(app, lambda: seen)
+    assert seen[-1][:2] == ("fails", False)
+    assert b.canRetry
+    b.retry()
+    wait(app, lambda: len(seen) == 2)
+    assert b._log.count("argv ['fails', 'x']") == 2
+
+
+def test_retry_of_a_mok_action_asks_for_the_password_again(app, welcome):
+    b, seen = welcome
+    b.run("fails", ["x"], "hash")
+    wait(app, lambda: seen)
+    asked = []
+    b.mokRetryRequested.connect(lambda a, args: asked.append((a, args)))
+    b.retry()
+    assert asked == [("fails", ["x"])]
+    assert not b.busy
+
+
+def test_failed_user_service_switch_offers_no_retry(app, welcome):
+    b, seen = welcome
+    b.run("fails", [])
+    wait(app, lambda: seen)
+    assert b.canRetry
+    # The next task (a user unit, no helper run) replaces what was retried
+    b._begin("service")
+    b._done("service", False, "no")
+    assert not b.canRetry
+    b.retry()
+    assert not b.busy
 
 
 def test_second_start_hands_page_and_token_over(app, tmp_path, monkeypatch):

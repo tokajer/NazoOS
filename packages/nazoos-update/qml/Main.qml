@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import org.kde.kirigami as Kirigami
+import org.nazoos.common
 
 Kirigami.ApplicationWindow {
     id: root
@@ -356,41 +357,12 @@ Kirigami.ApplicationWindow {
             }
         ]
         onOpened: logScroll.toEnd()
-        QQC2.ScrollView {
+        // Fixed height: otherwise it grows with the text and the dialog
+        // scrolls instead, where we cannot follow the end
+        LogView {
             id: logScroll
-            // Fixed height: otherwise it grows with the text and the dialog
-            // scrolls instead, where we cannot follow the end
             implicitHeight: Kirigami.Units.gridUnit * 18
-            // Follow new lines like `tail -f`, unless the user scrolled up
-            // to read; scrolling back to the end follows again
-            property real lastHeight: 0
-            function toEnd() {
-                const f = contentItem
-                f.contentY = Math.max(0, f.contentHeight - f.height)
-            }
-            Connections {
-                target: logScroll.contentItem
-                function onContentHeightChanged() {
-                    const f = logScroll.contentItem
-                    if (f.contentY + f.height >= logScroll.lastHeight - Kirigami.Units.gridUnit * 2)
-                        logScroll.toEnd()
-                    logScroll.lastHeight = f.contentHeight
-                }
-            }
-            // TextEdit, not TextArea: a TextArea scrolls back to its cursor
-            // (the start) whenever the text changes
-            TextEdit {
-                width: logScroll.availableWidth
-                padding: Kirigami.Units.smallSpacing
-                readOnly: true
-                selectByMouse: true
-                wrapMode: TextEdit.Wrap
-                font.family: "monospace"
-                color: Kirigami.Theme.textColor
-                selectionColor: Kirigami.Theme.highlightColor
-                selectedTextColor: Kirigami.Theme.highlightedTextColor
-                text: backend.log || L.tr("Nothing has run yet.")
-            }
+            text: backend.log || L.tr("Nothing has run yet.")
         }
     }
 }

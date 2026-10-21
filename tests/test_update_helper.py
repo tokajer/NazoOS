@@ -1,12 +1,13 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""nazoos-update-helper: zypper XML, mirror check, snapshot names."""
+"""Root actions of nazoos-update: zypper XML, mirror check, snapshot names."""
 
 import subprocess
 
 import pytest
 
 from nazoos_common.helper import Fail
+from nazoos_update.root import check, snapshots, update
 
 DUP_XML = """<?xml version='1.0'?>
 <stream>
@@ -60,20 +61,20 @@ DETAILED_XML = """<?xml version='1.0'?>
 """
 
 
-def fake_zypper(monkeypatch, helper, stdout, rc=0):
+def fake_zypper(monkeypatch, stdout, rc=0):
     calls = []
 
     def capture(cmd):
         calls.append(cmd)
         return subprocess.CompletedProcess(cmd, rc, stdout, "")
 
-    monkeypatch.setattr(helper, "capture", capture)
+    monkeypatch.setattr(check, "capture", capture)
     return calls
 
 
-def test_dup_preview_lists_the_changes(monkeypatch, update_helper):
-    calls = fake_zypper(monkeypatch, update_helper, DUP_XML)
-    pkgs, problems = update_helper.dup_preview()
+def test_dup_preview_lists_the_changes(monkeypatch):
+    calls = fake_zypper(monkeypatch, DUP_XML)
+    pkgs, problems = check.dup_preview()
     assert problems == []
     assert "--dry-run" in calls[0] and "--xmlout" in calls[0]
     assert [(p["name"], p["kind"], p["type"]) for p in pkgs] == [
@@ -83,49 +84,49 @@ def test_dup_preview_lists_the_changes(monkeypatch, update_helper):
     assert pkgs[0]["old"] == "20261017-1.1"
 
 
-def test_dup_preview_problems(monkeypatch, update_helper):
-    fake_zypper(monkeypatch, update_helper, PROBLEM_XML, rc=4)
-    assert update_helper.dup_preview() == (
+def test_dup_preview_problems(monkeypatch):
+    fake_zypper(monkeypatch, PROBLEM_XML, rc=4)
+    assert check.dup_preview() == (
         None, ["nothing provides libfoo.so.1 needed by bar"])
 
 
-def test_dup_preview_problem_from_prompt(monkeypatch, update_helper):
-    fake_zypper(monkeypatch, update_helper, PROMPT_XML, rc=4)
-    assert update_helper.dup_preview() == (None, [
+def test_dup_preview_problem_from_prompt(monkeypatch):
+    fake_zypper(monkeypatch, PROMPT_XML, rc=4)
+    assert check.dup_preview() == (None, [
         "nothing provides 'libfoo.so.1' needed by the to be installed "
         "bar-1.0-1.1.x86_64"])
 
 
-def test_dup_preview_problem_detailed(monkeypatch, update_helper):
-    fake_zypper(monkeypatch, update_helper, DETAILED_XML, rc=4)
-    assert update_helper.dup_preview() == (None, [
+def test_dup_preview_problem_detailed(monkeypatch):
+    fake_zypper(monkeypatch, DETAILED_XML, rc=4)
+    assert check.dup_preview() == (None, [
         "nothing provides 'nazoos-x' needed by the to be installed "
         "foo-2-1.noarch; the installed foo-1-1.noarch does not belong to a "
         "distupgrade repository and must be replaced"])
 
 
-def test_reboot_hint_only_for_desktop_plasma(update_helper):
-    hint = update_helper.REBOOT_HINT
+def test_reboot_hint_only_for_desktop_plasma():
+    hint = check.REBOOT_HINT
     for name in ("plasma6-workspace", "plasma6-workspace-libs",
                  "kernel-default"):
         assert hint.match(name)
     assert not hint.match("plasma-foreground-booster")
 
 
-def test_dup_preview_error_messages(monkeypatch, update_helper):
+def test_dup_preview_error_messages(monkeypatch):
     xml = ('<stream><message type="error">Repository x is invalid'
            '</message></stream>')
-    fake_zypper(monkeypatch, update_helper, xml, rc=8)
+    fake_zypper(monkeypatch, xml, rc=8)
     with pytest.raises(Fail) as e:
-        update_helper.dup_preview()
+        check.dup_preview()
     assert e.value.template == "zypper reported: {detail}"
     assert e.value.params == {"detail": "Repository x is invalid"}
 
 
-def test_dup_preview_unreadable(monkeypatch, update_helper):
-    fake_zypper(monkeypatch, update_helper, "not xml", rc=1)
+def test_dup_preview_unreadable(monkeypatch):
+    fake_zypper(monkeypatch, "not xml", rc=1)
     with pytest.raises(Fail, match="no readable answer"):
-        update_helper.dup_preview()
+        check.dup_preview()
 
 
 def release(old, new, kind="package"):
@@ -140,41 +141,41 @@ def release(old, new, kind="package"):
     ([release("", "20261017-1.1")], None),
     ([], None),
 ])
-def test_mirrors_behind(update_helper, pkgs, expected):
-    assert update_helper.mirrors_behind(pkgs) == expected
+def test_mirrors_behind(pkgs, expected):
+    assert check.mirrors_behind(pkgs) == expected
 
 
-def label(update_helper, snap, zypp_pre=(), is_update=False):
-    return update_helper.snapshot_label(snap, set(zypp_pre), is_update,
+def label(snap, zypp_pre=(), is_update=False):
+    return snapshots.snapshot_label(snap, set(zypp_pre), is_update,
                                         lambda s: s)
 
 
-def test_snapshot_label_zypper_pairs(update_helper):
+def test_snapshot_label_zypper_pairs():
     pre = {"number": 5, "type": "pre"}
     post = {"number": 6, "type": "post", "pre-number": 5}
-    assert label(update_helper, pre, {5}) == "Before software change"
-    assert label(update_helper, post, {5}) == "After software change"
-    assert label(update_helper, pre, {5}, True) == "Before update"
-    assert label(update_helper, post, {5}, True) == "After update"
+    assert label(pre, {5}) == "Before software change"
+    assert label(post, {5}) == "After software change"
+    assert label(pre, {5}, True) == "Before update"
+    assert label(post, {5}, True) == "After update"
     # A pre snapshot not made by zypper gets no name
-    assert label(update_helper, pre) is None
+    assert label(pre) is None
 
 
-def test_snapshot_label_singles(monkeypatch, update_helper):
+def test_snapshot_label_singles(monkeypatch):
     single = {"number": 7, "type": "single"}
-    assert label(update_helper, dict(single, description="timeline")) == \
+    assert label(dict(single, description="timeline")) == \
         "Automatic snapshot"
-    assert label(update_helper, dict(single, description="mine")) == "mine"
-    assert label(update_helper, single) is None
+    assert label(dict(single, description="mine")) == "mine"
+    assert label(single) is None
     rb = dict(single, description="nazoos-update: rollback to 4")
     # The read-only backup is "Before rollback", the writable copy keeps
     # its description
-    monkeypatch.setattr(update_helper.status, "subvol_readonly",
+    monkeypatch.setattr(snapshots.status, "subvol_readonly",
                         lambda _p: True)
-    assert label(update_helper, rb) == "Before rollback"
-    monkeypatch.setattr(update_helper.status, "subvol_readonly",
+    assert label(rb) == "Before rollback"
+    monkeypatch.setattr(snapshots.status, "subvol_readonly",
                         lambda _p: False)
-    assert label(update_helper, rb) == "nazoos-update: rollback to 4"
+    assert label(rb) == "nazoos-update: rollback to 4"
 
 
 @pytest.mark.parametrize("uefi, cert, status, expected", [
@@ -184,19 +185,19 @@ def test_snapshot_label_singles(monkeypatch, update_helper):
     (True, "/c.crt", "pending", False),
     (True, "/c.crt", "missing", True),
 ])
-def test_nazoos_key_missing(monkeypatch, update_helper, uefi, cert, status,
+def test_nazoos_key_missing(monkeypatch, uefi, cert, status,
                             expected):
-    mok = update_helper.mok
+    mok = update.mok
     monkeypatch.setattr(mok, "uefi", lambda: uefi)
     monkeypatch.setattr(mok, "signing_cert", lambda: cert)
     monkeypatch.setattr(mok, "status", lambda _c: status)
-    assert update_helper.nazoos_key_missing() is expected
+    assert update.nazoos_key_missing() is expected
 
 
-def test_scriptlet_failed_names_the_package(update_helper):
+def test_scriptlet_failed_names_the_package():
     line = ("warning: %post(xpadneo-ueficert-0.10.1-1.32.x86_64) "
             "scriptlet failed, exit status 255\n")
-    m = update_helper.SCRIPTLET_FAILED.search(line)
+    m = update.SCRIPTLET_FAILED.search(line)
     assert m.group(1) == "xpadneo-ueficert"
 
 
@@ -206,15 +207,15 @@ def test_scriptlet_failed_names_the_package(update_helper):
     (["xpadneo-ueficert", "kernel-default"], True, False),
     ([], True, False),
 ])
-def test_only_trusted_certs(monkeypatch, update_helper, failed, covered,
+def test_only_trusted_certs(monkeypatch, failed, covered,
                             expected):
-    monkeypatch.setattr(update_helper.helper, "output",
+    monkeypatch.setattr(update.helper, "output",
                         lambda cmd: "/etc/uefi\n/etc/uefi/certs/F8CEAA94.crt\n")
-    monkeypatch.setattr(update_helper.mok, "covered", lambda c: covered)
-    assert update_helper.only_trusted_certs(failed) is expected
+    monkeypatch.setattr(update.mok, "covered", lambda c: covered)
+    assert update.only_trusted_certs(failed) is expected
 
 
-def test_label_waits_for_snapper_cleanup(monkeypatch, update_helper):
+def test_label_waits_for_snapper_cleanup(monkeypatch):
     states = iter([0, 0, 3])     # active, active, inactive
     calls = []
 
@@ -222,14 +223,13 @@ def test_label_waits_for_snapper_cleanup(monkeypatch, update_helper):
         calls.append(cmd[0])
         return subprocess.CompletedProcess(cmd, next(states), "", "")
 
-    monkeypatch.setattr(update_helper, "capture", capture)
-    monkeypatch.setattr(update_helper.time, "sleep", lambda s: None)
-    update_helper.wait_for_cleanup()
+    monkeypatch.setattr(snapshots, "capture", capture)
+    monkeypatch.setattr(snapshots.time, "sleep", lambda s: None)
+    snapshots.wait_for_cleanup()
     assert calls == ["systemctl"] * 3
 
 
-def test_label_holds_the_lock_while_naming(monkeypatch, tmp_path,
-                                           update_helper):
+def test_label_holds_the_lock_while_naming(monkeypatch, tmp_path):
     lock = tmp_path / "label.lock"
     seen = []
 
@@ -237,15 +237,15 @@ def test_label_holds_the_lock_while_naming(monkeypatch, tmp_path,
         # A second label run (the path unit) must not get in between
         with open(lock) as other:
             with pytest.raises(BlockingIOError):
-                update_helper.fcntl.flock(
-                    other, update_helper.fcntl.LOCK_EX
-                    | update_helper.fcntl.LOCK_NB)
+                snapshots.fcntl.flock(
+                    other, snapshots.fcntl.LOCK_EX
+                    | snapshots.fcntl.LOCK_NB)
         seen.append(update_after)
         return 2
 
-    monkeypatch.setattr(update_helper, "LABEL_LOCK", str(lock))
-    monkeypatch.setattr(update_helper, "Path", lambda p: tmp_path)
-    monkeypatch.setattr(update_helper, "wait_for_cleanup", lambda: None)
-    monkeypatch.setattr(update_helper, "name_snapshots", name_snapshots)
-    assert update_helper.label_snapshots(update_after=3) == 2
+    monkeypatch.setattr(snapshots, "LABEL_LOCK", str(lock))
+    monkeypatch.setattr(snapshots, "Path", lambda p: tmp_path)
+    monkeypatch.setattr(snapshots, "wait_for_cleanup", lambda: None)
+    monkeypatch.setattr(snapshots, "name_snapshots", name_snapshots)
+    assert snapshots.label_snapshots(update_after=3) == 2
     assert seen == [3]

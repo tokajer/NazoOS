@@ -8,6 +8,8 @@ import signal
 import sys
 from pathlib import Path
 
+from nazoos_common import proc
+from nazoos_common.qt import QML_DIR
 from nazoos_common.single import Instance
 from PySide6.QtCore import QCoreApplication, QUrl
 from PySide6.QtGui import QGuiApplication, QIcon
@@ -46,7 +48,7 @@ def main():
                  "user. The administrator password is asked for when "
                  "needed.")
 
-    if args.autostart and (system.is_live()
+    if args.autostart and (proc.is_live()
                            or not system.autostart_enabled()):
         return 0
 
@@ -85,6 +87,7 @@ def main():
     ctx.setContextProperty("startPage", args.page or "welcome")
     ctx.setContextProperty("instance", instance)
     ctx.setContextProperty("appVersion", VERSION)
+    engine.addImportPath(QML_DIR)
     engine.load(QUrl.fromLocalFile(str(qml_dir() / "Main.qml")))
     if not engine.rootObjects():
         return 1

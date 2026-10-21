@@ -60,9 +60,8 @@ Kirigami.ScrollablePage {
 
     function doFix(f) {
         if (f.id === "units") {
-            // user units are restarted without a password (backend.fix)
-            page.app.lastRun = null
-            backend.fix(f.fix)
+            // user units are restarted without a password
+            backend.fixUnits(f.fix !== "")
         } else {
             page.app.runAction(f.fix, [])
         }

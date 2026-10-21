@@ -6,7 +6,7 @@
 # has the nazoos flavor, so this gives acpi_call-kmp-nazoos, signed with
 # the project key like the kernel. No -kmp-default (Secure Boot would need
 # our key on the openSUSE kernel too); nazoos-welcome installs it together
-# with kernel-nazoos (catalog.KMP_NAZOOS_ONLY).
+# with kernel-nazoos (nazoos_common.kernel.KMP_NAZOOS_ONLY).
 # Upstream has no release since 1.2.2 (2021); pinned to a master commit
 # with fixes for newer kernels. On an update: change commit and Version.
 #

@@ -4,35 +4,17 @@
 
 import os
 import re
-import subprocess
 from pathlib import Path
 
+from nazoos_common import kernel
 from nazoos_common.helper import (  # noqa: F401 (used by the actions)
-    Fail, arg, output, rpm_installed, run, say)
+    FLATPAK, REPOS_DIR, ZYPPER, ZYPPER_IN, Fail, Passthrough, arg, output,
+    repo_has, repo_with_url, rpm_installed, run, say)
 
-from .. import catalog, kernel
+from .. import catalog
 
-ZYPPER = ["zypper", "--non-interactive"]
-ZYPPER_IN = ZYPPER + ["install", "--auto-agree-with-licenses"]
-FLATPAK = ["flatpak", "--system"]
 FLATHUB_URL = "https://dl.flathub.org/repo/flathub.flatpakrepo"
 RUN_DIR = Path("/run/nazoos-welcome")
-REPOS_DIR = Path("/etc/zypp/repos.d")
-
-
-def repo_with_url(fragment):
-    for f in REPOS_DIR.glob("*.repo"):
-        text = f.read_text(errors="replace")
-        if fragment in text:
-            m = re.search(r"^\[(.+)\]", text, re.M)
-            if m:
-                return m.group(1)
-    return None
-
-
-def kernel_repo():
-    """Alias of the NazoOS kernel repository, None if not configured."""
-    return repo_with_url(catalog.KERNEL_REPO_URL.split("/repositories/")[1])
 
 
 def repo_with_path(path):
@@ -48,14 +30,6 @@ def repo_with_path(path):
                     and catalog.repo_path(m.group(1)) == path):
                 return alias
     return None
-
-
-def repo_has(alias, name):
-    """Package `name` exists in repo `alias` (zypper exit 104: not found)."""
-    return subprocess.run(
-        ZYPPER + ["--quiet", "search", "--match-exact", "--repo", alias,
-                  name], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL).returncode == 0
 
 
 def packman_switch(alias):
@@ -86,7 +60,7 @@ def grub_refresh():
     if Path("/usr/sbin/update-bootloader").exists():
         run(["update-bootloader", "--refresh"])
     else:
-        run(["grub2-mkconfig", "-o", "/boot/grub2/grub.cfg"])
+        run(["grub2-mkconfig", "-o", str(kernel.GRUB_CFG)])
 
 
 def cmdline():

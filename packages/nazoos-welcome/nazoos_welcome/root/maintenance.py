@@ -3,12 +3,11 @@
 """System page: services, updates, cleanup, snapshots, update channel."""
 
 import os
-import sys
 from pathlib import Path
 
 from .. import catalog
-from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, arg, repo_with_path,
-                   rpm_installed, run)
+from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, Passthrough, arg,
+                   repo_with_path, rpm_installed, run)
 
 # Root part of nazoos-update: one update path for both apps
 UPDATE_HELPER = "/usr/libexec/nazoos-update/nazoos-update-helper"
@@ -37,7 +36,7 @@ def system_update(_args):
         if rc:
             # Its own "@@error <reason>" line is already out: no second,
             # vaguer one on top
-            sys.exit(rc)
+            raise Passthrough(rc)
         return
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
     run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses"])

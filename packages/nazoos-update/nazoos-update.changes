@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Oct 21 22:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The root helper is split into modules (check, update, snapshots).
+- After the update the kernel modules and the default boot entry are
+  handled by nazoos-common directly; a failure there is only a note.
+- Details window uses the shared log view.
+
+-------------------------------------------------------------------
 Wed Oct 21 20:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Starting NazoOS Update again (menu, KRunner, a notification) brings

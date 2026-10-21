@@ -7,8 +7,9 @@ the GUIs and the update notifier only read.
 """
 
 import json
-import subprocess
 from pathlib import Path
+
+from . import proc
 
 STATE = Path("/var/lib/nazoos")
 # Exists while the user wants kernel-nazoos as the default boot entry
@@ -38,11 +39,6 @@ def write_boots(data):
     tmp.replace(BOOTS)
 
 
-def _installed(name):
-    return subprocess.run(["rpm", "-q", "--quiet", name],
-                          stdin=subprocess.DEVNULL).returncode == 0
-
-
 def stable():
     """kernel-nazoos started cleanly STABLE_BOOTS times in a row and the
     openSUSE kernel is still installed: time to offer stage 2."""
@@ -50,5 +46,5 @@ def stable():
         return False
     if read_boots().get("count", 0) < STABLE_BOOTS:
         return False
-    return _installed("kernel-default") and not _installed(
+    return proc.rpm_installed("kernel-default") and not proc.rpm_installed(
         "nazoos-kernel-only")

@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Pure parts of the welcome root actions (nothing runs as root here)."""
 
-import xml.etree.ElementTree as ET
-
 from nazoos_welcome import catalog
 from nazoos_welcome.root import apps, drives, kernel_switch
 
@@ -46,32 +44,17 @@ def test_pick_branch():
     assert apps.pick_branch({"9.0", "24.08", "10.1"}, "") == "24.08"
 
 
-def test_kmp_rebuilds_finds_a_new_build_of_the_same_module():
-    xml = ET.fromstring("""<stream><search-result><solvable-list>
-      <solvable name="xone-kmp-nazoos" edition="0.3_k7.2.11_1-29.1"/>
-      <solvable name="xone-kmp-nazoos" edition="0.3_k7.2.11_1-20.1"/>
-      <solvable name="xone-kmp-nazoos" edition="0.3_k7.2.12_1-1.1"/>
-      <solvable name="acpi_call-kmp-nazoos" edition="1.2_k7.2.11_1-2.8"/>
-    </solvable-list></search-result></stream>""")
-    installed = {"xone-kmp-nazoos": {"0.3_k7.2.11_1-20.1"},
-                 "acpi_call-kmp-nazoos": {"1.2_k7.2.11_1-2.8"}}
-    # Only the rebuild for the installed kernel version; the build for
-    # the next kernel comes with the kernel update itself
-    assert kernel_switch.rebuilds(xml, installed) == [
-        "xone-kmp-nazoos = 0.3_k7.2.11_1-29.1"]
-
-
 def test_kernel_install_leaves_installed_modules_to_the_swap(monkeypatch,
                                                             tmp_path):
     ks = kernel_switch
     installed = {"xone-kmp-default", "xone-kmp-nazoos"}
     calls, swapped = [], []
     monkeypatch.setattr(ks, "rpm_installed", lambda p: p in installed)
-    monkeypatch.setattr(ks, "kernel_repo", lambda: "nazoos-kernel")
+    monkeypatch.setattr(ks.kernel, "kernel_repo", lambda: "nazoos-kernel")
     monkeypatch.setattr(ks, "repo_has", lambda alias, p: True)
     monkeypatch.setattr(ks, "prepare_mok", lambda alias, pkgs: False)
     monkeypatch.setattr(ks, "run", lambda cmd, **kw: calls.append(cmd))
-    monkeypatch.setattr(ks, "swap_rebuilds",
+    monkeypatch.setattr(ks.kernel, "swap_rebuilds",
                         lambda alias, names: swapped.extend(names))
     monkeypatch.setattr(ks, "say", lambda text: None)
     monkeypatch.setattr(ks.kernel, "ensure_grub_default", lambda say: True)
@@ -82,5 +65,5 @@ def test_kernel_install_leaves_installed_modules_to_the_swap(monkeypatch,
     zypper_in = [c for c in calls if "install" in c][0]
     # xone-kmp-nazoos is already there: only its rebuild is swapped
     assert "xone-kmp-nazoos" not in zypper_in
-    assert catalog.KERNEL_PACKAGE in zypper_in
+    assert ks.kernel.KERNEL_PACKAGE in zypper_in
     assert "xone-kmp-nazoos" in swapped

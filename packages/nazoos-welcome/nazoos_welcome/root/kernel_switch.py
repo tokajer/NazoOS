@@ -4,13 +4,11 @@
 
 import contextlib
 import os
-import xml.etree.ElementTree as ET
 
-from nazoos_common import kernelstate
+from nazoos_common import kernel, kernelstate
 
-from .. import catalog, kernel
-from .base import (ZYPPER, ZYPPER_IN, Fail, kernel_repo, output, repo_has,
-                   rpm_installed, run, running_nazoos, say)
+from .base import (ZYPPER, ZYPPER_IN, Fail, repo_has, rpm_installed, run,
+                   running_nazoos, say)
 from .mok import MOK_RESTART, prepare_mok
 
 EFIVARS = "/sys/firmware/efi/efivars"
@@ -18,20 +16,20 @@ EFIVARS = "/sys/firmware/efi/efivars"
 
 def kernel_install(_args):
     """Stage 1: kernel-nazoos next to kernel-default, default boot entry."""
-    blockers = [p for p in catalog.KMP_DEFAULT_ONLY if rpm_installed(p)]
+    blockers = [p for p in kernel.KMP_DEFAULT_ONLY if rpm_installed(p)]
     if blockers:
         raise Fail("the closed NVIDIA driver (G06) only exists for the "
                    "openSUSE kernel; switch to the open driver first")
-    alias = kernel_repo()
+    alias = kernel.kernel_repo()
     if alias is None:
-        alias = catalog.KERNEL_REPO_ALIAS
+        alias = kernel.KERNEL_REPO_ALIAS
         run(ZYPPER + ["addrepo", "--refresh", "--priority", "90",
-                      catalog.KERNEL_REPO_URL, alias])
+                      kernel.KERNEL_REPO_URL, alias])
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
     # Same kernel modules as for kernel-default (NVIDIA, Xbox controllers).
     # Check first that our kernel project builds them: without its NVIDIA
     # module kernel-nazoos would start without graphics driver
-    kmps = [f"{b}-kmp-nazoos" for b in catalog.KMP_BASES
+    kmps = [f"{b}-kmp-nazoos" for b in kernel.KMP_BASES
             if rpm_installed(f"{b}-kmp-default")]
     missing = [p for p in kmps if not repo_has(alias, p)]
     gpu = [p for p in missing if p.startswith("nvidia-")]
@@ -44,17 +42,17 @@ def kernel_install(_args):
             "the openSUSE kernel")
     # Modules only kernel-nazoos has (acpi_call): optional, skip if the
     # repo has no build yet
-    extra = [p for p in (f"{b}-kmp-nazoos" for b in catalog.KMP_NAZOOS_ONLY)
+    extra = [p for p in (f"{b}-kmp-nazoos" for b in kernel.KMP_NAZOOS_ONLY)
              if repo_has(alias, p)]
-    pkgs = [catalog.KERNEL_PACKAGE] + [p for p in kmps if p not in missing] \
+    pkgs = [kernel.KERNEL_PACKAGE] + [p for p in kmps if p not in missing] \
         + extra
     queued = prepare_mok(alias, pkgs)
     # Modules left from an earlier install stay out of "zypper in": a
     # newer build of them for the same kernel conflicts with the old one
     # and ends zypper with 4 (VM 2026-10-19); they are swapped below
     run(ZYPPER_IN + [p for p in pkgs
-                     if p == catalog.KERNEL_PACKAGE or not rpm_installed(p)])
-    swap_rebuilds(alias, pkgs[1:])
+                     if p == kernel.KERNEL_PACKAGE or not rpm_installed(p)])
+    kernel.swap_rebuilds(alias, pkgs[1:])
     kernelstate.STATE.mkdir(parents=True, exist_ok=True)
     kernelstate.PREFER.touch()
     kernelstate.write_boots({"count": 0})
@@ -69,21 +67,21 @@ def kernel_only(_args):
     if not running_nazoos():
         raise Fail("start the NazoOS kernel first")
     remove = [f"-{p}" for p in
-              [catalog.KERNEL_DEFAULT, "kernel-default-base"]
-              + [f"{b}-kmp-default" for b in catalog.KMP_BASES]
+              [kernel.KERNEL_DEFAULT, "kernel-default-base"]
+              + [f"{b}-kmp-default" for b in kernel.KMP_BASES]
               if rpm_installed(p)]
     # "-name" removes in the same transaction: zypper never has to pick a
     # conflict solution on its own
-    run(ZYPPER_IN + [catalog.KERNEL_ONLY_PACKAGE] + remove)
+    run(ZYPPER_IN + [kernel.KERNEL_ONLY_PACKAGE] + remove)
 
 
 def kernel_restore(_args):
     """Way back: openSUSE kernel as default again, kernel-nazoos stays."""
-    pkgs = [catalog.KERNEL_DEFAULT] + [
-        f"{b}-kmp-default" for b in catalog.KMP_BASES
+    pkgs = [kernel.KERNEL_DEFAULT] + [
+        f"{b}-kmp-default" for b in kernel.KMP_BASES
         if rpm_installed(f"{b}-kmp-nazoos")]
-    if rpm_installed(catalog.KERNEL_ONLY_PACKAGE):
-        pkgs.append(f"-{catalog.KERNEL_ONLY_PACKAGE}")
+    if rpm_installed(kernel.KERNEL_ONLY_PACKAGE):
+        pkgs.append(f"-{kernel.KERNEL_ONLY_PACKAGE}")
     run(ZYPPER_IN + pkgs)
     kernelstate.PREFER.unlink(missing_ok=True)
     # The top entry boots the newest kernel of any flavor, often
@@ -98,11 +96,11 @@ def kernel_remove(_args):
     """Remove kernel-nazoos completely (only from the openSUSE kernel)."""
     if running_nazoos():
         raise Fail("start the openSUSE kernel first (boot menu)")
-    if not rpm_installed(catalog.KERNEL_DEFAULT):
+    if not rpm_installed(kernel.KERNEL_DEFAULT):
         raise Fail("the openSUSE kernel is not installed")
-    pkgs = [p for p in [catalog.KERNEL_PACKAGE, catalog.KERNEL_ONLY_PACKAGE]
+    pkgs = [p for p in [kernel.KERNEL_PACKAGE, kernel.KERNEL_ONLY_PACKAGE]
             + [f"{b}-kmp-nazoos"
-               for b in catalog.KMP_BASES + catalog.KMP_NAZOOS_ONLY]
+               for b in kernel.KMP_BASES + kernel.KMP_NAZOOS_ONLY]
             if rpm_installed(p)]
     if pkgs:
         with efivars_read_only():
@@ -130,80 +128,3 @@ def efivars_read_only():
     finally:
         if was_rw:
             run(["mount", "-o", "remount,rw", EFIVARS], check=False)
-
-
-def kernel_sync(_args):
-    """Kernel modules for kernel-nazoos that came after it was installed.
-
-    Run by nazoos-update after "zypper dup", which only updates installed
-    packages: a new KMP_NAZOOS_ONLY module (acpi_call), or a driver
-    installed for kernel-default later (xone after kernel-nazoos), would
-    never arrive. Only takes what the kernel repo has: a module that does
-    not build right now is skipped and the update goes on (no hard
-    Requires, kernel and packages stay separate).
-    """
-    if not rpm_installed(catalog.KERNEL_PACKAGE):
-        return
-    alias = kernel_repo()
-    if alias is None:
-        say("Note: the NazoOS kernel repository is missing, kernel "
-            "modules are not checked")
-        return
-    wanted = [f"{b}-kmp-nazoos" for b in catalog.KMP_BASES
-              if rpm_installed(f"{b}-kmp-default")]
-    wanted += [f"{b}-kmp-nazoos" for b in catalog.KMP_NAZOOS_ONLY]
-    new = [p for p in wanted
-           if not rpm_installed(p) and repo_has(alias, p)]
-    if new:
-        run(ZYPPER_IN + new)
-    swap_rebuilds(alias, wanted)
-
-
-def swap_rebuilds(alias, names):
-    """Replace installed modules of NAMES that the repo has in a newer
-    build for the same kernel version."""
-    rebuilt = kmp_rebuilds(alias, names)
-    if rebuilt:
-        # KMPs are multiversion and conflict per kernel version: zypper
-        # dup keeps the old build of a module rebuilt for the same kernel
-        # forever. With the exact edition named, the only conflict to
-        # resolve is the old build itself (VM 2026-10-19)
-        run(ZYPPER_IN + ["--force-resolution"] + rebuilt)
-
-
-def kmp_rebuilds(alias, names):
-    """"name = edition" of repo builds of installed NAMES for a kernel
-    version that is installed in another build (OBS rebuilt the module
-    without a kernel update)."""
-    installed = {}
-    query = ["rpm", "-q", "--qf", "%{NAME} %{VERSION}-%{RELEASE}\n"]
-    for line in output(query + names).splitlines():
-        parts = line.split()
-        if len(parts) == 2:
-            installed.setdefault(parts[0], set()).add(parts[1])
-    if not installed:
-        return []
-    try:
-        root = ET.fromstring(output(
-            ZYPPER + ["--xmlout", "search", "--details", "--match-exact",
-                      "--type", "package", "--repo", alias]
-            + sorted(installed)))
-    except ET.ParseError:
-        return []
-    return rebuilds(root, installed)
-
-
-def rebuilds(root, installed):
-    """"name = edition" of solvables in the zypper search XML ROOT that
-    are another build of an installed {name: {version-release}}."""
-    result = []
-    for s in root.iter("solvable"):
-        name, edition = s.get("name"), s.get("edition") or ""
-        # VERSION ends with the kernel version (_k7.2.11_1), RELEASE is
-        # the OBS build counter
-        version = edition.rsplit("-", 1)[0]
-        builds = installed.get(name, set())
-        if (edition not in builds
-                and any(b.rsplit("-", 1)[0] == version for b in builds)):
-            result.append(f"{name} = {edition}")
-    return result

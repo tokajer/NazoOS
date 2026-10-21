@@ -17,7 +17,7 @@ import time
 import uuid
 from pathlib import Path
 
-from nazoos_common import kernelstate
+from nazoos_common import kernelstate, proc
 
 from . import status
 from .i18n import _, ngettext
@@ -93,7 +93,7 @@ def _fingerprint(st):
 
 
 def main():
-    if status.is_live():
+    if proc.is_live():
         return 0
     st = status.collect()
 

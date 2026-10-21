@@ -75,6 +75,14 @@ def test_bug_still_reaches_the_user(root, capsys):
     assert err["args"]["detail"].startswith("KeyError")
 
 
+def test_passthrough_ends_without_an_error_line(root, capsys):
+    def action(_args):
+        raise helper.Passthrough(7)
+
+    assert helper.main({"a": action}, 1, argv=["h", "a"]) == 7
+    assert errors.PREFIX not in capsys.readouterr().out
+
+
 def test_fail_text_is_filled():
     assert str(helper.Fail("x {n}", n=2)) == "x 2"
 

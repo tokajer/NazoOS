@@ -7,8 +7,8 @@ import subprocess
 import threading
 import traceback
 
-from nazoos_common.qt import HelperProcess, launch
-from PySide6.QtCore import Property, QObject, Signal, Slot
+from nazoos_common.qt import ActionRunner
+from PySide6.QtCore import Property, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 
 from . import catalog, repair, system
@@ -26,47 +26,25 @@ QUICK_PROBES = {
 HELPER = os.environ.get("NAZOOS_WELCOME_HELPER",
                         "/usr/libexec/nazoos-welcome/nazoos-welcome-helper")
 
-# Apps the UI may start: desktop file patterns, then a fallback command
-LAUNCHERS = {
-    "discover": (["org.kde.discover.desktop"], ["plasma-discover"]),
-    "updates": ([], ["plasma-discover", "--mode", "update"]),
-    "nazoos-update": (["*nazoos-update*.desktop"], ["nazoos-update"]),
-    "myrlyn": (["*myrlyn*sudo*.desktop", "*myrlyn*.desktop"], ["myrlyn"]),
-    "btrfs-assistant": (["*btrfs-assistant*.desktop"], ["btrfs-assistant"]),
-    "lact": (["*LACT*.desktop", "*lact*.desktop"], ["lact", "gui"]),
-    "coolercontrol": (["*coolercontrol*.desktop"], ["coolercontrol"]),
-    "steam": (["steam.desktop"], ["steam"]),
-    "systemsettings": (["systemsettings.desktop"], ["systemsettings"]),
-    "installer": (["nazoos-installer.desktop"], None),
-    # Ends the desktop session (nazoos-session)
-    "gaming-mode": ([], ["nazoos-session-select", "gaming"]),
-}
 
-
-# Flatpak apps (LACT, CoolerControl) have their desktop files here
-FLATPAK_EXPORTS = ["/var/lib/flatpak/exports/share"]
-
-
-class Backend(QObject):
+class Backend(ActionRunner):
     stateChanged = Signal()
-    busyChanged = Signal()
-    logChanged = Signal()
-    # action, success, message (already translated)
-    actionFinished = Signal(str, bool, str)
+    canRetryChanged = Signal()
     findingsChanged = Signal()
+    # Retry of a failed action that needs the MokManager password again
+    mokRetryRequested = Signal(str, "QVariantList")
     # Path of a saved bug report
     reportSaved = Signal(str)
     # Runs a callable on the GUI thread (see _background)
     _call = Signal(object)
 
     def __init__(self, translator):
-        super().__init__()
-        self._tr = translator
+        super().__init__(HELPER, translator.gettext, catalog.ACTION_LABELS)
         self._state = {}
-        self._busy = False
-        self._log = ""
-        self._task = ""
-        self._proc = None
+        # (action, args, needs MokManager password) of the last run() that
+        # "Try again" may repeat, None after anything else
+        self._retry = None
+        self._on_success = None
         self._refreshing = False
         self._refresh_again = False
         # State keys read by _quick_refresh since the last full refresh
@@ -84,20 +62,16 @@ class Backend(QObject):
 
     state = Property("QVariantMap", _get_state, notify=stateChanged)
 
-    def _get_busy(self):
-        return self._busy
+    def _get_can_retry(self):
+        return self._retry is not None
 
-    busy = Property(bool, _get_busy, notify=busyChanged)
+    canRetry = Property(bool, _get_can_retry, notify=canRetryChanged)
 
-    def _get_task(self):
-        return self._task
-
-    task = Property(str, _get_task, notify=busyChanged)
-
-    def _get_log(self):
-        return self._log
-
-    log = Property(str, _get_log, notify=logChanged)
+    def _set_retry(self, retry):
+        changed = (retry is None) != (self._retry is None)
+        self._retry = retry
+        if changed:
+            self.canRetryChanged.emit()
 
     def _get_findings(self):
         return self._findings if self._findings is not None else []
@@ -199,32 +173,29 @@ class Backend(QObject):
         self._findings = found
         self.findingsChanged.emit()
 
-    @Slot(str)
-    def fix(self, action):
-        """Fix one finding. Failed user units need no password."""
+    @Slot(bool)
+    def fixUnits(self, with_system):
+        """Restart failed user units (no root), then the system units."""
         if self._busy:
-            return
-        if action not in ("repair-units", ""):
-            self.run(action, [])
             return
         self._begin("repair-units")
         self._background(
             repair.restart_user_units,
-            lambda r: self._user_units_fixed(action, *r),
+            lambda r: self._user_units_fixed(with_system, *r),
             lambda e: self._done("repair-units", False, str(e)))
 
-    def _user_units_fixed(self, action, log, still):
+    def _user_units_fixed(self, with_system, log, still):
         self._append(log)
-        if action:
+        if with_system:
             # The system units follow, with the password dialog
             self._end_busy()
-            self.run(action, [])
+            self.run("repair-units", [])
         elif still:
-            self._done("repair-units", False, self._tr.gettext(
+            self._done("repair-units", False, self._gettext(
                 "These services still fail after a restart: %1")
                 .replace("%1", ", ".join(still)))
         else:
-            self._done("repair-units", True, self._tr.gettext("Done."))
+            self._done("repair-units", True, self._gettext("Done."))
 
     @Slot()
     def saveReport(self):
@@ -239,6 +210,7 @@ class Backend(QObject):
 
         def failed(e):
             self._reporting = False
+            self._set_retry(None)
             self.actionFinished.emit("report", False, str(e))
 
         self._background(
@@ -246,22 +218,9 @@ class Backend(QObject):
 
     # --- root actions ---------------------------------------------------------
 
-    def _append(self, text):
-        self._log += text
-        if len(self._log) > 200_000:
-            self._log = self._log[-150_000:]
-        self.logChanged.emit()
-
     def _begin(self, action):
-        self._task = self._tr.gettext(catalog.ACTION_LABELS[action])
-        self._busy = True
-        self.busyChanged.emit()
-        self._append(f"\n=== {self._task} ===\n")
-
-    def _end_busy(self):
-        self._busy = False
-        self._task = ""
-        self.busyChanged.emit()
+        self._set_retry(None)
+        super()._begin(action)
 
     @Slot(str, "QVariantList")
     def run(self, action, args, stdin=None, on_success=None):
@@ -272,12 +231,21 @@ class Backend(QObject):
         if action not in catalog.ACTION_LABELS:
             return
         self._begin(action)
-        proc = HelperProcess(HELPER, self._tr.gettext, self)
-        proc.output.connect(self._append)
-        proc.finished.connect(
-            lambda ok, msg: self._finished(action, ok, msg, on_success))
-        self._proc = proc
-        proc.start([action, *args], stdin)
+        # stdin only carries the MokManager password hash (runMok)
+        self._set_retry(None if on_success else (
+            action, list(args), stdin is not None))
+        self._on_success = on_success
+        self._start(action, args, stdin)
+
+    @Slot()
+    def retry(self):
+        if self._busy or self._retry is None:
+            return
+        action, args, needs_mok = self._retry
+        if needs_mok:
+            self.mokRetryRequested.emit(action, args)
+        else:
+            self.run(action, args)
 
     @Slot(str, "QVariantList", str)
     def runMok(self, action, args, password):
@@ -293,15 +261,17 @@ class Backend(QObject):
         except OSError:
             mok_hash = ""
         if not mok_hash.startswith("$6$"):
-            self.actionFinished.emit(action, False, self._tr.gettext(
+            self._set_retry(None)
+            self.actionFinished.emit(action, False, self._gettext(
                 "The password for the Secure Boot key could not be "
                 "prepared (openssl is missing)."))
             return
         self.run(action, args, mok_hash)
 
-    def _finished(self, action, ok, message, then):
-        if ok and then:
-            then(lambda: self._done(action, True, message))
+    def _helper_finished(self, action, proc, ok, message):
+        on_success, self._on_success = self._on_success, None
+        if ok and on_success:
+            on_success(lambda: self._done(action, True, message))
         else:
             self._done(action, ok, message)
 
@@ -342,7 +312,7 @@ class Backend(QObject):
             if installed or not on:
                 self._begin("service")
                 self._user_service(svc, on, lambda: self._done(
-                    "service", True, self._tr.gettext("Done.")))
+                    "service", True, self._gettext("Done.")))
                 return
             self.run("service", [service_id, "on" if on else "off"],
                      on_success=lambda done: self._user_service(
@@ -357,18 +327,10 @@ class Backend(QObject):
 
     @Slot(str)
     def launch(self, launcher_id):
-        entry = LAUNCHERS.get(launcher_id)
-        if entry is None:
-            return
-        if not launch(*entry, extra_dirs=FLATPAK_EXPORTS):
-            self.actionFinished.emit(
-                "launch", False,
-                self._tr.gettext("This program is not installed."))
+        # A failed launch must not offer the earlier action again
+        self._set_retry(None)
+        super().launch(launcher_id)
 
     @Slot()
     def copySysinfo(self):
         QGuiApplication.clipboard().setText(self._state.get("sysinfo", ""))
-
-    @Slot()
-    def copyLog(self):
-        QGuiApplication.clipboard().setText(self._log)

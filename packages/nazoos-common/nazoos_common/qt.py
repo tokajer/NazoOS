@@ -8,9 +8,18 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from PySide6.QtCore import QObject, QProcess, Signal, Slot
+from PySide6.QtCore import Property, QObject, QProcess, QTimer, Signal, Slot
+from PySide6.QtGui import QGuiApplication
 
 from . import errors
+
+# Works in the git tree and in /usr/share/nazoos-common
+QML_DIR = str(Path(__file__).resolve().parent.parent / "qml")
+# Characters kept in the log; trimmed to LOG_KEEP
+LOG_MAX = 300_000
+LOG_KEEP = 200_000
+# Flatpak apps (LACT, CoolerControl) have their desktop files here
+FLATPAK_EXPORTS = ["/var/lib/flatpak/exports/share"]
 
 
 class Translator(QObject):
@@ -51,7 +60,6 @@ class HelperProcess(QObject):
         self._helper = helper
         self._gettext = gettext
         self._launcher = list(launcher)
-        self._proc = None
         self._partial = ""
         self._error = ""
         self.reboot = False
@@ -63,7 +71,6 @@ class HelperProcess(QObject):
         proc.readyReadStandardOutput.connect(lambda: self._read(proc))
         proc.finished.connect(lambda code, _s: self._finished(code))
         proc.errorOccurred.connect(self._failed_start)
-        self._proc = proc
         cmd = self._launcher + [self._helper] + [str(a) for a in args]
         proc.start(cmd[0], cmd[1:])
         if stdin is not None:
@@ -137,3 +144,111 @@ def launch(patterns, fallback, extra_dirs=()):
         return False
     subprocess.Popen(cmd, start_new_session=True)
     return True
+
+
+# Apps the UI may start: desktop file patterns, then a fallback command
+LAUNCHERS = {
+    "discover": (["org.kde.discover.desktop"], ["plasma-discover"]),
+    "updates": ([], ["plasma-discover", "--mode", "update"]),
+    "nazoos-update": (["*nazoos-update*.desktop"], ["nazoos-update"]),
+    "myrlyn": (["*myrlyn*sudo*.desktop", "*myrlyn*.desktop"], ["myrlyn"]),
+    # btrfs-assistant itself needs root, the launcher asks for it
+    "btrfs-assistant": (["*btrfs-assistant*.desktop"],
+                        ["btrfs-assistant-launcher"]),
+    "lact": (["*LACT*.desktop", "*lact*.desktop"], ["lact", "gui"]),
+    "coolercontrol": (["*coolercontrol*.desktop"], ["coolercontrol"]),
+    "steam": (["steam.desktop"], ["steam"]),
+    "systemsettings": (["systemsettings.desktop"], ["systemsettings"]),
+    "installer": (["nazoos-installer.desktop"], None),
+    "repair": ([], ["nazoos-welcome", "--page", "repair"]),
+    # Ends the desktop session (nazoos-session)
+    "gaming-mode": ([], ["nazoos-session-select", "gaming"]),
+}
+
+
+class ActionRunner(QObject):
+    """busy/task/log of one root helper run at a time; base class of the
+    Backends of nazoos-welcome and nazoos-update."""
+
+    busyChanged = Signal()
+    logChanged = Signal()
+    # action, success, message (already translated)
+    actionFinished = Signal(str, bool, str)
+
+    def __init__(self, helper, gettext, labels):
+        """LABELS: {action: English label} of the actions that may run."""
+        super().__init__()
+        self._helper = helper
+        self._gettext = gettext
+        self._labels = labels
+        self._busy = False
+        self._task = ""
+        self._log = ""
+        # Every zypper output chunk would otherwise make QML re-set and
+        # re-wrap up to 300 KB of text
+        self._log_timer = QTimer(self)
+        self._log_timer.setSingleShot(True)
+        self._log_timer.setInterval(150)
+        self._log_timer.timeout.connect(self.logChanged.emit)
+
+    def _get_busy(self):
+        return self._busy
+
+    busy = Property(bool, _get_busy, notify=busyChanged)
+
+    def _get_task(self):
+        return self._task
+
+    task = Property(str, _get_task, notify=busyChanged)
+
+    def _get_log(self):
+        return self._log
+
+    log = Property(str, _get_log, notify=logChanged)
+
+    def _append(self, text):
+        self._log += text
+        if len(self._log) > LOG_MAX:
+            self._log = self._log[-LOG_KEEP:]
+        if not self._log_timer.isActive():
+            self._log_timer.start()
+
+    def _begin(self, action):
+        self._task = self._gettext(self._labels[action])
+        self._busy = True
+        self.busyChanged.emit()
+        self._append(f"\n=== {self._task} ===\n")
+
+    def _end_busy(self):
+        self._busy = False
+        self._task = ""
+        self.busyChanged.emit()
+
+    def _start(self, action, args, stdin=None):
+        proc = HelperProcess(self._helper, self._gettext, self)
+        proc.output.connect(self._append)
+
+        def finished(ok, message):
+            self._helper_finished(action, proc, ok, message)
+            proc.deleteLater()
+
+        proc.finished.connect(finished)
+        proc.start([action, *args], stdin)
+
+    def _helper_finished(self, action, proc, ok, message):
+        """The run of ACTION ended; subclasses override. PROC.reboot is
+        True after an "@@reboot" line."""
+        raise NotImplementedError
+
+    @Slot()
+    def copyLog(self):
+        QGuiApplication.clipboard().setText(self._log)
+
+    @Slot(str)
+    def launch(self, launcher_id):
+        entry = LAUNCHERS.get(launcher_id)
+        if entry is None:
+            return
+        if not launch(*entry, extra_dirs=FLATPAK_EXPORTS):
+            self.actionFinished.emit(
+                "launch", False, self._gettext("This program is not installed."))

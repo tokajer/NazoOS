@@ -8,11 +8,14 @@ translates it (errors.py); xgettext collects it with --keyword=Fail.
 """
 
 import os
+import re
 import subprocess
 import sys
 import traceback
+from pathlib import Path
 
 from . import errors
+from .proc import rpm_installed  # noqa: F401 (re-exported for the actions)
 
 # zypper exit codes >= 100 that mean "done, but note this"
 # (man zypper, EXIT CODES)
@@ -22,6 +25,11 @@ ZYPPER_INFO = {
     106: "some repositories could not be refreshed and were skipped",
 }
 
+ZYPPER = ["zypper", "--non-interactive"]
+ZYPPER_IN = ZYPPER + ["install", "--auto-agree-with-licenses"]
+FLATPAK = ["flatpak", "--system"]
+REPOS_DIR = Path("/etc/zypp/repos.d")
+
 
 class Fail(Exception):
     """An error the user sees: TEMPLATE with {name} fields from PARAMS."""
@@ -30,6 +38,15 @@ class Fail(Exception):
         super().__init__(errors.fill(template, params))
         self.template = template
         self.params = params
+
+
+class Passthrough(Exception):
+    """Ends the action with exit code RC without an own "@@error" line:
+    a nested helper has already printed the reason."""
+
+    def __init__(self, rc):
+        super().__init__(rc)
+        self.rc = rc
 
 
 def say(text):
@@ -69,9 +86,23 @@ def output(cmd):
     return capture(cmd).stdout
 
 
-def rpm_installed(name):
-    return subprocess.run(["rpm", "-q", "--quiet", name],
-                          stdin=subprocess.DEVNULL).returncode == 0
+def repo_with_url(fragment):
+    """Alias of the zypper repo whose .repo file contains FRAGMENT."""
+    for f in REPOS_DIR.glob("*.repo"):
+        text = f.read_text(errors="replace")
+        if fragment in text:
+            m = re.search(r"^\[(.+)\]", text, re.M)
+            if m:
+                return m.group(1)
+    return None
+
+
+def repo_has(alias, name):
+    """Package `name` exists in repo `alias` (zypper exit 104: not found)."""
+    return subprocess.run(
+        ZYPPER + ["--quiet", "search", "--match-exact", "--repo", alias,
+                  name], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL).returncode == 0
 
 
 def arg(args, i, allowed=None):
@@ -98,6 +129,8 @@ def main(actions, lock_timeout, max_args=None, argv=None):
     os.environ["LC_ALL"] = "C.UTF-8"
     try:
         actions[argv[1]](argv[2:])
+    except Passthrough as e:
+        return e.rc
     except Fail as e:
         say(errors.encode(e.template, e.params))
         return 1

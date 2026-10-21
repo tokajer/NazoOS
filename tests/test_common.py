@@ -17,7 +17,7 @@ def tools(monkeypatch):
     def out(cmd):
         return answers.get(" ".join(cmd[:2]), "")
 
-    monkeypatch.setattr(mok, "_out", out)
+    monkeypatch.setattr(mok.proc, "out", out)
     return answers
 
 
@@ -85,7 +85,8 @@ def test_stable(monkeypatch, state, prefer, count, installed, expected):
     if prefer:
         kernelstate.PREFER.touch()
     kernelstate.write_boots({"count": count})
-    monkeypatch.setattr(kernelstate, "_installed", lambda n: n in installed)
+    monkeypatch.setattr(kernelstate.proc, "rpm_installed",
+                        lambda n: n in installed)
     assert kernelstate.stable() is expected
 
 
@@ -95,6 +96,6 @@ def test_restart_clears_needs_reboot(monkeypatch, updated, expected):
 
     monkeypatch.setattr(status, "read_status", lambda: {
         "needs_reboot": True, "updated": updated})
-    monkeypatch.setattr(status, "boot_time", lambda: 100)
+    monkeypatch.setattr(status.proc, "boot_time", lambda: 100)
     monkeypatch.setattr(status, "booted_snapshot", lambda: 0)
     assert status.collect()["needs_reboot"] is expected

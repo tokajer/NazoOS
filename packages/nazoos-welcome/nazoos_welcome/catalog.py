@@ -282,28 +282,6 @@ SESSION_CONF = "/etc/nazoos/session.conf"
 SESSION_CTL = "/usr/libexec/nazoos-session/nazoos-session-ctl"
 SESSION_DETECT = "/usr/libexec/nazoos-session/nazoos-detect-handheld"
 
-# NazoOS kernel (ADR 0007/0008). Opt-in: the repo is added on install.
-# Stage 1 installs kernel-nazoos next to kernel-default, stage 2 removes
-# kernel-default with the conflict package nazoos-kernel-only.
-KERNEL_REPO_ALIAS = "nazoos-kernel"
-KERNEL_REPO_URL = ("https://download.opensuse.org/repositories/"
-                   "home:/Tokajer:/nazoos:/kernel/openSUSE_Tumbleweed/")
-KERNEL_PACKAGE = "kernel-nazoos"
-KERNEL_DEFAULT = "kernel-default"
-KERNEL_ONLY_PACKAGE = "nazoos-kernel-only"
-# Kernel module packages: <base>-kmp-default from Tumbleweed/NVIDIA,
-# <base>-kmp-nazoos from our kernel project. G06 open has no nazoos build
-# (ADR 0018); it stays listed so kernel_install stops with a clear error
-KMP_BASES = ["nvidia-open-driver-G07-signed", "nvidia-open-driver-G06-signed",
-             "xone", "xpadneo"]
-# Only built for kernel-default (closed NVIDIA driver from NVIDIA's repo):
-# kernel-nazoos would boot without graphics driver
-KMP_DEFAULT_ONLY = ["nvidia-driver-G06-kmp-default"]
-# Only built for kernel-nazoos, installed and removed with it (<base>-kmp-
-# nazoos): acpi_call for handheld TDP tools (Handheld Daemon, SimpleDeckyTDP)
-KMP_NAZOOS_ONLY = ["acpi_call"]
-# State files of the opt-in: nazoos_common.kernelstate
-
 # Drives: file systems offered for automatic mounting, and the marker that
 # identifies fstab lines written by nazoos-welcome
 AUTOMOUNT_FS = ["ext4", "btrfs", "xfs", "ntfs", "exfat"]
@@ -425,10 +403,6 @@ ACTION_LABELS = {
     "automount-add": "Adding drive",
     "automount-remove": "Removing drive",
 }
-
-# Helper actions without a GUI label: only other root tools call them
-# (nazoos-update-helper runs kernel-sync after "zypper dup")
-INTERNAL_ACTIONS = {"kernel-sync"}
 
 
 def by_id(items, item_id):

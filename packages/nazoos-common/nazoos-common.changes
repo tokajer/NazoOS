@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Wed Oct 21 22:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New modules proc (small probes without root) and kernel (the kernel
+  opt-in: packages, boot entry, kernel modules; moved from
+  nazoos-welcome). Apps require nazoos-common(api) >= 2.
+- Shared Qt action runner (log, busy state, app launchers) and a shared
+  QML log view that follows new output; log updates are coalesced.
+- Root helpers can end an action with the exit code of a nested helper
+  (Passthrough) and the zypper/Flatpak commands live in helper.
+
+-------------------------------------------------------------------
 Wed Oct 21 20:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - New single.Instance (moved from nazoos-welcome): one window per app,

@@ -10,6 +10,8 @@ import struct
 import subprocess
 from pathlib import Path
 
+from nazoos_common import proc
+
 STATUS = Path("/var/lib/nazoos-update/status.json")
 # btrfs subvolume flags: BTRFS_IOC_SUBVOL_GETFLAGS
 # needs no root rights
@@ -53,29 +55,13 @@ def booted_snapshot():
     return 0
 
 
-def is_live():
-    # nazoos-calamares-config exists only on the live medium
-    return Path("/usr/share/calamares/settings.conf").exists()
-
-
-def boot_time():
-    """Start of the running system (seconds since 1970), or 0."""
-    try:
-        for line in Path("/proc/stat").read_text().splitlines():
-            if line.startswith("btime "):
-                return int(line.split()[1])
-    except (OSError, ValueError):
-        pass
-    return 0
-
-
 def collect():
     st = read_status()
     # Restarted since the update: no restart needed any more
-    if st.get("needs_reboot") and st.get("updated", 0) < boot_time():
+    if st.get("needs_reboot") and st.get("updated", 0) < proc.boot_time():
         st["needs_reboot"] = False
     st["snapshot"] = booted_snapshot()
-    st["live"] = is_live()
+    st["live"] = proc.is_live()
     st["packages"] = st.get("packages") or []
     st["flatpaks"] = st.get("flatpaks") or []
     st["count"] = len(st["packages"]) + len(st["flatpaks"])

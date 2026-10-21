@@ -38,6 +38,7 @@ def main():
         from . import notify
         return notify.main()
 
+    from nazoos_common.qt import QML_DIR
     from nazoos_common.single import Instance
     from PySide6.QtCore import QCoreApplication, QUrl
     from PySide6.QtGui import QGuiApplication, QIcon
@@ -78,6 +79,7 @@ def main():
     ctx.setContextProperty("backend", backend)
     ctx.setContextProperty("startPage", args.page)
     ctx.setContextProperty("instance", instance)
+    engine.addImportPath(QML_DIR)
     engine.load(QUrl.fromLocalFile(str(qml_dir() / "Main.qml")))
     if not engine.rootObjects():
         return 1

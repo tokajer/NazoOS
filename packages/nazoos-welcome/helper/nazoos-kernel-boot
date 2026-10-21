@@ -9,7 +9,7 @@ default boot entry (a kernel update creates a new entry) and counts
 boots of a -nazoos kernel that reach "running". A degraded boot resets
 the counter. After 3 clean boots nazoos-update offers stage 2.
 After "Use openSUSE kernel" it keeps kernel-default the default instead.
---grub-only: only fix the boot entry (nazoos-update after an update).
+--grub-only: only fix the boot entry (package scripts after a kernel update).
 """
 
 import os
@@ -20,30 +20,20 @@ from pathlib import Path
 
 # Our modules from the installed location (or the git checkout)
 _src = Path(__file__).resolve().parent.parent
-for pkg, bases in (("nazoos_welcome", ("/usr/share/nazoos-welcome", _src)),
-                   ("nazoos_common", ("/usr/share/nazoos-common",
-                                      _src.parent / "nazoos-common"))):
-    base = next((b for b in map(Path, bases) if (b / pkg).is_dir()), None)
-    if base is not None:
+for base in (Path("/usr/share/nazoos-common"), _src.parent / "nazoos-common"):
+    if (base / "nazoos_common").is_dir():
         sys.path.insert(0, str(base))
-from nazoos_common import kernelstate  # noqa: E402
-from nazoos_welcome import kernel  # noqa: E402
+        break
+from nazoos_common import helper, kernel, kernelstate  # noqa: E402
 
 
 def main():
-    # Keep the chosen kernel the default: kernel-nazoos while the user
-    # prefers it, else kernel-default as long as kernel-nazoos is still
-    # installed (the first menu entry would boot the newest of both)
-    if kernelstate.PREFER.exists():
-        flavor = "nazoos"
-    elif kernel.nazoos_entry():
-        flavor = "default"
-    else:
-        return 0
     try:
-        kernel.ensure_grub_default(flavor=flavor)
-    except (OSError, subprocess.CalledProcessError) as e:
+        flavor = kernel.keep_default()
+    except (OSError, helper.Fail) as e:
         print(f"could not set the boot entry: {e}", file=sys.stderr)
+        # Counting boots does not depend on it
+        flavor = "nazoos" if kernelstate.PREFER.exists() else None
     if "--grub-only" in sys.argv or flavor != "nazoos":
         return 0
     release = os.uname().release

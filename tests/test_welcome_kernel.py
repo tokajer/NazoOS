@@ -1,8 +1,10 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""nazoos_welcome.kernel: /etc/default/grub and grub.cfg parsing."""
+"""nazoos_common.kernel: grub.cfg parsing, module rebuilds, default entry."""
 
-from nazoos_welcome import kernel
+import xml.etree.ElementTree as ET
+
+from nazoos_common import kernel, kernelstate
 
 GRUB_CFG = """\
 ### BEGIN /etc/grub.d/10_linux ###
@@ -56,3 +58,39 @@ def test_newest_kernel_compares_versions_not_text(tmp_path):
     assert kernel.newest_kernel("nazoos", tmp_path) == \
         "/boot/vmlinuz-7.10.0-1-nazoos"
     assert kernel.newest_kernel("longterm", tmp_path) == ""
+
+
+def test_kmp_rebuilds_finds_a_new_build_of_the_same_module():
+    xml = ET.fromstring("""<stream><search-result><solvable-list>
+      <solvable name="xone-kmp-nazoos" edition="0.3_k7.2.11_1-29.1"/>
+      <solvable name="xone-kmp-nazoos" edition="0.3_k7.2.11_1-20.1"/>
+      <solvable name="xone-kmp-nazoos" edition="0.3_k7.2.12_1-1.1"/>
+      <solvable name="acpi_call-kmp-nazoos" edition="1.2_k7.2.11_1-2.8"/>
+    </solvable-list></search-result></stream>""")
+    installed = {"xone-kmp-nazoos": {"0.3_k7.2.11_1-20.1"},
+                 "acpi_call-kmp-nazoos": {"1.2_k7.2.11_1-2.8"}}
+    # Only the rebuild for the installed kernel version; the build for
+    # the next kernel comes with the kernel update itself
+    assert kernel.rebuilds(xml, installed) == [
+        "xone-kmp-nazoos = 0.3_k7.2.11_1-29.1"]
+
+
+def test_keep_default(monkeypatch, tmp_path):
+    prefer = tmp_path / "kernel-prefer"
+    monkeypatch.setattr(kernelstate, "PREFER", prefer)
+    # The default argument of newest_kernel() is fixed at import
+    real = kernel.newest_kernel
+    monkeypatch.setattr(kernel, "newest_kernel",
+                        lambda flavor: real(flavor, tmp_path))
+    flavors = []
+    monkeypatch.setattr(kernel, "ensure_grub_default",
+                        lambda log, flavor: flavors.append(flavor))
+    # Neither preferred nor installed: nothing to keep
+    assert kernel.keep_default() is None
+    assert flavors == []
+    # kernel-nazoos installed, but not preferred: pin kernel-default
+    (tmp_path / "vmlinuz-7.2.11-1-nazoos").touch()
+    assert kernel.keep_default() == "default"
+    prefer.touch()
+    assert kernel.keep_default() == "nazoos"
+    assert flavors == ["default", "nazoos"]

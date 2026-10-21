@@ -1,4 +1,18 @@
 -------------------------------------------------------------------
+Wed Oct 21 22:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- "Try again" in the error dialog now repeats exactly the action that
+  failed (before, after a failed service switch it could repeat an
+  earlier one).
+- Kernel logic moved to nazoos-common; the helper action kernel-sync is
+  gone (nazoos-update calls the code directly).
+- Details window uses the shared log view.
+- Btrfs Assistant fallback starts btrfs-assistant-launcher (asks for the
+  password) instead of btrfs-assistant.
+- Details log keeps up to 300,000 characters (was 200,000), shared with
+  NazoOS Update.
+
+-------------------------------------------------------------------
 Wed Oct 21 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Apps page: Inkscape, Gear Lever, ISO Image Writer and Meld

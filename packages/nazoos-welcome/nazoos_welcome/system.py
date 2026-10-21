@@ -11,38 +11,11 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from nazoos_common import kernelstate, mok
+from nazoos_common import kernel, kernelstate, mok, proc
 
-from . import catalog, kernel
+from . import catalog
 
 AUTOSTART_NAME = "nazoos-welcome.desktop"
-
-
-def _out(cmd, timeout=30):
-    if shutil.which(cmd[0]) is None:
-        return ""
-    try:
-        return subprocess.run(cmd, capture_output=True, text=True,
-                              timeout=timeout).stdout
-    except (OSError, subprocess.TimeoutExpired):
-        return ""
-
-
-def _rc(cmd, timeout=30):
-    if shutil.which(cmd[0]) is None:
-        return 127
-    try:
-        return subprocess.run(cmd, capture_output=True,
-                              timeout=timeout).returncode
-    except (OSError, subprocess.TimeoutExpired):
-        return 1
-
-
-def _read(path):
-    try:
-        return Path(path).read_text(errors="replace")
-    except OSError:
-        return ""
 
 
 def rpm_vendors(names):
@@ -50,7 +23,7 @@ def rpm_vendors(names):
     if not names:
         return {}
     found = {}
-    for line in _out(["rpm", "-q", "--qf", "%{NAME}\t%{VENDOR}\n"]
+    for line in proc.out(["rpm", "-q", "--qf", "%{NAME}\t%{VENDOR}\n"]
                      + list(names)).splitlines():
         parts = line.split("\t")
         if len(parts) == 2:
@@ -59,8 +32,13 @@ def rpm_vendors(names):
 
 
 def gpus():
+    return parse_gpus(proc.out(["lspci", "-mm", "-nn"]))
+
+
+def parse_gpus(lspci_text):
+    """Display controllers out of the "lspci -mm -nn" text."""
     result = []
-    for line in _out(["lspci", "-mm", "-nn"]).splitlines():
+    for line in lspci_text.splitlines():
         try:
             f = shlex.split(line)
         except ValueError:
@@ -79,43 +57,38 @@ def gpus():
 
 def repo_present(fragment):
     for f in Path("/etc/zypp/repos.d").glob("*.repo"):
-        if fragment in _read(f):
+        if fragment in proc.read(f):
             return True
     return False
 
 
 def unit_state(unit, user=False):
     base = ["systemctl", "--user"] if user else ["systemctl"]
-    enabled = _out(base + ["is-enabled", unit]).strip()
-    active = _out(base + ["is-active", unit]).strip()
+    enabled = proc.out(base + ["is-enabled", unit]).strip()
+    active = proc.out(base + ["is-active", unit]).strip()
     return enabled in ("enabled", "enabled-runtime"), active == "active"
 
 
 def grub_cmdline():
-    m = kernel.CMDLINE_RE.search(_read(kernel.GRUB_DEFAULT_FILE))
+    m = kernel.CMDLINE_RE.search(proc.read(kernel.GRUB_DEFAULT_FILE))
     return m.group(2).split() if m else []
 
 
 def flatpak_installed():
     if shutil.which("flatpak") is None:
         return set()
-    return set(_out(["flatpak", "list",
+    return set(proc.out(["flatpak", "list",
                      "--columns=application"]).split())
 
 
-def is_live():
-    # nazoos-calamares-config exists only on the live medium
-    return Path("/usr/share/calamares/settings.conf").exists()
-
-
 def in_vm():
-    return _rc(["systemd-detect-virt", "--vm", "--quiet"]) == 0
+    return proc.rc(["systemd-detect-virt", "--vm", "--quiet"]) == 0
 
 
 def waydroid_software():
     """Waydroid's config selects software rendering (set in a VM)."""
     m = re.search(r"^\s*ro\.hardware\.egl\s*=\s*(\S+)",
-                  _read(catalog.WAYDROID_CONFIG), re.M)
+                  proc.read(catalog.WAYDROID_CONFIG), re.M)
     return m is not None and \
         m.group(1) == catalog.WAYDROID_SOFTWARE["ro.hardware.egl"]
 
@@ -124,7 +97,7 @@ def autostart_enabled():
     user_file = Path.home() / ".config" / "autostart" / AUTOSTART_NAME
     if not user_file.exists():
         return True
-    return not re.search(r"^Hidden\s*=\s*true", _read(user_file),
+    return not re.search(r"^Hidden\s*=\s*true", proc.read(user_file),
                          re.M | re.I)
 
 
@@ -140,17 +113,22 @@ def set_autostart(enabled):
 
 
 def drives():
-    data = _out(["lsblk", "--json", "--list", "--bytes", "--output",
-                 "PATH,UUID,FSTYPE,LABEL,SIZE,MOUNTPOINTS,TYPE,RM,"
-                 "HOTPLUG,PKNAME"])
+    data = proc.out(["lsblk", "--json", "--list", "--bytes", "--output",
+                     "PATH,UUID,FSTYPE,LABEL,SIZE,MOUNTPOINTS,TYPE,RM,"
+                     "HOTPLUG,PKNAME"])
     try:
         devs = json.loads(data).get("blockdevices", []) if data else []
     except json.JSONDecodeError:
         devs = []
-    fstab = _read("/etc/fstab")
+    return parse_drives(devs, proc.read("/etc/fstab"),
+                        proc.out(["findmnt", "-no", "UUID", "/"]).strip())
+
+
+def parse_drives(devs, fstab, root_uuid):
+    """Extra drives from the lsblk "blockdevices" list: no system drive,
+    no removable media, none the user already mounts by hand."""
     ours = set(re.findall(re.escape(catalog.FSTAB_MARKER)
                           + r"\nUUID=(\S+)", fstab))
-    root_uuid = _out(["findmnt", "-no", "UUID", "/"]).strip()
     result = []
     for d in devs:
         uuid = d.get("uuid")
@@ -165,13 +143,13 @@ def drives():
         result.append({
             "uuid": uuid, "path": d.get("path", ""),
             "fstype": d.get("fstype"), "label": d.get("label") or "",
-            "size": _human(d.get("size") or 0),
+            "size": human_size(d.get("size") or 0),
             "mountpoint": mps[0] if mps else "", "managed": managed,
         })
     return result
 
 
-def _human(n):
+def human_size(n):
     n = float(n)
     for unit in ("B", "KB", "MB", "GB", "TB"):
         if n < 1000 or unit == "TB":
@@ -189,30 +167,30 @@ def usb_input_devices():
         # Interfaces are named "1-2:1.0", root hubs "usb1"
         if ":" in dev.name or dev.name.startswith("usb"):
             continue
-        vid = _read(dev / "idVendor").strip()
-        pid = _read(dev / "idProduct").strip()
+        vid = proc.read(dev / "idVendor").strip()
+        pid = proc.read(dev / "idProduct").strip()
         if not vid or not pid:
             continue
         hid, ms = False, None
         for intf in dev.glob(f"{dev.name}:*"):
-            if _read(intf / "bInterfaceClass").strip() != "03":
+            if proc.read(intf / "bInterfaceClass").strip() != "03":
                 continue
             hid = True
             for ep in intf.glob("ep_*"):
-                if (_read(ep / "type").strip() != "Interrupt"
-                        or _read(ep / "direction").strip() != "in"):
+                if (proc.read(ep / "type").strip() != "Interrupt"
+                        or proc.read(ep / "direction").strip() != "in"):
                     continue
                 # "8ms" or "125us"
                 m = re.fullmatch(r"(\d+)(m|u)s",
-                                 _read(ep / "interval").strip())
+                                 proc.read(ep / "interval").strip())
                 if m:
                     v = int(m.group(1)) / (1000 if m.group(2) == "u" else 1)
                     if v > 0 and (ms is None or v < ms):
                         ms = v
         if not hid:
             continue
-        name = " ".join(x for x in (_read(dev / "manufacturer").strip(),
-                                    _read(dev / "product").strip()) if x)
+        name = " ".join(x for x in (proc.read(dev / "manufacturer").strip(),
+                                    proc.read(dev / "product").strip()) if x)
         vp = f"{vid}:{pid}"
         result.setdefault(vp, {"id": vp, "name": name or vp,
                                "hz": round(1000 / ms) if ms else 0,
@@ -245,28 +223,26 @@ def _requested_this_boot():
     a request from an earlier boot was already shown by MokManager."""
     try:
         requested = kernelstate.MOK_REQUESTED.stat().st_mtime
-        btime = next(int(line.split()[1]) for line in
-                     Path("/proc/stat").read_text().splitlines()
-                     if line.startswith("btime "))
-    except (OSError, StopIteration, ValueError):
+    except OSError:
         return False
-    return requested > btime
+    boot = proc.boot_time()
+    return bool(boot) and requested > boot
 
 
 def kernel_state():
     """NazoOS kernel opt-in (ADR 0008), without root rights."""
-    names = ([catalog.KERNEL_PACKAGE, catalog.KERNEL_DEFAULT,
-              catalog.KERNEL_ONLY_PACKAGE] + catalog.KMP_DEFAULT_ONLY)
+    names = ([kernel.KERNEL_PACKAGE, kernel.KERNEL_DEFAULT,
+              kernel.KERNEL_ONLY_PACKAGE] + kernel.KMP_DEFAULT_ONLY)
     rpms = rpm_vendors(names)
     release = platform.release()
-    sb_raw = _out(["mokutil", "--sb-state"]).strip()
+    sb_raw = proc.out(["mokutil", "--sb-state"]).strip()
     sb = sb_raw.lower()
     secure_boot = "secureboot enabled" in sb
     # "SecureBoot enabled/disabled": UEFI, the kernel package queues its
     # key for MokManager either way (ADR 0024)
     uefi = "secureboot" in sb
     key = ""
-    if uefi and catalog.KERNEL_PACKAGE in rpms:
+    if uefi and kernel.KERNEL_PACKAGE in rpms:
         cert = mok.signing_cert()
         if cert:
             key = ("enrolled" if mok.enrolled(cert)
@@ -276,13 +252,13 @@ def kernel_state():
     return {
         "release": release,
         "running": release.endswith("-nazoos"),
-        "installed": catalog.KERNEL_PACKAGE in rpms,
-        "defaultInstalled": catalog.KERNEL_DEFAULT in rpms,
-        "only": catalog.KERNEL_ONLY_PACKAGE in rpms,
+        "installed": kernel.KERNEL_PACKAGE in rpms,
+        "defaultInstalled": kernel.KERNEL_DEFAULT in rpms,
+        "only": kernel.KERNEL_ONLY_PACKAGE in rpms,
         "preferred": kernelstate.PREFER.exists(),
         "boots": boots.get("count", 0),
         "stableBoots": kernelstate.STABLE_BOOTS,
-        "blocked": any(p in rpms for p in catalog.KMP_DEFAULT_ONLY),
+        "blocked": any(p in rpms for p in kernel.KMP_DEFAULT_ONLY),
         "secureBoot": secure_boot,
         "uefi": uefi,
         "mok": key,
@@ -293,7 +269,7 @@ def kernel_state():
 def session_state():
     """Steam gaming mode (nazoos-session): boot mode and handheld model."""
     conf = {}
-    for line in _read(catalog.SESSION_CONF).splitlines():
+    for line in proc.read(catalog.SESSION_CONF).splitlines():
         m = re.match(r'^(\w+)="?([^"]*)"?$', line.strip())
         if m:
             conf[m.group(1)] = m.group(2)
@@ -324,67 +300,36 @@ def update_channel():
     return ""
 
 
-def collect():
-    """Full state for the UI, as plain JSON-friendly data."""
-    gpu_list = gpus()
+_deck_found = False
+
+
+def deck_in_repos():
+    """The deck pattern is in the repos. Only a positive answer is kept:
+    the search takes 15-20 s and collect() runs on every page change, but
+    a failure (zypp lock held by the update timer) must be retried."""
+    global _deck_found
+    if _deck_found:
+        return True
+    _deck_found = proc.rc(
+        ["zypper", "--non-interactive", "--no-refresh", "--quiet",
+         "search", "--type", "pattern", "--match-exact",
+         catalog.DECK_PATTERN], timeout=90) == 0
+    return _deck_found
+
+
+def _drivers(rpms, gpu_list):
     vendors = {g["vendor"] for g in gpu_list}
-
-    rpm_names = (["scx", catalog.DECK_PATTERN, "ffmpeg",
-                  "gstreamer-plugins-bad-codecs",
-                  "nazoos-update", "btrfs-assistant", "plasma-discover",
-                  "discover6", "myrlyn", "lact", "coolercontrol"]
-                 + [p for v in catalog.NVIDIA_DRIVERS.values() for p in v]
-                 + catalog.ROCM_PACKAGES
-                 + [s["package"] for s in catalog.SERVICES]
-                 + [r for a in catalog.APPS if a["kind"] == "rpm"
-                    for r in a["refs"]])
-    rpms = rpm_vendors(sorted(set(rpm_names)))
-    flatpaks = flatpak_installed()
-
-    apps = {}
-    for a in catalog.APPS:
-        if a["kind"] == "flatpak":
-            apps[a["id"]] = a["refs"][0] in flatpaks
-        else:
-            apps[a["id"]] = all(r in rpms for r in a["refs"])
-
-    services = {}
-    for s in catalog.SERVICES:
-        enabled, active = unit_state(s["unit"], s["user"])
-        services[s["id"]] = {"installed": s["package"] in rpms,
-                             "enabled": enabled, "active": active}
-
-    configured = grub_cmdline()
-    active_cmdline = _read("/proc/cmdline").split()
-    kparams = {}
-    for k in catalog.KERNEL_PARAMS:
-        kparams[k["id"]] = {"configured": k["param"] in configured,
-                            "active": k["param"] in active_cmdline}
-
-    scx_enabled, scx_active = unit_state("scx.service")
-    m = re.search(r"^\s*SCX_SCHEDULER\s*=\s*\"?([\w-]+)",
-                  _read("/etc/default/scx"), re.M)
-
     nvidia_variant = ""
     for variant, pkgs in catalog.NVIDIA_DRIVERS.items():
         if pkgs[1] in rpms:
             nvidia_variant = variant
-
-    deck_installed = _rc(["rpm", "-q", catalog.DECK_PATTERN]) == 0
-    deck_available = deck_installed or _rc(
-        ["zypper", "--non-interactive", "--no-refresh", "--quiet",
-         "search", "--type", "pattern", "--match-exact",
-         catalog.DECK_PATTERN]) == 0
-
-    result = {
-        "live": is_live(),
-        "autostart": autostart_enabled(),
+    return {
         "gpus": gpu_list,
         "hasAmd": "amd" in vendors,
         "hasNvidia": "nvidia" in vendors,
         # CPU can sync its TSC itself; without it tsc=directsync helps
         "tscAdjust": re.search(r"^flags\s*:.*\btsc_adjust\b",
-                               _read("/proc/cpuinfo"), re.M) is not None,
+                               proc.read("/proc/cpuinfo"), re.M) is not None,
         "nvidiaDriver": nvidia_variant,
         "nvidiaLoaded": Path("/sys/module/nvidia").exists(),
         "rocm": catalog.ROCM_PACKAGES[0] in rpms,
@@ -392,31 +337,95 @@ def collect():
         # gstreamer-plugins-bad-codecs only exists in Packman
         "codecs": "packman" in rpms.get("ffmpeg", "").lower()
                   or "gstreamer-plugins-bad-codecs" in rpms,
+    }
+
+
+def _gaming(rpms):
+    scx_enabled, scx_active = unit_state("scx.service")
+    m = re.search(r"^\s*SCX_SCHEDULER\s*=\s*\"?([\w-]+)",
+                  proc.read("/etc/default/scx"), re.M)
+    deck_installed = catalog.DECK_PATTERN in rpms
+    return {
         "scxInstalled": "scx" in rpms,
         "scxEnabled": scx_enabled,
         "scxActive": scx_active,
         "scxScheduler": m.group(1) if m else "",
-        "kparams": kparams,
         "pollrate": pollrate_state(),
-        "services": services,
-        "apps": apps,
         # Waydroid card: software rendering is used (installed) or will be
         "vm": in_vm(),
         "waydroidSoftware": waydroid_software(),
-        "flathub": "flathub" in _out(["flatpak", "remotes",
-                                      "--columns=name"]).split(),
         "deckInstalled": deck_installed,
-        "deckAvailable": deck_available,
+        "deckAvailable": deck_installed or deck_in_repos(),
         "session": session_state(),
-        "drives": drives(),
-        "kernel": kernel_state(),
-        "channel": update_channel(),
+    }
+
+
+def _apps(rpms, flatpaks):
+    apps = {}
+    for a in catalog.APPS:
+        if a["kind"] == "flatpak":
+            apps[a["id"]] = a["refs"][0] in flatpaks
+        else:
+            apps[a["id"]] = all(r in rpms for r in a["refs"])
+    return {
+        "apps": apps,
+        "flathub": "flathub" in proc.out(["flatpak", "remotes",
+                                          "--columns=name"]).split(),
+    }
+
+
+def _services(rpms):
+    services = {}
+    for s in catalog.SERVICES:
+        enabled, active = unit_state(s["unit"], s["user"])
+        services[s["id"]] = {"installed": s["package"] in rpms,
+                             "enabled": enabled, "active": active}
+    return {"services": services}
+
+
+def _kparams():
+    configured = grub_cmdline()
+    active_cmdline = proc.read("/proc/cmdline").split()
+    kparams = {}
+    for k in catalog.KERNEL_PARAMS:
+        kparams[k["id"]] = {"configured": k["param"] in configured,
+                            "active": k["param"] in active_cmdline}
+    return {"kparams": kparams}
+
+
+def _tools():
+    return {
         "hasBtrfsAssistant": shutil.which("btrfs-assistant") is not None,
         "hasNazoosUpdate": shutil.which("nazoos-update") is not None,
         "hasLact": shutil.which("lact") is not None,
         "hasCoolerControl": shutil.which("coolercontrol") is not None,
         "hasDiscover": shutil.which("plasma-discover") is not None,
         "hasMyrlyn": shutil.which("myrlyn") is not None,
+    }
+
+
+def collect():
+    """Full state for the UI, as plain JSON-friendly data."""
+    rpm_names = (["scx", catalog.DECK_PATTERN, "ffmpeg",
+                  "gstreamer-plugins-bad-codecs"]
+                 + [p for v in catalog.NVIDIA_DRIVERS.values() for p in v]
+                 + catalog.ROCM_PACKAGES
+                 + [s["package"] for s in catalog.SERVICES]
+                 + [r for a in catalog.APPS if a["kind"] == "rpm"
+                    for r in a["refs"]])
+    rpms = rpm_vendors(sorted(set(rpm_names)))
+    result = {
+        "live": proc.is_live(),
+        "autostart": autostart_enabled(),
+        "drives": drives(),
+        "kernel": kernel_state(),
+        "channel": update_channel(),
+        **_drivers(rpms, gpus()),
+        **_gaming(rpms),
+        **_apps(rpms, flatpak_installed()),
+        **_services(rpms),
+        **_kparams(),
+        **_tools(),
     }
     try:
         result["sysinfo"] = sysinfo(result)
@@ -428,15 +437,15 @@ def collect():
 def sysinfo(state=None):
     """Plain text summary for bug reports."""
     osr = {}
-    for line in _read("/etc/os-release").splitlines():
+    for line in proc.read("/etc/os-release").splitlines():
         if "=" in line:
             k, v = line.split("=", 1)
             osr[k] = v.strip('"')
-    cpu = re.search(r"^model name\s*:\s*(.+)$", _read("/proc/cpuinfo"), re.M)
-    mem = re.search(r"^MemTotal:\s*(\d+)", _read("/proc/meminfo"), re.M)
+    cpu = re.search(r"^model name\s*:\s*(.+)$", proc.read("/proc/cpuinfo"), re.M)
+    mem = re.search(r"^MemTotal:\s*(\d+)", proc.read("/proc/meminfo"), re.M)
     sb = (state or {}).get("kernel", {}).get("sbState")
     if not sb:
-        sb = _out(["mokutil", "--sb-state"]).strip()
+        sb = proc.out(["mokutil", "--sb-state"]).strip()
     if not sb:
         # mokutil explains on stderr only: firmware without Secure Boot
         # (some VMs) or legacy BIOS
@@ -446,7 +455,7 @@ def sysinfo(state=None):
         f"OS: {osr.get('PRETTY_NAME', 'unknown')} "
         f"({osr.get('VERSION_ID', '')})",
         f"Kernel: {platform.release()}",
-        f"Cmdline: {_read('/proc/cmdline').strip()}",
+        f"Cmdline: {proc.read('/proc/cmdline').strip()}",
         f"CPU: {cpu.group(1) if cpu else 'unknown'}",
         f"RAM: {int(mem.group(1)) // 1024 // 1024 + 1 if mem else '?'} GB",
         f"Session: {os.environ.get('XDG_SESSION_TYPE', '?')} / "

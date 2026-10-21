@@ -14,8 +14,9 @@ import shutil
 import time
 from pathlib import Path
 
+from nazoos_common import proc
+
 from . import catalog, system
-from .system import _out, _read
 
 
 def _finding(fid, items=(), fix="", user_only=False):
@@ -27,7 +28,7 @@ def _sections(directory, pattern):
     for f in Path(directory).glob(pattern):
         cp = configparser.ConfigParser(interpolation=None, strict=False)
         try:
-            cp.read_string(_read(f))
+            cp.read_string(proc.read(f))
         except configparser.Error:
             continue
         for alias in cp.sections():
@@ -41,14 +42,24 @@ def _enabled(section):
 def repos():
     """Repo services, standard Tumbleweed repos and the NazoOS repo that
     are missing or disabled."""
-    found = {}
+    found = []
     for _alias, sec in _sections("/etc/zypp/repos.d", "*.repo"):
         url = sec.get("baseurl", "")
         if url and "opensuse.org" in url:
-            path = catalog.repo_path(url)
-            found[path] = found.get(path, False) or _enabled(sec)
+            found.append((url, _enabled(sec)))
     services = {name: _enabled(sec) for name, sec
                 in _sections("/etc/zypp/services.d", "*.service")}
+    return repo_problems(found, services)
+
+
+def repo_problems(repos, services):
+    """Names of the missing or disabled repo services, standard repos and
+    the NazoOS repo. REPOS: (baseurl, enabled) of the opensuse.org repos,
+    SERVICES: {name: enabled}."""
+    found = {}
+    for url, enabled in repos:
+        path = catalog.repo_path(url)
+        found[path] = found.get(path, False) or enabled
     bad = [s["name"] for s in catalog.REPO_SERVICES
            if not services.get(s["name"])]
     for repo in catalog.STANDARD_REPOS:
@@ -61,12 +72,12 @@ def repos():
 
 
 def rpmdb_broken():
-    return system._rc(["rpm", "-q", "rpm"]) not in (0, 127)
+    return proc.rc(["rpm", "-q", "rpm"]) not in (0, 127)
 
 
 def unsatisfied():
     """Packages with missing dependencies (rpm only reads, no root)."""
-    text = _out(["rpm", "-Va", "--nofiles", "--nodigest", "--nosignature",
+    text = proc.out(["rpm", "-Va", "--nofiles", "--nodigest", "--nosignature",
                  "--noscripts"], timeout=120)
     return sorted(set(re.findall(r"^Unsatisfied dependencies for (\S+):",
                                  text, re.M)))
@@ -76,10 +87,16 @@ def packman_mix():
     """openSUSE builds of packages Packman replaces, while Packman is used."""
     if not system.repo_present("/packman/"):
         return []
+    return mixed_packman(proc.out(["rpm", "-qa", "--qf",
+                                   "%{NAME}\t%{VENDOR}\n"]))
+
+
+def mixed_packman(rpm_qa_text):
+    """Names of the openSUSE builds in the "NAME<tab>VENDOR" lines, if at
+    least one package of the family comes from Packman."""
     family = re.compile(catalog.PACKMAN_FAMILY)
     ours, theirs = [], []
-    for line in _out(["rpm", "-qa", "--qf",
-                      "%{NAME}\t%{VENDOR}\n"]).splitlines():
+    for line in rpm_qa_text.splitlines():
         name, _, vendor = line.partition("\t")
         if family.fullmatch(name):
             (ours if "packman" in vendor.lower() else theirs).append(name)
@@ -99,7 +116,7 @@ def nvidia_module_missing():
 
 def failed_units(user=False):
     base = ["systemctl", "--user"] if user else ["systemctl"]
-    units = [line.split()[0] for line in _out(
+    units = [line.split()[0] for line in proc.out(
         base + ["list-units", "--failed", "--plain",
                 "--no-legend"]).splitlines() if line.strip()]
     return [u for u in units if u not in catalog.IGNORED_UNITS
@@ -115,13 +132,13 @@ def low_space():
     total = st.f_blocks * st.f_frsize
     limit = max(catalog.SPACE_MIN_GB * 1000 ** 3,
                 total * catalog.SPACE_MIN_PERCENT / 100)
-    return system._human(free) if free < limit else None
+    return system.human_size(free) if free < limit else None
 
 
 def flathub_missing():
     if shutil.which("flatpak") is None:
         return False
-    return "flathub" not in _out(["flatpak", "remotes",
+    return "flathub" not in proc.out(["flatpak", "remotes",
                                   "--columns=name"]).split()
 
 
@@ -162,14 +179,14 @@ def restart_user_units():
     units = failed_units(user=True)
     for unit in units:
         log += f"$ systemctl --user restart {unit}\n"
-        log += _out(["systemctl", "--user", "restart", unit])
+        log += proc.out(["systemctl", "--user", "restart", unit])
     if not units:
         return log, []
     time.sleep(catalog.UNIT_SETTLE_SECONDS)
     still = failed_units(user=True)
     fixed = [u for u in units if u not in still]
     if fixed:
-        _out(["systemctl", "--user", "reset-failed"] + fixed)
+        proc.out(["systemctl", "--user", "reset-failed"] + fixed)
     return log, still
 
 
@@ -183,17 +200,17 @@ def report(state, findings, log):
     text += section("Repair check", "\n".join(
         f"{f['id']}: {', '.join(f['items'])}" for f in findings)
         if findings is not None else "not run")
-    text += section("Repositories", _out(["zypper", "--no-refresh",
+    text += section("Repositories", proc.out(["zypper", "--no-refresh",
                                           "repos", "--uri"]))
     text += section("Failed units", "\n".join(
         failed_units() + [u + " (user)" for u in failed_units(user=True)]))
-    text += section("Errors since boot", _out(
+    text += section("Errors since boot", proc.out(
         ["journalctl", "--boot", "--priority=err", "--no-pager",
          "--lines=300", "--output=short-monotonic"]))
     text += section("Recently installed packages", "\n".join(
-        _out(["rpm", "-qa", "--last"]).splitlines()[:60]))
+        proc.out(["rpm", "-qa", "--last"]).splitlines()[:60]))
     text += section("Kernel modules (GPU)", "\n".join(
-        line for line in _read("/proc/modules").splitlines()
+        line for line in proc.read("/proc/modules").splitlines()
         if re.match(r"(amdgpu|nvidia\w*|i915|xe|nouveau) ", line)))
     text += section("NazoOS Welcome log", log[-20000:])
     path = Path.home() / time.strftime("nazoos-report-%Y%m%d-%H%M%S.txt")

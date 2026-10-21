@@ -35,5 +35,4 @@ def test_repo_path_ignores_the_mirror_host():
 
 
 def test_every_action_has_a_label_and_the_other_way_round():
-    known = set(catalog.ACTION_LABELS) | catalog.INTERNAL_ACTIONS
-    assert set(ACTIONS) == known
+    assert set(ACTIONS) == set(catalog.ACTION_LABELS)

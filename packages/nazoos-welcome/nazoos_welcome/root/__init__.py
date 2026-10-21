@@ -24,7 +24,6 @@ ACTIONS = {
     "kernel-only": kernel_switch.kernel_only,
     "kernel-restore": kernel_switch.kernel_restore,
     "kernel-remove": kernel_switch.kernel_remove,
-    "kernel-sync": kernel_switch.kernel_sync,
     "mok-import": mok.mok_import,
     "app-install": apps.app_install,
     "app-remove": apps.app_remove,

@@ -12,7 +12,7 @@ Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  desktop-file-utils
 BuildRequires:  gettext-tools
 # %check imports the helper's actions
-BuildRequires:  nazoos-common
+BuildRequires:  nazoos-common(api) >= 2
 BuildRequires:  python3
 BuildRequires:  systemd-rpm-macros
 BuildArch:      noarch
@@ -23,7 +23,7 @@ Requires:       python3
 Requires:       python3-pyside6
 Requires:       qt6-declarative-imports
 # Helper frame, error messages, MOK check, kernel opt-in state (ADR 0030)
-Requires:       nazoos-common
+Requires:       nazoos-common(api) >= 2
 # Root actions via pkexec + our Polkit policy
 Requires:       polkit
 # System probes (lspci, lsblk/findmnt) and actions
@@ -104,7 +104,7 @@ python3 -B - <<'PY'
 import runpy
 from nazoos_welcome import catalog
 actions = set(runpy.run_path("helper/nazoos-welcome-helper")["ACTIONS"])
-known = set(catalog.ACTION_LABELS) | catalog.INTERNAL_ACTIONS
+known = set(catalog.ACTION_LABELS)
 missing, extra = known - actions, actions - known
 if missing or extra:
     raise SystemExit("helper ACTIONS mismatch: label without action "

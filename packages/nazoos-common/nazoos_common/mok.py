@@ -11,17 +11,9 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-KERNEL_PACKAGE = "kernel-nazoos"
+from . import kernel, proc
+
 CERT_PATH = re.compile(r"/etc/uefi/certs/\w+\.crt")
-
-
-def _out(cmd):
-    try:
-        return subprocess.run(cmd, stdin=subprocess.DEVNULL,
-                              capture_output=True, text=True,
-                              timeout=30).stdout
-    except (OSError, subprocess.TimeoutExpired):
-        return ""
 
 
 def uefi():
@@ -35,9 +27,9 @@ def uefi():
         return False
 
 
-def signing_cert(package=KERNEL_PACKAGE):
+def signing_cert(package=kernel.KERNEL_PACKAGE):
     """Path of the certificate that signs PACKAGE, or None."""
-    certs = [f for f in _out(["rpm", "-ql", package]).split()
+    certs = [f for f in proc.out(["rpm", "-ql", package]).split()
              if CERT_PATH.fullmatch(f)]
     return certs[0] if certs else None
 
@@ -47,10 +39,12 @@ def enrolled(cert):
     root's "mokutil --test-key" answers "already in the built-in trusted
     keyring" instead (VM 2026-10-19), so the fingerprint is also looked
     up in the enrolled list."""
-    if "already enrolled" in _out(["mokutil", "--test-key", cert]).lower():
+    test = proc.out(["mokutil", "--test-key", cert])
+    if "already enrolled" in test.lower():
         return True
     fpr = fingerprint(cert)
-    listed = _out(["mokutil", "--list-enrolled"]).lower().replace(":", "")
+    listed = proc.out(["mokutil", "--list-enrolled"]).lower() \
+        .replace(":", "")
     return bool(fpr) and fpr in listed
 
 
@@ -67,8 +61,8 @@ def covered(cert):
                            timeout=30)
         except (OSError, subprocess.TimeoutExpired):
             return False
-        pems = "".join(_out(["openssl", "x509", "-inform", "DER", "-in",
-                             str(der)])
+        pems = "".join(proc.out(["openssl", "x509", "-inform", "DER",
+                                 "-in", str(der)])
                        for der in sorted(Path(d).glob("MOK-*.der")))
         if not pems:
             return False
@@ -86,15 +80,15 @@ def covered(cert):
 
 def fingerprint(cert):
     """SHA-1 fingerprint of CERT, lower case without colons, or ""."""
-    fpr = _out(["openssl", "x509", "-in", cert, "-noout", "-fingerprint",
-                "-sha1"])
+    fpr = proc.out(["openssl", "x509", "-in", cert, "-noout",
+                    "-fingerprint", "-sha1"])
     return fpr.split("=")[-1].strip().replace(":", "").lower()
 
 
 def pending(cert):
     """Root only: CERT waits for MokManager at the next boot."""
     fpr = fingerprint(cert)
-    queued = _out(["mokutil", "--list-new"]).lower().replace(":", "")
+    queued = proc.out(["mokutil", "--list-new"]).lower().replace(":", "")
     return bool(fpr) and fpr in queued
 
 

@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import org.kde.kirigami as Kirigami
+import org.nazoos.common
 import "pages"
 
 Kirigami.ApplicationWindow {
@@ -20,17 +21,15 @@ Kirigami.ApplicationWindow {
     readonly property bool live: st.live === true
     readonly property string repoUrl: "https://github.com/tokajer/NazoOS"
     property string currentPage: ""
-    property var lastRun: null
 
     // --- helpers used by all pages ---------------------------------------
 
     function runAction(action, args) {
-        lastRun = [action, args || []]
         backend.run(action, args || [])
     }
 
     // Actions that may queue the Secure Boot key: ask for the MokManager
-    // password first (ADR 0024). "Try again" asks again
+    // password first (ADR 0024). "Try again" asks again (mokRetryRequested)
     function askMok(action, args) {
         mokDialog.action = action
         mokDialog.args = args || []
@@ -159,13 +158,15 @@ Kirigami.ApplicationWindow {
 
     Connections {
         target: backend
+        function onMokRetryRequested(action, args) {
+            root.askMok(action, args)
+        }
         function onActionFinished(action, ok, message) {
             if (ok) {
                 root.showPassiveNotification(message)
             } else {
                 errorDialog.subtitle = message
-                errorDialog.canRetry = root.lastRun !== null
-                                      && action !== "launch" && action !== "report"
+                errorDialog.canRetry = backend.canRetry
                 errorDialog.open()
             }
         }
@@ -246,7 +247,6 @@ Kirigami.ApplicationWindow {
                     const pin = mokPin.text
                     mokPin.text = ""
                     mokDialog.close()
-                    root.lastRun = [mokDialog.action, mokDialog.args, true]
                     backend.runMok(mokDialog.action, mokDialog.args, pin)
                 }
             },
@@ -273,10 +273,7 @@ Kirigami.ApplicationWindow {
                 visible: errorDialog.canRetry
                 onTriggered: {
                     errorDialog.close()
-                    if (root.lastRun[2])
-                        root.askMok(root.lastRun[0], root.lastRun[1])
-                    else
-                        root.runAction(root.lastRun[0], root.lastRun[1])
+                    backend.retry()
                 }
             },
             Kirigami.Action {
@@ -313,30 +310,11 @@ Kirigami.ApplicationWindow {
                 onTriggered: logDialog.close()
             }
         ]
-        // Fixed size: Kirigami.Dialog sizes itself after the content's
-        // implicit height, so a view as tall as the text grew the dialog
-        // with every line (binding loop on y, high CPU) and only the
-        // dialog's own outer view could scroll
-        QQC2.ScrollView {
+        LogView {
             id: logScroll
             implicitWidth: Kirigami.Units.gridUnit * 40
             implicitHeight: Kirigami.Units.gridUnit * 22
-
-            // Follow new output like a terminal. A read-only TextArea
-            // without focus does not scroll the view to its cursor
-            function toEnd() {
-                const f = contentItem
-                f.contentY = Math.max(0, f.contentHeight - f.height)
-            }
-
-            QQC2.TextArea {
-                id: logArea
-                readOnly: true
-                wrapMode: TextEdit.Wrap
-                font.family: "monospace"
-                text: backend.log || L.tr("Nothing has run yet.")
-                onTextChanged: Qt.callLater(logScroll.toEnd)
-            }
+            text: backend.log || L.tr("Nothing has run yet.")
         }
     }
 }

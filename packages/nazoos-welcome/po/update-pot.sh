@@ -17,7 +17,7 @@ xgettext --from-code=UTF-8 --language=JavaScript --keyword=tr \
 # Python: gettext("...") in the backend; Fail("...") and encode("...")
 # are the helper's error templates, translated by the GUI (ADR 0030),
 # also those of nazoos-common (helper frame, "Done." etc.)
-xgettext --from-code=UTF-8 --language=Python --keyword=gettext \
+xgettext --from-code=UTF-8 --language=Python --keyword=gettext --keyword=_gettext \
   --keyword=Fail --keyword=encode --output="$tmp/py.pot" \
   nazoos_welcome/*.py nazoos_welcome/root/*.py \
   ../nazoos-common/nazoos_common/*.py

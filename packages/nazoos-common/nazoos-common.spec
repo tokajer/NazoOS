@@ -12,14 +12,16 @@ Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  python3
 BuildArch:      noarch
 Requires:       python3
+# Raised when the apps need new modules (2: proc, kernel)
+Provides:       nazoos-common(api) = 2
 # nazoos_common.qt only; the root helpers use the other modules
 Recommends:     python3-pyside6
 
 %description
 Python modules shared by NazoOS Welcome and NazoOS Update: the frame of
 their root helpers (started via pkexec) and its error messages, the
-Secure Boot key check and the state of the NazoOS kernel opt-in, and the
-Qt side that runs the helpers.
+Secure Boot key check and the NazoOS kernel opt-in, and the Qt side that
+runs the helpers. Also a shared QML log view.
 
 %prep
 %autosetup
@@ -33,10 +35,12 @@ install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-common/nazoos_common \
 python3 -m compileall -q --invalidation-mode checked-hash \
   -d %{_datadir}/nazoos-common/nazoos_common \
   %{buildroot}%{_datadir}/nazoos-common/nazoos_common
+install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-common/qml/org/nazoos/common \
+  qml/org/nazoos/common/*
 
 %check
 # Everything but the Qt part imports without PySide6
-PYTHONPATH=. python3 -B -c "import nazoos_common.errors, nazoos_common.helper, nazoos_common.i18n, nazoos_common.kernelstate, nazoos_common.mok"
+PYTHONPATH=. python3 -B -c "import nazoos_common.errors, nazoos_common.helper, nazoos_common.i18n, nazoos_common.kernel, nazoos_common.kernelstate, nazoos_common.mok, nazoos_common.proc"
 
 %files
 %{_datadir}/nazoos-common

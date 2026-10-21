@@ -8,9 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from nazoos_common import kernelstate, mok
+from nazoos_common import kernel, kernelstate, mok
 
-from .. import catalog
 from .base import ZYPPER_IN, RUN_DIR, Fail, output, rpm_installed, run, say
 
 # The GUI sends the SHA-512 crypt hash (openssl passwd -6) of the
@@ -31,7 +30,7 @@ def cert_from_download(alias):
     """Signing certificate inside the kernel package that
     "zypper install --download-only" just put into the cache."""
     cache = Path("/var/cache/zypp/packages") / alias
-    rpms = sorted(cache.rglob(f"{catalog.KERNEL_PACKAGE}-[0-9]*.rpm"),
+    rpms = sorted(cache.rglob(f"{kernel.KERNEL_PACKAGE}-[0-9]*.rpm"),
                   key=lambda f: f.stat().st_mtime)
     if not rpms:
         raise Fail("the downloaded kernel package was not found")
@@ -103,7 +102,7 @@ def prepare_mok(alias, pkgs):
     # and zypper ends with 107. A request already waiting for
     # MokManager makes it skip, so ours goes first: download, take the
     # certificate out of the package, queue it, then install
-    if rpm_installed(catalog.KERNEL_PACKAGE):
+    if rpm_installed(kernel.KERNEL_PACKAGE):
         cert = mok.signing_cert()
     else:
         run(ZYPPER_IN + ["--download-only"] + pkgs)

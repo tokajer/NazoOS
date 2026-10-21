@@ -6,9 +6,8 @@ import os
 import shutil
 import subprocess
 
-from nazoos_common.qt import HelperProcess, launch
-from PySide6.QtCore import Property, QFileSystemWatcher, QObject, Signal, Slot
-from PySide6.QtGui import QGuiApplication
+from nazoos_common.qt import ActionRunner
+from PySide6.QtCore import Property, QFileSystemWatcher, Signal, Slot
 
 from . import status
 from .i18n import _
@@ -22,32 +21,16 @@ ACTION_LABELS = {
     "rollback": "Making the snapshot permanent",
 }
 
-# Apps the window may start: desktop file patterns, then a command
-LAUNCHERS = {
-    "btrfs-assistant": (["*btrfs-assistant*.desktop"],
-                        ["btrfs-assistant-launcher"]),
-    "myrlyn": (["*myrlyn*sudo*.desktop", "*myrlyn*.desktop"], ["myrlyn"]),
-    "discover": (["org.kde.discover.desktop"], ["plasma-discover"]),
-    "repair": ([], ["nazoos-welcome", "--page", "repair"]),
-}
 
-
-class Backend(QObject):
+class Backend(ActionRunner):
     stateChanged = Signal()
-    busyChanged = Signal()
-    logChanged = Signal()
-    actionFinished = Signal(str, bool, str)
 
     def __init__(self):
-        super().__init__()
+        super().__init__(HELPER, _, ACTION_LABELS)
         self._state = {}
-        self._busy = False
-        self._task = ""
-        self._log = ""
         self._reboot = False
         # The snapshot was made permanent; only a restart is left to do
         self._rolled_back = False
-        self._proc = None
         # Reload when the root check writes a new status
         self._watch = QFileSystemWatcher(self)
         self._watch.addPath(str(status.STATUS.parent))
@@ -57,21 +40,6 @@ class Backend(QObject):
         return self._state
 
     state = Property("QVariantMap", _get_state, notify=stateChanged)
-
-    def _get_busy(self):
-        return self._busy
-
-    busy = Property(bool, _get_busy, notify=busyChanged)
-
-    def _get_task(self):
-        return self._task
-
-    task = Property(str, _get_task, notify=busyChanged)
-
-    def _get_log(self):
-        return self._log
-
-    log = Property(str, _get_log, notify=logChanged)
 
     def _get_reboot(self):
         return self._reboot or bool(self._state.get("needs_reboot"))
@@ -98,28 +66,14 @@ class Backend(QObject):
 
     # --- root actions -----------------------------------------------------
 
-    def _append(self, text):
-        self._log += text
-        if len(self._log) > 300_000:
-            self._log = self._log[-200_000:]
-        self.logChanged.emit()
-
     @Slot(str)
     def run(self, action):
         if self._busy or action not in ACTION_LABELS:
             return
-        self._task = _(ACTION_LABELS[action])
-        self._busy = True
-        self.busyChanged.emit()
-        self._append(f"\n=== {self._task} ===\n")
-        proc = HelperProcess(HELPER, _, self)
-        proc.output.connect(self._append)
-        proc.finished.connect(
-            lambda ok, msg: self._finished(action, proc, ok, msg))
-        self._proc = proc
-        proc.start([action])
+        self._begin(action)
+        self._start(action, [])
 
-    def _finished(self, action, proc, ok, message):
+    def _helper_finished(self, action, proc, ok, message):
         if proc.reboot:
             self._reboot = True
         if ok and action == "rollback":
@@ -127,9 +81,7 @@ class Backend(QObject):
         self._done(action, ok, message)
 
     def _done(self, action, ok, message):
-        self._busy = False
-        self._task = ""
-        self.busyChanged.emit()
+        self._end_busy()
         self.refresh()
         self.actionFinished.emit(action, ok, message)
 
@@ -143,16 +95,3 @@ class Backend(QObject):
                  "promptReboot"], capture_output=True).returncode == 0:
             return
         subprocess.Popen(["systemctl", "reboot"], start_new_session=True)
-
-    @Slot(str)
-    def launch(self, launcher_id):
-        entry = LAUNCHERS.get(launcher_id)
-        if entry is None:
-            return
-        if not launch(*entry):
-            self.actionFinished.emit("launch", False,
-                                     _("This program is not installed."))
-
-    @Slot()
-    def copyLog(self):
-        QGuiApplication.clipboard().setText(self._log)
