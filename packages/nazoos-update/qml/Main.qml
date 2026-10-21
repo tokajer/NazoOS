@@ -260,6 +260,18 @@ Kirigami.ApplicationWindow {
         onTriggered: rollbackDialog.open()
     }
 
+    // Started again (nazoos_common/single.py): show this window instead
+    Connections {
+        target: instance
+        function onPageRequested(name) {
+            if (root.visibility === Window.Minimized) root.showNormal()
+            root.raise()
+            root.requestActivate()
+            if (name === "rollback" && root.snapshot > 0 && !backend.busy)
+                rollbackDialog.open()
+        }
+    }
+
     Connections {
         target: backend
         // A "Done." from the last action must not stay during the next one

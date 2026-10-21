@@ -120,6 +120,9 @@ APPS = [
     {"id": "skanpage", "name": "Skanpage", "category": "hardware",
      "kind": "rpm", "refs": ["skanpage"], "icon": "skanpage",
      "summary": "Scan documents, also several pages into one PDF"},
+    {"id": "hplip", "name": "HPLIP", "category": "hardware",
+     "kind": "rpm", "refs": ["hplip"], "icon": "printer",
+     "summary": "Drivers for HP printers and scanners"},
     # Steam Deck only: card on the Gaming page, not on the Apps page
     # (category not in APP_CATEGORIES). Opt-in, because its install
     # script downloads Valve's proprietary dock firmware updater

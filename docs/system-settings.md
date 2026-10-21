@@ -12,11 +12,11 @@ NazoOS has no YaST. Everything YaST does on openSUSE is done by these apps:
 | Users, date and time, language, keyboard | **System Settings** |
 | Network, Wi-Fi, VPN | **System Settings → Wi-Fi & Networking** (OpenVPN: install it in **NazoOS Welcome → Apps**) |
 | Firewall | **System Settings → Firewall** |
-| Printers | **System Settings → Printers** |
+| Printers | **System Settings → Printers** (HP printers: install **HPLIP** in **NazoOS Welcome → Apps**) |
 | Bluetooth | **System Settings → Bluetooth** |
 | Disks and partitions | **KDE Partition Manager**; drive health in **System Settings → Disks & Cameras** |
 | Share folders on the network | **Dolphin**: right-click a folder → **Properties → Share** |
-| Scanner | **Skanpage** (install it in **NazoOS Welcome → Apps**) |
+| Scanner | **Skanpage** (install it in **NazoOS Welcome → Apps**; HP scanners also need **HPLIP**) |
 | Hardware information | **Info Center** |
 
 ## Firewall

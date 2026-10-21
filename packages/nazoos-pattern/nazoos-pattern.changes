@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Wed Oct 21 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend KDE apps (ark, okular, gwenview, kcalc, filelight,
+  spectacle, kdeconnect-kde) and command line basics (nano, vim,
+  bash-completion, fastfetch, btop, git-core, wget, unzip, plocate)
+  like CachyOS and Nobara ship them
+- Also recommend kio-admin, pavucontrol-qt, google-noto-sans-cjk-fonts,
+  alsa-firmware, ethtool and openssh-clients (shipped by both)
+
+-------------------------------------------------------------------
 Sat Oct 17 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Require nazoos-repos: online repos come from packages now, so

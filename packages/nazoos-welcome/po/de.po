@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 17:32+0200\n"
+"POT-Creation-Date: 2026-10-21 20:10+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -52,8 +52,8 @@ msgstr "Programmfehler: {detail}"
 msgid "pkexec could not be started."
 msgstr "pkexec konnte nicht gestartet werden."
 
-#: ../nazoos-common/nazoos_common/qt.py:100 nazoos_welcome/backend.py:198
-#: nazoos_welcome/backend.py:314
+#: ../nazoos-common/nazoos_common/qt.py:100 nazoos_welcome/backend.py:227
+#: nazoos_welcome/backend.py:345
 msgid "Done."
 msgstr "Fertig."
 
@@ -65,11 +65,11 @@ msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
 msgid "Something went wrong."
 msgstr "Etwas ist schiefgelaufen."
 
-#: nazoos_welcome/backend.py:195
+#: nazoos_welcome/backend.py:224
 msgid "These services still fail after a restart: %1"
 msgstr "Diese Dienste schlagen auch nach dem Neustart fehl: %1"
 
-#: nazoos_welcome/backend.py:268
+#: nazoos_welcome/backend.py:297
 msgid ""
 "The password for the Secure Boot key could not be prepared (openssl is "
 "missing)."
@@ -77,7 +77,7 @@ msgstr ""
 "Das Passwort für den Secure-Boot-Schlüssel konnte nicht vorbereitet werden "
 "(openssl fehlt)."
 
-#: nazoos_welcome/backend.py:335
+#: nazoos_welcome/backend.py:366
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
@@ -168,6 +168,10 @@ msgstr "Scheduler wird abgeschaltet"
 #: nazoos_welcome/catalog.py
 msgid "Discord client with working screen sharing on Wayland"
 msgstr "Discord-Client mit funktionierender Bildschirmfreigabe unter Wayland"
+
+#: nazoos_welcome/catalog.py
+msgid "Drivers for HP printers and scanners"
+msgstr "Treiber für HP-Drucker und -Scanner"
 
 #: nazoos_welcome/catalog.py
 msgid "E-mail and calendar"
@@ -472,19 +476,19 @@ msgstr ""
 "wechseln Sie zuerst auf der Seite „Treiber & Codecs“ zum offenen NVIDIA-"
 "Treiber"
 
-#: nazoos_welcome/root/kernel_switch.py:65
+#: nazoos_welcome/root/kernel_switch.py:70
 msgid "start the NazoOS kernel first"
 msgstr "starten Sie zuerst den NazoOS-Kernel"
 
-#: nazoos_welcome/root/kernel_switch.py:88
+#: nazoos_welcome/root/kernel_switch.py:93
 msgid "the openSUSE kernel is not in /boot"
 msgstr "der openSUSE-Kernel ist nicht in /boot"
 
-#: nazoos_welcome/root/kernel_switch.py:95
+#: nazoos_welcome/root/kernel_switch.py:100
 msgid "start the openSUSE kernel first (boot menu)"
 msgstr "starten Sie zuerst den openSUSE-Kernel (Startmenü)"
 
-#: nazoos_welcome/root/kernel_switch.py:97
+#: nazoos_welcome/root/kernel_switch.py:102
 msgid "the openSUSE kernel is not installed"
 msgstr "der openSUSE-Kernel ist nicht installiert"
 

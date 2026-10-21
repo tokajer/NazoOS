@@ -13,6 +13,16 @@ from PySide6.QtGui import QGuiApplication
 
 from . import catalog, repair, system
 
+# Cheap probes for the card an action changed: read right after it, the
+# full system.collect() takes 15-20 s (zypper searches).
+# action: (state key, function in system)
+QUICK_PROBES = {
+    "channel": ("channel", "update_channel"),
+    "session-boot-mode": ("session", "session_state"),
+    "automount-add": ("drives", "drives"),
+    "automount-remove": ("drives", "drives"),
+}
+
 HELPER = os.environ.get("NAZOOS_WELCOME_HELPER",
                         "/usr/libexec/nazoos-welcome/nazoos-welcome-helper")
 
@@ -59,6 +69,8 @@ class Backend(QObject):
         self._proc = None
         self._refreshing = False
         self._refresh_again = False
+        # State keys read by _quick_refresh since the last full refresh
+        self._quick = set()
         self._call.connect(lambda f: f())
         # Repair page: None = not checked yet
         self._findings = None
@@ -142,8 +154,25 @@ class Backend(QObject):
             system.collect, self._set_state,
             lambda e: self._set_state(dict(self._state, error=str(e))))
 
+    def _quick_refresh(self, action):
+        key, probe = QUICK_PROBES[action]
+        try:
+            value = getattr(system, probe)()
+        except Exception:
+            traceback.print_exc()
+            return
+        self._quick.add(key)
+        self._state = dict(self._state, **{key: value})
+        self.stateChanged.emit()
+
     def _set_state(self, st):
         self._refreshing = False
+        if self._refresh_again:
+            # Started before the last action: keep what _quick_refresh read
+            st = dict(st, **{k: self._state[k] for k in self._quick
+                             if k in self._state})
+        else:
+            self._quick.clear()
         self._state = st
         self.stateChanged.emit()
         if self._refresh_again:
@@ -279,6 +308,8 @@ class Backend(QObject):
     def _done(self, action, ok, message):
         self._end_busy()
         self.actionFinished.emit(action, ok, message)
+        if action in QUICK_PROBES:
+            self._quick_refresh(action)
         self.refresh()
         if action.startswith("repair-") and self._findings is not None:
             self.checkSystem()

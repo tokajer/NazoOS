@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-19 17:32+0200\n"
+"POT-Creation-Date: 2026-10-21 20:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,8 +53,8 @@ msgstr ""
 msgid "pkexec could not be started."
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:100 nazoos_welcome/backend.py:198
-#: nazoos_welcome/backend.py:314
+#: ../nazoos-common/nazoos_common/qt.py:100 nazoos_welcome/backend.py:227
+#: nazoos_welcome/backend.py:345
 msgid "Done."
 msgstr ""
 
@@ -66,17 +66,17 @@ msgstr ""
 msgid "Something went wrong."
 msgstr ""
 
-#: nazoos_welcome/backend.py:195
+#: nazoos_welcome/backend.py:224
 msgid "These services still fail after a restart: %1"
 msgstr ""
 
-#: nazoos_welcome/backend.py:268
+#: nazoos_welcome/backend.py:297
 msgid ""
 "The password for the Secure Boot key could not be prepared (openssl is "
 "missing)."
 msgstr ""
 
-#: nazoos_welcome/backend.py:335
+#: nazoos_welcome/backend.py:366
 msgid "This program is not installed."
 msgstr ""
 
@@ -162,6 +162,10 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "Discord client with working screen sharing on Wayland"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Drivers for HP printers and scanners"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -455,19 +459,19 @@ msgid ""
 "the open NVIDIA driver on the Drivers page first"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:65
+#: nazoos_welcome/root/kernel_switch.py:70
 msgid "start the NazoOS kernel first"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:88
+#: nazoos_welcome/root/kernel_switch.py:93
 msgid "the openSUSE kernel is not in /boot"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:95
+#: nazoos_welcome/root/kernel_switch.py:100
 msgid "start the openSUSE kernel first (boot menu)"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:97
+#: nazoos_welcome/root/kernel_switch.py:102
 msgid "the openSUSE kernel is not installed"
 msgstr ""
 

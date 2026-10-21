@@ -104,6 +104,32 @@ Recommends:     libfuse2
 # Desktop
 Recommends:     MozillaFirefox
 Recommends:     kate
+Recommends:     ark
+Recommends:     okular
+Recommends:     gwenview
+Recommends:     kcalc
+Recommends:     filelight
+Recommends:     spectacle
+Recommends:     kdeconnect-kde
+# Edit system files in Dolphin (admin://) instead of a root terminal
+Recommends:     kio-admin
+Recommends:     pavucontrol-qt
+# CJK glyphs in game titles and launchers
+Recommends:     google-noto-sans-cjk-fonts
+Recommends:     alsa-firmware
+# Command line basics (like CachyOS/Nobara); patterns-base-base is
+# minimal and ships no editor
+Recommends:     nano
+Recommends:     vim
+Recommends:     bash-completion
+Recommends:     fastfetch
+Recommends:     btop
+Recommends:     git-core
+Recommends:     wget
+Recommends:     unzip
+Recommends:     plocate
+Recommends:     ethtool
+Recommends:     openssh-clients
 # Translations of the desktop (subpackage below)
 Recommends:     nazoos-translations
 

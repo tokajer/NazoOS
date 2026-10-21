@@ -73,7 +73,7 @@ Kirigami.ApplicationWindow {
 
     Component.onCompleted: showPage(startPage)
 
-    // Welcome was started again (single.py): show its page here
+    // Welcome was started again (nazoos_common/single.py): show its page here
     Connections {
         target: instance
         function onPageRequested(name) {

@@ -1,4 +1,17 @@
 -------------------------------------------------------------------
+Wed Oct 21 20:15:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Apps page: HPLIP (HP printer and scanner drivers) as opt-in
+
+-------------------------------------------------------------------
+Wed Oct 21 20:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Uses the shared single-window code of nazoos-common; a second start
+  now also brings the window to the front on Wayland.
+- The update channel, gaming boot mode and drives cards show the new
+  setting right after the change instead of 15-20 s later.
+
+-------------------------------------------------------------------
 Wed Oct 21 16:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Installing the NazoOS kernel again no longer fails when kernel

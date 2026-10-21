@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Oct 21 20:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Starting NazoOS Update again (menu, KRunner, a notification) brings
+  the open window to the front instead of opening another one.
+
+-------------------------------------------------------------------
 Wed Oct 21 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The package list keeps package names readable and shortens long

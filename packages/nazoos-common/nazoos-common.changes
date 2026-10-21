@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Oct 21 20:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New single.Instance (moved from nazoos-welcome): one window per app,
+  a second start hands its page and its Wayland activation token to
+  the running window, so that window comes to the front.
+
+-------------------------------------------------------------------
 Mon Oct 19 15:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Secure Boot key check also finds an enrolled key on a running

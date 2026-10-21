@@ -38,7 +38,8 @@ def main():
         from . import notify
         return notify.main()
 
-    from PySide6.QtCore import QUrl
+    from nazoos_common.single import Instance
+    from PySide6.QtCore import QCoreApplication, QUrl
     from PySide6.QtGui import QGuiApplication, QIcon
     from PySide6.QtQml import QQmlApplicationEngine
     from PySide6.QtQuickControls2 import QQuickStyle
@@ -46,6 +47,15 @@ def main():
 
     from .backend import Backend
     from .i18n import qml_translator
+
+    # Already open (KRunner, menu or a notification button started it
+    # again): show the page there instead of a second window
+    instance = Instance("nazoos-update")
+    if not instance.acquire():
+        # QLocalSocket needs an application object, not a window
+        _app = QCoreApplication(sys.argv[:1])
+        instance.send(args.page)
+        return 0
 
     if not os.environ.get("QT_QUICK_CONTROLS_STYLE"):
         QQuickStyle.setStyle("org.kde.desktop")
@@ -67,9 +77,11 @@ def main():
     ctx.setContextProperty("L", translator)
     ctx.setContextProperty("backend", backend)
     ctx.setContextProperty("startPage", args.page)
+    ctx.setContextProperty("instance", instance)
     engine.load(QUrl.fromLocalFile(str(qml_dir() / "Main.qml")))
     if not engine.rootObjects():
         return 1
+    instance.listen()
     return app.exec()
 
 

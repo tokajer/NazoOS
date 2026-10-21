@@ -8,6 +8,7 @@ import signal
 import sys
 from pathlib import Path
 
+from nazoos_common.single import Instance
 from PySide6.QtCore import QCoreApplication, QUrl
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
@@ -17,7 +18,6 @@ from PySide6.QtWidgets import QApplication
 from . import system
 from .backend import Backend
 from .i18n import translator as make_translator
-from .single import Instance
 
 VERSION = "0.1.0"
 
@@ -52,7 +52,7 @@ def main():
 
     # Already open: show the page there. A second autostart (Plasma's
     # session restore already opened the window) changes nothing.
-    instance = Instance()
+    instance = Instance("nazoos-welcome")
     if not instance.acquire():
         if not args.autostart:
             # QLocalSocket needs an application object, not a window

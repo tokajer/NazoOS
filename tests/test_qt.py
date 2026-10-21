@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """GUI side: helper runs and background work (needs PySide6)."""
 
+import os
 import sys
 import textwrap
 
@@ -114,6 +115,24 @@ def test_refresh_survives_a_broken_probe(app, monkeypatch):
     assert b.state.get("error") == "no lspci"
 
 
+def test_changed_card_is_read_before_the_full_refresh(app, monkeypatch):
+    from nazoos_welcome import backend, i18n
+
+    monkeypatch.setattr(backend.system, "update_channel", lambda: "beta")
+    monkeypatch.setattr(backend.system, "collect",
+                        lambda: {"channel": "beta", "fresh": True})
+    b = backend.Backend(i18n.translator())
+    b._state = {"channel": "stable"}
+    b._refreshing = True  # a refresh from before the switch is running
+    b._done("channel", True, "Done.")
+    assert b.state["channel"] == "beta"
+    # The old refresh lands late: it must not bring "stable" back
+    b._set_state({"channel": "stable"})
+    assert b.state["channel"] == "beta"
+    wait(app, lambda: b.state.get("fresh"))
+    assert not b._quick
+
+
 def test_welcome_passes_the_action_to_the_helper(app, tmp_path,
                                                  monkeypatch):
     from nazoos_welcome import backend, i18n
@@ -132,3 +151,25 @@ def test_welcome_passes_the_action_to_the_helper(app, tmp_path,
     b.run("automount-remove", ["uuid-1"])
     wait(app, lambda: seen)
     assert "argv ['automount-remove', 'uuid-1']" in b._log
+
+
+def test_second_start_hands_page_and_token_over(app, tmp_path, monkeypatch):
+    from nazoos_common.single import TOKEN, Instance
+
+    monkeypatch.setenv("XDG_RUNTIME_DIR", str(tmp_path))
+    first = Instance("nazoos-test")
+    assert first.acquire()
+    first.listen()
+    pages = []
+    first.pageRequested.connect(pages.append)
+
+    second = Instance("nazoos-test")
+    assert not second.acquire()
+    monkeypatch.setenv(TOKEN, "launcher-token")
+    assert second.send("rollback")
+    monkeypatch.delenv(TOKEN)
+    wait(app, lambda: pages)
+    assert pages == ["rollback"]
+    # Qt takes it from the environment on requestActivate()
+    assert os.environ[TOKEN] == "launcher-token"
+    monkeypatch.delenv(TOKEN)
