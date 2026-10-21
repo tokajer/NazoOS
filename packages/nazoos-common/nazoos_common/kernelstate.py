@@ -9,7 +9,7 @@ the GUIs and the update notifier only read.
 import json
 from pathlib import Path
 
-from . import proc
+from . import helper, proc
 
 STATE = Path("/var/lib/nazoos")
 # Exists while the user wants kernel-nazoos as the default boot entry
@@ -33,10 +33,7 @@ def read_boots():
 
 def write_boots(data):
     STATE.mkdir(parents=True, exist_ok=True)
-    tmp = BOOTS.with_suffix(".tmp")
-    tmp.write_text(json.dumps(data))
-    tmp.chmod(0o644)
-    tmp.replace(BOOTS)
+    helper.write_atomic(BOOTS, json.dumps(data))
 
 
 def stable():

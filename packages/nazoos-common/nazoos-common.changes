@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Oct 22 02:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New module repos (one reader for the zypp repos and services),
+  write_atomic for config files, proc.refuse_root and qt.application /
+  qt.find_qml (shared app start). API 3.
+- write_atomic keeps mode and SELinux label, fsyncs, unique temp file.
+
+-------------------------------------------------------------------
 Wed Oct 21 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Shared set_var for KEY=VALUE lines in config files (was private in

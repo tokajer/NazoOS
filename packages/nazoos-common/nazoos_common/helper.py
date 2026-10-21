@@ -9,8 +9,10 @@ translates it (errors.py); xgettext collects it with --keyword=Fail.
 
 import os
 import re
+import stat
 import subprocess
 import sys
+import tempfile
 import traceback
 from pathlib import Path
 
@@ -28,7 +30,6 @@ ZYPPER_INFO = {
 ZYPPER = ["zypper", "--non-interactive"]
 ZYPPER_IN = ZYPPER + ["install", "--auto-agree-with-licenses"]
 FLATPAK = ["flatpak", "--system"]
-REPOS_DIR = Path("/etc/zypp/repos.d")
 
 
 def set_var(text, name, value):
@@ -92,6 +93,37 @@ def run(cmd, check=True, on_line=None):
     return rc
 
 
+def write_atomic(path, text, mode=0o644):
+    """Replace PATH with TEXT in one step: a crash leaves the old or the
+    new file, never half of it. An existing file keeps mode and label."""
+    path = Path(os.path.realpath(path))
+    label = None
+    if path.exists():
+        mode = stat.S_IMODE(path.stat().st_mode)
+        try:
+            label = os.getxattr(path, "security.selinux")
+        except OSError:
+            pass
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix="." + path.name + ".")
+    try:
+        with os.fdopen(fd, "w") as f:
+            f.write(text)
+            f.flush()
+            os.fsync(f.fileno())
+        os.chmod(tmp, mode)
+        if label is not None:
+            # Tumbleweed uses SELinux; a new inode would get the
+            # directory's default label
+            try:
+                os.setxattr(tmp, "security.selinux", label)
+            except OSError:
+                pass
+        os.replace(tmp, path)
+    except BaseException:
+        Path(tmp).unlink(missing_ok=True)
+        raise
+
+
 def capture(cmd):
     return subprocess.run(cmd, stdin=subprocess.DEVNULL,
                           capture_output=True, text=True)
@@ -99,17 +131,6 @@ def capture(cmd):
 
 def output(cmd):
     return capture(cmd).stdout
-
-
-def repo_with_url(fragment):
-    """Alias of the zypper repo whose .repo file contains FRAGMENT."""
-    for f in REPOS_DIR.glob("*.repo"):
-        text = f.read_text(errors="replace")
-        if fragment in text:
-            m = re.search(r"^\[(.+)\]", text, re.M)
-            if m:
-                return m.group(1)
-    return None
 
 
 def repo_has(alias, name):

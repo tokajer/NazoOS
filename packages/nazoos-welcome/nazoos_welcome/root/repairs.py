@@ -9,10 +9,12 @@ import os
 import time
 from pathlib import Path
 
+from nazoos_common import kernel, repos
+from nazoos_common.kernel import grub_refresh
+
 from .. import catalog, repair
-from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, flathub_ensure,
-                   grub_refresh, output, packman_switch, repo_with_path,
-                   repo_with_url, rpm_installed, run, say)
+from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, flathub_ensure, output,
+                   packman_switch, rpm_installed, run, say)
 
 
 def repair_repos(_args):
@@ -32,13 +34,13 @@ def repair_repos(_args):
             run(ZYPPER + ["modifyservice", "--enable", "--refresh",
                           svc["name"]])
     run(ZYPPER + ["refresh-services"])
-    paths = [catalog.repo_path(r["url"]) for r in catalog.STANDARD_REPOS]
+    paths = [repos.url_path(r["url"]) for r in catalog.STANDARD_REPOS]
     for path in paths + catalog.NAZOOS_REPO_PATHS:
-        alias = repo_with_path(path)
+        alias = repos.with_path(path)
         if alias is not None:
             run(ZYPPER + ["modifyrepo", "--enable", "--refresh", alias])
     missing = [r["alias"] for r in catalog.STANDARD_REPOS
-               if repo_with_path(catalog.repo_path(r["url"])) is None]
+               if repos.with_path(repos.url_path(r["url"])) is None]
     if missing:
         raise Fail("still missing after restoring the services: {repos}",
                    repos=", ".join(missing))
@@ -56,7 +58,7 @@ def repair_deps(_args):
 
 
 def repair_packman(_args):
-    alias = repo_with_url("/packman/")
+    alias = repos.with_url("/packman/")
     if alias is None:
         raise Fail("Packman is not set up; install the codecs first")
     packman_switch(alias)
@@ -68,17 +70,21 @@ def repair_nvidia(_args):
     # The module type that is installed for any kernel: G06 exists as open
     # (SUSE-signed) and closed build, both with nvidia-video-G06
     installed = output(["rpm", "-qa", "--qf", "%{NAME}\n"]).split()
-    bases = [b for b in ("nvidia-open-driver-G07-signed",
-                         "nvidia-open-driver-G06-signed", "nvidia-driver-G06")
+    candidates = [b for b in kernel.KMP_BASES if b.startswith("nvidia-")]
+    candidates += [p.removesuffix("-kmp-default")
+                   for p in kernel.KMP_DEFAULT_ONLY]
+    bases = [b for b in candidates
              if any(n.startswith(f"{b}-kmp-") for n in installed)]
     if bases:
         kmp = f"{bases[0]}-kmp-{flavor}"
-    elif rpm_installed("nvidia-video-G07"):
-        kmp = f"nvidia-open-driver-G07-signed-kmp-{flavor}"
-    elif rpm_installed("nvidia-video-G06"):
-        kmp = f"nvidia-driver-G06-kmp-{flavor}"
     else:
-        raise Fail("no NVIDIA driver is installed")
+        # Driver without a module: the meta package names the module base
+        for meta, video, *_rest in catalog.NVIDIA_DRIVERS.values():
+            if rpm_installed(video):
+                kmp = f"{meta.removesuffix('-kmp-meta')}-kmp-{flavor}"
+                break
+        else:
+            raise Fail("no NVIDIA driver is installed")
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
     run(ZYPPER_IN + ["--force", kmp])
     run(["dracut", "--force", "--kver", release])

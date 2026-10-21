@@ -3,8 +3,10 @@
 """Small probes that need no root rights (no Qt here): run a command,
 read a file, ask rpm, boot time."""
 
+import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -36,6 +38,15 @@ def read(path):
         return Path(path).read_text(errors="replace")
     except OSError:
         return ""
+
+
+def refuse_root(prog):
+    """Exit with a hint if started as root. "sudo PROG" has no access to
+    the desktop session and dies with a Qt platform error; root rights are
+    asked for by pkexec later."""
+    if os.geteuid() == 0:
+        sys.exit(f"{prog}: please start it without sudo, as a normal user. "
+                 "The administrator password is asked for when needed.")
 
 
 def rpm_installed(name):

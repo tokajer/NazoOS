@@ -28,12 +28,6 @@ def test_pollrate_format_round_trip():
     assert catalog.pollrate_parse(text) == overrides
 
 
-def test_repo_path_ignores_the_mirror_host():
-    a = catalog.repo_path("https://download.opensuse.org/tumbleweed/repo/oss")
-    b = catalog.repo_path("http://cdn.opensuse.org/tumbleweed/repo/oss/")
-    assert a == b == "/tumbleweed/repo/oss/"
-
-
 def test_every_action_has_a_label_and_the_other_way_round():
     assert set(ACTIONS) == set(catalog.ACTION_LABELS)
 

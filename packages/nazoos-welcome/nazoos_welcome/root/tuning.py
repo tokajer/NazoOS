@@ -5,7 +5,7 @@
 import re
 from pathlib import Path
 
-from nazoos_common.helper import set_var
+from nazoos_common.helper import set_var, write_atomic
 
 from .. import catalog, system
 from .base import (ZYPPER_IN, Fail, arg, cmdline, cmdline_set,
@@ -22,7 +22,7 @@ def scx_enable(args):
         raise Fail("{scheduler} is not part of the installed scx package",
                    scheduler=sched)
     text = SCX_DEFAULT.read_text() if SCX_DEFAULT.exists() else ""
-    SCX_DEFAULT.write_text(set_var(text, "SCX_SCHEDULER", sched))
+    write_atomic(SCX_DEFAULT, set_var(text, "SCX_SCHEDULER", sched))
     say(f"{SCX_DEFAULT}: SCX_SCHEDULER={sched}")
     run(["systemctl", "enable", "scx.service"])
     run(["systemctl", "restart", "scx.service"])

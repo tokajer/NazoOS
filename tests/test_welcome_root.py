@@ -2,10 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Pure parts of the welcome root actions (nothing runs as root here)."""
 
+import types
+
 import pytest
 
 from nazoos_welcome import catalog
-from nazoos_welcome.root import apps, base, drives, kernel_switch, tuning
+from nazoos_welcome.root import (apps, base, drivers, drives, kernel_switch,
+                                 maintenance, repairs, tuning)
 
 MARK = catalog.FSTAB_MARKER
 
@@ -159,7 +162,8 @@ def test_held_32bit():
     assert base.held_32bit(names) == ["Mesa-32bit", "libavcodec62-32bit"]
 
 
-def test_packman_switch_keeps_32bit_when_dup_fails(monkeypatch):
+def test_packman_switch_keeps_32bit_when_dup_fails(monkeypatch, tmp_path):
+    monkeypatch.setattr(base, "ZYPP_LOCKS", tmp_path / "locks")
     calls, codes = [], iter([0, 4, 0, 0, 0])
 
     def fake_run(cmd, check=True, **kw):
@@ -174,9 +178,176 @@ def test_packman_switch_keeps_32bit_when_dup_fails(monkeypatch):
     assert calls[2][3:] == ["libavcodec62-32bit"]
 
 
-def test_packman_switch_fails_without_32bit(monkeypatch):
+def test_packman_switch_fails_without_32bit(monkeypatch, tmp_path):
+    monkeypatch.setattr(base, "ZYPP_LOCKS", tmp_path / "locks")
     monkeypatch.setattr(base, "run", lambda cmd, check=True: 0
                         if "refresh" in cmd else 4)
     monkeypatch.setattr(base, "output", lambda cmd: "bash\n")
     with pytest.raises(base.Fail):
         base.packman_switch("packman")
+
+
+def test_packman_switch_leaves_locks_of_the_user(monkeypatch, tmp_path):
+    locks = tmp_path / "locks"
+    locks.write_text("type: package\nsolvable_name: Mesa-32bit\n\n")
+    monkeypatch.setattr(base, "ZYPP_LOCKS", locks)
+    calls, codes = [], iter([0, 4, 0, 0, 0])
+
+    def fake_run(cmd, check=True, **kw):
+        calls.append(cmd)
+        return next(codes)
+    monkeypatch.setattr(base, "run", fake_run)
+    monkeypatch.setattr(base, "output",
+                        lambda cmd: "Mesa-32bit\nlibavcodec62-32bit\n")
+    base.packman_switch("packman")
+    assert calls[2][3:] == ["libavcodec62-32bit"]
+    assert calls[4][3:] == ["libavcodec62-32bit"]
+
+
+def test_packman_switch_fails_when_every_32bit_is_locked(monkeypatch,
+                                                         tmp_path):
+    locks = tmp_path / "locks"
+    locks.write_text("solvable_name: Mesa-32bit\n")
+    monkeypatch.setattr(base, "ZYPP_LOCKS", locks)
+    monkeypatch.setattr(base, "run", lambda cmd, check=True: 0
+                        if "refresh" in cmd else 4)
+    monkeypatch.setattr(base, "output", lambda cmd: "Mesa-32bit\n")
+    with pytest.raises(base.Fail):
+        base.packman_switch("packman")
+
+
+def test_packman_switch_honours_glob_locks(monkeypatch, tmp_path):
+    locks = tmp_path / "locks"
+    locks.write_text("solvable_name: Mesa*\nsolvable_name: *-32bit-x\n")
+    monkeypatch.setattr(base, "ZYPP_LOCKS", locks)
+    calls, codes = [], iter([0, 4, 0, 0, 0])
+
+    def fake_run(cmd, check=True, **kw):
+        calls.append(cmd)
+        return next(codes)
+    monkeypatch.setattr(base, "run", fake_run)
+    monkeypatch.setattr(base, "output",
+                        lambda cmd: "Mesa-32bit\nlibavcodec62-32bit\n")
+    base.packman_switch("packman")
+    assert calls[2][3:] == ["libavcodec62-32bit"]
+
+
+PACKMAN_VENDOR = "http://packman.links2linux.de\n"
+
+
+def _packman_env(monkeypatch, fake_root, tmp_path, existing=None):
+    monkeypatch.setattr(base, "ZYPP_LOCKS", tmp_path / "locks")
+    monkeypatch.setattr(drivers.repos, "with_url", lambda fragment: existing)
+
+
+def test_codecs_install_order(monkeypatch, fake_root, tmp_path):
+    _packman_env(monkeypatch, fake_root, tmp_path)
+    drivers.codecs_install([])
+    verbs = [c[2] for c in fake_root.calls]
+    assert verbs == ["addrepo", "--gpg-auto-import-keys", "dist-upgrade",
+                     "install", "install"]
+    assert fake_root.calls[3][-len(catalog.PACKMAN_CODECS):] == (
+        catalog.PACKMAN_CODECS)
+
+
+def test_codecs_install_removes_the_repo_it_added_on_failure(
+        monkeypatch, fake_root, tmp_path):
+    _packman_env(monkeypatch, fake_root, tmp_path)
+    fake_root.rc = {"dist-upgrade": 4}
+    with pytest.raises(drivers.Fail):
+        drivers.codecs_install([])
+    assert fake_root.calls[-1][2:] == ["removerepo", catalog.PACKMAN_ALIAS]
+
+
+def test_codecs_install_keeps_the_repo_when_packman_packages_are_in(
+        monkeypatch, fake_root, tmp_path):
+    _packman_env(monkeypatch, fake_root, tmp_path)
+    fake_root.rc = {"dist-upgrade": 4}
+    fake_root.out = lambda cmd: PACKMAN_VENDOR if "%{VENDOR}\n" in cmd else ""
+    with pytest.raises(drivers.Fail):
+        drivers.codecs_install([])
+    assert not any("removerepo" in c for c in fake_root.calls)
+
+
+def test_codecs_install_never_removes_a_repo_that_was_there(
+        monkeypatch, fake_root, tmp_path):
+    _packman_env(monkeypatch, fake_root, tmp_path, existing="packman")
+    fake_root.rc = {"dist-upgrade": 4}
+    with pytest.raises(drivers.Fail):
+        drivers.codecs_install([])
+    assert not any(c[2] in ("addrepo", "removerepo")
+                   for c in fake_root.calls)
+
+
+def test_nvidia_install_removes_the_repo_it_added_on_failure(
+        monkeypatch, fake_root):
+    monkeypatch.setattr(drivers.repos, "with_url", lambda fragment: None)
+    fake_root.rc = {"install": 107}
+    with pytest.raises(drivers.Fail):
+        drivers.nvidia_install(["open"])
+    assert fake_root.calls[-1][2:] == ["removerepo",
+                                       catalog.NVIDIA_REPO_ALIAS]
+
+
+def test_nvidia_install_keeps_the_repo_when_a_driver_is_in(
+        monkeypatch, fake_root):
+    monkeypatch.setattr(drivers.repos, "with_url", lambda fragment: None)
+    fake_root.rc = {"install": 107}
+    fake_root.installed = {"nvidia-video-G07"}
+    with pytest.raises(drivers.Fail):
+        drivers.nvidia_install(["open"])
+    assert not any("removerepo" in c for c in fake_root.calls)
+
+
+def test_nvidia_install_never_removes_a_repo_that_was_there(
+        monkeypatch, fake_root):
+    monkeypatch.setattr(drivers.repos, "with_url", lambda fragment: "nvidia")
+    fake_root.rc = {"install": 107}
+    with pytest.raises(drivers.Fail):
+        drivers.nvidia_install(["legacy"])
+    assert not any("removerepo" in c for c in fake_root.calls)
+
+
+@pytest.mark.parametrize("installed, rpms, expected", [
+    ({"nvidia-video-G07"}, "", "nvidia-open-driver-G07-signed-kmp-nazoos"),
+    ({"nvidia-video-G06"}, "", "nvidia-driver-G06-kmp-nazoos"),
+    # A module of another kernel flavor shows which type is in use
+    (set(), "nvidia-open-driver-G06-signed-kmp-default\n",
+     "nvidia-open-driver-G06-signed-kmp-nazoos"),
+])
+def test_repair_nvidia_picks_the_module(monkeypatch, fake_root, installed,
+                                        rpms, expected):
+    monkeypatch.setattr(repairs.os, "uname", lambda: types.SimpleNamespace(
+        release="7.2.11-1-nazoos"))
+    fake_root.installed = installed
+    fake_root.out = lambda cmd: rpms
+    repairs.repair_nvidia([])
+    assert fake_root.calls[1] == repairs.ZYPPER_IN + ["--force", expected]
+
+
+def test_repair_nvidia_without_driver(monkeypatch, fake_root):
+    monkeypatch.setattr(repairs.os, "uname", lambda: types.SimpleNamespace(
+        release="7.2.11-1-nazoos"))
+    with pytest.raises(repairs.Fail):
+        repairs.repair_nvidia([])
+
+
+def test_channel_snapshots_before_the_link_changes(monkeypatch, fake_root,
+                                                   tmp_path):
+    link = tmp_path / "repoindex.xml"
+    monkeypatch.setattr(catalog, "CHANNEL_LINK", str(link))
+    monkeypatch.setattr(maintenance.repos, "with_path",
+                        lambda path: "nazoos:nazoos")
+    link_seen = []
+
+    def rc(cmd):
+        link_seen.append(link.is_symlink())
+        return 0
+    fake_root.rc = rc
+    maintenance.channel(["stable"])
+    verbs = [c[0] if c[0] != "zypper" else c[2] for c in fake_root.calls]
+    assert verbs == ["snapper", "refresh-services",
+                     "--gpg-auto-import-keys", "dist-upgrade"]
+    assert link_seen == [False, True, True, True]
+    assert link.readlink().name == "nazoos-stable-repoindex.xml"
+    assert fake_root.calls[-1][-3:-1] == ["--from", "nazoos:nazoos"]

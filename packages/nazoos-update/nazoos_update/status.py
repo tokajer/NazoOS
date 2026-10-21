@@ -7,11 +7,11 @@ import json
 import os
 import re
 import struct
-import subprocess
 import time
 from pathlib import Path
 
 from nazoos_common import proc
+from nazoos_common.helper import write_atomic
 
 STATUS = Path("/var/lib/nazoos-update/status.json")
 # btrfs subvolume flags: BTRFS_IOC_SUBVOL_GETFLAGS
@@ -46,10 +46,7 @@ def write(data):
         if k not in data and k in old:
             data[k] = old[k]
     STATUS.parent.mkdir(parents=True, exist_ok=True)
-    tmp = STATUS.with_suffix(".tmp")
-    tmp.write_text(json.dumps(data, indent=1))
-    os.chmod(tmp, 0o644)
-    os.replace(tmp, STATUS)
+    write_atomic(STATUS, json.dumps(data, indent=1))
 
 
 def subvol_readonly(path="/"):
@@ -71,9 +68,8 @@ def booted_snapshot():
     """Number of the read-only snapshot the system was started from,
     or 0 when it runs normally. The snapshot is mounted "rw";
     only the subvolume itself is read-only."""
-    r = subprocess.run(["findmnt", "--noheadings", "--output", "OPTIONS",
-                        "/"], capture_output=True, text=True)
-    opts = r.stdout.strip().split(",")
+    opts = proc.out(["findmnt", "--noheadings", "--output", "OPTIONS",
+                     "/"]).strip().split(",")
     for o in opts:
         m = re.fullmatch(r"subvol=/@/\.snapshots/(\d+)/snapshot", o)
         if m and ("ro" in opts or subvol_readonly("/")):

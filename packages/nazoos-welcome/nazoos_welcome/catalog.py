@@ -326,11 +326,6 @@ REPO_SERVICES = [
 ]
 
 
-def repo_path(url):
-    """URL path without host: download. and cdn.opensuse.org match."""
-    return "/" + url.split("://", 1)[-1].split("/", 1)[-1].rstrip("/") + "/"
-
-
 # Packages Packman rebuilds with full codecs. A mix of Packman and openSUSE
 # builds of these breaks video playback after an update. Mesa: Packman
 # "Extra" builds Tumbleweed's Mesa.spec with video codecs (H.264/H.265
@@ -338,6 +333,8 @@ def repo_path(url):
 # No gstreamer: Packman only ships gstreamer-plugins-{bad,ugly}-codecs
 # (no openSUSE twin), the plain bad/ugly/libav plugins come from oss on
 # purpose (OSS_CODECS) and would be a false "mixed" finding.
+# Matches ffmpeg-7, libavcodec62-32bit, Mesa-dri, libvulkan_radeon; not
+# ffmpeg-7-devel or gstreamer-plugins-bad.
 PACKMAN_FAMILY = (r"(ffmpeg-\d+|lib(avcodec|avdevice|avfilter|avformat|avutil"
                   r"|postproc|swresample|swscale)\d+"
                   r"|Mesa(-dri(-nouveau)?|-libEGL1|-libGL1|-libva"

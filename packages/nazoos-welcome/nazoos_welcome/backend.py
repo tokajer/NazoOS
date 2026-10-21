@@ -256,9 +256,10 @@ class Backend(ActionRunner):
             return
         try:
             r = subprocess.run(["openssl", "passwd", "-6", "-stdin"],
-                               input=password, capture_output=True, text=True)
+                               input=password, capture_output=True, text=True,
+                               timeout=10)
             mok_hash = r.stdout.strip() if r.returncode == 0 else ""
-        except OSError:
+        except (OSError, subprocess.TimeoutExpired):
             mok_hash = ""
         if not mok_hash.startswith("$6$"):
             self._set_retry(None)

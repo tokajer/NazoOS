@@ -11,7 +11,7 @@ import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from . import helper, kernelstate
+from . import helper, kernelstate, repos
 
 # NazoOS kernel (ADR 0007/0008). Opt-in: the repo is added on install.
 # Stage 1 installs kernel-nazoos next to kernel-default, stage 2 removes
@@ -79,13 +79,21 @@ def top_entry(cfg_text):
     return entry, ""
 
 
-def _update_grub_default(update):
+def update_grub_default(update):
     """Apply UPDATE (text -> text) to /etc/default/grub; True if changed."""
     text = GRUB_DEFAULT_FILE.read_text()
     new = update(text)
     if new != text:
-        GRUB_DEFAULT_FILE.write_text(new)
+        helper.write_atomic(GRUB_DEFAULT_FILE, new)
     return new != text
+
+
+def grub_refresh():
+    """Root only: rebuild the boot menu."""
+    if Path("/usr/sbin/update-bootloader").exists():
+        helper.run(["update-bootloader", "--refresh"])
+    else:
+        helper.run(["grub2-mkconfig", "-o", str(GRUB_CFG)])
 
 
 def ensure_grub_default(log=print, flavor="nazoos"):
@@ -98,7 +106,7 @@ def ensure_grub_default(log=print, flavor="nazoos"):
     if not path:
         log(f"no kernel-{flavor} in /boot")
         return False
-    changed = _update_grub_default(lambda t: helper.set_var(
+    changed = update_grub_default(lambda t: helper.set_var(
         helper.set_var(t, "GRUB_DEFAULT", "saved"), "GRUB_TOP_LEVEL", f'"{path}"'))
     try:
         cfg = GRUB_CFG.read_text(errors="replace")
@@ -107,6 +115,7 @@ def ensure_grub_default(log=print, flavor="nazoos"):
     # endswith: grub.cfg may carry a btrfs subvolume prefix (/@/boot/...)
     if changed or not top_entry(cfg)[1].endswith(path):
         log(f"boot menu: top entry starts {path}")
+        # Not update-bootloader: it does nothing when LOADER_TYPE is not grub2
         helper.run(["grub2-mkconfig", "-o", str(GRUB_CFG)])
         cfg = GRUB_CFG.read_text(errors="replace")
     entry = top_entry(cfg)[0] or "0"
@@ -119,7 +128,7 @@ def ensure_grub_default(log=print, flavor="nazoos"):
 
 def clear_grub_top_level(log=print):
     """Root only: back to the openSUSE behaviour (kernel-nazoos removed)."""
-    if _update_grub_default(lambda t: helper.set_var(t, "GRUB_TOP_LEVEL", None)):
+    if update_grub_default(lambda t: helper.set_var(t, "GRUB_TOP_LEVEL", None)):
         log("boot menu: openSUSE default order")
         helper.run(["grub2-mkconfig", "-o", str(GRUB_CFG)])
     helper.run(["grub2-set-default", "0"])
@@ -144,7 +153,7 @@ def keep_default(log=print):
 
 def kernel_repo():
     """Alias of the NazoOS kernel repository, None if not configured."""
-    return helper.repo_with_url(KERNEL_REPO_URL.split("/repositories/")[1])
+    return repos.with_url(KERNEL_REPO_URL.split("/repositories/")[1])
 
 
 def sync_modules():

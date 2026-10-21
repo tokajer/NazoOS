@@ -3,33 +3,19 @@
 """Entry point: python3 -m nazoos_welcome [--autostart] [--page NAME]"""
 
 import argparse
-import os
-import signal
 import sys
-from pathlib import Path
 
 from nazoos_common import proc
-from nazoos_common.qt import QML_DIR
+from nazoos_common.qt import QML_DIR, application, find_qml
 from nazoos_common.single import Instance
 from PySide6.QtCore import QCoreApplication, QUrl
-from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
-from PySide6.QtQuickControls2 import QQuickStyle
-from PySide6.QtWidgets import QApplication
 
 from . import system
 from .backend import Backend
 from .i18n import translator as make_translator
 
 VERSION = "0.1.0"
-
-
-def qml_dir():
-    for d in (Path(__file__).resolve().parent.parent / "qml",
-              Path("/usr/share/nazoos-welcome/qml")):
-        if (d / "Main.qml").is_file():
-            return d
-    sys.exit("nazoos-welcome: Main.qml not found")
 
 
 def main():
@@ -41,12 +27,7 @@ def main():
                              "apps, drives, system, repair, help)")
     args, qt_args = parser.parse_known_args()
 
-    # "sudo nazoos-welcome" has no access to the desktop session and dies
-    # with a Qt platform error; root rights are asked for by pkexec later
-    if os.geteuid() == 0:
-        sys.exit("nazoos-welcome: please start it without sudo, as a normal "
-                 "user. The administrator password is asked for when "
-                 "needed.")
+    proc.refuse_root("nazoos-welcome")
 
     if args.autostart and (proc.is_live()
                            or not system.autostart_enabled()):
@@ -62,20 +43,9 @@ def main():
             instance.send(args.page)
         return 0
 
-    # Native Plasma look (qqc2-desktop-style) unless the user chose a style
-    if not os.environ.get("QT_QUICK_CONTROLS_STYLE"):
-        QQuickStyle.setStyle("org.kde.desktop")
-
-    # QApplication (not QGuiApplication): the desktop style needs widgets
-    app = QApplication([sys.argv[0]] + qt_args)
-    app.setApplicationName("nazoos-welcome")
-    app.setApplicationDisplayName("NazoOS Welcome")
-    app.setApplicationVersion(VERSION)
-    app.setOrganizationDomain("nazoos.org")
-    QGuiApplication.setDesktopFileName("org.nazoos.welcome")
-    app.setWindowIcon(QIcon.fromTheme("nazoos-logo",
-                                      QIcon.fromTheme("start-here")))
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    app = application("nazoos-welcome", "NazoOS Welcome",
+                      "org.nazoos.welcome",
+                      ("nazoos-logo", "start-here"), VERSION, qt_args)
 
     translator = make_translator()
     backend = Backend(translator)
@@ -88,12 +58,17 @@ def main():
     ctx.setContextProperty("instance", instance)
     ctx.setContextProperty("appVersion", VERSION)
     engine.addImportPath(QML_DIR)
-    engine.load(QUrl.fromLocalFile(str(qml_dir() / "Main.qml")))
+    engine.load(QUrl.fromLocalFile(
+        str(find_qml(__file__, "nazoos-welcome"))))
     if not engine.rootObjects():
         return 1
     instance.listen()
     backend.refresh()
-    return app.exec()
+    rc = app.exec()
+    # The engine must go before the translator: QML bindings still call
+    # L.tr() while it is torn down ("Cannot call method 'tr' of null")
+    del engine
+    return rc
 
 
 if __name__ == "__main__":

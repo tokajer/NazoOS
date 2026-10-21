@@ -11,7 +11,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from nazoos_common import kernel, kernelstate, mok, proc
+from nazoos_common import kernel, kernelstate, mok, proc, repos
 
 from . import catalog
 
@@ -53,13 +53,6 @@ def parse_gpus(lspci_text):
         vname = re.sub(r"\s*\[[0-9a-f]{4}\]$", "", f[2])
         result.append({"vendor": vendor, "name": f"{vname} {name}"})
     return result
-
-
-def repo_present(fragment):
-    for f in Path("/etc/zypp/repos.d").glob("*.repo"):
-        if fragment in proc.read(f):
-            return True
-    return False
 
 
 def unit_state(unit, user=False):
@@ -159,6 +152,16 @@ def human_size(n):
     return ""
 
 
+def _interval_ms(ep):
+    """Polling interval of the sysfs endpoint EP in ms ("8ms" or "125us"),
+    None if unknown or zero."""
+    m = re.fullmatch(r"(\d+)(m|u)s", proc.read(ep / "interval").strip())
+    if not m:
+        return None
+    v = int(m.group(1)) / (1000 if m.group(2) == "u" else 1)
+    return v if v > 0 else None
+
+
 def usb_input_devices():
     """Connected USB devices with a HID interface (controllers, mice,
     keyboards) and their current polling rate in Hz (0 = unknown)."""
@@ -180,13 +183,9 @@ def usb_input_devices():
                 if (proc.read(ep / "type").strip() != "Interrupt"
                         or proc.read(ep / "direction").strip() != "in"):
                     continue
-                # "8ms" or "125us"
-                m = re.fullmatch(r"(\d+)(m|u)s",
-                                 proc.read(ep / "interval").strip())
-                if m:
-                    v = int(m.group(1)) / (1000 if m.group(2) == "u" else 1)
-                    if v > 0 and (ms is None or v < ms):
-                        ms = v
+                v = _interval_ms(ep)
+                if v and (ms is None or v < ms):
+                    ms = v
         if not hid:
             continue
         name = " ".join(x for x in (proc.read(dev / "manufacturer").strip(),
@@ -275,9 +274,12 @@ def session_state():
             conf[m.group(1)] = m.group(2)
     handheld = ""
     if os.access(catalog.SESSION_DETECT, os.X_OK):
-        r = subprocess.run([catalog.SESSION_DETECT], capture_output=True,
-                           text=True)
-        if r.returncode == 0:
+        try:
+            r = subprocess.run([catalog.SESSION_DETECT], capture_output=True,
+                               text=True, timeout=10)
+        except (OSError, subprocess.TimeoutExpired):
+            r = None
+        if r and r.returncode == 0:
             handheld = r.stdout.strip() or "handheld"
     return {
         "installed": shutil.which("nazoos-session-select") is not None,
@@ -300,6 +302,8 @@ def update_channel():
     return ""
 
 
+# Only collect() writes it, and Backend.refresh() runs one collect() at a
+# time (_refreshing)
 _deck_found = False
 
 
@@ -333,7 +337,7 @@ def _drivers(rpms, gpu_list):
         "nvidiaDriver": nvidia_variant,
         "nvidiaLoaded": Path("/sys/module/nvidia").exists(),
         "rocm": catalog.ROCM_PACKAGES[0] in rpms,
-        "packmanRepo": repo_present("/packman/"),
+        "packmanRepo": repos.with_url("/packman/") is not None,
         # gstreamer-plugins-bad-codecs only exists in Packman
         "codecs": "packman" in rpms.get("ffmpeg", "").lower()
                   or "gstreamer-plugins-bad-codecs" in rpms,

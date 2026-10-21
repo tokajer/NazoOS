@@ -288,3 +288,15 @@ def test_update_stops_at_a_conflict(monkeypatch):
     assert calls == [update.ZYPPER + ["--gpg-auto-import-keys", "refresh"]]
     assert written == [{"error": "conflict", "problems": ["x"], "packages": [],
                         "flatpaks": [], "reboot": False}]
+
+
+def test_own_repos_are_the_enabled_nazoos_ones(monkeypatch):
+    monkeypatch.setattr(check.repos, "repos", lambda: [
+        ("nazoos:nazoos", "https://download.opensuse.org/x/", True),
+        ("nazoos-kernel", "https://download.opensuse.org/y/", True),
+        ("nazoos:nazoos-devel", "https://download.opensuse.org/z/", False),
+        ("repo-oss", "https://download.opensuse.org/oss/", True)])
+    assert check.own_repos() == ["nazoos:nazoos", "nazoos-kernel"]
+    assert check.own_update_cmd() == [
+        "update", "--auto-agree-with-licenses",
+        "--repo", "nazoos:nazoos", "--repo", "nazoos-kernel"]

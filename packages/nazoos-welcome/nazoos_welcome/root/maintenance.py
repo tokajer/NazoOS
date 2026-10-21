@@ -5,9 +5,11 @@
 import os
 from pathlib import Path
 
+from nazoos_common import repos
+
 from .. import catalog
 from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, Passthrough, arg,
-                   repo_with_path, rpm_installed, run)
+                   rpm_installed, run)
 
 # Root part of nazoos-update: one update path for both apps
 UPDATE_HELPER = "/usr/libexec/nazoos-update/nazoos-update-helper"
@@ -88,7 +90,7 @@ def channel(args):
     tmp.symlink_to(f"nazoos-{target}-repoindex.xml")
     os.replace(tmp, link)
     run(ZYPPER + ["refresh-services"])
-    alias = repo_with_path(catalog.CHANNEL_REPO_PATHS[target])
+    alias = repos.with_path(catalog.CHANNEL_REPO_PATHS[target])
     if alias is None:
         raise Fail("the {channel} repository did not appear after "
                    "refreshing the services", channel=target)

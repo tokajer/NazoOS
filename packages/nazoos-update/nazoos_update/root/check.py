@@ -6,6 +6,7 @@ import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from nazoos_common import repos
 from nazoos_common.helper import FLATPAK, ZYPPER, Fail, capture
 
 from .. import status
@@ -51,14 +52,8 @@ def prompt_problems(root):
 def own_repos():
     """Enabled NazoOS repos (nazoos-repos service aliases nazoos:nazoos-devel /
     nazoos:nazoos, plus nazoos-kernel)."""
-    r = capture(["zypper", "--xmlout", "repos"])
-    try:
-        root = ET.fromstring(r.stdout)
-    except ET.ParseError:
-        return []
-    return [repo.get("alias") for repo in root.iter("repo")
-            if (repo.get("alias") or "").startswith("nazoos")
-            and repo.get("enabled") == "1"]
+    return [a for a, _url, on in repos.repos()
+            if a.startswith("nazoos") and on]
 
 
 def own_update_cmd():
@@ -66,11 +61,11 @@ def own_update_cmd():
     "dup --from" would also replace Tumbleweed packages our kernel repo
     rebuilds (xone, xpadneo); "update -r" keeps the vendor
     (notes/update.md)."""
-    repos = own_repos()
-    if not repos:
+    aliases = own_repos()
+    if not aliases:
         return None
     cmd = ["update", "--auto-agree-with-licenses"]
-    for alias in repos:
+    for alias in aliases:
         cmd += ["--repo", alias]
     return cmd
 

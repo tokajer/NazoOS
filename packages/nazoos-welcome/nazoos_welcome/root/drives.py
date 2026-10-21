@@ -6,6 +6,8 @@ import os
 import re
 from pathlib import Path
 
+from nazoos_common.helper import write_atomic
+
 from .. import catalog, system
 from .base import Fail, arg, caller, output, run, say
 
@@ -51,13 +53,6 @@ def mount_options(fstype, uid, gid):
     return fstype, opts
 
 
-def _write_fstab(text):
-    tmp = FSTAB.with_name("fstab.nazoos-welcome.tmp")
-    tmp.write_text(text)
-    os.chmod(tmp, 0o644)
-    os.replace(tmp, FSTAB)
-
-
 def without_entry(text, uuid):
     """(fstab text without our entry for UUID, its mount point or None)."""
     lines = text.splitlines()
@@ -75,7 +70,7 @@ def without_entry(text, uuid):
 
 
 def _undo_add(uuid, mnt, created):
-    _write_fstab(without_entry(FSTAB.read_text(), uuid)[0])
+    write_atomic(FSTAB, without_entry(FSTAB.read_text(), uuid)[0])
     run(["systemctl", "daemon-reload"], check=False)
     if created:
         try:
@@ -109,7 +104,7 @@ def automount_add(args):
     text = FSTAB.read_text()
     if not text.endswith("\n"):
         text += "\n"
-    _write_fstab(text + f"{catalog.FSTAB_MARKER}\n{line}\n")
+    write_atomic(FSTAB, text + f"{catalog.FSTAB_MARKER}\n{line}\n")
     say(line)
     # A failed mount must not leave a boot-time entry (or a stray directory)
     # behind, whether mount returns non-zero or something raises
@@ -138,7 +133,7 @@ def automount_remove(args):
     if mnt is None:
         raise Fail("only drives added by NazoOS Welcome can be removed here")
     run(["umount", mnt], check=False)
-    _write_fstab(text)
+    write_atomic(FSTAB, text)
     run(["systemctl", "daemon-reload"])
     try:
         Path(mnt).rmdir()

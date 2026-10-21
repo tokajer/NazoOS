@@ -5,11 +5,15 @@
 import glob
 import os
 import shutil
+import signal
 import subprocess
+import sys
 from pathlib import Path
 
 from PySide6.QtCore import Property, QObject, QProcess, QTimer, Signal, Slot
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QIcon
+from PySide6.QtQuickControls2 import QQuickStyle
+from PySide6.QtWidgets import QApplication
 
 from . import errors
 
@@ -20,6 +24,35 @@ LOG_MAX = 300_000
 LOG_KEEP = 200_000
 # Flatpak apps (LACT, CoolerControl) have their desktop files here
 FLATPAK_EXPORTS = ["/var/lib/flatpak/exports/share"]
+
+
+def find_qml(package_file, name):
+    """Main.qml next to the git checkout or in /usr/share/NAME/qml."""
+    for d in (Path(package_file).resolve().parent.parent / "qml",
+              Path("/usr/share") / name / "qml"):
+        if (d / "Main.qml").is_file():
+            return d / "Main.qml"
+    sys.exit(f"{name}: Main.qml not found")
+
+
+def application(name, display_name, desktop_id, icons, version, qt_args):
+    """QApplication with the native Plasma style unless the user chose one.
+    ICONS: theme icon names, the first that exists is the window icon."""
+    if not os.environ.get("QT_QUICK_CONTROLS_STYLE"):
+        QQuickStyle.setStyle("org.kde.desktop")
+    # QApplication (not QGuiApplication): the desktop style needs widgets
+    app = QApplication([sys.argv[0]] + qt_args)
+    app.setApplicationName(name)
+    app.setApplicationDisplayName(display_name)
+    app.setApplicationVersion(version)
+    app.setOrganizationDomain("nazoos.org")
+    QGuiApplication.setDesktopFileName(desktop_id)
+    icon = QIcon()
+    for n in reversed(icons):
+        icon = QIcon.fromTheme(n, icon)
+    app.setWindowIcon(icon)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    return app
 
 
 class Translator(QObject):

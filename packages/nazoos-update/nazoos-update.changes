@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 22 02:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Own repos are read from /etc/zypp/repos.d instead of zypper; status
+  file written atomically; no more QML errors when closing the window.
+
+-------------------------------------------------------------------
 Wed Oct 21 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - A regular check no longer drops "restart needed" after an update.

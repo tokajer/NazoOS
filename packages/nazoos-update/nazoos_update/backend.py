@@ -90,8 +90,13 @@ class Backend(ActionRunner):
     @Slot()
     def reboot(self):
         # Plasma's own restart dialog (saves the session), else logind
-        if shutil.which("qdbus6") and subprocess.run(
-                ["qdbus6", "org.kde.LogoutPrompt", "/LogoutPrompt",
-                 "promptReboot"], capture_output=True).returncode == 0:
-            return
+        if shutil.which("qdbus6"):
+            try:
+                if subprocess.run(
+                        ["qdbus6", "org.kde.LogoutPrompt", "/LogoutPrompt",
+                         "promptReboot"], capture_output=True,
+                        timeout=10).returncode == 0:
+                    return
+            except (OSError, subprocess.TimeoutExpired):
+                pass
         subprocess.Popen(["systemctl", "reboot"], start_new_session=True)

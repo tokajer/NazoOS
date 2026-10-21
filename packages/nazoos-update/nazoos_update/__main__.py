@@ -3,20 +3,11 @@
 """Entry point: python3 -m nazoos_update [--notify] [--page NAME]"""
 
 import argparse
-import os
-import signal
 import sys
-from pathlib import Path
+
+from nazoos_common import proc
 
 VERSION = "0.1.0"
-
-
-def qml_dir():
-    for d in (Path(__file__).resolve().parent.parent / "qml",
-              Path("/usr/share/nazoos-update/qml")):
-        if (d / "Main.qml").is_file():
-            return d
-    sys.exit("nazoos-update: Main.qml not found")
 
 
 def main():
@@ -27,24 +18,16 @@ def main():
                         help="section to show: update or rollback")
     args, qt_args = parser.parse_known_args()
 
-    # "sudo nazoos-update" has no access to the desktop session and dies
-    # with a Qt platform error; root rights are asked for by pkexec later
-    if os.geteuid() == 0:
-        sys.exit("nazoos-update: please start it without sudo, as a normal "
-                 "user. The administrator password is asked for when "
-                 "needed.")
+    proc.refuse_root("nazoos-update")
 
     if args.notify:
         from . import notify
         return notify.main()
 
-    from nazoos_common.qt import QML_DIR
+    from nazoos_common.qt import QML_DIR, application, find_qml
     from nazoos_common.single import Instance
     from PySide6.QtCore import QCoreApplication, QUrl
-    from PySide6.QtGui import QGuiApplication, QIcon
     from PySide6.QtQml import QQmlApplicationEngine
-    from PySide6.QtQuickControls2 import QQuickStyle
-    from PySide6.QtWidgets import QApplication
 
     from .backend import Backend
     from .i18n import qml_translator
@@ -58,16 +41,8 @@ def main():
         instance.send(args.page)
         return 0
 
-    if not os.environ.get("QT_QUICK_CONTROLS_STYLE"):
-        QQuickStyle.setStyle("org.kde.desktop")
-    app = QApplication([sys.argv[0]] + qt_args)
-    app.setApplicationName("nazoos-update")
-    app.setApplicationDisplayName("NazoOS Update")
-    app.setApplicationVersion(VERSION)
-    app.setOrganizationDomain("nazoos.org")
-    QGuiApplication.setDesktopFileName("org.nazoos.update")
-    app.setWindowIcon(QIcon.fromTheme("system-software-update"))
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    app = application("nazoos-update", "NazoOS Update", "org.nazoos.update",
+                      ("system-software-update",), VERSION, qt_args)
 
     translator = qml_translator()
     backend = Backend()
@@ -80,11 +55,16 @@ def main():
     ctx.setContextProperty("startPage", args.page)
     ctx.setContextProperty("instance", instance)
     engine.addImportPath(QML_DIR)
-    engine.load(QUrl.fromLocalFile(str(qml_dir() / "Main.qml")))
+    engine.load(QUrl.fromLocalFile(
+        str(find_qml(__file__, "nazoos-update"))))
     if not engine.rootObjects():
         return 1
     instance.listen()
-    return app.exec()
+    rc = app.exec()
+    # The engine must go before the translator: QML bindings still call
+    # L.tr() while it is torn down ("Cannot call method 'tr' of null")
+    del engine
+    return rc
 
 
 if __name__ == "__main__":

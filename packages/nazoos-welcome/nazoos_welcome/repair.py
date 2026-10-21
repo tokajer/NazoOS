@@ -6,7 +6,6 @@ Every finding names the helper action that fixes it. The texts shown to
 the user live in RepairPage.qml, keyed by the finding id.
 """
 
-import configparser
 import os
 import platform
 import re
@@ -15,6 +14,7 @@ import time
 from pathlib import Path
 
 from nazoos_common import proc
+from nazoos_common import repos as zypp_repos
 
 from . import catalog, system
 
@@ -24,32 +24,12 @@ def _finding(fid, items=(), fix="", user_only=False):
             "userOnly": user_only}
 
 
-def _sections(directory, pattern):
-    for f in Path(directory).glob(pattern):
-        cp = configparser.ConfigParser(interpolation=None, strict=False)
-        try:
-            cp.read_string(proc.read(f))
-        except configparser.Error:
-            continue
-        for alias in cp.sections():
-            yield alias, cp[alias]
-
-
-def _enabled(section):
-    return section.get("enabled", "1").strip() == "1"
-
-
 def repos():
     """Repo services, standard Tumbleweed repos and the NazoOS repo that
     are missing or disabled."""
-    found = []
-    for _alias, sec in _sections("/etc/zypp/repos.d", "*.repo"):
-        url = sec.get("baseurl", "")
-        if url and "opensuse.org" in url:
-            found.append((url, _enabled(sec)))
-    services = {name: _enabled(sec) for name, sec
-                in _sections("/etc/zypp/services.d", "*.service")}
-    return repo_problems(found, services)
+    found = [(url, on) for _alias, url, on in zypp_repos.repos()
+             if "opensuse.org" in url]
+    return repo_problems(found, zypp_repos.services())
 
 
 def repo_problems(repos, services):
@@ -58,12 +38,12 @@ def repo_problems(repos, services):
     SERVICES: {name: enabled}."""
     found = {}
     for url, enabled in repos:
-        path = catalog.repo_path(url)
+        path = zypp_repos.url_path(url)
         found[path] = found.get(path, False) or enabled
     bad = [s["name"] for s in catalog.REPO_SERVICES
            if not services.get(s["name"])]
     for repo in catalog.STANDARD_REPOS:
-        if found.get(catalog.repo_path(repo["url"])) is not True:
+        if found.get(zypp_repos.url_path(repo["url"])) is not True:
             bad.append(repo["alias"])
     if (not any(found.get(p) for p in catalog.NAZOOS_REPO_PATHS)
             and "nazoos" not in bad):
@@ -85,7 +65,7 @@ def unsatisfied():
 
 def packman_mix():
     """openSUSE builds of packages Packman replaces, while Packman is used."""
-    if not system.repo_present("/packman/"):
+    if zypp_repos.with_url("/packman/") is None:
         return []
     return mixed_packman(proc.out(["rpm", "-qa", "--qf",
                                    "%{NAME}\t%{VENDOR}\n"]))
@@ -96,18 +76,22 @@ def mixed_packman(rpm_qa_text):
     least one package of the family with the same word size comes from
     Packman (packman_switch() may keep all 32-bit ones at openSUSE)."""
     family = re.compile(catalog.PACKMAN_FAMILY)
-    ours, theirs = {False: [], True: []}, {False: [], True: []}
+    # Per word size: names from Packman, names from openSUSE
+    packman = {"64": [], "32": []}
+    opensuse = {"64": [], "32": []}
     for line in rpm_qa_text.splitlines():
         name, _, vendor = line.partition("\t")
         if family.fullmatch(name):
-            side = ours if "packman" in vendor.lower() else theirs
-            side[name.endswith("-32bit")].append(name)
-    return sorted(n for b in (False, True) if ours[b] for n in theirs[b])
+            side = packman if "packman" in vendor.lower() else opensuse
+            side["32" if name.endswith("-32bit") else "64"].append(name)
+    return sorted(n for bits in packman if packman[bits]
+                  for n in opensuse[bits])
 
 
 def nvidia_module_missing():
     """NVIDIA driver installed, but no module for the running kernel."""
-    if not system.rpm_vendors(["nvidia-video-G07", "nvidia-video-G06"]):
+    if not system.rpm_vendors(
+            [pkgs[1] for pkgs in catalog.NVIDIA_DRIVERS.values()]):
         return False
     release = platform.release()
     moddir = Path("/usr/lib/modules", release)

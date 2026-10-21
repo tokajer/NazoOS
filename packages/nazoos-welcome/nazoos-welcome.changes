@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 22 02:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Codecs and NVIDIA install remove a repo they added if the install
+  fails; the 32-bit fallback keeps locks the user set; config files
+  are written atomically; no more QML errors when closing the window.
+
+-------------------------------------------------------------------
 Thu Oct 22 01:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Codecs: when Packman's 32-bit libraries lag behind Tumbleweed
