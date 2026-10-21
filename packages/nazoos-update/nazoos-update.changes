@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Oct 21 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The package list keeps package names readable and shortens long
+  versions from the left instead, so the new version stays visible.
+- The details window follows new output like a terminal, unless it
+  was scrolled up to read.
+
+-------------------------------------------------------------------
 Tue Oct 20 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The restart notice is no longer shown for plasma packages that are

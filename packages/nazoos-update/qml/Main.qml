@@ -58,6 +58,7 @@ Kirigami.ApplicationWindow {
         }
 
         ColumnLayout {
+            id: content
             spacing: Kirigami.Units.largeSpacing
 
             // --- started from a snapshot: offer rollback --------------------
@@ -186,15 +187,24 @@ Kirigami.ApplicationWindow {
             Repeater {
                 model: root.snapshot === 0 ? (root.st.packages || []) : []
                 delegate: RowLayout {
+                    id: pkgRow
                     required property var modelData
                     Layout.fillWidth: true
+                    // The name wins over the version: git versions are long,
+                    // and a cut name ("nazoos-bran…") says nothing
                     QQC2.Label {
+                        id: pkgName
                         text: modelData.name
                         Layout.fillWidth: true
                         elide: Text.ElideRight
                     }
                     QQC2.Label {
                         opacity: 0.7
+                        // At most what the full name leaves, but always half
+                        // the row; cut from the left so the new version stays
+                        Layout.maximumWidth: Math.max(content.width - pkgName.implicitWidth - pkgRow.spacing,
+                                                      content.width / 2)
+                        elide: Text.ElideLeft
                         text: {
                             const k = modelData.kind
                             if (k === "install") return L.tr("new") + "  " + modelData.new
@@ -326,13 +336,41 @@ Kirigami.ApplicationWindow {
                 onTriggered: logDialog.close()
             }
         ]
+        onOpened: logScroll.toEnd()
         QQC2.ScrollView {
-            QQC2.TextArea {
+            id: logScroll
+            // Fixed height: otherwise it grows with the text and the dialog
+            // scrolls instead, where we cannot follow the end
+            implicitHeight: Kirigami.Units.gridUnit * 18
+            // Follow new lines like `tail -f`, unless the user scrolled up
+            // to read; scrolling back to the end follows again
+            property real lastHeight: 0
+            function toEnd() {
+                const f = contentItem
+                f.contentY = Math.max(0, f.contentHeight - f.height)
+            }
+            Connections {
+                target: logScroll.contentItem
+                function onContentHeightChanged() {
+                    const f = logScroll.contentItem
+                    if (f.contentY + f.height >= logScroll.lastHeight - Kirigami.Units.gridUnit * 2)
+                        logScroll.toEnd()
+                    logScroll.lastHeight = f.contentHeight
+                }
+            }
+            // TextEdit, not TextArea: a TextArea scrolls back to its cursor
+            // (the start) whenever the text changes
+            TextEdit {
+                width: logScroll.availableWidth
+                padding: Kirigami.Units.smallSpacing
                 readOnly: true
+                selectByMouse: true
                 wrapMode: TextEdit.Wrap
                 font.family: "monospace"
+                color: Kirigami.Theme.textColor
+                selectionColor: Kirigami.Theme.highlightColor
+                selectedTextColor: Kirigami.Theme.highlightedTextColor
                 text: backend.log || L.tr("Nothing has run yet.")
-                onTextChanged: cursorPosition = length
             }
         }
     }
