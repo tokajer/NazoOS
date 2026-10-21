@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Oct 21 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend elisa, kamoso, kfind, kcharselect, plasma6-vault and
+  kjournald (Nobara ships them)
+- nazoos-translations: add the -lang packages of the apps added
+  today (208 packages)
+
+-------------------------------------------------------------------
 Wed Oct 21 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend KDE apps (ark, okular, gwenview, kcalc, filelight,

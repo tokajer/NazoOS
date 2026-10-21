@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-21 20:10+0200\n"
+"POT-Creation-Date: 2026-10-21 20:20+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -98,6 +98,10 @@ msgid "AMD GPU overclocking"
 msgstr "AMD-Grafikkarte übertakten"
 
 #: nazoos_welcome/catalog.py
+msgid "Add AppImages to the app menu and keep them updated"
+msgstr "AppImages ins Anwendungsmenü aufnehmen und aktuell halten"
+
+#: nazoos_welcome/catalog.py
 msgid "Adding Flathub"
 msgstr "Flathub wird hinzugefügt"
 
@@ -140,6 +144,10 @@ msgstr "Startmodus wird geändert"
 #: nazoos_welcome/catalog.py
 msgid "Cleaning the package cache"
 msgstr "Paket-Cache wird geleert"
+
+#: nazoos_welcome/catalog.py
+msgid "Compare files and folders"
+msgstr "Dateien und Ordner vergleichen"
 
 #: nazoos_welcome/catalog.py
 msgid "Configure gaming mice (buttons, DPI, LEDs)"
@@ -403,6 +411,10 @@ msgid "Updating the system"
 msgstr "System wird aktualisiert"
 
 #: nazoos_welcome/catalog.py
+msgid "Vector graphics editor"
+msgstr "Vektorgrafik-Editor"
+
+#: nazoos_welcome/catalog.py
 msgid "Video editor"
 msgstr "Videobearbeitung"
 
@@ -417,6 +429,10 @@ msgstr "Sprach-Chat auf TeamSpeak-3-Servern"
 #: nazoos_welcome/catalog.py
 msgid "Wireless controllers, headsets, mice and keyboards"
 msgstr "Kabellose Controller, Headsets, Mäuse und Tastaturen"
+
+#: nazoos_welcome/catalog.py
+msgid "Write ISO images to USB sticks"
+msgstr "ISO-Abbilder auf USB-Sticks schreiben"
 
 #: nazoos_welcome/root/apps.py:43 nazoos_welcome/root/apps.py:73
 msgid "unknown app"

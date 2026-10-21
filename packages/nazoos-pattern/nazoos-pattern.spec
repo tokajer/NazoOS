@@ -111,6 +111,14 @@ Recommends:     kcalc
 Recommends:     filelight
 Recommends:     spectacle
 Recommends:     kdeconnect-kde
+Recommends:     elisa
+Recommends:     kamoso
+Recommends:     kfind
+Recommends:     kcharselect
+# Encrypted folders (gocryptfs backend comes as its Recommends)
+Recommends:     plasma6-vault
+# System logs in a window instead of journalctl
+Recommends:     kjournald
 # Edit system files in Dolphin (admin://) instead of a root terminal
 Recommends:     kio-admin
 Recommends:     pavucontrol-qt
@@ -149,10 +157,11 @@ Summary:        Translations for the NazoOS desktop
 # English (ADR 0027). Weak dependencies on purpose: a package that is
 # renamed or dropped in Tumbleweed must not block "zypper dup".
 # List = every <name>-lang whose <name> is in the image; refresh it with
-# notes/translations.md (2026-10-17: 192 packages).
+# notes/translations.md (2026-10-21: 208 packages).
 Recommends:     accountsservice-lang
 Recommends:     appstream-glib-lang
 Recommends:     AppStream-lang
+Recommends:     ark-lang
 Recommends:     at-spi2-core-lang
 Recommends:     aurorae6-lang
 Recommends:     avahi-lang
@@ -170,6 +179,8 @@ Recommends:     discover6-lang
 Recommends:     dolphin-part-lang
 Recommends:     drkonqi6-lang
 Recommends:     elfutils-lang
+Recommends:     elisa-lang
+Recommends:     filelight-lang
 Recommends:     findutils-lang
 Recommends:     firewalld-lang
 Recommends:     flatpak-kcm6-lang
@@ -186,12 +197,17 @@ Recommends:     gstreamer-plugins-bad-lang
 Recommends:     gstreamer-plugins-base-lang
 Recommends:     gstreamer-plugins-good-lang
 Recommends:     gvfs-lang
+Recommends:     gwenview-lang
 Recommends:     kaccounts-integration-lang
 Recommends:     kaccounts-providers-lang
 Recommends:     kactivitymanagerd6-lang
+Recommends:     kamoso-lang
 Recommends:     kate-lang
+Recommends:     kcalc-lang
+Recommends:     kcharselect-lang
 Recommends:     kcoreaddons-lang
 Recommends:     kde-cli-tools6-lang
+Recommends:     kdeconnect-kde-lang
 Recommends:     kded-lang
 Recommends:     kdenetwork-filesharing-lang
 Recommends:     kdeplasma6-addons-lang
@@ -211,14 +227,17 @@ Recommends:     kf6-kuserfeedback-lang
 Recommends:     kf6-kwallet-tools-lang
 Recommends:     kf6-purpose-lang
 Recommends:     kf6-qqc2-desktop-style-lang
+Recommends:     kfind-lang
 Recommends:     kgamma6-lang
 Recommends:     khelpcenter-lang
 Recommends:     kinfocenter6-lang
 Recommends:     kinit-lang
+Recommends:     kio-admin-lang
 Recommends:     kio-extras-lang
 Recommends:     kio-lang
 Recommends:     kirigami-addons6-lang
 Recommends:     kirigami2-lang
+Recommends:     kjournald-lang
 Recommends:     kmenuedit6-lang
 Recommends:     konsole-part-lang
 Recommends:     kpmcore-lang
@@ -295,11 +314,14 @@ Recommends:     markdownpart-lang
 Recommends:     milou6-lang
 Recommends:     ModemManager-lang
 Recommends:     MozillaFirefox-translations-common
+Recommends:     nano-lang
 Recommends:     NetworkManager-lang
 Recommends:     notification-daemon-lang
+Recommends:     okular-lang
 Recommends:     PackageKit-lang
 Recommends:     parted-lang
 Recommends:     partitionmanager-lang
+Recommends:     pavucontrol-qt-lang
 Recommends:     pipewire-lang
 Recommends:     plasma6-browser-integration-lang
 Recommends:     plasma6-desktop-lang
@@ -311,6 +333,7 @@ Recommends:     plasma6-pa-lang
 Recommends:     plasma6-print-manager-lang
 Recommends:     plasma6-systemmonitor-lang
 Recommends:     plasma6-thunderbolt-lang
+Recommends:     plasma6-vault-lang
 Recommends:     plasma6-workspace-lang
 Recommends:     plymouth-lang
 Recommends:     polkit-kde-agent-6-lang
@@ -325,6 +348,7 @@ Recommends:     sddm-kcm6-lang
 Recommends:     sed-lang
 Recommends:     shared-mime-info-lang
 Recommends:     snapper-lang
+Recommends:     spectacle-lang
 Recommends:     svgpart-lang
 Recommends:     system-config-printer-common-lang
 Recommends:     systemd-lang
