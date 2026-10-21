@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 22 01:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Desktop installs remove the handheld packages listed by nazoos-deck
+  itself (its Recommends), not a copy of the list; on-screen keyboard
+  and auto-rotation stay for 2-in-1 laptops.
+
+-------------------------------------------------------------------
 Mon Oct 19 10:00:23 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - New installs: GRUB_DISABLE_BOOTNEXT="true" in /etc/default/grub

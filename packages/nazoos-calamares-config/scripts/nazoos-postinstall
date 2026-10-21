@@ -70,11 +70,26 @@ case $device in
     ;;
   *)
     # Desktop/laptop: remove what only handhelds need (the live medium
-    # carries it for handheld installs). One by one, so a package that
-    # something else still needs simply stays.
-    rpm -q --quiet nazoos-deck && rpm -e nazoos-deck
-    for p in inputplumber jupiter-fan-control steamdeck-dsp galileo-mura \
-             jupiter-dock-updater-bin steamos-powerbuttond; do
+    # carries it for handheld installs). The list is nazoos-deck's own
+    # Recommends, read before it is removed, so a new handheld package
+    # needs no change here. One by one, so a package that something else
+    # still needs simply stays.
+    # Desktops and laptops use these too (2-in-1 laptops: on-screen
+    # keyboard, auto-rotation).
+    readonly KEEP_ON_DESKTOP="maliit-keyboard iio-sensor-proxy"
+    handheld_pkgs=()
+    if rpm -q --quiet nazoos-deck; then
+      while read -r name _; do
+        # Rich dependencies "(a if b)" are not package names
+        [[ -z $name || $name == \(* ]] && continue
+        [[ " $KEEP_ON_DESKTOP " == *" $name "* ]] && continue
+        handheld_pkgs+=("$name")
+      done < <(rpm -q --recommends nazoos-deck)
+      rpm -e nazoos-deck
+    fi
+    # Opt-in from NazoOS Welcome, so not a Recommends of nazoos-deck
+    handheld_pkgs+=(jupiter-dock-updater-bin)
+    for p in "${handheld_pkgs[@]}"; do
       if rpm -q --quiet "$p"; then
         rpm -e "$p" || echo "kept $p (needed by another package)"
       fi
