@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Wed Oct 21 08:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- BBRv3 was never used on kernel-nazoos: tcp_bbr (loaded via
+  modules-load.d, also in the initrd) and tcp_bbr3 register the same
+  BPF kfunc names, so tcp_bbr3 failed to load. The congestion control
+  is now set by nazoos-tcp-bbr.service (bbr) and
+  nazoos-tcp-bbr3.service (bbr3, only on *-nazoos kernels) instead of
+  sysctl.d and modules-load.d; the initrd is regenerated once
+
+-------------------------------------------------------------------
 Tue Oct 20 07:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Polkit rule 49-nazoos-fwupd-refresh.rules: fwupd-refresh.service

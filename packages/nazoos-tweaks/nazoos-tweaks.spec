@@ -12,9 +12,13 @@ Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  sysuser-tools
 BuildArch:      noarch
+# sysctl in nazoos-tcp-bbr(3).service
+Requires:       procps
 Requires:       zram-generator
 %sysusers_requires
 %{?systemd_ordering}
+# One line: the %service_* macros do not take line continuations
+%define units nazoos-xone-firmware.service nazoos-xone-firmware.timer nazoos-tcp-bbr.service nazoos-tcp-bbr3.service
 
 %description
 Default kernel parameters (sysctl), zram swap configuration,
@@ -43,7 +47,6 @@ install -Dm0644 zram-generator.conf.d/70-nazoos.conf \
 install -Dm0644 tmpfiles.d/70-nazoos.conf %{buildroot}%{_tmpfilesdir}/nazoos-tweaks.conf
 install -Dm0644 -t %{buildroot}%{_udevrulesdir} udev/*.rules
 install -Dm0644 modules-load.d/ntsync.conf %{buildroot}%{_modulesloaddir}/nazoos-ntsync.conf
-install -Dm0644 modules-load.d/bbr.conf %{buildroot}%{_modulesloaddir}/nazoos-bbr.conf
 install -Dm0644 modprobe.d/nvidia.conf %{buildroot}%{_modprobedir}/70-nazoos-nvidia.conf
 install -Dm0644 journald.conf.d/70-nazoos.conf \
   %{buildroot}%{_prefix}/lib/systemd/journald.conf.d/70-nazoos.conf
@@ -53,7 +56,8 @@ install -Dm0644 -t %{buildroot}%{_unitdir}/display-manager-legacy.service.d \
   systemd/display-manager-legacy.service.d/10-nazoos-tty1.conf
 install -Dm0644 systemd/90-nazoos.preset %{buildroot}%{_presetdir}/90-nazoos.preset
 install -Dm0644 -t %{buildroot}%{_unitdir} \
-  systemd/nazoos-xone-firmware.service systemd/nazoos-xone-firmware.timer
+  systemd/nazoos-xone-firmware.service systemd/nazoos-xone-firmware.timer \
+  systemd/nazoos-tcp-bbr.service systemd/nazoos-tcp-bbr3.service
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/sddm/sddm.conf.d \
   sddm/10-nazoos-wayland.conf
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/environment.d \
@@ -71,19 +75,31 @@ install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/rpm/gnupg/keys rpm-keys/*.asc
 
 %pre -f nazoos-i2c.pre
-%service_add_pre nazoos-xone-firmware.service nazoos-xone-firmware.timer
+# Upgrade from the version with modules-load.d/nazoos-bbr.conf: its copy in
+# the initrd loads tcp_bbr, which blocks bbr3 → rebuild the initrd once
+if [ -e %{_modulesloaddir}/nazoos-bbr.conf ]; then
+  mkdir -p /run/nazoos-tweaks && touch /run/nazoos-tweaks/regenerate-initrd
+fi
+%service_add_pre %{units}
 
 %post
 %sysctl_apply 70-nazoos.conf
 %tmpfiles_create nazoos-tweaks.conf
 %udev_rules_update
-%service_add_post nazoos-xone-firmware.service nazoos-xone-firmware.timer
+if [ -e /run/nazoos-tweaks/regenerate-initrd ]; then
+  rm -f /run/nazoos-tweaks/regenerate-initrd
+  %regenerate_initrd_post
+fi
+%service_add_post %{units}
 
 %preun
-%service_del_preun nazoos-xone-firmware.service nazoos-xone-firmware.timer
+%service_del_preun %{units}
+
+%posttrans
+%regenerate_initrd_posttrans
 
 %postun
-%service_del_postun nazoos-xone-firmware.service nazoos-xone-firmware.timer
+%service_del_postun %{units}
 
 %files
 %{_sysctldir}/70-nazoos.conf
@@ -93,7 +109,6 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/rpm/gnupg/keys rpm-keys/*.asc
 %{_udevrulesdir}/*-nazoos-*.rules
 %dir %{_modulesloaddir}
 %{_modulesloaddir}/nazoos-ntsync.conf
-%{_modulesloaddir}/nazoos-bbr.conf
 %dir %{_modprobedir}
 %{_modprobedir}/70-nazoos-nvidia.conf
 %dir %{_prefix}/lib/systemd/journald.conf.d
@@ -106,6 +121,8 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/rpm/gnupg/keys rpm-keys/*.asc
 %{_presetdir}/90-nazoos.preset
 %{_unitdir}/nazoos-xone-firmware.service
 %{_unitdir}/nazoos-xone-firmware.timer
+%{_unitdir}/nazoos-tcp-bbr.service
+%{_unitdir}/nazoos-tcp-bbr3.service
 %dir %{_prefix}/lib/sddm
 %dir %{_prefix}/lib/sddm/sddm.conf.d
 %{_prefix}/lib/sddm/sddm.conf.d/10-nazoos-wayland.conf

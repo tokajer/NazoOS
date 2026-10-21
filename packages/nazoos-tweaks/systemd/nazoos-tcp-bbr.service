@@ -1,0 +1,24 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# TCP congestion control BBR on every kernel except kernel-nazoos, which
+# uses BBRv3 (nazoos-tcp-bbr3.service, reason there). Runs before
+# systemd-sysctl, so a value in /etc/sysctl.d still wins.
+[Unit]
+Description=Use TCP BBR
+Documentation=https://github.com/google/bbr
+DefaultDependencies=no
+ConditionKernelVersion=!$=*-nazoos
+After=systemd-modules-load.service
+Before=systemd-sysctl.service sysinit.target
+
+[Service]
+Type=oneshot
+# Stay active, otherwise a later start job runs it again after
+# systemd-sysctl and overrides /etc/sysctl.d
+RemainAfterExit=yes
+# Loads tcp_bbr on demand
+ExecStart=/usr/sbin/sysctl -q -w net.ipv4.tcp_congestion_control=bbr
+
+[Install]
+WantedBy=sysinit.target
