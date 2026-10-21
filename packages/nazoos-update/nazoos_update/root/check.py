@@ -2,10 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Root action "check": what "zypper dup" would change, written to STATUS."""
 
-import json
-import os
 import re
-import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -22,20 +19,6 @@ RELEASE_PKG = "openSUSE-release"
 # Package names that need a restart after the update
 REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
                          r"libQt6|plasma6-workspace|plasma6-desktop|kwin|sddm)")
-
-
-def write_status(data):
-    now = int(time.time())
-    data["checked"] = now
-    # Time of the last check that worked: the notifier only complains
-    # about failing checks when they keep failing (laptop offline, ...)
-    data["last_ok"] = now if not data.get("error") else \
-        status.read_status().get("last_ok", 0)
-    status.STATUS.parent.mkdir(parents=True, exist_ok=True)
-    tmp = status.STATUS.with_suffix(".tmp")
-    tmp.write_text(json.dumps(data, indent=1))
-    os.chmod(tmp, 0o644)
-    os.replace(tmp, status.STATUS)
 
 
 def zypper_messages(root):
@@ -159,15 +142,15 @@ def check(_args=None):
     r = capture(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
     print(r.stdout, end="", flush=True)
     if r.returncode != 0:
-        result["error"] = "refresh"
+        result["error"] = status.ERROR_REFRESH
         result["detail"] = (r.stderr or r.stdout).strip()[-600:]
-        write_status(result)
+        status.write(result)
         raise Fail("the package sources could not be refreshed "
                    "(no internet connection?)")
     pkgs, problems = dup_preview()
     behind = None if problems else mirrors_behind(pkgs)
     if problems:
-        result["error"] = "conflict"
+        result["error"] = status.ERROR_CONFLICT
         result["problems"] = problems
     elif behind:
         # Tumbleweed waits until the mirrors have the snapshot, our own
@@ -183,7 +166,7 @@ def check(_args=None):
                            for p in result["packages"]
                            if p["type"] == "package")
     result["flatpaks"] = flatpak_updates()
-    write_status(result)
+    status.write(result)
     snapshots.label_snapshots()
     print(f"{len(result['packages'])} package changes, "
           f"{len(result['flatpaks'])} Flatpak updates", flush=True)

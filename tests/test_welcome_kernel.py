@@ -21,24 +21,6 @@ submenu 'Advanced options for NazoOS' $menuentry_id_option 'gnulinux-advanced-12
 """
 
 
-def test_set_var_adds_replaces_and_removes():
-    text = 'GRUB_TIMEOUT=8\nGRUB_DEFAULT=0\n'
-    text = kernel._set_var(text, "GRUB_DEFAULT", "saved")
-    assert text == 'GRUB_TIMEOUT=8\nGRUB_DEFAULT=saved\n'
-    text = kernel._set_var(text, "GRUB_TOP_LEVEL", '"/boot/vmlinuz-x"')
-    assert text.endswith('GRUB_TOP_LEVEL="/boot/vmlinuz-x"\n')
-    text = kernel._set_var(text, "GRUB_TOP_LEVEL", None)
-    assert text == 'GRUB_TIMEOUT=8\nGRUB_DEFAULT=saved\n'
-    # Removing a missing variable changes nothing
-    assert kernel._set_var(text, "GRUB_TOP_LEVEL", None) == text
-
-
-def test_set_var_only_matches_whole_names_at_line_start():
-    text = '#GRUB_DEFAULT=0\nGRUB_DEFAULT_X=1\n'
-    assert kernel._set_var(text, "GRUB_DEFAULT", "saved") == \
-        text + "GRUB_DEFAULT=saved\n"
-
-
 def test_top_entry():
     assert kernel.top_entry(GRUB_CFG) == (
         "gnulinux-simple-1234", "/@/boot/vmlinuz-7.2.11-1-nazoos")

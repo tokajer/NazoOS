@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Lint (ruff) and unit tests (pytest) for the Python code of
-# nazoos-common, nazoos-welcome and nazoos-update (ADR 0030).
+# nazoos-common, nazoos-welcome and nazoos-update (ADR 0030), plus the
+# nazoos-session-ctl script (tests/test_session_ctl.py).
 # Settings: pyproject.toml. Locally: pip install pytest ruff
 # PySide6-Essentials, then "ruff check ." and "pytest".
 # Doku: https://docs.astral.sh/ruff/ , https://docs.pytest.org/
@@ -16,6 +17,7 @@ on:
       - "packages/nazoos-common/**"
       - "packages/nazoos-welcome/**"
       - "packages/nazoos-update/**"
+      - "packages/nazoos-session/**"
       - "tests/**"
       - "pyproject.toml"
       - ".github/workflows/python.yml"

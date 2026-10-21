@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Oct 21 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- nazoos-session-ctl takes an optional root directory for tests
+  (NAZOOS_SESSION_ROOT, ignored when running as root).
+
+-------------------------------------------------------------------
 Wed Oct 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - %pre: %systemd_user_pre for the user units. Without it openSUSE never

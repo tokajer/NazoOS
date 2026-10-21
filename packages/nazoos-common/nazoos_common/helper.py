@@ -31,6 +31,21 @@ FLATPAK = ["flatpak", "--system"]
 REPOS_DIR = Path("/etc/zypp/repos.d")
 
 
+def set_var(text, name, value):
+    """Set NAME=VALUE in shell-style config TEXT; VALUE None removes it."""
+    line = f"{name}={value}" if value is not None else None
+    key = re.escape(name)
+    if re.search(rf"^{key}=", text, re.M):
+        # A function, so backslashes in VALUE are not read as escapes
+        return re.sub(rf"^{key}=.*\n?", lambda _m: line + "\n" if line else "",
+                      text, flags=re.M)
+    if not line:
+        return text
+    if text and not text.endswith("\n"):
+        text += "\n"
+    return text + line + "\n"
+
+
 class Fail(Exception):
     """An error the user sees: TEMPLATE with {name} fields from PARAMS."""
 

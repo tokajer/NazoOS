@@ -7,6 +7,7 @@ import subprocess
 import pytest
 
 from nazoos_common.helper import Fail
+from nazoos_update import status as status_mod
 from nazoos_update.root import check, snapshots, update
 
 DUP_XML = """<?xml version='1.0'?>
@@ -249,3 +250,41 @@ def test_label_holds_the_lock_while_naming(monkeypatch, tmp_path):
     monkeypatch.setattr(snapshots, "name_snapshots", name_snapshots)
     assert snapshots.label_snapshots(update_after=3) == 2
     assert seen == [3]
+
+
+def test_check_keeps_the_restart_hint_of_the_update(monkeypatch, tmp_path):
+    monkeypatch.setattr(status_mod, "STATUS", tmp_path / "status.json")
+    status_mod.write({"error": "", "needs_reboot": True, "updated": 5})
+    status_mod.write({"error": "", "packages": [], "reboot": False})
+    st = status_mod.read_status()
+    assert st["needs_reboot"] is True and st["updated"] == 5
+    # The next update decides again
+    status_mod.write({"error": "", "needs_reboot": False, "updated": 9})
+    st = status_mod.read_status()
+    assert st["needs_reboot"] is False and st["updated"] == 9
+
+
+def test_failed_check_keeps_last_ok(monkeypatch, tmp_path):
+    monkeypatch.setattr(status_mod, "STATUS", tmp_path / "status.json")
+    status_mod.write({"error": ""})
+    ok = status_mod.read_status()["last_ok"]
+    assert ok > 0
+    status_mod.write({"error": status_mod.ERROR_REFRESH})
+    st = status_mod.read_status()
+    assert st["last_ok"] == ok and st["error"] == "refresh"
+
+
+def test_update_stops_at_a_conflict(monkeypatch):
+    calls, written = [], []
+    monkeypatch.setattr(update, "run", lambda *a, **k: calls.append(a[0]) or 0)
+    monkeypatch.setattr(check, "dup_preview", lambda *a: (None, ["x"]))
+    monkeypatch.setattr(check, "flatpak_updates", lambda: [])
+    monkeypatch.setattr(update.status, "write", written.append)
+    with pytest.raises(Fail) as e:
+        update.update([])
+    assert e.value.template == "the update needs a decision: {problem}"
+    assert e.value.params == {"problem": "x"}
+    # Only the refresh ran, no dist-upgrade
+    assert calls == [update.ZYPPER + ["--gpg-auto-import-keys", "refresh"]]
+    assert written == [{"error": "conflict", "problems": ["x"], "packages": [],
+                        "flatpaks": [], "reboot": False}]

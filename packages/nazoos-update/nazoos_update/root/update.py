@@ -9,6 +9,7 @@ from pathlib import Path
 from nazoos_common import helper, kernel, mok
 from nazoos_common.helper import FLATPAK, ZYPPER, Fail, capture, run
 
+from .. import status
 from . import check, snapshots
 
 # zypper: a %post script failed, the packages are installed
@@ -53,7 +54,15 @@ def update(_args):
             failed.append(m.group(1))
 
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
-    pkgs, _problems = check.dup_preview()
+    pkgs, problems = check.dup_preview()
+    if problems:
+        # dup would only fail with exit code 4; show the conflict instead
+        # Not check_quietly(): it would repeat refresh, dry-run and labels
+        status.write({"error": status.ERROR_CONFLICT, "problems": problems,
+                      "packages": [], "flatpaks": check.flatpak_updates(),
+                      "reboot": False})
+        raise Fail("the update needs a decision: {problem}",
+                   problem=problems[0])
     behind = check.mirrors_behind(pkgs or [])
     cmd = ["dist-upgrade", "--auto-agree-with-licenses"]
     if behind:
@@ -95,10 +104,10 @@ def update(_args):
     except (Fail, OSError) as e:
         helper.say(f"Note: {e}")
     reboot = capture(["zypper", "needs-rebooting"]).returncode == 102
-    check.write_status({"error": "", "problems": [], "packages": [],
-                        "flatpaks": [], "reboot": False,
-                        "behind": list(behind) if behind else None,
-                        "needs_reboot": reboot, "updated": int(time.time())})
+    status.write({"error": "", "problems": [], "packages": [],
+                  "flatpaks": [], "reboot": False,
+                  "behind": list(behind) if behind else None,
+                  "needs_reboot": reboot, "updated": int(time.time())})
     if reboot:
         print("@@reboot", flush=True)
     if key_missing:

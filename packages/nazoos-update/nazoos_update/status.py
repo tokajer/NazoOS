@@ -8,6 +8,7 @@ import os
 import re
 import struct
 import subprocess
+import time
 from pathlib import Path
 
 from nazoos_common import proc
@@ -17,6 +18,12 @@ STATUS = Path("/var/lib/nazoos-update/status.json")
 # needs no root rights
 BTRFS_IOC_SUBVOL_GETFLAGS = 0x80089419
 BTRFS_SUBVOL_RDONLY = 1 << 1
+# Error kinds in "error"; qml/Main.qml and notify.py compare these strings
+ERROR_REFRESH = "refresh"
+ERROR_CONFLICT = "conflict"
+# Written by an update; later checks keep them (collect() hides
+# needs_reboot after the next boot)
+UPDATE_KEYS = ("needs_reboot", "updated")
 
 
 def read_status():
@@ -24,6 +31,25 @@ def read_status():
         return json.loads(STATUS.read_text())
     except (OSError, ValueError):
         return {}
+
+
+def write(data):
+    """Root only: write DATA as the new status. Keeps last_ok of the last
+    working check and UPDATE_KEYS that DATA does not set."""
+    old = read_status()
+    now = int(time.time())
+    data["checked"] = now
+    # Time of the last check that worked: the notifier only complains
+    # about failing checks when they keep failing (laptop offline, ...)
+    data["last_ok"] = now if not data.get("error") else old.get("last_ok", 0)
+    for k in UPDATE_KEYS:
+        if k not in data and k in old:
+            data[k] = old[k]
+    STATUS.parent.mkdir(parents=True, exist_ok=True)
+    tmp = STATUS.with_suffix(".tmp")
+    tmp.write_text(json.dumps(data, indent=1))
+    os.chmod(tmp, 0o644)
+    os.replace(tmp, STATUS)
 
 
 def subvol_readonly(path="/"):

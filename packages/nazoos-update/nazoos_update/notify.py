@@ -127,7 +127,7 @@ def main():
 
     now = int(time.time())
     err = st.get("error")
-    if err == "conflict":
+    if err == status.ERROR_CONFLICT:
         _send(f"conflict-{st.get('checked', 0) // REMIND}",
               _("Update needs your decision"),
               _("The update cannot be installed automatically because "
@@ -140,7 +140,7 @@ def main():
                 "Is the computer connected to the internet?"),
               _("Fix"), "update", icon="dialog-warning")
 
-    if st["count"] and err != "conflict":
+    if st["count"] and err != status.ERROR_CONFLICT:
         n = st["count"]
         body = ngettext("%d update is ready to install.",
                         "%d updates are ready to install.", n) % n

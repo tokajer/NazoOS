@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Pure parts of the welcome root actions (nothing runs as root here)."""
 
+import pytest
+
 from nazoos_welcome import catalog
-from nazoos_welcome.root import apps, drives, kernel_switch
+from nazoos_welcome.root import apps, drives, kernel_switch, tuning
 
 MARK = catalog.FSTAB_MARKER
 
@@ -67,3 +69,86 @@ def test_kernel_install_leaves_installed_modules_to_the_swap(monkeypatch,
     assert "xone-kmp-nazoos" not in zypper_in
     assert ks.kernel.KERNEL_PACKAGE in zypper_in
     assert "xone-kmp-nazoos" in swapped
+
+
+FSTAB_TEXT = "UUID=root / btrfs defaults 0 0\n"
+
+
+@pytest.fixture
+def add_env(monkeypatch, tmp_path):
+    fstab = tmp_path / "fstab"
+    fstab.write_text(FSTAB_TEXT)
+    monkeypatch.setattr(drives, "FSTAB", fstab)
+    monkeypatch.setattr(catalog, "MOUNT_BASE", str(tmp_path / "mnt"))
+    monkeypatch.setattr(drives.system, "drives", lambda: [
+        {"uuid": "abcd", "fstype": "ext4", "label": "Games",
+         "managed": False}])
+    monkeypatch.setattr(drives, "caller", lambda: (1000,))
+    monkeypatch.setattr(drives, "output", lambda cmd: "100\n")
+    monkeypatch.setattr(drives, "say", lambda *a: None)
+    return fstab
+
+
+def test_add_refuses_a_drive_the_gui_would_not_offer(monkeypatch, add_env):
+    monkeypatch.setattr(drives.system, "drives", lambda: [])
+    ran = []
+    monkeypatch.setattr(drives, "run", lambda *a, **k: ran.append(a) or 0)
+    with pytest.raises(drives.Fail, match="removable or system drive"):
+        drives.automount_add(["abcd"])
+    assert add_env.read_text() == FSTAB_TEXT and not ran
+
+
+def _failing_mount(monkeypatch):
+    ran = []
+
+    def run(cmd, check=True):
+        ran.append(cmd[0])
+        return 32 if cmd[0] == "mount" else 0
+    monkeypatch.setattr(drives, "run", run)
+    return ran
+
+
+def test_add_takes_the_entry_back_when_mount_fails(monkeypatch, add_env,
+                                                   tmp_path):
+    ran = _failing_mount(monkeypatch)
+    with pytest.raises(drives.Fail) as e:
+        drives.automount_add(["abcd"])
+    assert e.value.params == {"rc": 32}
+    assert add_env.read_text() == FSTAB_TEXT
+    assert ran == ["systemctl", "mount", "systemctl"]
+    assert not (tmp_path / "mnt/Games").exists()
+
+
+def test_add_keeps_a_mount_dir_that_already_existed(monkeypatch, add_env,
+                                                    tmp_path):
+    (tmp_path / "mnt/Games").mkdir(parents=True)
+    _failing_mount(monkeypatch)
+    with pytest.raises(drives.Fail):
+        drives.automount_add(["abcd"])
+    assert (tmp_path / "mnt/Games").is_dir()
+
+
+def _pollrate_env(monkeypatch, tmp_path, calls):
+    sysfs = tmp_path / "interrupt_interval_override"
+    sysfs.write_text("\n")
+    monkeypatch.setattr(catalog, "POLLRATE_SYSFS", str(sysfs))
+    monkeypatch.setattr(tuning.system, "usb_input_devices",
+                        lambda: [{"id": "046d:c08b"}])
+    monkeypatch.setattr(tuning, "cmdline", lambda: (None, None, []))
+    monkeypatch.setattr(tuning, "cmdline_set", lambda *a: calls.append(a))
+    monkeypatch.setattr(tuning, "say", lambda *a: None)
+
+
+def test_pollrate_refuses_a_device_that_is_not_connected(monkeypatch, tmp_path):
+    calls = []
+    _pollrate_env(monkeypatch, tmp_path, calls)
+    with pytest.raises(tuning.Fail, match="not connected"):
+        tuning.pollrate(["1234:abcd", "1"])
+    assert not calls
+
+
+def test_pollrate_sets_a_connected_device(monkeypatch, tmp_path):
+    calls = []
+    _pollrate_env(monkeypatch, tmp_path, calls)
+    tuning.pollrate(["046d:c08b", "1"])
+    assert calls and calls[0][0] == catalog.POLLRATE_PARAM

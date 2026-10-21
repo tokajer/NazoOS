@@ -22,13 +22,21 @@
 
 set -euo pipefail
 
-readonly CONF=/etc/nazoos/session.conf
+# Root of all paths below, set by the tests only (they run as a normal user).
+# pkexec and systemd start this script with a clean environment, and as root
+# the variable is ignored, so nobody can redirect root's writes
+ROOT=
+if [ "$(id -u)" -ne 0 ]; then
+  ROOT=${NAZOOS_SESSION_ROOT-}
+fi
+readonly ROOT
+readonly CONF=$ROOT/etc/nazoos/session.conf
 # Previous DISPLAYMANAGER_AUTOLOGIN while a one-time switch is pending
-readonly ONESHOT=/etc/nazoos/session-oneshot
-readonly SDDM_CONF=/etc/sddm.conf.d/zz-nazoos-session.conf
-readonly DM_SYSCONFIG=/etc/sysconfig/displaymanager
+readonly ONESHOT=$ROOT/etc/nazoos/session-oneshot
+readonly SDDM_CONF=$ROOT/etc/sddm.conf.d/zz-nazoos-session.conf
+readonly DM_SYSCONFIG=$ROOT/etc/sysconfig/displaymanager
 readonly GAMING_SESSION=gamescope-session-steam.desktop
-readonly WAYLAND_SESSIONS=/usr/share/wayland-sessions
+readonly WAYLAND_SESSIONS=$ROOT/usr/share/wayland-sessions
 
 die() {
   echo "nazoos-session: $*" >&2

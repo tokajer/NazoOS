@@ -5,12 +5,13 @@
 import re
 from pathlib import Path
 
-from .. import catalog
+from nazoos_common.helper import set_var
+
+from .. import catalog, system
 from .base import (ZYPPER_IN, Fail, arg, cmdline, cmdline_set,
                    rpm_installed, run, say)
 
 SCX_DEFAULT = Path("/etc/default/scx")
-USB_DEVICES = Path("/sys/bus/usb/devices")
 
 
 def scx_enable(args):
@@ -20,19 +21,8 @@ def scx_enable(args):
     if not Path("/usr/bin", sched).exists():
         raise Fail("{scheduler} is not part of the installed scx package",
                    scheduler=sched)
-    lines = SCX_DEFAULT.read_text().splitlines() if SCX_DEFAULT.exists() \
-        else []
-    out, done = [], False
-    for line in lines:
-        if re.match(r"\s*SCX_SCHEDULER\s*=", line):
-            if not done:
-                out.append(f"SCX_SCHEDULER={sched}")
-                done = True
-        else:
-            out.append(line)
-    if not done:
-        out.append(f"SCX_SCHEDULER={sched}")
-    SCX_DEFAULT.write_text("\n".join(out) + "\n")
+    text = SCX_DEFAULT.read_text() if SCX_DEFAULT.exists() else ""
+    SCX_DEFAULT.write_text(set_var(text, "SCX_SCHEDULER", sched))
     say(f"{SCX_DEFAULT}: SCX_SCHEDULER={sched}")
     run(["systemctl", "enable", "scx.service"])
     run(["systemctl", "restart", "scx.service"])
@@ -52,18 +42,6 @@ def kparam(args):
     say("The change takes effect after a restart.")
 
 
-def usb_ids():
-    """VID:PID of all connected USB devices."""
-    ids = set()
-    for dev in USB_DEVICES.glob("*"):
-        try:
-            ids.add((dev / "idVendor").read_text().strip() + ":"
-                    + (dev / "idProduct").read_text().strip())
-        except OSError:
-            pass
-    return ids
-
-
 def pollrate(args):
     """USB polling rate of one device (kernel-nazoos patch 0022)."""
     sysfs = Path(catalog.POLLRATE_SYSFS)
@@ -79,7 +57,8 @@ def pollrate(args):
             overrides = catalog.pollrate_parse(opt.split("=", 1)[1])
     if ms == 0:
         overrides.pop(vidpid, None)
-    elif vidpid in usb_ids() or vidpid in overrides:
+    elif vidpid in overrides or vidpid in {
+            d["id"] for d in system.usb_input_devices()}:
         overrides[vidpid] = ms
     else:
         raise Fail("this device is not connected")

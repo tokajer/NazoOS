@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Oct 21 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Shared set_var for KEY=VALUE lines in config files (was private in
+  the kernel module).
+
+-------------------------------------------------------------------
 Wed Oct 21 22:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - New modules proc (small probes without root) and kernel (the kernel

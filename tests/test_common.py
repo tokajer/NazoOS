@@ -4,7 +4,7 @@
 
 import pytest
 
-from nazoos_common import kernelstate, mok
+from nazoos_common import helper, kernelstate, mok
 
 FPR = "SHA1 Fingerprint=AB:CD:EF:01\n"
 
@@ -99,3 +99,32 @@ def test_restart_clears_needs_reboot(monkeypatch, updated, expected):
     monkeypatch.setattr(status.proc, "boot_time", lambda: 100)
     monkeypatch.setattr(status, "booted_snapshot", lambda: 0)
     assert status.collect()["needs_reboot"] is expected
+
+
+def test_set_var_adds_replaces_and_removes():
+    text = 'GRUB_TIMEOUT=8\nGRUB_DEFAULT=0\n'
+    text = helper.set_var(text, "GRUB_DEFAULT", "saved")
+    assert text == 'GRUB_TIMEOUT=8\nGRUB_DEFAULT=saved\n'
+    text = helper.set_var(text, "GRUB_TOP_LEVEL", '"/boot/vmlinuz-x"')
+    assert text.endswith('GRUB_TOP_LEVEL="/boot/vmlinuz-x"\n')
+    text = helper.set_var(text, "GRUB_TOP_LEVEL", None)
+    assert text == 'GRUB_TIMEOUT=8\nGRUB_DEFAULT=saved\n'
+    # Removing a missing variable changes nothing
+    assert helper.set_var(text, "GRUB_TOP_LEVEL", None) == text
+
+
+def test_set_var_appends_after_a_missing_trailing_newline():
+    assert helper.set_var("A=1", "B", "2") == "A=1\nB=2\n"
+    assert helper.set_var("", "B", "2") == "B=2\n"
+
+
+def test_set_var_keeps_backslashes_and_escapes_the_name():
+    assert helper.set_var("A=1\n", "A", r"x\ny") == "A=x\\ny\n"
+    # "." in the name is not a wildcard
+    assert helper.set_var("AxB=1\n", "A.B", "2") == "AxB=1\nA.B=2\n"
+
+
+def test_set_var_only_matches_whole_names_at_line_start():
+    text = '#GRUB_DEFAULT=0\nGRUB_DEFAULT_X=1\n'
+    assert helper.set_var(text, "GRUB_DEFAULT", "saved") == \
+        text + "GRUB_DEFAULT=saved\n"

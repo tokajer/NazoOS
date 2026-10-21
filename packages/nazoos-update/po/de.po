@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-21 20:45+0200\n"
+"POT-Creation-Date: 2026-10-21 21:52+0200\n"
 "PO-Revision-Date: 2026-10-10 15:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,34 +16,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../nazoos-common/nazoos_common/helper.py:76
+#: ../nazoos-common/nazoos_common/helper.py:91
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr "„{cmd}“ ist fehlgeschlagen (Exit-Code {rc})"
 
-#: ../nazoos-common/nazoos_common/helper.py:110
+#: ../nazoos-common/nazoos_common/helper.py:125
 msgid "missing argument"
 msgstr "Angabe fehlt"
 
-#: ../nazoos-common/nazoos_common/helper.py:112
+#: ../nazoos-common/nazoos_common/helper.py:127
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr "ungültige Angabe: {arg}"
 
-#: ../nazoos-common/nazoos_common/helper.py:121
+#: ../nazoos-common/nazoos_common/helper.py:136
 msgid "must run as root (via pkexec)"
 msgstr "muss mit Administratorrechten laufen (über pkexec)"
 
-#: ../nazoos-common/nazoos_common/helper.py:125
+#: ../nazoos-common/nazoos_common/helper.py:140
 msgid "unknown action"
 msgstr "unbekannte Aktion"
 
-#: ../nazoos-common/nazoos_common/helper.py:138
+#: ../nazoos-common/nazoos_common/helper.py:153
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr "Systemfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/helper.py:142
+#: ../nazoos-common/nazoos_common/helper.py:157
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr "Programmfehler: {detail}"
@@ -150,27 +150,27 @@ msgstr[1] "%d Updates sind bereit zur Installation."
 msgid "Updates available"
 msgstr "Updates verfügbar"
 
-#: nazoos_update/root/check.py:101
+#: nazoos_update/root/check.py:84
 msgid "zypper returned no readable answer"
 msgstr "zypper hat keine lesbare Antwort geliefert"
 
-#: nazoos_update/root/check.py:113
+#: nazoos_update/root/check.py:96
 #, python-brace-format
 msgid "zypper reported: {detail}"
 msgstr "zypper meldet: {detail}"
 
-#: nazoos_update/root/check.py:114
+#: nazoos_update/root/check.py:97
 #, python-brace-format
 msgid "zypper failed (exit code {rc})"
 msgstr "zypper ist fehlgeschlagen (Exit-Code {rc})"
 
-#: nazoos_update/root/check.py:165
+#: nazoos_update/root/check.py:148
 msgid "the package sources could not be refreshed (no internet connection?)"
 msgstr ""
 "die Paketquellen konnten nicht aktualisiert werden (keine "
 "Internetverbindung?)"
 
-#: nazoos_update/root/check.py:191
+#: nazoos_update/root/check.py:174 nazoos_update/root/update.py:64
 #, python-brace-format
 msgid "the update needs a decision: {problem}"
 msgstr "das Update braucht eine Entscheidung: {problem}"
@@ -208,12 +208,12 @@ msgstr "%d.%m.%Y %H:%M"
 msgid "the system was not started from a snapshot"
 msgstr "das System wurde nicht von einem Snapshot gestartet"
 
-#: nazoos_update/root/update.py:78
+#: nazoos_update/root/update.py:87
 #, python-brace-format
 msgid "the system update failed (zypper exit code {rc})"
 msgstr "das Systemupdate ist fehlgeschlagen (zypper-Exit-Code {rc})"
 
-#: nazoos_update/root/update.py:105
+#: nazoos_update/root/update.py:114
 msgid ""
 "the update is installed, but the NazoOS kernel key is not enrolled: open "
 "NazoOS Welcome, page Kernel, \"Enroll key\""
@@ -259,11 +259,11 @@ msgstr "Updates"
 msgid "Check now"
 msgstr "Jetzt prüfen"
 
-#: qml/Main.qml:46 qml/Main.qml:340
+#: qml/Main.qml:46 qml/Main.qml:341
 msgid "Details"
 msgstr "Details"
 
-#: qml/Main.qml:57 qml/Main.qml:326
+#: qml/Main.qml:57 qml/Main.qml:327
 msgid "Show details"
 msgstr "Details anzeigen"
 
@@ -276,7 +276,7 @@ msgstr ""
 "nichts installiert oder geändert werden. Wenn jetzt alles funktioniert, "
 "übernimm diesen Stand dauerhaft."
 
-#: qml/Main.qml:73 qml/Main.qml:302
+#: qml/Main.qml:73 qml/Main.qml:303
 msgid "Make permanent"
 msgstr "Dauerhaft übernehmen"
 
@@ -405,11 +405,11 @@ msgstr "Snapshots (Btrfs Assistant)"
 msgid "Packages (Myrlyn)"
 msgstr "Pakete (Myrlyn)"
 
-#: qml/Main.qml:297
+#: qml/Main.qml:298
 msgid "Make this state permanent?"
 msgstr "Diesen Stand dauerhaft übernehmen?"
 
-#: qml/Main.qml:298
+#: qml/Main.qml:299
 msgid ""
 "The system goes back to snapshot %1 for good. The current, broken state is "
 "kept as a snapshot, so this can be undone. Afterwards the computer has to "
@@ -419,31 +419,31 @@ msgstr ""
 "Stand bleibt als Snapshot erhalten, das lässt sich also rückgängig machen. "
 "Danach muss der Computer neu starten."
 
-#: qml/Main.qml:307
+#: qml/Main.qml:308
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: qml/Main.qml:316
+#: qml/Main.qml:317
 msgid "That did not work"
 msgstr "Das hat nicht geklappt"
 
-#: qml/Main.qml:320
+#: qml/Main.qml:321
 msgid "Repair"
 msgstr "Reparieren"
 
-#: qml/Main.qml:331 qml/Main.qml:354
+#: qml/Main.qml:332 qml/Main.qml:355
 msgid "Close"
 msgstr "Schließen"
 
-#: qml/Main.qml:346
+#: qml/Main.qml:347
 msgid "Copy"
 msgstr "Kopieren"
 
-#: qml/Main.qml:350
+#: qml/Main.qml:351
 msgid "Copied to the clipboard."
 msgstr "In die Zwischenablage kopiert."
 
-#: qml/Main.qml:365
+#: qml/Main.qml:366
 msgid "Nothing has run yet."
 msgstr "Bisher ist noch nichts gelaufen."
 

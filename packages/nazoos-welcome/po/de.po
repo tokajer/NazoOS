@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-21 20:45+0200\n"
+"POT-Creation-Date: 2026-10-21 21:40+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,34 +16,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../nazoos-common/nazoos_common/helper.py:76
+#: ../nazoos-common/nazoos_common/helper.py:91
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr "„{cmd}“ ist fehlgeschlagen (Exit-Code {rc})"
 
-#: ../nazoos-common/nazoos_common/helper.py:110
+#: ../nazoos-common/nazoos_common/helper.py:125
 msgid "missing argument"
 msgstr "Angabe fehlt"
 
-#: ../nazoos-common/nazoos_common/helper.py:112
+#: ../nazoos-common/nazoos_common/helper.py:127
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr "ungültige Angabe: {arg}"
 
-#: ../nazoos-common/nazoos_common/helper.py:121
+#: ../nazoos-common/nazoos_common/helper.py:136
 msgid "must run as root (via pkexec)"
 msgstr "muss mit Administratorrechten laufen (über pkexec)"
 
-#: ../nazoos-common/nazoos_common/helper.py:125
+#: ../nazoos-common/nazoos_common/helper.py:140
 msgid "unknown action"
 msgstr "unbekannte Aktion"
 
-#: ../nazoos-common/nazoos_common/helper.py:138
+#: ../nazoos-common/nazoos_common/helper.py:153
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr "Systemfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/helper.py:142
+#: ../nazoos-common/nazoos_common/helper.py:157
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr "Programmfehler: {detail}"
@@ -456,20 +456,18 @@ msgstr "GRUB_CMDLINE_LINUX_DEFAULT nicht in {file} gefunden"
 msgid "gaming mode is not installed (nazoos-session)"
 msgstr "der Gaming-Modus ist nicht installiert (nazoos-session)"
 
-#: nazoos_welcome/root/drives.py:88
-msgid "drive not found or file system not supported"
-msgstr "Laufwerk nicht gefunden oder Dateisystem nicht unterstützt"
-
-#: nazoos_welcome/root/drives.py:90
-msgid "this drive is already in /etc/fstab"
-msgstr "dieses Laufwerk steht schon in /etc/fstab"
-
 #: nazoos_welcome/root/drives.py:94
-#, python-brace-format
-msgid "this drive is already used by the system ({mountpoint})"
-msgstr "dieses Laufwerk wird schon vom System benutzt ({mountpoint})"
+msgid "this drive cannot be added here (removable or system drive)"
+msgstr ""
+"dieses Laufwerk kann hier nicht hinzugefügt werden (Wechseldatenträger oder "
+"Systemlaufwerk)"
 
-#: nazoos_welcome/root/drives.py:129
+#: nazoos_welcome/root/drives.py:124
+#, python-brace-format
+msgid "the drive could not be mounted (exit code {rc})"
+msgstr "das Laufwerk konnte nicht eingehängt werden (Exit-Code {rc})"
+
+#: nazoos_welcome/root/drives.py:139
 msgid "only drives added by NazoOS Welcome can be removed here"
 msgstr ""
 "hier lassen sich nur Laufwerke entfernen, die NazoOS Welcome hinzugefügt hat"
@@ -564,28 +562,28 @@ msgstr "es ist kein NVIDIA-Treiber installiert"
 msgid "still failing: {units}"
 msgstr "schlägt weiterhin fehl: {units}"
 
-#: nazoos_welcome/root/tuning.py:21
+#: nazoos_welcome/root/tuning.py:22
 #, python-brace-format
 msgid "{scheduler} is not part of the installed scx package"
 msgstr "{scheduler} gehört nicht zum installierten scx-Paket"
 
-#: nazoos_welcome/root/tuning.py:48
+#: nazoos_welcome/root/tuning.py:38
 msgid "unknown kernel option"
 msgstr "unbekannte Kernel-Option"
 
-#: nazoos_welcome/root/tuning.py:71
+#: nazoos_welcome/root/tuning.py:49
 msgid "needs the NazoOS kernel"
 msgstr "braucht den NazoOS-Kernel"
 
-#: nazoos_welcome/root/tuning.py:74
+#: nazoos_welcome/root/tuning.py:52
 msgid "invalid device id"
 msgstr "ungültige Geräte-ID"
 
-#: nazoos_welcome/root/tuning.py:85
+#: nazoos_welcome/root/tuning.py:64
 msgid "this device is not connected"
 msgstr "dieses Gerät ist nicht angeschlossen"
 
-#: nazoos_welcome/root/tuning.py:88
+#: nazoos_welcome/root/tuning.py:67
 msgid ""
 "too many devices with their own polling rate; reset one of them to the "
 "device default first"
@@ -2088,3 +2086,13 @@ msgstr "Mehr erfahren"
 #: qml/pages/WelcomePage.qml:174
 msgid "Show this window at login"
 msgstr "Dieses Fenster bei der Anmeldung anzeigen"
+
+#~ msgid "drive not found or file system not supported"
+#~ msgstr "Laufwerk nicht gefunden oder Dateisystem nicht unterstützt"
+
+#~ msgid "this drive is already in /etc/fstab"
+#~ msgstr "dieses Laufwerk steht schon in /etc/fstab"
+
+#, python-brace-format
+#~ msgid "this drive is already used by the system ({mountpoint})"
+#~ msgstr "dieses Laufwerk wird schon vom System benutzt ({mountpoint})"

@@ -2,23 +2,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Extra drives mounted at boot (fstab lines with catalog.FSTAB_MARKER)."""
 
-import json
 import os
 import re
 from pathlib import Path
 
-from .. import catalog
+from .. import catalog, system
 from .base import Fail, arg, caller, output, run, say
 
 FSTAB = Path("/etc/fstab")
 # suse-module-tools blacklists ntfs3; an /etc file of the same name wins
 NTFS3_BLACKLIST = "60-blacklist_fs-ntfs3.conf"
-
-
-def lsblk():
-    data = json.loads(output(["lsblk", "--json", "--list", "--output",
-                              "PATH,UUID,FSTYPE,LABEL,MOUNTPOINTS"]))
-    return data.get("blockdevices", [])
 
 
 def sanitize(name):
@@ -81,20 +74,27 @@ def without_entry(text, uuid):
     return "\n".join(out) + "\n", mnt
 
 
+def _undo_add(uuid, mnt, created):
+    _write_fstab(without_entry(FSTAB.read_text(), uuid)[0])
+    run(["systemctl", "daemon-reload"], check=False)
+    if created:
+        try:
+            mnt.rmdir()
+        except OSError:
+            pass
+
+
 def automount_add(args):
     uuid = arg(args, 0)
-    dev = next((d for d in lsblk() if d.get("uuid") == uuid), None)
-    if dev is None or dev.get("fstype") not in catalog.AUTOMOUNT_FS:
-        raise Fail("drive not found or file system not supported")
-    if uuid in FSTAB.read_text():
-        raise Fail("this drive is already in /etc/fstab")
-    # Only drives that are unmounted or mounted on demand by Dolphin
-    for mp in dev.get("mountpoints") or []:
-        if mp and not mp.startswith("/run/media/"):
-            raise Fail("this drive is already used by the system "
-                       "({mountpoint})", mountpoint=mp)
+    # The GUI only offers non-removable extra drives; the helper is the
+    # trust boundary and applies the same rule (system.drives)
+    dev = next((d for d in system.drives()
+                if d["uuid"] == uuid and not d["managed"]), None)
+    if dev is None:
+        raise Fail("this drive cannot be added here "
+                   "(removable or system drive)")
     fstype = dev["fstype"]
-    base = sanitize(dev.get("label") or "") or uuid[:8]
+    base = sanitize(dev["label"]) or uuid[:8]
     mnt = Path(catalog.MOUNT_BASE, base)
     n = 2
     while mnt.exists() and any(mnt.iterdir()):
@@ -103,6 +103,7 @@ def automount_add(args):
     uid = caller()[0]
     gid = int(output(["id", "-g", str(uid)]).strip() or 100)
     fstype, opts = mount_options(fstype, uid, gid)
+    created = not mnt.exists()
     mnt.mkdir(parents=True, exist_ok=True)
     line = f"UUID={uuid} {mnt} {fstype} {opts} 0 0"
     text = FSTAB.read_text()
@@ -110,8 +111,17 @@ def automount_add(args):
         text += "\n"
     _write_fstab(text + f"{catalog.FSTAB_MARKER}\n{line}\n")
     say(line)
-    run(["systemctl", "daemon-reload"])
-    run(["mount", str(mnt)])
+    # A failed mount must not leave a boot-time entry (or a stray directory)
+    # behind, whether mount returns non-zero or something raises
+    try:
+        run(["systemctl", "daemon-reload"])
+        rc = run(["mount", str(mnt)], check=False)
+    except Exception:
+        _undo_add(uuid, mnt, created)
+        raise
+    if rc != 0:
+        _undo_add(uuid, mnt, created)
+        raise Fail("the drive could not be mounted (exit code {rc})", rc=rc)
     # A fresh Linux file system belongs to root: give it to the user so
     # Steam can put a library there. Existing data is left alone.
     if fstype in ("ext4", "btrfs", "xfs"):

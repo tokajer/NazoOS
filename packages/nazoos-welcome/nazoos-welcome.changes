@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Wed Oct 21 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The root helper accepts only drives the Welcome page offers (not
+  removable, not a system drive), and takes the fstab line back when
+  mounting fails.
+- One sysfs walk for the USB polling rate; scx scheduler uses the shared
+  config line setter.
+
+-------------------------------------------------------------------
 Wed Oct 21 22:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - "Try again" in the error dialog now repeats exactly the action that

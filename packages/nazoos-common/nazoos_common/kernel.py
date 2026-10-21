@@ -79,15 +79,6 @@ def top_entry(cfg_text):
     return entry, ""
 
 
-def _set_var(text, name, value):
-    """Set NAME=VALUE in /etc/default/grub text; VALUE None removes it."""
-    line = f"{name}={value}" if value is not None else None
-    if re.search(rf"^{name}=", text, re.M):
-        return re.sub(rf"^{name}=.*\n?", line + "\n" if line else "", text,
-                      flags=re.M)
-    return text + (line + "\n" if line else "")
-
-
 def _update_grub_default(update):
     """Apply UPDATE (text -> text) to /etc/default/grub; True if changed."""
     text = GRUB_DEFAULT_FILE.read_text()
@@ -107,8 +98,8 @@ def ensure_grub_default(log=print, flavor="nazoos"):
     if not path:
         log(f"no kernel-{flavor} in /boot")
         return False
-    changed = _update_grub_default(lambda t: _set_var(
-        _set_var(t, "GRUB_DEFAULT", "saved"), "GRUB_TOP_LEVEL", f'"{path}"'))
+    changed = _update_grub_default(lambda t: helper.set_var(
+        helper.set_var(t, "GRUB_DEFAULT", "saved"), "GRUB_TOP_LEVEL", f'"{path}"'))
     try:
         cfg = GRUB_CFG.read_text(errors="replace")
     except OSError:
@@ -128,7 +119,7 @@ def ensure_grub_default(log=print, flavor="nazoos"):
 
 def clear_grub_top_level(log=print):
     """Root only: back to the openSUSE behaviour (kernel-nazoos removed)."""
-    if _update_grub_default(lambda t: _set_var(t, "GRUB_TOP_LEVEL", None)):
+    if _update_grub_default(lambda t: helper.set_var(t, "GRUB_TOP_LEVEL", None)):
         log("boot menu: openSUSE default order")
         helper.run(["grub2-mkconfig", "-o", str(GRUB_CFG)])
     helper.run(["grub2-set-default", "0"])

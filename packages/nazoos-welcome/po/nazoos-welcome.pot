@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-21 20:45+0200\n"
+"POT-Creation-Date: 2026-10-21 21:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,34 +17,34 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../nazoos-common/nazoos_common/helper.py:76
+#: ../nazoos-common/nazoos_common/helper.py:91
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:110
+#: ../nazoos-common/nazoos_common/helper.py:125
 msgid "missing argument"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:112
+#: ../nazoos-common/nazoos_common/helper.py:127
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:121
+#: ../nazoos-common/nazoos_common/helper.py:136
 msgid "must run as root (via pkexec)"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:125
+#: ../nazoos-common/nazoos_common/helper.py:140
 msgid "unknown action"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:138
+#: ../nazoos-common/nazoos_common/helper.py:153
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:142
+#: ../nazoos-common/nazoos_common/helper.py:157
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr ""
@@ -445,20 +445,16 @@ msgstr ""
 msgid "gaming mode is not installed (nazoos-session)"
 msgstr ""
 
-#: nazoos_welcome/root/drives.py:88
-msgid "drive not found or file system not supported"
-msgstr ""
-
-#: nazoos_welcome/root/drives.py:90
-msgid "this drive is already in /etc/fstab"
-msgstr ""
-
 #: nazoos_welcome/root/drives.py:94
-#, python-brace-format
-msgid "this drive is already used by the system ({mountpoint})"
+msgid "this drive cannot be added here (removable or system drive)"
 msgstr ""
 
-#: nazoos_welcome/root/drives.py:129
+#: nazoos_welcome/root/drives.py:124
+#, python-brace-format
+msgid "the drive could not be mounted (exit code {rc})"
+msgstr ""
+
+#: nazoos_welcome/root/drives.py:139
 msgid "only drives added by NazoOS Welcome can be removed here"
 msgstr ""
 
@@ -543,28 +539,28 @@ msgstr ""
 msgid "still failing: {units}"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:21
+#: nazoos_welcome/root/tuning.py:22
 #, python-brace-format
 msgid "{scheduler} is not part of the installed scx package"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:48
+#: nazoos_welcome/root/tuning.py:38
 msgid "unknown kernel option"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:71
+#: nazoos_welcome/root/tuning.py:49
 msgid "needs the NazoOS kernel"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:74
+#: nazoos_welcome/root/tuning.py:52
 msgid "invalid device id"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:85
+#: nazoos_welcome/root/tuning.py:64
 msgid "this device is not connected"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:88
+#: nazoos_welcome/root/tuning.py:67
 msgid ""
 "too many devices with their own polling rate; reset one of them to the "
 "device default first"

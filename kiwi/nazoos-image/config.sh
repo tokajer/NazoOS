@@ -32,16 +32,29 @@ systemctl enable snapper-timeline.timer snapper-cleanup.timer
 # tool works without a running firewalld, as in this chroot
 systemctl enable firewalld.service
 firewall-offline-cmd --set-default-zone=nazoos
-# Apply our presets (nazoos-tweaks) again: in the image build a service
-# package may be installed before the preset file exists
-systemctl preset coolercontrold.service fwupd-refresh.timer nazoos-xone-firmware.timer
-# nazoos-update: system timer (repo check) and user timer (notifications)
-systemctl preset nazoos-update-check.timer nazoos-update-label.path
-systemctl --global preset nazoos-update-notify.timer
-# nazoos-session: gaming mode at boot (system) and session start (user)
-systemctl preset nazoos-session-boot.service
-systemctl --global preset nazoos-session-gaming.service nazoos-session-desktop.service \
-  nazoos-session-failed.service
+# Apply the presets of our packages (90-nazoos*.preset) again: in the
+# image build a service package may be installed before the preset file
+# exists. Units of packages that are not in this profile are skipped
+preset_units() {
+  local presets=$1 units=$2 file unit
+  shopt -s nullglob
+  for file in "$presets"/90-nazoos*.preset; do
+    while read -r _ unit _; do
+      if [ -e "$units/$unit" ]; then
+        echo "$unit"
+      fi
+    done < <(grep -E '^enable[[:space:]]+' "$file" || true)
+  done
+  shopt -u nullglob
+}
+mapfile -t system_units < <(preset_units /usr/lib/systemd/system-preset /usr/lib/systemd/system)
+mapfile -t user_units < <(preset_units /usr/lib/systemd/user-preset /usr/lib/systemd/user)
+if [ ${#system_units[@]} -gt 0 ]; then
+  systemctl preset "${system_units[@]}"
+fi
+if [ ${#user_units[@]} -gt 0 ]; then
+  systemctl --global preset "${user_units[@]}"
+fi
 # sched_ext: scx_lavd as the preselected scheduler (made for gaming
 # latency; the scx package ships scx_flash). scx itself stays off until
 # it is switched on in nazoos-welcome
@@ -75,11 +88,6 @@ if has_profile live; then
   # installed systems keep the per-user layout from System Settings
   printf '[Wayland]\nFollowLocale1=true\n' > /home/live/.config/kwinrc
   chown live:users /home/live/.config/kwinrc
-  # Handheld services (nazoos-deck, live profile only): they start only on
-  # matching hardware; desktop installs remove the packages
-  systemctl preset jupiter-fan-control.service pipewire-sysconf.service \
-    wireplumber-sysconf.service
-  systemctl --global preset steamos-powerbuttond.service
 fi
 
 # Trust the signing keys of the online repos below. OBS builds from its
