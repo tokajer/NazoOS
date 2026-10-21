@@ -45,6 +45,20 @@ Choose from above solutions by number or cancel [1/2/c/d/?] (c): </description>
 </stream>
 """
 
+# zypper >= 1.14.9 (VM 2026-10-21): "Detailed information:" + "- " lines
+DETAILED_XML = """<?xml version='1.0'?>
+<stream>
+<prompt id="1">
+<description>Problem: 1: Detailed information:
+- nothing provides &apos;nazoos-x&apos; needed by the to be installed foo-2-1.noarch
+- the installed foo-1-1.noarch does not belong to a distupgrade repository and must be replaced
+ Solution 1: deinstallation of foo-1-1.noarch
+</description>
+<text>Choose from above solutions by number or cancel</text>
+</prompt>
+</stream>
+"""
+
 
 def fake_zypper(monkeypatch, helper, stdout, rc=0):
     calls = []
@@ -80,6 +94,14 @@ def test_dup_preview_problem_from_prompt(monkeypatch, update_helper):
     assert update_helper.dup_preview() == (None, [
         "nothing provides 'libfoo.so.1' needed by the to be installed "
         "bar-1.0-1.1.x86_64"])
+
+
+def test_dup_preview_problem_detailed(monkeypatch, update_helper):
+    fake_zypper(monkeypatch, update_helper, DETAILED_XML, rc=4)
+    assert update_helper.dup_preview() == (None, [
+        "nothing provides 'nazoos-x' needed by the to be installed "
+        "foo-2-1.noarch; the installed foo-1-1.noarch does not belong to a "
+        "distupgrade repository and must be replaced"])
 
 
 def test_reboot_hint_only_for_desktop_plasma(update_helper):
@@ -204,3 +226,26 @@ def test_label_waits_for_snapper_cleanup(monkeypatch, update_helper):
     monkeypatch.setattr(update_helper.time, "sleep", lambda s: None)
     update_helper.wait_for_cleanup()
     assert calls == ["systemctl"] * 3
+
+
+def test_label_holds_the_lock_while_naming(monkeypatch, tmp_path,
+                                           update_helper):
+    lock = tmp_path / "label.lock"
+    seen = []
+
+    def name_snapshots(update_after):
+        # A second label run (the path unit) must not get in between
+        with open(lock) as other:
+            with pytest.raises(BlockingIOError):
+                update_helper.fcntl.flock(
+                    other, update_helper.fcntl.LOCK_EX
+                    | update_helper.fcntl.LOCK_NB)
+        seen.append(update_after)
+        return 2
+
+    monkeypatch.setattr(update_helper, "LABEL_LOCK", str(lock))
+    monkeypatch.setattr(update_helper, "Path", lambda p: tmp_path)
+    monkeypatch.setattr(update_helper, "wait_for_cleanup", lambda: None)
+    monkeypatch.setattr(update_helper, "name_snapshots", name_snapshots)
+    assert update_helper.label_snapshots(update_after=3) == 2
+    assert seen == [3]

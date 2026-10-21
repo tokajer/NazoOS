@@ -12,6 +12,7 @@ The last output line "@@error {...}" carries a message for the user
 (nazoos_common.errors).
 """
 
+import fcntl
 import gettext
 import json
 import os
@@ -50,6 +51,10 @@ ZYPPER_SCRIPT_FAILED = 107
 # .x86_64) scriptlet failed, exit status 255"
 SCRIPTLET_FAILED = re.compile(r"%\w+\((\S+)-[^-]+-[^-]+\) scriptlet failed")
 # Package names that need a restart after the update
+# Held while snapshots are listed and named: the path unit's run and the
+# one in update() must not overlap (VM 2026-10-21: the path unit listed
+# before update() named its pair and then wrote "After software change")
+LABEL_LOCK = "/run/nazoos-update-label.lock"
 REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
                          r"libQt6|plasma6-workspace|plasma6-desktop|kwin|sddm)")
 
@@ -87,10 +92,13 @@ def prompt_problems(root):
         for line in text.splitlines():
             if line.strip().startswith("Solution"):
                 break
-            if line.strip():
-                lines.append(line.strip())
-        lines[0] = re.sub(r"^Problem:\s*(\d+:\s*)?", "", lines[0])
-        problems.append(" ".join(lines))
+            # zypper >= 1.14.9: "Detailed information:" + "- " lines
+            line = line.strip().removeprefix("- ")
+            if line:
+                lines.append(line)
+        lines[0] = re.sub(r"^Problem:\s*(\d+:\s*)?"
+                          r"(Detailed information:\s*)?", "", lines[0])
+        problems.append("; ".join(line for line in lines if line))
     return problems
 
 
@@ -389,6 +397,12 @@ def label_snapshots(update_after=None):
     if not Path("/usr/bin/snapper").exists():
         return 0
     wait_for_cleanup()
+    with open(LABEL_LOCK, "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        return name_snapshots(update_after)
+
+
+def name_snapshots(update_after):
     named = 0
     _ = system_translation().gettext
     # xgettext:no-python-format

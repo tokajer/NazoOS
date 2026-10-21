@@ -5,6 +5,12 @@ Wed Oct 21 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
   versions from the left instead, so the new version stays visible.
 - The details window follows new output like a terminal, unless it
   was scrolled up to read.
+- The boot menu names of an update's snapshots are no longer
+  overwritten with "software change" by the background naming run.
+- The summary no longer says "up to date" when the check failed or the
+  update needs a decision.
+- Dependency problems are shown without zypper's "Detailed
+  information" prefix.
 
 -------------------------------------------------------------------
 Tue Oct 20 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>

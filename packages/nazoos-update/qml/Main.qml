@@ -139,7 +139,8 @@ Kirigami.ApplicationWindow {
                 contentItem: RowLayout {
                     spacing: Kirigami.Units.largeSpacing
                     Kirigami.Icon {
-                        source: root.count > 0 ? "system-software-update"
+                        source: root.error ? "dialog-warning"
+                              : root.count > 0 ? "system-software-update"
                               : (root.st.checked ? "checkmark" : "view-refresh")
                         Layout.preferredWidth: Kirigami.Units.iconSizes.huge
                         Layout.preferredHeight: Kirigami.Units.iconSizes.huge
@@ -150,7 +151,10 @@ Kirigami.ApplicationWindow {
                             level: 2
                             Layout.fillWidth: true
                             wrapMode: Text.WordWrap
-                            text: root.count > 0
+                            // the banner above says why; never "up to date" then
+                            text: root.error === "conflict" ? L.tr("Update on hold")
+                                  : root.error ? L.tr("Updates could not be checked")
+                                  : root.count > 0
                                   ? L.trn("%1 update available", "%1 updates available", root.count)
                                   : (root.st.checked ? L.tr("The system is up to date") : L.tr("Not checked yet"))
                         }

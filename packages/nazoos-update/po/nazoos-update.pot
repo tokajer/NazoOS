@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-20 12:06+0200\n"
+"POT-Creation-Date: 2026-10-21 16:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -66,70 +66,70 @@ msgstr ""
 msgid "Something went wrong."
 msgstr ""
 
-#: helper/nazoos-update-helper:130
+#: helper/nazoos-update-helper:138
 msgid "zypper returned no readable answer"
 msgstr ""
 
-#: helper/nazoos-update-helper:142
+#: helper/nazoos-update-helper:150
 #, python-brace-format
 msgid "zypper reported: {detail}"
 msgstr ""
 
-#: helper/nazoos-update-helper:143
+#: helper/nazoos-update-helper:151
 #, python-brace-format
 msgid "zypper failed (exit code {rc})"
 msgstr ""
 
-#: helper/nazoos-update-helper:194
+#: helper/nazoos-update-helper:202
 msgid "the package sources could not be refreshed (no internet connection?)"
 msgstr ""
 
-#: helper/nazoos-update-helper:220
+#: helper/nazoos-update-helper:228
 #, python-brace-format
 msgid "the update needs a decision: {problem}"
 msgstr ""
 
-#: helper/nazoos-update-helper:283
+#: helper/nazoos-update-helper:291
 #, python-brace-format
 msgid "the system update failed (zypper exit code {rc})"
 msgstr ""
 
-#: helper/nazoos-update-helper:306
+#: helper/nazoos-update-helper:314
 msgid ""
 "the update is installed, but the NazoOS kernel key is not enrolled: open "
 "NazoOS Welcome, page Kernel, \"Enroll key\""
 msgstr ""
 
-#: helper/nazoos-update-helper:352
+#: helper/nazoos-update-helper:360
 msgid "Before update"
 msgstr ""
 
-#: helper/nazoos-update-helper:353
+#: helper/nazoos-update-helper:361
 msgid "Before software change"
 msgstr ""
 
-#: helper/nazoos-update-helper:355
+#: helper/nazoos-update-helper:363
 msgid "After update"
 msgstr ""
 
-#: helper/nazoos-update-helper:356
+#: helper/nazoos-update-helper:364
 msgid "After software change"
 msgstr ""
 
-#: helper/nazoos-update-helper:358
+#: helper/nazoos-update-helper:366
 msgid "Automatic snapshot"
 msgstr ""
 
-#: helper/nazoos-update-helper:365
+#: helper/nazoos-update-helper:373
 msgid "Before rollback"
 msgstr ""
 
-#: helper/nazoos-update-helper:395
+#: helper/nazoos-update-helper:409
 #, no-python-format
 msgid "%Y-%m-%d %H:%M"
 msgstr ""
 
-#: helper/nazoos-update-helper:428
+#: helper/nazoos-update-helper:442
 msgid "the system was not started from a snapshot"
 msgstr ""
 
@@ -249,159 +249,167 @@ msgstr ""
 msgid "Check now"
 msgstr ""
 
-#: qml/Main.qml:45 qml/Main.qml:310
+#: qml/Main.qml:45 qml/Main.qml:324
 msgid "Details"
 msgstr ""
 
-#: qml/Main.qml:56 qml/Main.qml:296
+#: qml/Main.qml:56 qml/Main.qml:310
 msgid "Show details"
 msgstr ""
 
-#: qml/Main.qml:68
+#: qml/Main.qml:69
 msgid ""
 "The system was started from snapshot %1. It is read-only: nothing can be "
 "installed or changed. If everything works now, make this state permanent."
 msgstr ""
 
-#: qml/Main.qml:71 qml/Main.qml:272
+#: qml/Main.qml:72 qml/Main.qml:286
 msgid "Make permanent"
 msgstr ""
 
-#: qml/Main.qml:85
+#: qml/Main.qml:86
 msgid "The snapshot was made permanent. Restart the computer to start from it."
 msgstr ""
 
-#: qml/Main.qml:86
+#: qml/Main.qml:87
 msgid "Updates were installed. Restart the computer to use them."
 msgstr ""
 
-#: qml/Main.qml:89
+#: qml/Main.qml:90
 msgid "Restart now"
 msgstr ""
 
-#: qml/Main.qml:101
+#: qml/Main.qml:102
 msgid ""
 "The package sources could not be reached. Check the internet connection and "
 "try again."
 msgstr ""
 
-#: qml/Main.qml:104
+#: qml/Main.qml:105
 msgid "Try again"
 msgstr ""
 
-#: qml/Main.qml:114
+#: qml/Main.qml:115
 msgid "The update needs a decision that cannot be made automatically:"
 msgstr ""
 
-#: qml/Main.qml:116
+#: qml/Main.qml:117
 msgid ""
 "In Myrlyn, Updates → Dist-Upgrade shows the conflict and the solutions to "
 "choose from."
 msgstr ""
 
-#: qml/Main.qml:119
+#: qml/Main.qml:120
 msgid "Open Myrlyn"
 msgstr ""
 
-#: qml/Main.qml:130
+#: qml/Main.qml:131
 msgid ""
 "The download servers do not have the newest Tumbleweed version yet (system: "
 "%1, servers: %2). Tumbleweed updates will appear as soon as they have it, "
 "usually within a day. NazoOS's own packages can be updated now."
 msgstr ""
 
-#: qml/Main.qml:153
+#: qml/Main.qml:155
+msgid "Update on hold"
+msgstr ""
+
+#: qml/Main.qml:156
+msgid "Updates could not be checked"
+msgstr ""
+
+#: qml/Main.qml:158
 msgid "%1 update available"
 msgid_plural "%1 updates available"
 msgstr[0] ""
 msgstr[1] ""
 
-#: qml/Main.qml:154
+#: qml/Main.qml:159
 msgid "Not checked yet"
 msgstr ""
 
-#: qml/Main.qml:154
+#: qml/Main.qml:159
 msgid "The system is up to date"
 msgstr ""
 
-#: qml/Main.qml:160
+#: qml/Main.qml:165
 msgid "Last check: %1"
 msgstr ""
 
-#: qml/Main.qml:161
+#: qml/Main.qml:166
 msgid "A restart will be needed afterwards."
 msgstr ""
 
-#: qml/Main.qml:167
+#: qml/Main.qml:172
 msgid ""
 "Before the update a snapshot is taken automatically. If something breaks, "
 "pick it in the boot menu under \"Start bootloader from a read-only "
 "snapshot\"."
 msgstr ""
 
-#: qml/Main.qml:171
+#: qml/Main.qml:176
 msgid "Update now"
 msgstr ""
 
-#: qml/Main.qml:184
+#: qml/Main.qml:189
 msgid "System packages"
 msgstr ""
 
-#: qml/Main.qml:200
+#: qml/Main.qml:214
 msgid "new"
 msgstr ""
 
-#: qml/Main.qml:201
+#: qml/Main.qml:215
 msgid "removed"
 msgstr ""
 
-#: qml/Main.qml:211
+#: qml/Main.qml:225
 msgid "Flatpak apps and runtimes"
 msgstr ""
 
-#: qml/Main.qml:227
+#: qml/Main.qml:241
 msgid "Snapshots (Btrfs Assistant)"
 msgstr ""
 
-#: qml/Main.qml:232
+#: qml/Main.qml:246
 msgid "Packages (Myrlyn)"
 msgstr ""
 
-#: qml/Main.qml:267
+#: qml/Main.qml:281
 msgid "Make this state permanent?"
 msgstr ""
 
-#: qml/Main.qml:268
+#: qml/Main.qml:282
 msgid ""
 "The system goes back to snapshot %1 for good. The current, broken state is "
 "kept as a snapshot, so this can be undone. Afterwards the computer has to "
 "restart."
 msgstr ""
 
-#: qml/Main.qml:277
+#: qml/Main.qml:291
 msgid "Cancel"
 msgstr ""
 
-#: qml/Main.qml:286
+#: qml/Main.qml:300
 msgid "That did not work"
 msgstr ""
 
-#: qml/Main.qml:290
+#: qml/Main.qml:304
 msgid "Repair"
 msgstr ""
 
-#: qml/Main.qml:301 qml/Main.qml:324
+#: qml/Main.qml:315 qml/Main.qml:338
 msgid "Close"
 msgstr ""
 
-#: qml/Main.qml:316
+#: qml/Main.qml:330
 msgid "Copy"
 msgstr ""
 
-#: qml/Main.qml:320
+#: qml/Main.qml:334
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: qml/Main.qml:334
+#: qml/Main.qml:377
 msgid "Nothing has run yet."
 msgstr ""
