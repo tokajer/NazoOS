@@ -11,6 +11,8 @@ Wed Oct 21 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
   update needs a decision.
 - Dependency problems are shown without zypper's "Detailed
   information" prefix.
+- "Check now" no longer opens an error dialog on top of the warning
+  that already explains the conflict or the connection problem.
 
 -------------------------------------------------------------------
 Tue Oct 20 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>

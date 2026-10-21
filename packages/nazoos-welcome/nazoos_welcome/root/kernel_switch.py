@@ -49,7 +49,12 @@ def kernel_install(_args):
     pkgs = [catalog.KERNEL_PACKAGE] + [p for p in kmps if p not in missing] \
         + extra
     queued = prepare_mok(alias, pkgs)
-    run(ZYPPER_IN + pkgs)
+    # Modules left from an earlier install stay out of "zypper in": a
+    # newer build of them for the same kernel conflicts with the old one
+    # and ends zypper with 4 (VM 2026-10-19); they are swapped below
+    run(ZYPPER_IN + [p for p in pkgs
+                     if p == catalog.KERNEL_PACKAGE or not rpm_installed(p)])
+    swap_rebuilds(alias, pkgs[1:])
     kernelstate.STATE.mkdir(parents=True, exist_ok=True)
     kernelstate.PREFER.touch()
     kernelstate.write_boots({"count": 0})
@@ -151,7 +156,13 @@ def kernel_sync(_args):
            if not rpm_installed(p) and repo_has(alias, p)]
     if new:
         run(ZYPPER_IN + new)
-    rebuilt = kmp_rebuilds(alias, wanted)
+    swap_rebuilds(alias, wanted)
+
+
+def swap_rebuilds(alias, names):
+    """Replace installed modules of NAMES that the repo has in a newer
+    build for the same kernel version."""
+    rebuilt = kmp_rebuilds(alias, names)
     if rebuilt:
         # KMPs are multiversion and conflict per kernel version: zypper
         # dup keeps the old build of a module rebuilt for the same kernel

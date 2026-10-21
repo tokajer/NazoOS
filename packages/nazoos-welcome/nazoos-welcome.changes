@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Oct 21 16:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Installing the NazoOS kernel again no longer fails when kernel
+  modules from an earlier install are still there; newer builds of
+  them are swapped in like after an update.
+
+-------------------------------------------------------------------
 Tue Oct 20 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Steam Deck/handheld card recognizes the installed nazoos-deck

@@ -269,6 +269,9 @@ Kirigami.ApplicationWindow {
         function onActionFinished(action, ok, message) {
             if (ok) {
                 root.showPassiveNotification(message)
+            } else if (action === "check"
+                       && (root.error === "conflict" || root.error === "refresh")) {
+                // The banner above already says it, with its own button
             } else {
                 errorDialog.subtitle = message
                 errorDialog.open()
