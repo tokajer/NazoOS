@@ -137,7 +137,7 @@ APPS = [
      "kind": "rpm", "refs": ["hplip"], "icon": "printer",
      "summary": "Drivers for HP printers and scanners"},
     # Steam Deck only: card on the Gaming page, not on the Apps page
-    # (category not in APP_CATEGORIES). Opt-in, because its install
+    # (category in HIDDEN_CATEGORIES). Opt-in, because its install
     # script downloads Valve's proprietary dock firmware updater
     {"id": "deckdock", "name": "Steam Deck dock firmware", "category": "handheld",
      "kind": "rpm", "refs": ["jupiter-dock-updater-bin"],
@@ -158,6 +158,9 @@ WAYDROID_SOFTWARE = {"ro.hardware.gralloc": "default",
                      "ro.hardware.egl": "swiftshader"}
 
 APP_CATEGORIES = ["gaming", "social", "media", "office", "hardware"]
+# Categories whose apps have their own card elsewhere, not on the Apps page
+# (deckdock: Gaming page, Steam Deck only)
+HIDDEN_CATEGORIES = {"handheld"}
 
 # systemd services that can be switched on and off.
 # "package" is installed first if it is missing; "user" units run per user.

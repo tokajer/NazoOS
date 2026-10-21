@@ -122,6 +122,13 @@ More in [docs/kernel.md](docs/kernel.md).
 
 Every push to this repository builds the packages and images in OBS (`home:Tokajer:nazoos:devel`).
 
+### Your own fork
+
+Forks are welcome under the licenses, but not under the name or logo NazoOS (see [`TRADEMARK.md`](TRADEMARK.md)).
+The OBS project `home:Tokajer:nazoos` (devel, release, kernel) and the GitHub repository URL are written into several files.
+`git grep -n 'home:Tokajer'` and `git grep -n 'tokajer/NazoOS'` list them: workflows, kernel scripts, nazoos-repos, the kernel repository URL in `packages/nazoos-common/nazoos_common/kernel.py`, KIWI.
+The GitHub secrets the workflows need are described at the top of each file in `.github/workflows/`.
+
 ## Licensing
 
 This repository is [REUSE](https://reuse.software) compliant; the mapping lives in `REUSE.toml`, the license texts in `LICENSES/`.

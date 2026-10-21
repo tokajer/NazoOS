@@ -36,3 +36,10 @@ def test_repo_path_ignores_the_mirror_host():
 
 def test_every_action_has_a_label_and_the_other_way_round():
     assert set(ACTIONS) == set(catalog.ACTION_LABELS)
+
+
+def test_every_app_category_is_shown_or_hidden_on_purpose():
+    shown = set(catalog.APP_CATEGORIES)
+    assert not shown & catalog.HIDDEN_CATEGORIES
+    for a in catalog.APPS:
+        assert a["category"] in shown | catalog.HIDDEN_CATEGORIES, a["id"]

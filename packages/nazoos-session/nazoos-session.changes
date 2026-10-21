@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Oct 22 00:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- German messages of the gaming mode use the formal form (Sie) like the apps.
+
+-------------------------------------------------------------------
 Wed Oct 21 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - nazoos-session-ctl takes an optional root directory for tests

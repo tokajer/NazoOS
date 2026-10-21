@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Oct 22 00:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Hidden app categories are listed explicitly; a test catches typos.
+
+-------------------------------------------------------------------
 Wed Oct 21 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The root helper accepts only drives the Welcome page offers (not

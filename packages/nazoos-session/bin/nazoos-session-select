@@ -69,12 +69,12 @@ report_failed() {
     vulkan)
       body=$(msg \
         "The graphics card offers no Vulkan (driver missing, or a virtual machine). You are on the desktop instead." \
-        "Die Grafikkarte bietet kein Vulkan (Treiber fehlt oder virtuelle Maschine). Du bist stattdessen auf dem Desktop.")
+        "Die Grafikkarte bietet kein Vulkan (Treiber fehlt oder virtuelle Maschine). Sie sind stattdessen auf dem Desktop.")
       ;;
     *)
       body=$(msg \
         "Gamescope or Steam stopped right at the start. You are on the desktop instead." \
-        "Gamescope oder Steam ist gleich beim Start abgebrochen. Du bist stattdessen auf dem Desktop.")
+        "Gamescope oder Steam ist gleich beim Start abgebrochen. Sie sind stattdessen auf dem Desktop.")
       ;;
   esac
   command -v notify-send >/dev/null || return 0
@@ -137,7 +137,7 @@ esac
 
 if [ "$target" = gaming ] && ! command -v steam >/dev/null; then
   notify_error "$(msg "Steam is not installed. Install it in NazoOS Welcome → Apps." \
-    "Steam ist nicht installiert. Installiere es in NazoOS Welcome → Apps.")"
+    "Steam ist nicht installiert. Installieren Sie es in NazoOS Welcome → Apps.")"
   exit 1
 fi
 
