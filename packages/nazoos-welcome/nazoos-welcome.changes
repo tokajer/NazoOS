@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 22 01:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Codecs: when Packman's 32-bit libraries lag behind Tumbleweed
+  (missing sonames), switch only the 64-bit packages and keep the
+  32-bit ones at openSUSE; the repair page no longer calls that mix.
+
+-------------------------------------------------------------------
 Thu Oct 22 00:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Hidden app categories are listed explicitly; a test catches typos.

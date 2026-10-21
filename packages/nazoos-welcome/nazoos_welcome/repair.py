@@ -93,14 +93,16 @@ def packman_mix():
 
 def mixed_packman(rpm_qa_text):
     """Names of the openSUSE builds in the "NAME<tab>VENDOR" lines, if at
-    least one package of the family comes from Packman."""
+    least one package of the family with the same word size comes from
+    Packman (packman_switch() may keep all 32-bit ones at openSUSE)."""
     family = re.compile(catalog.PACKMAN_FAMILY)
-    ours, theirs = [], []
+    ours, theirs = {False: [], True: []}, {False: [], True: []}
     for line in rpm_qa_text.splitlines():
         name, _, vendor = line.partition("\t")
         if family.fullmatch(name):
-            (ours if "packman" in vendor.lower() else theirs).append(name)
-    return sorted(theirs) if ours else []
+            side = ours if "packman" in vendor.lower() else theirs
+            side[name.endswith("-32bit")].append(name)
+    return sorted(n for b in (False, True) if ours[b] for n in theirs[b])
 
 
 def nvidia_module_missing():

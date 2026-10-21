@@ -5,7 +5,7 @@
 import pytest
 
 from nazoos_welcome import catalog
-from nazoos_welcome.root import apps, drives, kernel_switch, tuning
+from nazoos_welcome.root import apps, base, drives, kernel_switch, tuning
 
 MARK = catalog.FSTAB_MARKER
 
@@ -152,3 +152,31 @@ def test_pollrate_sets_a_connected_device(monkeypatch, tmp_path):
     _pollrate_env(monkeypatch, tmp_path, calls)
     tuning.pollrate(["046d:c08b", "1"])
     assert calls and calls[0][0] == catalog.POLLRATE_PARAM
+
+
+def test_held_32bit():
+    names = "libavcodec62\nlibavcodec62-32bit\nMesa-32bit\nbash-32bit\n"
+    assert base.held_32bit(names) == ["Mesa-32bit", "libavcodec62-32bit"]
+
+
+def test_packman_switch_keeps_32bit_when_dup_fails(monkeypatch):
+    calls, codes = [], iter([0, 4, 0, 0, 0])
+
+    def fake_run(cmd, check=True, **kw):
+        calls.append(cmd)
+        return next(codes)
+    monkeypatch.setattr(base, "run", fake_run)
+    monkeypatch.setattr(base, "output", lambda cmd: "libavcodec62-32bit\n")
+    base.packman_switch("packman")
+    verbs = [c[2] for c in calls]
+    assert verbs == ["--gpg-auto-import-keys", "dist-upgrade", "addlock",
+                     "dist-upgrade", "removelock"]
+    assert calls[2][3:] == ["libavcodec62-32bit"]
+
+
+def test_packman_switch_fails_without_32bit(monkeypatch):
+    monkeypatch.setattr(base, "run", lambda cmd, check=True: 0
+                        if "refresh" in cmd else 4)
+    monkeypatch.setattr(base, "output", lambda cmd: "bash\n")
+    with pytest.raises(base.Fail):
+        base.packman_switch("packman")

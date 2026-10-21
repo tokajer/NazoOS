@@ -35,8 +35,30 @@ def repo_with_path(path):
 def packman_switch(alias):
     """Switch installed multimedia packages to Packman's builds."""
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
-    run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses", "--from",
-                  alias, "--allow-vendor-change", "--allow-downgrade"])
+    dup = ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses", "--from",
+                    alias, "--allow-vendor-change", "--allow-downgrade"]
+    rc = run(dup, check=False)
+    if rc == 0:
+        return
+    # Packman often rebuilds its 32-bit libraries days after the 64-bit
+    # ones; until then they need sonames Tumbleweed no longer has. Keep the
+    # 32-bit family at openSUSE (a 32-bit/64-bit mix is harmless).
+    held = held_32bit(output(["rpm", "-qa", "--qf", "%{NAME}\n"]))
+    if not held:
+        raise Fail("'{cmd}' failed (exit code {rc})", cmd="zypper", rc=rc)
+    say("Retrying without the 32-bit libraries: " + " ".join(held))
+    run(ZYPPER + ["addlock"] + held)
+    try:
+        run(dup)
+    finally:
+        run(ZYPPER + ["removelock"] + held, check=False)
+
+
+def held_32bit(rpm_names):
+    """Installed 32-bit packages of the Packman family, from rpm -qa."""
+    family = re.compile(catalog.PACKMAN_FAMILY)
+    return sorted({n for n in rpm_names.split()
+                   if n.endswith("-32bit") and family.fullmatch(n)})
 
 
 def flathub_ensure():

@@ -92,6 +92,15 @@ def test_mixed_packman():
     assert repair.mixed_packman(text) == ["Mesa", "libavcodec61"]
 
 
+def test_mixed_packman_32bit_kept_at_opensuse():
+    text = ("libavcodec62\thttp://packman.links2linux.de\n"
+            "libavcodec62-32bit\topenSUSE\n"
+            "Mesa-32bit\topenSUSE\n")
+    assert repair.mixed_packman(text) == []
+    text += "libavutil60-32bit\thttp://packman.links2linux.de\n"
+    assert repair.mixed_packman(text) == ["Mesa-32bit", "libavcodec62-32bit"]
+
+
 def test_mixed_packman_without_packman_builds():
     assert repair.mixed_packman("ffmpeg-7\topenSUSE\nMesa\topenSUSE\n") == []
 
