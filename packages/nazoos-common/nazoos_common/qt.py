@@ -125,7 +125,7 @@ class HelperProcess(QObject):
         if line.startswith(errors.PREFIX):
             self._error = errors.message(line[len(errors.PREFIX):],
                                          self._gettext)
-        elif line == "@@reboot":
+        elif line == errors.REBOOT:
             self.reboot = True
 
     def _failed_start(self, err):

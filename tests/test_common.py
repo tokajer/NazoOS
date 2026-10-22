@@ -7,7 +7,7 @@ import subprocess
 
 import pytest
 
-from nazoos_common import grub, helper, kernelstate, mok, repos
+from nazoos_common import grub, helper, kernel, kernelstate, mok, repos
 
 FPR = "SHA1 Fingerprint=AB:CD:EF:01\n"
 
@@ -88,9 +88,9 @@ def test_stable(monkeypatch, state, prefer, count, installed, expected):
     if prefer:
         kernelstate.PREFER.touch()
     kernelstate.write_boots({"count": count})
-    monkeypatch.setattr(kernelstate.proc, "rpm_installed",
+    monkeypatch.setattr(kernel.helper, "rpm_installed",
                         lambda n: n in installed)
-    assert kernelstate.stable() is expected
+    assert kernel.stable() is expected
 
 
 @pytest.mark.parametrize("updated, expected", [(50, False), (150, True)])

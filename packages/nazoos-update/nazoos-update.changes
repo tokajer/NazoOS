@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 22 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The update window no longer blocks while it reads the status; the
+  details dialog is shared with the welcome app; needs nazoos-common
+  API 5.
+
+-------------------------------------------------------------------
 Thu Oct 22 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Notifications no longer block later ones and the notification service

@@ -13,8 +13,9 @@ BuildRequires:  python3
 BuildArch:      noarch
 Requires:       python3
 # Raised when the apps need new modules (2: proc, kernel;
-# 3: repos, write_atomic, app bootstrap; 4: grub.py, launchers per app)
-Provides:       nazoos-common(api) = 4
+# 3: repos, write_atomic, app bootstrap; 4: grub.py, launchers per app;
+# 5: zypper.py, kernel.stable/kmp, helper.reboot, LogDialog)
+Provides:       nazoos-common(api) = 5
 # nazoos_common.qt only; the root helpers use the other modules
 Recommends:     python3-pyside6
 
@@ -41,7 +42,7 @@ install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-common/qml/org/nazoos/common \
 
 %check
 # Everything but the Qt part imports without PySide6
-PYTHONPATH=. python3 -B -c "import nazoos_common.errors, nazoos_common.grub, nazoos_common.helper, nazoos_common.i18n, nazoos_common.kernel, nazoos_common.kernelstate, nazoos_common.mok, nazoos_common.proc, nazoos_common.repos"
+PYTHONPATH=. python3 -B -c "import nazoos_common.errors, nazoos_common.grub, nazoos_common.helper, nazoos_common.i18n, nazoos_common.kernel, nazoos_common.kernelstate, nazoos_common.mok, nazoos_common.proc, nazoos_common.repos, nazoos_common.zypper"
 
 %files
 %{_datadir}/nazoos-common

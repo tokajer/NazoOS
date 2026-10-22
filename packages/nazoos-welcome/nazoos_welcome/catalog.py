@@ -42,11 +42,12 @@ APPS = [
     # which only kernel-nazoos has built in ("kernel"); nazoos-binder
     # stands in for waydroid's "binder-kmp" requirement. "units" are
     # enabled after the install, "trusted" interfaces go into firewalld's
-    # trusted zone (Android's network: DHCP and DNS from the host)
+    # trusted zone (Android's network: DHCP and DNS from the host), "setup"
+    # names the step root/apps.py runs after the install
     {"id": "waydroid", "name": "Waydroid", "category": "gaming",
      "kind": "rpm", "refs": ["waydroid", "nazoos-binder"], "icon": "waydroid",
      "kernel": "nazoos", "units": ["waydroid-container.service"],
-     "trusted": ["waydroid0"],
+     "trusted": ["waydroid0"], "setup": "waydroid",
      "summary": "Android apps and games in a window. The first start "
                 "downloads Android (about 1 GB)"},
     # Communication
@@ -224,6 +225,15 @@ def pollrate_parse(value):
                 and parts[2].isdigit() and int(parts[2]) > 0):
             result[f"{parts[0]}:{parts[1]}"] = int(parts[2])
     return result
+
+
+def pollrate_from_cmdline(options):
+    """Overrides configured in the kernel options OPTIONS (list), {} if none."""
+    overrides = {}
+    for opt in options:
+        if opt.startswith(POLLRATE_PARAM + "="):
+            overrides = pollrate_parse(opt.split("=", 1)[1])
+    return overrides
 
 
 def pollrate_format(overrides):

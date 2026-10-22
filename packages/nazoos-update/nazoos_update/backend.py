@@ -32,7 +32,11 @@ class Backend(ActionRunner):
 
     def __init__(self):
         super().__init__(HELPER, _, ACTION_LABELS, LAUNCHERS)
-        self._state = {}
+        self._state = status.collect()
+        self._refreshing = False
+        self._refresh_again = False
+        # Callbacks for the next load that starts
+        self._after = []
         self._reboot = False
         # The snapshot was made permanent; only a restart is left to do
         self._rolled_back = False
@@ -69,10 +73,39 @@ class Backend(ActionRunner):
 
     @Slot()
     def refresh(self):
+        self._request()
+
+    def _request(self, after=None):
+        """Load the status in a thread. AFTER(), if given, runs once a
+        load that started after this call has finished: a load already
+        running may predate the status write the caller waits for."""
         if not self._watch.directories() and status.STATUS.parent.is_dir():
             self._watch.addPath(str(status.STATUS.parent))
-        self._state = status.collect()
+        if after:
+            self._after.append(after)
+        if self._refreshing:
+            self._refresh_again = True
+        else:
+            self._load()
+
+    def _load(self):
+        self._refreshing = True
+        self._refresh_again = False
+        callbacks, self._after = self._after, []
+        # A failed load keeps the old state (background prints the error)
+        self.background(status.collect,
+                        lambda st: self._loaded(st, callbacks),
+                        lambda _e: self._loaded(None, callbacks))
+
+    def _loaded(self, state, callbacks):
+        self._refreshing = False
+        if state is not None:
+            self._state = state
         self.stateChanged.emit()
+        for callback in callbacks:
+            callback()
+        if self._refresh_again:
+            self._load()
 
     # --- root actions -----------------------------------------------------
 
@@ -92,8 +125,8 @@ class Backend(ActionRunner):
 
     def _done(self, action, ok, message):
         self._end_busy()
-        self.refresh()
-        self.actionFinished.emit(action, ok, message)
+        # The GUI reads the new status when it hears of the end
+        self._request(lambda: self.actionFinished.emit(action, ok, message))
 
     # --- user actions -----------------------------------------------------
 

@@ -6,8 +6,8 @@ import re
 import time
 from pathlib import Path
 
-from nazoos_common import helper, kernel, mok
-from nazoos_common.helper import FLATPAK, ZYPPER, Fail, capture, run
+from nazoos_common import helper, kernel, mok, zypper
+from nazoos_common.helper import FLATPAK, Fail, capture, run, say
 
 from .. import status
 from . import check, snapshots
@@ -53,12 +53,12 @@ def script_failure(rc, failed):
     (installed, only the kernel key import failed) or FAIL. FAILED:
     packages whose %post script failed."""
     if rc == ZYPPER_SCRIPT_FAILED and only_trusted_certs(failed):
-        print("Note: the key import of " + ", ".join(failed)
-              + " failed, but the key is already trusted", flush=True)
+        say("Note: the key import of " + ", ".join(failed)
+            + " failed, but the key is already trusted")
         return OK
     if rc == ZYPPER_SCRIPT_FAILED and nazoos_key_missing():
         return KEY_MISSING
-    return OK if rc in check.ZYPPER_OK else FAIL
+    return OK if rc in zypper.OK else FAIL
 
 
 def after_update_extras(dup_ran):
@@ -71,7 +71,7 @@ def after_update_extras(dup_ran):
         try:
             kernel.sync_modules()
         except (Fail, OSError) as e:
-            helper.say(f"Note: {e}")
+            say(f"Note: {e}")
     if Path("/usr/bin/flatpak").exists():
         run(FLATPAK + ["update", "--noninteractive", "-y"], check=False)
         run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"],
@@ -81,7 +81,7 @@ def after_update_extras(dup_ran):
     try:
         kernel.keep_default(helper.say)
     except (Fail, OSError) as e:
-        helper.say(f"Note: {e}")
+        say(f"Note: {e}")
 
 
 def update(_args):
@@ -93,27 +93,26 @@ def update(_args):
         if m:
             failed.append(m.group(1))
 
-    run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    run(zypper.ZYPPER + ["--gpg-auto-import-keys", "refresh"])
     pkgs, problems = check.dup_preview()
     if problems:
         # dup would only fail with exit code 4; show the conflict instead
         # Not check_quietly(): it would repeat refresh, dry-run and labels
-        status.write({"error": status.ERROR_CONFLICT, "problems": problems,
-                      "packages": [], "flatpaks": check.flatpak_updates(),
-                      "reboot": False})
+        status.write(status.new(error=status.ERROR_CONFLICT,
+                                problems=problems,
+                                flatpaks=check.flatpak_updates()))
         raise Fail("the update needs a decision: {problem}",
                    problem=problems[0])
     behind = check.mirrors_behind(pkgs or [])
     cmd = ["dist-upgrade", "--auto-agree-with-licenses"]
     if behind:
-        print(f"Mirrors have Tumbleweed {behind[1]}, the system has "
-              f"{behind[0]}: only NazoOS packages until they catch up",
-              flush=True)
+        say(f"Mirrors have Tumbleweed {behind[1]}, the system has "
+            f"{behind[0]}: only NazoOS packages until they catch up")
         cmd = check.own_update_cmd()
     if cmd:
         last = snapshots.last_snapshot()
         # snapper-zypp-plugin creates a pre/post snapshot pair around this
-        rc = run(ZYPPER + cmd, check=False, on_line=watch)
+        rc = run(zypper.ZYPPER + cmd, check=False, on_line=watch)
         snapshots.label_snapshots(update_after=last)
         verdict = script_failure(rc, failed)
         if verdict == KEY_MISSING:
@@ -126,12 +125,11 @@ def update(_args):
                        rc=rc)
     after_update_extras(bool(cmd))
     reboot = capture(["zypper", "needs-rebooting"]).returncode == 102
-    status.write({"error": "", "problems": [], "packages": [],
-                  "flatpaks": [], "reboot": False,
-                  "behind": list(behind) if behind else None,
-                  "needs_reboot": reboot, "updated": int(time.time())})
+    status.write(status.new(
+        behind=list(behind) if behind else None, needs_reboot=reboot,
+        updated=int(time.time())))
     if reboot:
-        print("@@reboot", flush=True)
+        helper.reboot()
     if key_missing:
         raise Fail("the update is installed, but the NazoOS kernel key is "
                    "not enrolled: open NazoOS Welcome, page Kernel, "

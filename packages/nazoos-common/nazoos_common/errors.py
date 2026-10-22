@@ -13,6 +13,8 @@ import json
 import re
 
 PREFIX = "@@error "
+# Line of a helper: the GUI shows the restart hint
+REBOOT = "@@reboot"
 _FIELD = re.compile(r"\{(\w+)\}")
 
 

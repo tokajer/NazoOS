@@ -34,6 +34,15 @@ def read_status():
         return {}
 
 
+def new(**fields):
+    """A status for write(): every key a check or an update sets, FIELDS
+    on top. UPDATE_KEYS stay out unless given: write() keeps the old ones."""
+    data = {"error": "", "detail": "", "problems": [], "packages": [],
+            "flatpaks": [], "update_needs_reboot": False, "behind": None}
+    data.update(fields)
+    return data
+
+
 def write(data):
     """Root only: write DATA as the new status. Keeps last_ok of the last
     working check and UPDATE_KEYS that DATA does not set."""

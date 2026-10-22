@@ -14,7 +14,8 @@ trap 'rm -rf "$tmp"' EXIT
 # QML: L.tr("...") and L.trn("singular", "plural", n)
 xgettext --from-code=UTF-8 --language=JavaScript --keyword=tr \
   --keyword=trn:1,2 --package-name=nazoos-update \
-  --output="$tmp/qml.pot" qml/*.qml
+  --output="$tmp/qml.pot" qml/*.qml \
+  ../nazoos-common/qml/org/nazoos/common/*.qml
 # Python: _("...") and ngettext("...", "...", n); ACTION_LABELS via a list.
 # The helper too: boot menu names of snapshots in the system language,
 # and its error templates Fail("...")/encode("...") that the GUIs

@@ -52,7 +52,6 @@ def main():
 
     translator = qml_translator()
     backend = Backend()
-    backend.refresh()
 
     engine = QQmlApplicationEngine()
     ctx = engine.rootContext()

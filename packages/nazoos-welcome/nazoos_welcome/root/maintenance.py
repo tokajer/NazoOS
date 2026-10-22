@@ -62,10 +62,13 @@ def flatpak_repair(_args):
     run(FLATPAK + ["repair"])
 
 
-def snapshot(_args):
+def create_snapshot(description):
     run(["snapper", "-c", "root", "create", "--type", "single",
-         "--cleanup-algorithm", "number",
-         "--description", "nazoos-welcome: manual snapshot"])
+         "--cleanup-algorithm", "number", "--description", description])
+
+
+def snapshot(_args):
+    create_snapshot("nazoos-welcome: manual snapshot")
 
 
 def channel(args):
@@ -82,9 +85,7 @@ def channel(args):
         raise Fail("nazoos-repos is not installed")
     # Before the link changes: the zypper snapshot alone would already
     # contain the new channel
-    run(["snapper", "-c", "root", "create", "--type", "single",
-         "--cleanup-algorithm", "number",
-         "--description", f"nazoos-welcome: before switching to {target}"])
+    create_snapshot(f"nazoos-welcome: before switching to {target}")
     tmp = link.with_name(".repoindex.xml.nazoos-welcome")
     tmp.unlink(missing_ok=True)
     tmp.symlink_to(f"nazoos-{target}-repoindex.xml")

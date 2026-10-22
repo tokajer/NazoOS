@@ -11,7 +11,7 @@ from nazoos_common.single import Instance
 from PySide6.QtCore import QCoreApplication, QUrl
 from PySide6.QtQml import QQmlApplicationEngine
 
-from . import probes
+from . import autostart
 from .backend import Backend
 from .i18n import translator as make_translator
 from .repair_model import RepairModel
@@ -31,7 +31,7 @@ def main():
     proc.refuse_root("nazoos-welcome")
 
     if args.autostart and (proc.is_live()
-                           or not probes.autostart_enabled()):
+                           or not autostart.enabled()):
         return 0
 
     # Already open: show the page there. A second autostart (Plasma's

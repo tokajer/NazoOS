@@ -41,12 +41,14 @@ def cert_from_download(alias):
     # rpm2cpio | cpio: the payload paths start with "./"
     unpack = subprocess.Popen(["rpm2cpio", str(rpms[-1])],
                               stdout=subprocess.PIPE)
-    data = subprocess.run(["cpio", "--extract", "--to-stdout", "--quiet",
-                           "." + certs[0]], stdin=unpack.stdout,
-                          capture_output=True).stdout
+    extract = subprocess.run(["cpio", "--extract", "--to-stdout", "--quiet",
+                              "." + certs[0]], stdin=unpack.stdout,
+                             capture_output=True)
     unpack.stdout.close()
-    unpack.wait()
-    if b"BEGIN CERTIFICATE" not in data and not data.startswith(b"\x30"):
+    data = extract.stdout
+    if (unpack.wait() or extract.returncode
+            or b"BEGIN CERTIFICATE" not in data
+            and not data.startswith(b"\x30")):
         raise Fail("the signing certificate could not be read")
     RUN_DIR.mkdir(mode=0o700, exist_ok=True)
     # Same file name as on the installed system

@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Oct 22 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The Waydroid configuration is written in one step, errors while
+  reading the kernel signing certificate are reported, the details
+  dialog is shared with the update window. Recommends nazoos-update.
+  Needs nazoos-common API 5.
+
+-------------------------------------------------------------------
 Thu Oct 22 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - A switched-off Packman repository is shown correctly; pages refresh

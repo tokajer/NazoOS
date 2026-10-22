@@ -13,9 +13,9 @@ from nazoos_common import kernel, repos
 from nazoos_common.grub import grub_refresh
 
 from .. import catalog, repair
-from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, enable_repo,
-                   flathub_ensure, output, packman_switch, rpm_installed,
-                   run, say)
+from . import maintenance
+from .base import (ZYPPER, ZYPPER_IN, Fail, enable_repo, flathub_ensure,
+                   output, packman_switch, rpm_installed, run, say)
 
 
 def repair_repos(_args):
@@ -77,12 +77,12 @@ def repair_nvidia(_args):
     bases = [b for b in candidates
              if any(n.startswith(f"{b}-kmp-") for n in installed)]
     if bases:
-        kmp = f"{bases[0]}-kmp-{flavor}"
+        kmp = kernel.kmp(bases[0], flavor)
     else:
         # Driver without a module: the meta package names the module base
         for meta, video, *_rest in catalog.NVIDIA_DRIVERS.values():
             if rpm_installed(video):
-                kmp = f"{meta.removesuffix('-kmp-meta')}-kmp-{flavor}"
+                kmp = kernel.kmp(meta.removesuffix("-kmp-meta"), flavor)
                 break
         else:
             raise Fail("no NVIDIA driver is installed")
@@ -113,9 +113,9 @@ def repair_units(_args):
 def repair_space(_args):
     run(["snapper", "-c", "root", "cleanup", "number"], check=False)
     run(["snapper", "-c", "root", "cleanup", "empty-pre-post"], check=False)
-    run(ZYPPER + ["clean", "--all"])
+    maintenance.cache_clean([])
     if Path("/usr/bin/flatpak").exists():
-        run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"])
+        maintenance.flatpak_unused([])
 
 
 def repair_flathub(_args):

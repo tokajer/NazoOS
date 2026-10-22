@@ -13,7 +13,8 @@ trap 'rm -rf "$tmp"' EXIT
 
 # QML: L.tr("...")
 xgettext --from-code=UTF-8 --language=JavaScript --keyword=tr \
-  --package-name=nazoos-welcome --output="$tmp/qml.pot" qml/*.qml qml/*/*.qml
+  --package-name=nazoos-welcome --output="$tmp/qml.pot" qml/*.qml qml/*/*.qml \
+  ../nazoos-common/qml/org/nazoos/common/*.qml
 # Python: gettext("...") in the backend; Fail("...") and encode("...")
 # are the helper's error templates, translated by the GUI (ADR 0030),
 # also those of nazoos-common (helper frame, "Done." etc.)

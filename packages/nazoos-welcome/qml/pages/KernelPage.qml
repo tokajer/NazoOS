@@ -60,7 +60,7 @@ Kirigami.ScrollablePage {
         }
 
         SettingCard {
-            // Like kernelstate.stable(): not after "Back to the openSUSE kernel"
+            // Like kernel.stable(): not after "Back to the openSUSE kernel"
             visible: page.k.running === true && page.k.preferred === true && page.k.defaultInstalled === true && !page.k.only
             iconName: "edit-delete"
             title: L.tr("Remove the openSUSE kernel")

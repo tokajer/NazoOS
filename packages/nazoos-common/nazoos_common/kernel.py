@@ -10,7 +10,7 @@ key: mok. No Qt imports here.
 
 import xml.etree.ElementTree as ET
 
-from . import grub, helper, kernelstate, repos
+from . import grub, helper, kernelstate, repos, zypper
 
 # NazoOS kernel (ADR 0007/0008). Opt-in: the repo is added on install.
 # Stage 1 installs kernel-nazoos next to kernel-default, stage 2 removes
@@ -32,6 +32,21 @@ KMP_DEFAULT_ONLY = ["nvidia-driver-G06-kmp-default"]
 # Only built for kernel-nazoos, installed and removed with it (<base>-kmp-
 # nazoos): acpi_call for handheld TDP tools (Handheld Daemon, SimpleDeckyTDP)
 KMP_NAZOOS_ONLY = ["acpi_call"]
+
+
+def kmp(base, flavor):
+    return f"{base}-kmp-{flavor}"
+
+
+def stable():
+    """kernel-nazoos started cleanly STABLE_BOOTS times in a row and the
+    openSUSE kernel is still installed: time to offer stage 2."""
+    if not kernelstate.PREFER.exists():
+        return False
+    if kernelstate.read_boots().get("count", 0) < kernelstate.STABLE_BOOTS:
+        return False
+    return (helper.rpm_installed(KERNEL_DEFAULT)
+            and not helper.rpm_installed(KERNEL_ONLY_PACKAGE))
 
 
 def keep_default(log=print):
@@ -73,13 +88,13 @@ def sync_modules():
         helper.say("Note: the NazoOS kernel repository is missing, kernel "
                    "modules are not checked")
         return
-    wanted = [f"{b}-kmp-nazoos" for b in KMP_BASES
-              if helper.rpm_installed(f"{b}-kmp-default")]
-    wanted += [f"{b}-kmp-nazoos" for b in KMP_NAZOOS_ONLY]
+    wanted = [kmp(b, "nazoos") for b in KMP_BASES
+              if helper.rpm_installed(kmp(b, "default"))]
+    wanted += [kmp(b, "nazoos") for b in KMP_NAZOOS_ONLY]
     new = [p for p in wanted
-           if not helper.rpm_installed(p) and helper.repo_has(alias, p)]
+           if not helper.rpm_installed(p) and zypper.repo_has(alias, p)]
     if new:
-        helper.run(helper.ZYPPER_IN + new)
+        helper.run(zypper.ZYPPER_IN + new)
     swap_rebuilds(alias, wanted)
 
 
@@ -92,7 +107,7 @@ def swap_rebuilds(alias, names):
         # dup keeps the old build of a module rebuilt for the same kernel
         # forever. With the exact edition named, the only conflict to
         # resolve is the old build itself (VM 2026-10-19)
-        helper.run(helper.ZYPPER_IN + ["--force-resolution"] + rebuilt)
+        helper.run(zypper.ZYPPER_IN + ["--force-resolution"] + rebuilt)
 
 
 def kmp_rebuilds(alias, names):
@@ -109,7 +124,7 @@ def kmp_rebuilds(alias, names):
         return []
     try:
         root = ET.fromstring(helper.output(
-            helper.ZYPPER + ["--xmlout", "search", "--details",
+            zypper.ZYPPER + ["--xmlout", "search", "--details",
                              "--match-exact", "--type", "package",
                              "--repo", alias] + sorted(installed)))
     except ET.ParseError:

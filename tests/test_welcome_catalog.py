@@ -5,7 +5,7 @@
 import pytest
 
 from nazoos_welcome import catalog
-from nazoos_welcome.root import ACTIONS
+from nazoos_welcome.root import ACTIONS, apps
 
 
 @pytest.mark.parametrize("value, expected", [
@@ -37,3 +37,9 @@ def test_every_app_category_is_shown_or_hidden_on_purpose():
     assert not shown & catalog.HIDDEN_CATEGORIES
     for a in catalog.APPS:
         assert a["category"] in shown | catalog.HIDDEN_CATEGORIES, a["id"]
+
+
+def test_every_app_setup_step_exists():
+    steps = {a["setup"] for a in catalog.APPS if "setup" in a}
+    assert "waydroid" in steps
+    assert steps <= set(apps.SETUP)

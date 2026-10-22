@@ -2,13 +2,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Pure parts of the welcome root actions (nothing runs as root here)."""
 
+import re
+import subprocess
 import types
 
 import pytest
 
 from nazoos_welcome import catalog
 from nazoos_welcome.root import (apps, base, drivers, drives, kernel_switch,
-                                 maintenance, repairs, tuning)
+                                 maintenance, mok_queue, repairs, tuning)
 
 MARK = catalog.FSTAB_MARKER
 
@@ -411,3 +413,34 @@ def test_channel_snapshots_before_the_link_changes(monkeypatch, fake_root,
     assert link_seen == [False, True, True, True]
     assert link.readlink().name == "nazoos-stable-repoindex.xml"
     assert fake_root.calls[-1][-3:-1] == ["--from", "nazoos:nazoos"]
+
+
+@pytest.mark.parametrize("unpack_rc, cpio_rc", [(1, 0), (0, 1)])
+def test_cert_from_download_fails_when_unpacking_fails(
+        monkeypatch, fake_root, tmp_path, unpack_rc, cpio_rc):
+    cache = tmp_path / "nazoos-kernel"
+    cache.mkdir()
+    (cache / "kernel-nazoos-1.rpm").write_bytes(b"")
+    real_path = mok_queue.Path
+    monkeypatch.setattr(mok_queue, "Path", lambda p: tmp_path if str(p).endswith(
+        "/packages") else real_path(p))
+    cert = "/usr/share/nazoos/x.der"
+    monkeypatch.setattr(mok_queue.mok, "CERT_PATH",
+                        re.compile(cert))
+    fake_root.out = lambda cmd: cert + "\n"
+
+    class Unpack:
+        returncode = unpack_rc
+        stdout = types.SimpleNamespace(close=lambda: None)
+
+        def __init__(self, *a, **k):
+            pass
+
+        def wait(self):
+            return unpack_rc
+
+    monkeypatch.setattr(subprocess, "Popen", Unpack)
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: types.SimpleNamespace(
+        returncode=cpio_rc, stdout=b"-----BEGIN CERTIFICATE-----"))
+    with pytest.raises(base.Fail, match="could not be read"):
+        mok_queue.cert_from_download("nazoos-kernel")

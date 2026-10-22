@@ -145,8 +145,7 @@ def low_space():
 def flathub_missing():
     if shutil.which("flatpak") is None:
         return False
-    return "flathub" not in proc.out(["flatpak", "remotes",
-                                  "--columns=name"]).split()
+    return not probes.flathub_configured()
 
 
 def check():

@@ -21,19 +21,9 @@ import tempfile
 import traceback
 from pathlib import Path
 
-from . import errors
+from . import errors, zypper
 from .proc import rpm_installed  # noqa: F401 (re-exported for the actions)
 
-# zypper exit codes >= 100 that mean "done, but note this"
-# (man zypper, EXIT CODES)
-ZYPPER_INFO = {
-    102: "restart the computer to finish the update",
-    103: "zypper updated itself; run the action again if something is missing",
-    106: "some repositories could not be refreshed and were skipped",
-}
-
-ZYPPER = ["zypper", "--non-interactive"]
-ZYPPER_IN = ZYPPER + ["install", "--auto-agree-with-licenses"]
 FLATPAK = ["flatpak", "--system"]
 
 
@@ -74,8 +64,13 @@ def say(text):
     print(text, flush=True)
 
 
+def reboot():
+    """Tell the GUI to show the restart hint."""
+    say(errors.REBOOT)
+
+
 def run(cmd, check=True, on_line=None):
-    """Run CMD with its output in the log. zypper's ZYPPER_INFO codes
+    """Run CMD with its output in the log. zypper's INFO codes
     count as success (a note is logged). ON_LINE(text), if given, also
     sees every output line."""
     say("$ " + " ".join(cmd))
@@ -90,8 +85,8 @@ def run(cmd, check=True, on_line=None):
                 sys.stdout.flush()
                 on_line(raw.decode(errors="replace"))
         rc = proc.returncode
-    if cmd[0] == "zypper" and rc in ZYPPER_INFO:
-        say(f"Note: {ZYPPER_INFO[rc]}")
+    if cmd[0] == "zypper" and rc in zypper.INFO:
+        say(f"Note: {zypper.INFO[rc]}")
         return 0
     if check and rc != 0:
         raise Fail("'{cmd}' failed (exit code {rc})", cmd=cmd[0], rc=rc)
@@ -136,14 +131,6 @@ def capture(cmd):
 
 def output(cmd):
     return capture(cmd).stdout
-
-
-def repo_has(alias, name):
-    """Package `name` exists in repo `alias` (zypper exit 104: not found)."""
-    return subprocess.run(
-        ZYPPER + ["--quiet", "search", "--match-exact", "--repo", alias,
-                  name], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL).returncode == 0
 
 
 def arg(args, i, allowed=None):

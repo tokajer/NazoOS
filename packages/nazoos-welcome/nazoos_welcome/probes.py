@@ -13,9 +13,7 @@ from pathlib import Path
 
 from nazoos_common import grub, kernel, kernelstate, mok, proc, repos
 
-from . import catalog
-
-AUTOSTART_NAME = "nazoos-welcome.desktop"
+from . import autostart, catalog
 
 
 def rpm_vendors(names):
@@ -85,6 +83,11 @@ def grub_cmdline():
     return grub.cmdline_options(proc.read(grub.GRUB_DEFAULT_FILE))
 
 
+def flathub_configured():
+    return "flathub" in proc.out(["flatpak", "remotes",
+                                  "--columns=name"]).split()
+
+
 def flatpak_installed():
     if shutil.which("flatpak") is None:
         return set()
@@ -102,25 +105,6 @@ def waydroid_software():
                   proc.read(catalog.WAYDROID_CONFIG), re.M)
     return m is not None and \
         m.group(1) == catalog.WAYDROID_SOFTWARE["ro.hardware.egl"]
-
-
-def autostart_enabled():
-    user_file = Path.home() / ".config" / "autostart" / AUTOSTART_NAME
-    if not user_file.exists():
-        return True
-    return not re.search(r"^Hidden\s*=\s*true", proc.read(user_file),
-                         re.M | re.I)
-
-
-def set_autostart(enabled):
-    user_file = Path.home() / ".config" / "autostart" / AUTOSTART_NAME
-    if enabled:
-        user_file.unlink(missing_ok=True)
-    else:
-        user_file.parent.mkdir(parents=True, exist_ok=True)
-        # Hidden=true overrides the system-wide autostart entry
-        user_file.write_text("[Desktop Entry]\nType=Application\n"
-                             "Name=NazoOS Welcome\nHidden=true\n")
 
 
 def drives():
@@ -217,10 +201,7 @@ def usb_input_devices():
 
 def pollrate_state():
     """USB polling rate overrides (kernel-nazoos only)."""
-    configured = {}
-    for opt in grub_cmdline():
-        if opt.startswith(catalog.POLLRATE_PARAM + "="):
-            configured = catalog.pollrate_parse(opt.split("=", 1)[1])
+    configured = catalog.pollrate_from_cmdline(grub_cmdline())
     devices = usb_input_devices()
     ids = {d["id"] for d in devices}
     # Devices with an override that are not plugged in: can be reset
@@ -394,8 +375,7 @@ def _apps(rpms, flatpaks):
             apps[a["id"]] = all(r in rpms for r in a["refs"])
     return {
         "apps": apps,
-        "flathub": "flathub" in proc.out(["flatpak", "remotes",
-                                          "--columns=name"]).split(),
+        "flathub": flathub_configured(),
     }
 
 
@@ -446,7 +426,7 @@ def collect():
         [s["unit"] for s in catalog.SERVICES if s["user"]], user=True)
     result = {
         "live": proc.is_live(),
-        "autostart": autostart_enabled(),
+        "autostart": autostart.enabled(),
         "drives": drives(),
         "kernel": kernel_state(),
         "channel": update_channel(),

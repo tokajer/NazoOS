@@ -9,7 +9,7 @@ the GUIs and the update notifier only read.
 import json
 from pathlib import Path
 
-from . import helper, proc
+from . import helper
 
 STATE = Path("/var/lib/nazoos")
 # Exists while the user wants kernel-nazoos as the default boot entry
@@ -35,13 +35,3 @@ def write_boots(data):
     STATE.mkdir(parents=True, exist_ok=True)
     helper.write_atomic(BOOTS, json.dumps(data))
 
-
-def stable():
-    """kernel-nazoos started cleanly STABLE_BOOTS times in a row and the
-    openSUSE kernel is still installed: time to offer stage 2."""
-    if not PREFER.exists():
-        return False
-    if read_boots().get("count", 0) < STABLE_BOOTS:
-        return False
-    return proc.rpm_installed("kernel-default") and not proc.rpm_installed(
-        "nazoos-kernel-only")

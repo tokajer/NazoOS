@@ -6,15 +6,12 @@ import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-from nazoos_common import repos
-from nazoos_common.helper import FLATPAK, ZYPPER, Fail, capture
+from nazoos_common import repos, zypper
+from nazoos_common.helper import FLATPAK, Fail, capture, say
 
 from .. import status
 from . import snapshots
 
-# zypper exit codes that are not errors: 100-103 = informational
-# (updates/reboot needed), 106 = a repository was skipped
-ZYPPER_OK = (0, 100, 101, 102, 103, 106)
 # Package whose version is the Tumbleweed snapshot (YYYYMMDD)
 RELEASE_PKG = "openSUSE-release"
 # Package names that need a restart after the update, e.g. kernel-default,
@@ -73,7 +70,7 @@ def own_update_cmd():
 
 def dup_preview(cmd=("dist-upgrade", "--auto-agree-with-licenses")):
     """Packages a "zypper dup" (or cmd) would change, from its XML output."""
-    r = capture(ZYPPER + ["--xmlout"] + list(cmd) + ["--dry-run"])
+    r = capture(zypper.ZYPPER + ["--xmlout"] + list(cmd) + ["--dry-run"])
     try:
         root = ET.fromstring(r.stdout)
     except ET.ParseError:
@@ -86,7 +83,7 @@ def dup_preview(cmd=("dist-upgrade", "--auto-agree-with-licenses")):
                     or ["dependency problem"])
     if problems:
         return None, problems
-    if r.returncode not in ZYPPER_OK:
+    if r.returncode not in zypper.OK:
         messages = " ".join(zypper_messages(root))
         if messages:
             raise Fail("zypper reported: {detail}", detail=messages)
@@ -134,8 +131,8 @@ def flatpak_updates():
 
 
 def check(_args=None):
-    result = {"error": "", "problems": [], "packages": [], "flatpaks": []}
-    r = capture(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    result = status.new()
+    r = capture(zypper.ZYPPER + ["--gpg-auto-import-keys", "refresh"])
     print(r.stdout, end="", flush=True)
     if r.returncode != 0:
         result["error"] = status.ERROR_REFRESH
@@ -158,14 +155,14 @@ def check(_args=None):
             result["packages"] = [] if own_problems else own
     else:
         result["packages"] = pkgs
-    result["reboot"] = any(REBOOT_HINT.match(p["name"] or "")
-                           for p in result["packages"]
-                           if p["type"] == "package")
+    result["update_needs_reboot"] = any(
+        REBOOT_HINT.match(p["name"] or "") for p in result["packages"]
+        if p["type"] == "package")
     result["flatpaks"] = flatpak_updates()
     status.write(result)
     snapshots.label_snapshots()
-    print(f"{len(result['packages'])} package changes, "
-          f"{len(result['flatpaks'])} Flatpak updates", flush=True)
+    say(f"{len(result['packages'])} package changes, "
+        f"{len(result['flatpaks'])} Flatpak updates")
     if problems:
         raise Fail("the update needs a decision: {problem}",
                    problem=problems[0])

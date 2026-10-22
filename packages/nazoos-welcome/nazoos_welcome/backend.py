@@ -10,7 +10,7 @@ from nazoos_common.qt import COMMON_LAUNCHERS, ActionRunner
 from PySide6.QtCore import Property, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 
-from . import catalog, probes, repair
+from . import autostart, catalog, probes, repair
 
 # Cheap probes for the card an action changed: read right after it, the
 # full probes.collect() takes 15-20 s (zypper searches).
@@ -264,7 +264,7 @@ class Backend(ActionRunner):
 
     @Slot(bool)
     def setAutostart(self, enabled):
-        probes.set_autostart(enabled)
+        autostart.set_enabled(enabled)
         self.refresh()
 
     @Slot(str)

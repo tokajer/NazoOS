@@ -4,6 +4,7 @@
 
 import importlib
 import pkgutil
+import subprocess
 
 import pytest
 
@@ -53,6 +54,13 @@ def fake_root(monkeypatch, tmp_path):
     # grub.* and kernel.* run helper.run / helper.output
     monkeypatch.setattr(helper, "run", fake.run)
     monkeypatch.setattr(helper, "output", fake.output)
+
+    def real_command(cmd, *_args, **_kw):
+        pytest.fail(f"real command in a root test: {cmd}")
+
+    # A probe the test forgot to patch must not reach the machine
+    monkeypatch.setattr(subprocess, "run", real_command)
+    monkeypatch.setattr(subprocess, "Popen", real_command)
     monkeypatch.setattr(grub, "GRUB_DEFAULT_FILE", tmp_path / "grub-default")
     monkeypatch.setattr(grub, "GRUB_LOCK", tmp_path / "grub.lock")
     monkeypatch.setattr(grub, "GRUB_CFG", tmp_path / "grub.cfg")

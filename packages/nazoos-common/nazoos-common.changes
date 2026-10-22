@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 22 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- API 5: zypper module, kernel stage-2 check and module package names
+  moved into nazoos_common, restart hint helper, shared details dialog.
+
+-------------------------------------------------------------------
 Thu Oct 22 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Changes to the boot settings from two programs at once no longer get

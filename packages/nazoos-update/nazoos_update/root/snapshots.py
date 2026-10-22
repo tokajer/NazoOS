@@ -2,14 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Snapshot names in the boot menu, and the rollback to a snapshot."""
 
-import fcntl
 import gettext
 import json
 import time
 from datetime import datetime
 from pathlib import Path
 
-from nazoos_common.helper import Fail, capture, run
+from nazoos_common.helper import Fail, capture, locked, reboot, run
 
 from .. import status
 
@@ -118,8 +117,7 @@ def label_snapshots(update_after=None):
     if not Path("/usr/bin/snapper").exists():
         return 0
     wait_for_cleanup()
-    with open(LABEL_LOCK, "w") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
+    with locked(LABEL_LOCK):
         return name_snapshots(update_after)
 
 
@@ -166,7 +164,7 @@ def rollback(_args):
     # the broken state and sets a writable copy of snapshot NUM as default.
     run(["snapper", "--ambit", "classic", "rollback",
          "--description", f"nazoos-update: rollback to {num}"])
-    print("@@reboot", flush=True)
+    reboot()
 
 
 def label(_args):

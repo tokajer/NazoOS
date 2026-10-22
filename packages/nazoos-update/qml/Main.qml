@@ -166,7 +166,7 @@ Kirigami.ApplicationWindow {
                             wrapMode: Text.WordWrap
                             opacity: 0.8
                             text: L.tr("Last check: %1").replace("%1", root.ago(root.st.checked))
-                                  + (root.st.reboot ? "\n" + L.tr("A restart will be needed afterwards.") : "")
+                                  + (root.st.update_needs_reboot ? "\n" + L.tr("A restart will be needed afterwards.") : "")
                         }
                         QQC2.Label {
                             Layout.fillWidth: true
@@ -338,34 +338,5 @@ Kirigami.ApplicationWindow {
         ]
     }
 
-    Kirigami.Dialog {
-        id: logDialog
-        title: L.tr("Details")
-        preferredWidth: Kirigami.Units.gridUnit * 36
-        preferredHeight: Kirigami.Units.gridUnit * 24
-        standardButtons: Kirigami.Dialog.NoButton
-        customFooterActions: [
-            Kirigami.Action {
-                text: L.tr("Copy")
-                icon.name: "edit-copy"
-                onTriggered: {
-                    backend.copyLog()
-                    root.showPassiveNotification(L.tr("Copied to the clipboard."))
-                }
-            },
-            Kirigami.Action {
-                text: L.tr("Close")
-                icon.name: "dialog-close"
-                onTriggered: logDialog.close()
-            }
-        ]
-        onOpened: logScroll.toEnd()
-        // Fixed height: otherwise it grows with the text and the dialog
-        // scrolls instead, where we cannot follow the end
-        LogView {
-            id: logScroll
-            implicitHeight: Kirigami.Units.gridUnit * 18
-            text: backend.log || L.tr("Nothing has run yet.")
-        }
-    }
+    LogDialog { id: logDialog }
 }

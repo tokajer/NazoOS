@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Commands and lookups the root actions share."""
 
+import contextlib
 import fnmatch
 import os
 import re
@@ -9,8 +10,9 @@ from pathlib import Path
 
 from nazoos_common import proc, repos
 from nazoos_common.helper import (  # noqa: F401 (used by the actions)
-    FLATPAK, ZYPPER, ZYPPER_IN, Fail, Passthrough, arg, output, repo_has,
-    rpm_installed, run, say)
+    FLATPAK, Fail, Passthrough, arg, output, rpm_installed, run, say)
+from nazoos_common.zypper import (  # noqa: F401 (used by the actions)
+    ZYPPER, ZYPPER_IN, repo_has)
 
 from .. import catalog
 
@@ -31,6 +33,27 @@ def enable_repo(fragment):
         run(ZYPPER + ["modifyrepo", "--enable", matches[0][0]])
         return matches[0][0], True
     return None, False
+
+
+@contextlib.contextmanager
+def repo_in_use(fragment, alias, addrepo_args, keep):
+    """Alias of the repo whose URL contains FRAGMENT; added as ALIAS with
+    ADDREPO_ARGS (options and URL) if there is none. If the block raises
+    Fail, a repo this call switched on is switched off again and one it
+    added is removed, unless KEEP() says packages from it are installed."""
+    found, enabled = enable_repo(fragment)
+    alias = found or alias
+    if not found:
+        run(ZYPPER + ["addrepo"] + addrepo_args + [alias])
+    try:
+        yield alias
+    except Fail:
+        # No half state
+        if enabled:
+            run(ZYPPER + ["modifyrepo", "--disable", found], check=False)
+        elif not found and not keep():
+            run(ZYPPER + ["removerepo", alias], check=False)
+        raise
 
 
 def packman_switch(alias):

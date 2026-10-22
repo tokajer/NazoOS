@@ -5,8 +5,8 @@
 from pathlib import Path
 
 from .. import catalog
-from .base import (ZYPPER, ZYPPER_IN, Fail, arg, caller, enable_repo,
-                   output, packman_switch, rpm_installed, run, say)
+from .base import (ZYPPER, ZYPPER_IN, Fail, arg, caller, output,
+                   packman_switch, repo_in_use, rpm_installed, run, say)
 
 
 def _packman_installed():
@@ -15,44 +15,25 @@ def _packman_installed():
 
 
 def codecs_install(_args):
-    found, enabled = enable_repo("/packman/")
-    alias = found or catalog.PACKMAN_ALIAS
-    if not found:
-        run(ZYPPER + ["addrepo", "--refresh", "--priority",
-                      catalog.PACKMAN_PRIORITY, "--name", "Packman",
-                      catalog.PACKMAN_URL, alias])
-    try:
+    with repo_in_use(
+            "/packman/", catalog.PACKMAN_ALIAS,
+            ["--refresh", "--priority", catalog.PACKMAN_PRIORITY,
+             "--name", "Packman", catalog.PACKMAN_URL],
+            _packman_installed) as alias:
         packman_switch(alias)
         run(ZYPPER_IN + ["--from", alias] + catalog.PACKMAN_CODECS)
-    except Fail:
-        # No half state: a repo this run switched on is switched off
-        # again; one this run added goes too, unless packages from it
-        # are already in
-        if enabled:
-            run(ZYPPER + ["modifyrepo", "--disable", found], check=False)
-        elif not found and not _packman_installed():
-            run(ZYPPER + ["removerepo", alias], check=False)
-        raise
     run(ZYPPER_IN + catalog.OSS_CODECS)
 
 
 def nvidia_install(args):
     variant = arg(args, 0, catalog.NVIDIA_DRIVERS)
-    found, enabled = enable_repo("://download.nvidia.com/")
-    alias = found or catalog.NVIDIA_REPO_ALIAS
-    if not found:
-        run(ZYPPER + ["addrepo", "--refresh", "--name", "NVIDIA",
-                      catalog.NVIDIA_REPO_URL, alias])
-    try:
+    drivers = catalog.NVIDIA_DRIVERS[variant]
+    with repo_in_use(
+            "://download.nvidia.com/", catalog.NVIDIA_REPO_ALIAS,
+            ["--refresh", "--name", "NVIDIA", catalog.NVIDIA_REPO_URL],
+            lambda: any(rpm_installed(p) for p in drivers)) as alias:
         run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
-        run(ZYPPER_IN + catalog.NVIDIA_DRIVERS[variant])
-    except Fail:
-        if enabled:
-            run(ZYPPER + ["modifyrepo", "--disable", found], check=False)
-        elif not found and not any(rpm_installed(p)
-                                   for p in catalog.NVIDIA_DRIVERS[variant]):
-            run(ZYPPER + ["removerepo", alias], check=False)
-        raise
+        run(ZYPPER_IN + drivers)
     say("Restart the computer to load the NVIDIA driver.")
 
 

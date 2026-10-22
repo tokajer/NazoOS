@@ -239,3 +239,35 @@ def test_repair_model_rechecks_after_a_repair_action(app, monkeypatch):
     assert len(calls) == 1
     b.actionFinished.emit("repair-rpmdb", True, "Done.")
     wait(app, lambda: len(calls) == 2 and not model.checking)
+
+
+def test_update_action_finishes_after_the_new_status_is_loaded(app, monkeypatch):
+    from nazoos_update import backend, status
+
+    conflict = {"error": status.ERROR_CONFLICT, "conflict": True}
+    monkeypatch.setattr(status, "collect", lambda: {})
+    b = backend.Backend()
+    monkeypatch.setattr(status, "collect", lambda: conflict)
+    seen = []
+    b.actionFinished.connect(
+        lambda action, ok, msg: seen.append(dict(b.state)))
+    b._done("update", False, "failed")
+    wait(app, lambda: seen)
+    assert seen == [conflict]
+
+
+def test_update_refresh_survives_a_broken_collect(app, monkeypatch):
+    from nazoos_update import backend, status
+
+    monkeypatch.setattr(status, "collect", lambda: {"a": 1})
+    b = backend.Backend()
+
+    def broken():
+        raise OSError("gone")
+
+    monkeypatch.setattr(status, "collect", broken)
+    seen = []
+    b.actionFinished.connect(lambda *a: seen.append(dict(b.state)))
+    b._done("check", True, "Done.")
+    wait(app, lambda: seen)
+    assert seen == [{"a": 1}]

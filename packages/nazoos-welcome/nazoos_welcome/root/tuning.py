@@ -52,10 +52,8 @@ def pollrate(args):
     if not re.fullmatch(r"[0-9a-f]{4}:[0-9a-f]{4}", vidpid):
         raise Fail("invalid device id")
     ms = int(arg(args, 1, [str(i) for i in catalog.POLLRATE_INTERVALS]))
-    overrides = {}
-    for opt in grub.cmdline_options(grub.GRUB_DEFAULT_FILE.read_text()):
-        if opt.startswith(catalog.POLLRATE_PARAM + "="):
-            overrides = catalog.pollrate_parse(opt.split("=", 1)[1])
+    overrides = catalog.pollrate_from_cmdline(
+        grub.cmdline_options(grub.GRUB_DEFAULT_FILE.read_text()))
     if ms == 0:
         overrides.pop(vidpid, None)
     elif vidpid in overrides or vidpid in {

@@ -249,32 +249,5 @@ Kirigami.ApplicationWindow {
         ]
     }
 
-    Kirigami.Dialog {
-        id: logDialog
-        title: L.tr("Details")
-        preferredWidth: Kirigami.Units.gridUnit * 40
-        standardButtons: Kirigami.Dialog.NoButton
-        onOpened: logScroll.toEnd()
-        customFooterActions: [
-            Kirigami.Action {
-                text: L.tr("Copy")
-                icon.name: "edit-copy"
-                onTriggered: {
-                    backend.copyLog()
-                    root.showPassiveNotification(L.tr("Copied to the clipboard."))
-                }
-            },
-            Kirigami.Action {
-                text: L.tr("Close")
-                icon.name: "dialog-close"
-                onTriggered: logDialog.close()
-            }
-        ]
-        LogView {
-            id: logScroll
-            implicitWidth: Kirigami.Units.gridUnit * 40
-            implicitHeight: Kirigami.Units.gridUnit * 22
-            text: backend.log || L.tr("Nothing has run yet.")
-        }
-    }
+    LogDialog { id: logDialog }
 }

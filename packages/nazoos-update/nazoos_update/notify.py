@@ -17,7 +17,7 @@ import time
 import uuid
 from pathlib import Path
 
-from nazoos_common import kernelstate, proc
+from nazoos_common import kernel, proc
 from nazoos_common.helper import write_atomic
 
 from . import status
@@ -170,7 +170,7 @@ def pending(st, now, kernel_stable, has_welcome):
 
 
 def _pending_now():
-    return pending(status.collect(), int(time.time()), kernelstate.stable(),
+    return pending(status.collect(), int(time.time()), kernel.stable(),
                    shutil.which("nazoos-welcome") is not None)
 
 

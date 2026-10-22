@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Root actions of nazoos-update: zypper XML, mirror check, snapshot names."""
 
+import fcntl
 import subprocess
 
 import pytest
@@ -269,9 +270,7 @@ def test_label_holds_the_lock_while_naming(monkeypatch, tmp_path):
         # A second label run (the path unit) must not get in between
         with open(lock) as other:
             with pytest.raises(BlockingIOError):
-                snapshots.fcntl.flock(
-                    other, snapshots.fcntl.LOCK_EX
-                    | snapshots.fcntl.LOCK_NB)
+                fcntl.flock(other, fcntl.LOCK_EX | fcntl.LOCK_NB)
         seen.append(update_after)
         return 2
 
@@ -287,7 +286,7 @@ def test_check_keeps_the_restart_hint_of_the_update(monkeypatch, tmp_path):
     monkeypatch.setattr(status_mod, "STATUS", tmp_path / "status.json")
     monkeypatch.setattr(status_mod, "STATUS_LOCK", tmp_path / "status.lock")
     status_mod.write({"error": "", "needs_reboot": True, "updated": 5})
-    status_mod.write({"error": "", "packages": [], "reboot": False})
+    status_mod.write(status_mod.new())
     st = status_mod.read_status()
     assert st["needs_reboot"] is True and st["updated"] == 5
     # The next update decides again
@@ -318,9 +317,8 @@ def test_update_stops_at_a_conflict(monkeypatch):
     assert e.value.template == "the update needs a decision: {problem}"
     assert e.value.params == {"problem": "x"}
     # Only the refresh ran, no dist-upgrade
-    assert calls == [update.ZYPPER + ["--gpg-auto-import-keys", "refresh"]]
-    assert written == [{"error": "conflict", "problems": ["x"], "packages": [],
-                        "flatpaks": [], "reboot": False}]
+    assert calls == [update.zypper.ZYPPER + ["--gpg-auto-import-keys", "refresh"]]
+    assert written == [status_mod.new(error=status_mod.ERROR_CONFLICT, problems=["x"])]
 
 
 def test_own_repos_are_the_enabled_nazoos_ones(monkeypatch):

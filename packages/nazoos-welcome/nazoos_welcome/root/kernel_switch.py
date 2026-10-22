@@ -14,6 +14,31 @@ from .mok_queue import MOK_RESTART, prepare_mok
 EFIVARS = "/sys/firmware/efi/efivars"
 
 
+def nazoos_kmps(alias):
+    """Module packages to install with kernel-nazoos from repo ALIAS: the
+    same as for kernel-default (NVIDIA, Xbox controllers) and those only
+    kernel-nazoos has."""
+    # Check first that our kernel project builds them: without its NVIDIA
+    # module kernel-nazoos would start without graphics driver
+    kmps = [kernel.kmp(b, "nazoos") for b in kernel.KMP_BASES
+            if rpm_installed(kernel.kmp(b, "default"))]
+    missing = [p for p in kmps if not repo_has(alias, p)]
+    gpu = [p for p in missing if p.startswith("nvidia-")]
+    if gpu:
+        raise Fail("the NazoOS kernel has no build of your NVIDIA driver "
+                   "({packages}); switch to the open NVIDIA driver on the "
+                   "Drivers page first", packages=", ".join(gpu))
+    for p in missing:
+        say(f"Note: {p} is not available, the device works only with "
+            "the openSUSE kernel")
+    # Modules only kernel-nazoos has (acpi_call): optional, skip if the
+    # repo has no build yet
+    extra = [p for p in (kernel.kmp(b, "nazoos")
+                         for b in kernel.KMP_NAZOOS_ONLY)
+             if repo_has(alias, p)]
+    return [p for p in kmps if p not in missing] + extra
+
+
 def kernel_install(_args):
     """Stage 1: kernel-nazoos next to kernel-default, default boot entry."""
     blockers = [p for p in kernel.KMP_DEFAULT_ONLY if rpm_installed(p)]
@@ -26,26 +51,7 @@ def kernel_install(_args):
         run(ZYPPER + ["addrepo", "--refresh", "--priority", "90",
                       kernel.KERNEL_REPO_URL, alias])
     run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
-    # Same kernel modules as for kernel-default (NVIDIA, Xbox controllers).
-    # Check first that our kernel project builds them: without its NVIDIA
-    # module kernel-nazoos would start without graphics driver
-    kmps = [f"{b}-kmp-nazoos" for b in kernel.KMP_BASES
-            if rpm_installed(f"{b}-kmp-default")]
-    missing = [p for p in kmps if not repo_has(alias, p)]
-    gpu = [p for p in missing if p.startswith("nvidia-")]
-    if gpu:
-        raise Fail("the NazoOS kernel has no build of your NVIDIA driver "
-                   "({packages}); switch to the open NVIDIA driver on the "
-                   "Drivers page first", packages=", ".join(gpu))
-    for p in missing:
-        say(f"Note: {p} is not available, the device works only with "
-            "the openSUSE kernel")
-    # Modules only kernel-nazoos has (acpi_call): optional, skip if the
-    # repo has no build yet
-    extra = [p for p in (f"{b}-kmp-nazoos" for b in kernel.KMP_NAZOOS_ONLY)
-             if repo_has(alias, p)]
-    pkgs = [kernel.KERNEL_PACKAGE] + [p for p in kmps if p not in missing] \
-        + extra
+    pkgs = [kernel.KERNEL_PACKAGE] + nazoos_kmps(alias)
     queued = prepare_mok(alias, pkgs)
     # Modules left from an earlier install stay out of "zypper in": a
     # newer build of them for the same kernel conflicts with the old one
@@ -68,7 +74,7 @@ def kernel_only(_args):
         raise Fail("start the NazoOS kernel first")
     remove = [f"-{p}" for p in
               [kernel.KERNEL_DEFAULT, "kernel-default-base"]
-              + [f"{b}-kmp-default" for b in kernel.KMP_BASES]
+              + [kernel.kmp(b, "default") for b in kernel.KMP_BASES]
               if rpm_installed(p)]
     # "-name" removes in the same transaction: zypper never has to pick a
     # conflict solution on its own
@@ -78,8 +84,8 @@ def kernel_only(_args):
 def kernel_restore(_args):
     """Way back: openSUSE kernel as default again, kernel-nazoos stays."""
     pkgs = [kernel.KERNEL_DEFAULT] + [
-        f"{b}-kmp-default" for b in kernel.KMP_BASES
-        if rpm_installed(f"{b}-kmp-nazoos")]
+        kernel.kmp(b, "default") for b in kernel.KMP_BASES
+        if rpm_installed(kernel.kmp(b, "nazoos"))]
     if rpm_installed(kernel.KERNEL_ONLY_PACKAGE):
         pkgs.append(f"-{kernel.KERNEL_ONLY_PACKAGE}")
     run(ZYPPER_IN + pkgs)
@@ -99,7 +105,7 @@ def kernel_remove(_args):
     if not rpm_installed(kernel.KERNEL_DEFAULT):
         raise Fail("the openSUSE kernel is not installed")
     pkgs = [p for p in [kernel.KERNEL_PACKAGE, kernel.KERNEL_ONLY_PACKAGE]
-            + [f"{b}-kmp-nazoos"
+            + [kernel.kmp(b, "nazoos")
                for b in kernel.KMP_BASES + kernel.KMP_NAZOOS_ONLY]
             if rpm_installed(p)]
     if pkgs:

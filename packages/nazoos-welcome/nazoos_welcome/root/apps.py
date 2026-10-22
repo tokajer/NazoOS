@@ -3,9 +3,12 @@
 """Optional apps: Flatpaks from Flathub and RPMs (catalog.APPS)."""
 
 import configparser
+import io
 import re
-import subprocess
 from pathlib import Path
+
+from nazoos_common import proc
+from nazoos_common.helper import write_atomic
 
 from .. import catalog, probes
 from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, arg, flathub_ensure,
@@ -49,8 +52,8 @@ def app_install(args):
         for unit in app.get("units", []):
             run(["systemctl", "enable", "--now", unit])
         firewall_trust(app.get("trusted", []), True)
-        if app["id"] == "waydroid":
-            waydroid_config()
+        if app.get("setup"):
+            SETUP[app["setup"]]()
         return
     flathub_ensure()
     # Extensions like Vulkan layers exist once per runtime version and
@@ -112,16 +115,21 @@ def waydroid_config():
     props.update(wanted)
     # 0755 like Waydroid's own: the GUI reads the config as the user
     path.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
-    with open(path, "w") as f:
-        cfg.write(f)
+    buf = io.StringIO()
+    cfg.write(buf)
+    write_atomic(path, buf.getvalue())
     if Path(catalog.WAYDROID_ROOTFS).is_dir():
         run(["waydroid", "upgrade", "--offline"])
 
 
+# Steps after an RPM install, by the "setup" key of catalog.APPS
+SETUP = {"waydroid": waydroid_config}
+
+
 def firewall_trust(ifaces, add):
     """Put network interfaces of an app into firewalld's trusted zone."""
-    if not ifaces or subprocess.run(
-            ["systemctl", "is-active", "--quiet", "firewalld"]).returncode:
+    if not ifaces or proc.rc(
+            ["systemctl", "is-active", "--quiet", "firewalld"]) != 0:
         return
     op = "--add" if add else "--remove"
     for iface in ifaces:

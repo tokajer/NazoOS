@@ -2,3 +2,4 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 module org.nazoos.common
 LogView 1.0 LogView.qml
+LogDialog 1.0 LogDialog.qml
