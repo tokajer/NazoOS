@@ -120,3 +120,52 @@ def test_deck_in_repos_caches_only_success(monkeypatch):
     assert system.deck_in_repos() is True
     assert system.deck_in_repos() is True
     assert len(calls) == 2
+
+
+UNIT_SHOW = """\
+UnitFileState=enabled
+ActiveState=active
+
+UnitFileState=enabled-runtime
+ActiveState=inactive
+
+"""
+
+
+def test_parse_unit_states():
+    units = ["a.service", "b.service", "missing.service"]
+    # systemctl prints a block per unit; a unit without one is off
+    assert system.parse_unit_states(UNIT_SHOW, units) == {
+        "a.service": (True, True), "b.service": (True, False),
+        "missing.service": (False, False)}
+    assert system.parse_unit_states("", ["x.service"]) == {
+        "x.service": (False, False)}
+    # A missing unit prints an empty UnitFileState; blank lines vary
+    text = ("\n\nUnitFileState=\nActiveState=inactive\n\n\n\n"
+            "UnitFileState=enabled\nActiveState=active\n")
+    assert system.parse_unit_states(text, ["gone.service", "a.service"]) == {
+        "gone.service": (False, False), "a.service": (True, True)}
+
+
+def test_unit_states_without_units_runs_nothing(monkeypatch):
+    monkeypatch.setattr(system.proc, "out", lambda cmd: 1 / 0)
+    assert system.unit_states([]) == {}
+
+
+def testpackman_repo_state(monkeypatch):
+    def state(found):
+        monkeypatch.setattr(system.repos, "repos", lambda: found)
+        return system.packman_repo()
+
+    url = "https://ftp.gwdg.de/pub/linux/misc/packman/suse/x/"
+    assert state([("p", url, True), ("o", "https://x/oss/", True)]) == "on"
+    assert state([("p", url, False)]) == "off"
+    assert state([("p", url, False), ("q", url, True)]) == "on"
+    assert state([("o", "https://x/oss/", True)]) == ""
+
+
+def test_packman_mix_ignores_disabled_repo(monkeypatch):
+    monkeypatch.setattr(repair.repos, "repos", lambda: [
+        ("p", "https://x/packman/suse/", False)])
+    monkeypatch.setattr(repair.proc, "out", lambda cmd, **kw: 1 / 0)
+    assert repair.packman_mix() == []

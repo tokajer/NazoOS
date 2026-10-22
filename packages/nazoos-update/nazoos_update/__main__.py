@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Entry point: python3 -m nazoos_update [--notify] [--page NAME]"""
+"""Entry point: python3 -m nazoos_update [--notify | --notify-one KEY] [--page NAME]"""
 
 import argparse
 import sys
@@ -14,6 +14,9 @@ def main():
     parser = argparse.ArgumentParser(prog="nazoos-update")
     parser.add_argument("--notify", action="store_true",
                         help="show notifications only (user timer)")
+    parser.add_argument("--notify-one", metavar="KEY",
+                        help="show one notification and wait for its "
+                        "button (own unit)")
     parser.add_argument("--page", default="update",
                         help="section to show: update or rollback")
     args, qt_args = parser.parse_known_args()
@@ -23,6 +26,9 @@ def main():
     if args.notify:
         from . import notify
         return notify.main()
+    if args.notify_one:
+        from . import notify
+        return notify.notify_one(args.notify_one)
 
     from nazoos_common.qt import QML_DIR, application, find_qml
     from nazoos_common.single import Instance

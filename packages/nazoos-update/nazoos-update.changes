@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 22 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Notifications no longer block later ones and the notification service
+  no longer ends as failed at logout.
+
+-------------------------------------------------------------------
 Thu Oct 22 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Snapshot names no longer stop working after several snapshots are

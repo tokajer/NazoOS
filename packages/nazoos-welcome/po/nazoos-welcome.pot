@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-21 21:40+0200\n"
+"POT-Creation-Date: 2026-10-22 08:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,56 +17,56 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../nazoos-common/nazoos_common/helper.py:91
+#: ../nazoos-common/nazoos_common/helper.py:92 nazoos_welcome/root/base.py:54
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:125
+#: ../nazoos-common/nazoos_common/helper.py:146
 msgid "missing argument"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:127
+#: ../nazoos-common/nazoos_common/helper.py:148
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:136
+#: ../nazoos-common/nazoos_common/helper.py:157
 msgid "must run as root (via pkexec)"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:140
+#: ../nazoos-common/nazoos_common/helper.py:161
 msgid "unknown action"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:153
+#: ../nazoos-common/nazoos_common/helper.py:174
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:157
+#: ../nazoos-common/nazoos_common/helper.py:178
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:99
+#: ../nazoos-common/nazoos_common/qt.py:132
 msgid "pkexec could not be started."
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:107 nazoos_welcome/backend.py:198
-#: nazoos_welcome/backend.py:315
+#: ../nazoos-common/nazoos_common/qt.py:140 nazoos_welcome/backend.py:198
+#: nazoos_welcome/backend.py:316
 msgid "Done."
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:111
+#: ../nazoos-common/nazoos_common/qt.py:144
 msgid "Cancelled: no administrator password was given."
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:113
+#: ../nazoos-common/nazoos_common/qt.py:146
 msgid "Something went wrong."
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:254
+#: ../nazoos-common/nazoos_common/qt.py:287
 msgid "This program is not installed."
 msgstr ""
 
@@ -74,7 +74,7 @@ msgstr ""
 msgid "These services still fail after a restart: %1"
 msgstr ""
 
-#: nazoos_welcome/backend.py:266
+#: nazoos_welcome/backend.py:267
 msgid ""
 "The password for the Secure Boot key could not be prepared (openssl is "
 "missing)."
@@ -432,29 +432,29 @@ msgstr ""
 msgid "{app} needs the NazoOS kernel (Kernel page)"
 msgstr ""
 
-#: nazoos_welcome/root/base.py:51
+#: nazoos_welcome/root/base.py:79
 msgid "unknown user"
 msgstr ""
 
-#: nazoos_welcome/root/base.py:71
+#: nazoos_welcome/root/base.py:90
 #, python-brace-format
 msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr ""
 
-#: nazoos_welcome/root/drivers.py:57
+#: nazoos_welcome/root/drivers.py:80
 msgid "gaming mode is not installed (nazoos-session)"
 msgstr ""
 
-#: nazoos_welcome/root/drives.py:94
+#: nazoos_welcome/root/drives.py:89
 msgid "this drive cannot be added here (removable or system drive)"
 msgstr ""
 
-#: nazoos_welcome/root/drives.py:124
+#: nazoos_welcome/root/drives.py:119
 #, python-brace-format
 msgid "the drive could not be mounted (exit code {rc})"
 msgstr ""
 
-#: nazoos_welcome/root/drives.py:139
+#: nazoos_welcome/root/drives.py:134
 msgid "only drives added by NazoOS Welcome can be removed here"
 msgstr ""
 
@@ -487,54 +487,54 @@ msgstr ""
 msgid "the openSUSE kernel is not installed"
 msgstr ""
 
-#: nazoos_welcome/root/maintenance.py:19
+#: nazoos_welcome/root/maintenance.py:21
 msgid "unknown service"
 msgstr ""
 
-#: nazoos_welcome/root/maintenance.py:80
+#: nazoos_welcome/root/maintenance.py:82
 msgid "nazoos-repos is not installed"
 msgstr ""
 
-#: nazoos_welcome/root/maintenance.py:93
+#: nazoos_welcome/root/maintenance.py:95
 #, python-brace-format
 msgid "the {channel} repository did not appear after refreshing the services"
 msgstr ""
 
-#: nazoos_welcome/root/mok.py:36
+#: nazoos_welcome/root/mok_queue.py:36
 msgid "the downloaded kernel package was not found"
 msgstr ""
 
-#: nazoos_welcome/root/mok.py:50
+#: nazoos_welcome/root/mok_queue.py:50
 msgid "the signing certificate could not be read"
 msgstr ""
 
-#: nazoos_welcome/root/mok.py:70
+#: nazoos_welcome/root/mok_queue.py:70
 msgid "a password for the Secure Boot key is needed"
 msgstr ""
 
-#: nazoos_welcome/root/mok.py:84
+#: nazoos_welcome/root/mok_queue.py:84
 #, python-brace-format
 msgid "the Secure Boot key could not be prepared (mokutil exit code {rc})"
 msgstr ""
 
-#: nazoos_welcome/root/mok.py:111 nazoos_welcome/root/mok.py:124
+#: nazoos_welcome/root/mok_queue.py:111 nazoos_welcome/root/mok_queue.py:124
 msgid "kernel-nazoos has no signing certificate"
 msgstr ""
 
-#: nazoos_welcome/root/repairs.py:43
+#: nazoos_welcome/root/repairs.py:46
 #, python-brace-format
 msgid "still missing after restoring the services: {repos}"
 msgstr ""
 
-#: nazoos_welcome/root/repairs.py:61
+#: nazoos_welcome/root/repairs.py:64
 msgid "Packman is not set up; install the codecs first"
 msgstr ""
 
-#: nazoos_welcome/root/repairs.py:81
+#: nazoos_welcome/root/repairs.py:88
 msgid "no NVIDIA driver is installed"
 msgstr ""
 
-#: nazoos_welcome/root/repairs.py:103
+#: nazoos_welcome/root/repairs.py:110
 #, python-brace-format
 msgid "still failing: {units}"
 msgstr ""
@@ -709,7 +709,7 @@ msgstr ""
 
 #: qml/pages/AppsPage.qml:110 qml/pages/DriversPage.qml:55
 #: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
-#: qml/pages/DriversPage.qml:120 qml/pages/GamingPage.qml:227
+#: qml/pages/DriversPage.qml:121 qml/pages/GamingPage.qml:227
 #: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:49
 #: qml/pages/KernelPage.qml:55 qml/pages/WelcomePage.qml:103
 msgid "Install"
@@ -752,7 +752,7 @@ msgid ""
 "performance on NVIDIA cards."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:116
+#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:117
 msgid "Not installed"
 msgstr ""
 
@@ -842,15 +842,19 @@ msgstr ""
 msgid "Packman is enabled, codecs are not installed yet"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:120 qml/pages/RepairPage.qml:47
+#: qml/pages/DriversPage.qml:116
+msgid "Packman is set up but switched off. Install switches it on again."
+msgstr ""
+
+#: qml/pages/DriversPage.qml:121 qml/pages/RepairPage.qml:47
 msgid "Reinstall"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:123
+#: qml/pages/DriversPage.qml:124
 msgid "Enable Packman codecs?"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:124
+#: qml/pages/DriversPage.qml:125
 msgid ""
 "Packman is run by an independent community, not by NazoOS or openSUSE. Some "
 "codecs may be subject to software patents in certain countries. You are "
@@ -859,25 +863,25 @@ msgid ""
 "Installed multimedia packages will be switched to Packman's versions."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:125
+#: qml/pages/DriversPage.qml:126
 msgid "Enable"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:130
+#: qml/pages/DriversPage.qml:131
 msgid "Firmware"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:134
+#: qml/pages/DriversPage.qml:135
 msgid "Firmware updates"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:135
+#: qml/pages/DriversPage.qml:136
 msgid ""
 "BIOS/UEFI, SSD and device firmware updates from the vendors (LVFS) appear in "
 "Discover together with the other updates."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:137
+#: qml/pages/DriversPage.qml:138
 msgid "Open Discover"
 msgstr ""
 

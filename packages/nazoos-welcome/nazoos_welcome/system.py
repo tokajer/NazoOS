@@ -55,11 +55,30 @@ def parse_gpus(lspci_text):
     return result
 
 
-def unit_state(unit, user=False):
+def parse_unit_states(text, units):
+    """{unit: (enabled, active)} out of the `systemctl show --property=
+    UnitFileState,ActiveState UNITS` text. One block per unit, in
+    argument order (Id would differ for aliases)."""
+    blocks = [b for b in re.split(r"\n\s*\n", text) if b.strip()]
+    blocks += [""] * (len(units) - len(blocks))
+    result = {}
+    for unit, block in zip(units, blocks, strict=False):
+        props = dict(line.split("=", 1) for line in block.splitlines()
+                     if "=" in line)
+        result[unit] = (props.get("UnitFileState") in
+                        ("enabled", "enabled-runtime"),
+                        props.get("ActiveState") == "active")
+    return result
+
+
+def unit_states(units, user=False):
+    """One systemctl call for all UNITS: {unit: (enabled, active)}."""
+    if not units:
+        return {}
     base = ["systemctl", "--user"] if user else ["systemctl"]
-    enabled = proc.out(base + ["is-enabled", unit]).strip()
-    active = proc.out(base + ["is-active", unit]).strip()
-    return enabled in ("enabled", "enabled-runtime"), active == "active"
+    return parse_unit_states(
+        proc.out(base + ["show", "--property=UnitFileState,ActiveState"]
+                 + list(units)), units)
 
 
 def grub_cmdline():
@@ -321,6 +340,12 @@ def deck_in_repos():
     return _deck_found
 
 
+def packman_repo():
+    """"on" (an enabled Packman repo), "off" (only disabled ones), ""."""
+    found = [on for _a, url, on in repos.repos() if "/packman/" in url]
+    return "on" if any(found) else "off" if found else ""
+
+
 def _drivers(rpms, gpu_list):
     vendors = {g["vendor"] for g in gpu_list}
     nvidia_variant = ""
@@ -337,15 +362,15 @@ def _drivers(rpms, gpu_list):
         "nvidiaDriver": nvidia_variant,
         "nvidiaLoaded": Path("/sys/module/nvidia").exists(),
         "rocm": catalog.ROCM_PACKAGES[0] in rpms,
-        "packmanRepo": repos.with_url("/packman/") is not None,
+        "packmanRepo": packman_repo(),
         # gstreamer-plugins-bad-codecs only exists in Packman
         "codecs": "packman" in rpms.get("ffmpeg", "").lower()
                   or "gstreamer-plugins-bad-codecs" in rpms,
     }
 
 
-def _gaming(rpms):
-    scx_enabled, scx_active = unit_state("scx.service")
+def _gaming(rpms, units):
+    scx_enabled, scx_active = units["scx.service"]
     m = re.search(r"^\s*SCX_SCHEDULER\s*=\s*\"?([\w-]+)",
                   proc.read("/etc/default/scx"), re.M)
     deck_installed = catalog.DECK_PATTERN in rpms
@@ -378,10 +403,11 @@ def _apps(rpms, flatpaks):
     }
 
 
-def _services(rpms):
+def _services(rpms, system_units, user_units):
     services = {}
     for s in catalog.SERVICES:
-        enabled, active = unit_state(s["unit"], s["user"])
+        enabled, active = (user_units if s["user"]
+                           else system_units)[s["unit"]]
         services[s["id"]] = {"installed": s["package"] in rpms,
                              "enabled": enabled, "active": active}
     return {"services": services}
@@ -418,6 +444,10 @@ def collect():
                  + [r for a in catalog.APPS if a["kind"] == "rpm"
                     for r in a["refs"]])
     rpms = rpm_vendors(sorted(set(rpm_names)))
+    system_units = unit_states(["scx.service"] + [
+        s["unit"] for s in catalog.SERVICES if not s["user"]])
+    user_units = unit_states(
+        [s["unit"] for s in catalog.SERVICES if s["user"]], user=True)
     result = {
         "live": proc.is_live(),
         "autostart": autostart_enabled(),
@@ -425,9 +455,9 @@ def collect():
         "kernel": kernel_state(),
         "channel": update_channel(),
         **_drivers(rpms, gpus()),
-        **_gaming(rpms),
+        **_gaming(rpms, system_units),
         **_apps(rpms, flatpak_installed()),
-        **_services(rpms),
+        **_services(rpms, system_units, user_units),
         **_kparams(),
         **_tools(),
     }
@@ -461,7 +491,7 @@ def sysinfo(state=None):
         f"Kernel: {platform.release()}",
         f"Cmdline: {proc.read('/proc/cmdline').strip()}",
         f"CPU: {cpu.group(1) if cpu else 'unknown'}",
-        f"RAM: {int(mem.group(1)) // 1024 // 1024 + 1 if mem else '?'} GB",
+        f"RAM: {round(int(mem.group(1)) / 1024 ** 2) if mem else '?'} GB",
         f"Session: {os.environ.get('XDG_SESSION_TYPE', '?')} / "
         f"{os.environ.get('XDG_CURRENT_DESKTOP', '?')}",
         f"Secure Boot: {sb}",

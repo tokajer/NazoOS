@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 22 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- A switched-off Packman repository is shown correctly; pages refresh
+  faster; RAM size in the system info is rounded correctly.
+
+-------------------------------------------------------------------
 Thu Oct 22 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Codecs and NVIDIA install switch on a Packman or NVIDIA repo the

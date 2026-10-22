@@ -112,7 +112,8 @@ Kirigami.ScrollablePage {
             title: L.tr("Multimedia codecs (Packman)")
             subtitle: L.tr("Full FFmpeg and GStreamer codecs, e.g. for H.264/H.265 videos, streaming and video editing. They come from Packman, a community repository outside of NazoOS and openSUSE.")
             status: page.st.codecs ? L.tr("Installed")
-                    : page.st.packmanRepo ? L.tr("Packman is enabled, codecs are not installed yet")
+                    : page.st.packmanRepo === "on" ? L.tr("Packman is enabled, codecs are not installed yet")
+                    : page.st.packmanRepo === "off" ? L.tr("Packman is set up but switched off. Install switches it on again.")
                     : L.tr("Not installed")
             statusType: page.st.codecs ? 1 : 0
             QQC2.Button {

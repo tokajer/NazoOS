@@ -4,7 +4,8 @@
 
 Reads the status written by the root check and shows at most one
 notification per state, with a button that opens the GUI. No Qt here:
-notify-send (libnotify) waits for the click and prints the action.
+notify-send (libnotify) waits for the click and prints the action; that
+wait runs in a transient unit per notification (--notify-one).
 """
 
 import hashlib
@@ -12,7 +13,6 @@ import json
 import os
 import shutil
 import subprocess
-import threading
 import time
 import uuid
 from pathlib import Path
@@ -28,8 +28,6 @@ STATE = Path(os.environ.get("XDG_STATE_HOME",
 REMIND = 24 * 3600
 # Complain about failing checks only after this time without a good one
 CHECK_GRACE = 3 * 24 * 3600
-
-_threads = []
 
 
 def _launch(cmd):
@@ -55,36 +53,47 @@ def _load():
 
 
 def _save(data):
+    # The longest remind time is 7 days; older keys would pile up
+    cutoff = int(time.time()) - 8 * 24 * 3600
+    data = {k: t for k, t in data.items() if t > cutoff}
     STATE.mkdir(parents=True, exist_ok=True)
     (STATE / "notified.json").write_text(json.dumps(data))
 
 
-def _send(key, title, body, action, page, icon="system-software-update",
-          urgency="normal", command=None, remind=REMIND):
-    """Show a notification; on click start the GUI on PAGE (or COMMAND)."""
+def _show(n):
+    """Show the notification and wait for its button (blocks until it is
+    closed); on click start the GUI on its page or command."""
+    r = subprocess.run(
+        ["notify-send", "--app-name=NazoOS Update", f"--icon={n['icon']}",
+         f"--urgency={n['urgency']}", f"--action=open={n['action']}",
+         "--hint=string:desktop-entry:org.nazoos.update",
+         n["title"], n["body"]],
+        capture_output=True, text=True)
+    if r.stdout.strip() == "open":
+        _launch(n["command"] or ["nazoos-update", "--page", n["page"]])
+
+
+def _send(n):
+    """Show N unless it was shown within its remind time. The blocking
+    notify-send runs in its own unit, so this service ends at once and
+    the timer can run again."""
     seen = _load()
     now = int(time.time())
-    if seen.get(key, 0) > now - remind:
+    if seen.get(n["key"], 0) > now - n["remind"]:
         return
-    seen[key] = now
-    _save(seen)
     if not shutil.which("notify-send"):
         return
-
-    # notify-send blocks until the notification is closed: one thread
-    # per notification, so several can be shown at the same time
-    def wait():
-        r = subprocess.run(
-            ["notify-send", "--app-name=NazoOS Update", f"--icon={icon}",
-             f"--urgency={urgency}", f"--action=open={action}",
-             "--hint=string:desktop-entry:org.nazoos.update", title, body],
-            capture_output=True, text=True)
-        if r.stdout.strip() == "open":
-            _launch(command or ["nazoos-update", "--page", page])
-
-    t = threading.Thread(target=wait)
-    t.start()
-    _threads.append(t)
+    # Keys only contain [a-z0-9-]. A still open notification with the
+    # same key makes this fail every hour: it is shown already
+    r = subprocess.run(
+        ["systemd-run", "--user", "--quiet", "--collect",
+         f"--unit=nazoos-update-notice-{n['key']}.service", "--",
+         "nazoos-update", "--notify-one", n["key"]],
+        stderr=subprocess.DEVNULL)
+    if r.returncode != 0:
+        return
+    seen[n["key"]] = now
+    _save(seen)
 
 
 def _fingerprint(st):
@@ -92,60 +101,85 @@ def _fingerprint(st):
     return hashlib.sha1("\n".join(sorted(items)).encode()).hexdigest()[:16]
 
 
-def main():
-    if proc.is_live():
-        return 0
-    st = status.collect()
+def _item(key, title, body, action, page, icon="system-software-update",
+          urgency="normal", command=None, remind=REMIND):
+    return {"key": key, "title": title, "body": body, "action": action,
+            "page": page, "icon": icon, "urgency": urgency,
+            "command": command, "remind": remind}
 
+
+def pending(st, now, kernel_stable, has_welcome):
+    """The notifications that apply to status ST, as dicts for _send."""
     snap = st["snapshot"]
     if snap:
-        _send(f"snapshot-{snap}",
-              _("Started from a snapshot"),
-              _("The system runs from an older, read-only snapshot. If "
-                "everything works, you can make this state permanent."),
-              _("Make permanent"), "rollback", icon="edit-undo",
-              urgency="critical")
-        for t in _threads:
-            t.join()
-        return 0
+        return [_item(f"snapshot-{snap}",
+                      _("Started from a snapshot"),
+                      _("The system runs from an older, read-only "
+                        "snapshot. If everything works, you can make this "
+                        "state permanent."),
+                      _("Make permanent"), "rollback", icon="edit-undo",
+                      urgency="critical")]
 
+    items = []
     if st.get("needs_reboot"):
-        _send(f"reboot-{st.get('updated', 0)}",
-              _("Restart required"),
-              _("Updates were installed. Restart the computer to use "
-                "them."),
-              _("Open"), "update", icon="system-reboot")
+        items.append(_item(f"reboot-{st.get('updated', 0)}",
+                           _("Restart required"),
+                           _("Updates were installed. Restart the "
+                             "computer to use them."),
+                           _("Open"), "update", icon="system-reboot"))
 
-    if kernelstate.stable() and shutil.which("nazoos-welcome"):
-        _send("kernel-stable",
-              _("NazoOS kernel runs stable"),
-              _("The NazoOS kernel started cleanly several times in a row. "
-                "Remove the openSUSE kernel now?"),
-              _("Open"), "", icon="preferences-system-linux",
-              command=["nazoos-welcome", "--page", "kernel"],
-              remind=7 * 24 * 3600)
+    if kernel_stable and has_welcome:
+        items.append(_item(
+            "kernel-stable",
+            _("NazoOS kernel runs stable"),
+            _("The NazoOS kernel started cleanly several times in a row. "
+              "Remove the openSUSE kernel now?"),
+            _("Open"), "", icon="preferences-system-linux",
+            command=["nazoos-welcome", "--page", "kernel"],
+            remind=7 * 24 * 3600))
 
-    now = int(time.time())
     err = st.get("error")
     if err == status.ERROR_CONFLICT:
-        _send(f"conflict-{st.get('checked', 0) // REMIND}",
-              _("Update needs your decision"),
-              _("The update cannot be installed automatically because "
-                "of a package conflict."),
-              _("Fix"), "update", icon="dialog-warning")
+        items.append(_item(f"conflict-{st.get('checked', 0) // REMIND}",
+                           _("Update needs your decision"),
+                           _("The update cannot be installed automatically "
+                             "because of a package conflict."),
+                           _("Fix"), "update", icon="dialog-warning"))
     elif err and now - st.get("last_ok", now) > CHECK_GRACE:
-        _send(f"error-{now // REMIND}",
-              _("Update check does not work"),
-              _("NazoOS could not check for updates for several days. "
-                "Is the computer connected to the internet?"),
-              _("Fix"), "update", icon="dialog-warning")
+        items.append(_item(f"error-{now // REMIND}",
+                           _("Update check does not work"),
+                           _("NazoOS could not check for updates for "
+                             "several days. Is the computer connected to "
+                             "the internet?"),
+                           _("Fix"), "update", icon="dialog-warning"))
 
     if st["count"] and err != status.ERROR_CONFLICT:
         n = st["count"]
         body = ngettext("%d update is ready to install.",
                         "%d updates are ready to install.", n) % n
-        _send(f"updates-{_fingerprint(st)}", _("Updates available"), body,
-              _("Update now"), "update")
-    for t in _threads:
-        t.join()
+        items.append(_item(f"updates-{_fingerprint(st)}",
+                           _("Updates available"), body,
+                           _("Update now"), "update"))
+    return items
+
+
+def _pending_now():
+    return pending(status.collect(), int(time.time()), kernelstate.stable(),
+                   shutil.which("nazoos-welcome") is not None)
+
+
+def main():
+    if proc.is_live():
+        return 0
+    for item in _pending_now():
+        _send(item)
+    return 0
+
+
+def notify_one(key):
+    """Own unit of one notification (--notify-one): show it and wait."""
+    for item in _pending_now():
+        if item["key"] == key:
+            _show(item)
+            break
     return 0

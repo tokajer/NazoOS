@@ -2,9 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """nazoos_common.mok and kernelstate without mokutil or rpm."""
 
+import fcntl
+
 import pytest
 
-from nazoos_common import helper, kernelstate, mok, repos
+from nazoos_common import helper, kernel, kernelstate, mok, repos
 
 FPR = "SHA1 Fingerprint=AB:CD:EF:01\n"
 
@@ -233,3 +235,43 @@ def test_write_atomic_leaves_no_temp_file_after_a_failure(monkeypatch,
         helper.write_atomic(f, "new\n")
     assert f.read_text() == "old"
     assert [x.name for x in tmp_path.iterdir()] == ["conf"]
+
+
+def test_update_grub_default_unchanged_is_not_written(monkeypatch, tmp_path):
+    default = tmp_path / "grub"
+    default.write_text("A=1\n")
+    monkeypatch.setattr(kernel, "GRUB_LOCK", tmp_path / "lock")
+    monkeypatch.setattr(kernel, "GRUB_DEFAULT_FILE", default)
+    monkeypatch.setattr(helper, "write_atomic", lambda *a: 1 / 0)
+    assert kernel.update_grub_default(lambda t: t) is False
+
+
+def test_update_grub_default_without_lock_dir(monkeypatch, tmp_path):
+    default = tmp_path / "grub"
+    default.write_text("A=1\n")
+    monkeypatch.setattr(kernel, "GRUB_LOCK", tmp_path / "missing" / "lock")
+    monkeypatch.setattr(kernel, "GRUB_DEFAULT_FILE", default)
+    assert kernel.update_grub_default(lambda t: t + "B=2\n") is True
+    assert default.read_text() == "A=1\nB=2\n"
+
+
+def test_update_grub_default_holds_the_lock(monkeypatch, tmp_path):
+    lock = tmp_path / "grub.lock"
+    default = tmp_path / "grub"
+    default.write_text("A=1\n")
+    monkeypatch.setattr(kernel, "GRUB_LOCK", lock)
+    monkeypatch.setattr(kernel, "GRUB_DEFAULT_FILE", default)
+    held = []
+
+    def update(text):
+        with open(lock, "w") as other:
+            try:
+                fcntl.flock(other, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                held.append(False)
+            except BlockingIOError:
+                held.append(True)
+        return text + "B=2\n"
+
+    assert kernel.update_grub_default(update) is True
+    assert held == [True]
+    assert default.read_text() == "A=1\nB=2\n"

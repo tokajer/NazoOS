@@ -6,8 +6,8 @@ Only fixed actions with ids from catalog.py are accepted. Package names,
 paths and commands never come from the caller.
 """
 
-from . import (apps, drivers, drives, kernel_switch, maintenance, mok,
-               repairs, tuning)
+from . import (apps, drivers, drives, kernel_switch, maintenance,
+               mok_queue, repairs, tuning)
 
 ACTIONS = {
     "codecs-install": drivers.codecs_install,
@@ -24,7 +24,7 @@ ACTIONS = {
     "kernel-only": kernel_switch.kernel_only,
     "kernel-restore": kernel_switch.kernel_restore,
     "kernel-remove": kernel_switch.kernel_remove,
-    "mok-import": mok.mok_import,
+    "mok-import": mok_queue.mok_import,
     "app-install": apps.app_install,
     "app-remove": apps.app_remove,
     "service": maintenance.service,

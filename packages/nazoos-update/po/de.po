@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-21 21:52+0200\n"
+"POT-Creation-Date: 2026-10-21 21:59+0200\n"
 "PO-Revision-Date: 2026-10-10 15:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,55 +16,55 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../nazoos-common/nazoos_common/helper.py:91
+#: ../nazoos-common/nazoos_common/helper.py:92
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr "„{cmd}“ ist fehlgeschlagen (Exit-Code {rc})"
 
-#: ../nazoos-common/nazoos_common/helper.py:125
+#: ../nazoos-common/nazoos_common/helper.py:146
 msgid "missing argument"
 msgstr "Angabe fehlt"
 
-#: ../nazoos-common/nazoos_common/helper.py:127
+#: ../nazoos-common/nazoos_common/helper.py:148
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr "ungültige Angabe: {arg}"
 
-#: ../nazoos-common/nazoos_common/helper.py:136
+#: ../nazoos-common/nazoos_common/helper.py:157
 msgid "must run as root (via pkexec)"
 msgstr "muss mit Administratorrechten laufen (über pkexec)"
 
-#: ../nazoos-common/nazoos_common/helper.py:140
+#: ../nazoos-common/nazoos_common/helper.py:161
 msgid "unknown action"
 msgstr "unbekannte Aktion"
 
-#: ../nazoos-common/nazoos_common/helper.py:153
+#: ../nazoos-common/nazoos_common/helper.py:174
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr "Systemfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/helper.py:157
+#: ../nazoos-common/nazoos_common/helper.py:178
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr "Programmfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/qt.py:99
+#: ../nazoos-common/nazoos_common/qt.py:132
 msgid "pkexec could not be started."
 msgstr "pkexec konnte nicht gestartet werden."
 
-#: ../nazoos-common/nazoos_common/qt.py:107
+#: ../nazoos-common/nazoos_common/qt.py:140
 msgid "Done."
 msgstr "Fertig."
 
-#: ../nazoos-common/nazoos_common/qt.py:111
+#: ../nazoos-common/nazoos_common/qt.py:144
 msgid "Cancelled: no administrator password was given."
 msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
 
-#: ../nazoos-common/nazoos_common/qt.py:113
+#: ../nazoos-common/nazoos_common/qt.py:146
 msgid "Something went wrong."
 msgstr "Etwas ist schiefgelaufen."
 
-#: ../nazoos-common/nazoos_common/qt.py:254
+#: ../nazoos-common/nazoos_common/qt.py:287
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
@@ -80,11 +80,11 @@ msgstr "Updates werden installiert"
 msgid "Making the snapshot permanent"
 msgstr "Snapshot wird dauerhaft übernommen"
 
-#: nazoos_update/notify.py:103
+#: nazoos_update/notify.py:115
 msgid "Started from a snapshot"
 msgstr "Von einem Snapshot gestartet"
 
-#: nazoos_update/notify.py:104
+#: nazoos_update/notify.py:116
 msgid ""
 "The system runs from an older, read-only snapshot. If everything works, you "
 "can make this state permanent."
@@ -92,19 +92,19 @@ msgstr ""
 "Das System läuft von einem älteren, schreibgeschützten Snapshot. Wenn alles "
 "funktioniert, können Sie diesen Stand dauerhaft übernehmen."
 
-#: nazoos_update/notify.py:114
+#: nazoos_update/notify.py:125
 msgid "Restart required"
 msgstr "Neustart erforderlich"
 
-#: nazoos_update/notify.py:117 nazoos_update/notify.py:124
+#: nazoos_update/notify.py:128 nazoos_update/notify.py:136
 msgid "Open"
 msgstr "Öffnen"
 
-#: nazoos_update/notify.py:121
+#: nazoos_update/notify.py:133
 msgid "NazoOS kernel runs stable"
 msgstr "NazoOS-Kernel läuft stabil"
 
-#: nazoos_update/notify.py:122
+#: nazoos_update/notify.py:134
 msgid ""
 "The NazoOS kernel started cleanly several times in a row. Remove the "
 "openSUSE kernel now?"
@@ -112,26 +112,26 @@ msgstr ""
 "Der NazoOS-Kernel ist mehrmals hintereinander sauber gestartet. Den openSUSE-"
 "Kernel jetzt entfernen?"
 
-#: nazoos_update/notify.py:132
+#: nazoos_update/notify.py:143
 msgid "Update needs your decision"
 msgstr "Update braucht Ihre Entscheidung"
 
-#: nazoos_update/notify.py:133
+#: nazoos_update/notify.py:144
 msgid ""
 "The update cannot be installed automatically because of a package conflict."
 msgstr ""
 "Das Update kann wegen eines Paketkonflikts nicht automatisch installiert "
 "werden."
 
-#: nazoos_update/notify.py:135 nazoos_update/notify.py:141
+#: nazoos_update/notify.py:146 nazoos_update/notify.py:153
 msgid "Fix"
 msgstr "Beheben"
 
-#: nazoos_update/notify.py:138
+#: nazoos_update/notify.py:149
 msgid "Update check does not work"
 msgstr "Update-Prüfung funktioniert nicht"
 
-#: nazoos_update/notify.py:139
+#: nazoos_update/notify.py:150
 msgid ""
 "NazoOS could not check for updates for several days. Is the computer "
 "connected to the internet?"
@@ -139,38 +139,38 @@ msgstr ""
 "NazoOS konnte seit mehreren Tagen nicht nach Updates suchen. Ist der "
 "Computer mit dem Internet verbunden?"
 
-#: nazoos_update/notify.py:145
+#: nazoos_update/notify.py:157
 #, python-format
 msgid "%d update is ready to install."
 msgid_plural "%d updates are ready to install."
 msgstr[0] "%d Update ist bereit zur Installation."
 msgstr[1] "%d Updates sind bereit zur Installation."
 
-#: nazoos_update/notify.py:147
+#: nazoos_update/notify.py:160
 msgid "Updates available"
 msgstr "Updates verfügbar"
 
-#: nazoos_update/root/check.py:84
+#: nazoos_update/root/check.py:79
 msgid "zypper returned no readable answer"
 msgstr "zypper hat keine lesbare Antwort geliefert"
 
-#: nazoos_update/root/check.py:96
+#: nazoos_update/root/check.py:91
 #, python-brace-format
 msgid "zypper reported: {detail}"
 msgstr "zypper meldet: {detail}"
 
-#: nazoos_update/root/check.py:97
+#: nazoos_update/root/check.py:92
 #, python-brace-format
 msgid "zypper failed (exit code {rc})"
 msgstr "zypper ist fehlgeschlagen (Exit-Code {rc})"
 
-#: nazoos_update/root/check.py:148
+#: nazoos_update/root/check.py:143
 msgid "the package sources could not be refreshed (no internet connection?)"
 msgstr ""
 "die Paketquellen konnten nicht aktualisiert werden (keine "
 "Internetverbindung?)"
 
-#: nazoos_update/root/check.py:174 nazoos_update/root/update.py:64
+#: nazoos_update/root/check.py:169 nazoos_update/root/update.py:64
 #, python-brace-format
 msgid "the update needs a decision: {problem}"
 msgstr "das Update braucht eine Entscheidung: {problem}"
@@ -199,12 +199,12 @@ msgstr "Automatischer Snapshot"
 msgid "Before rollback"
 msgstr "Vor dem Zurücksetzen"
 
-#: nazoos_update/root/snapshots.py:104
+#: nazoos_update/root/snapshots.py:130
 #, no-python-format
 msgid "%Y-%m-%d %H:%M"
 msgstr "%d.%m.%Y %H:%M"
 
-#: nazoos_update/root/snapshots.py:137
+#: nazoos_update/root/snapshots.py:163
 msgid "the system was not started from a snapshot"
 msgstr "das System wurde nicht von einem Snapshot gestartet"
 

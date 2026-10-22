@@ -9,7 +9,7 @@ from nazoos_common import kernel, kernelstate
 
 from .base import (ZYPPER, ZYPPER_IN, Fail, repo_has, rpm_installed, run,
                    running_nazoos, say)
-from .mok import MOK_RESTART, prepare_mok
+from .mok_queue import MOK_RESTART, prepare_mok
 
 EFIVARS = "/sys/firmware/efi/efivars"
 

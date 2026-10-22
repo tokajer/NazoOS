@@ -13,8 +13,7 @@ import shutil
 import time
 from pathlib import Path
 
-from nazoos_common import proc
-from nazoos_common import repos as zypp_repos
+from nazoos_common import proc, repos
 
 from . import catalog, system
 
@@ -24,26 +23,26 @@ def _finding(fid, items=(), fix="", user_only=False):
             "userOnly": user_only}
 
 
-def repos():
+def repo_findings():
     """Repo services, standard Tumbleweed repos and the NazoOS repo that
     are missing or disabled."""
-    found = [(url, on) for _alias, url, on in zypp_repos.repos()
+    found = [(url, on) for _alias, url, on in repos.repos()
              if "opensuse.org" in url]
-    return repo_problems(found, zypp_repos.services())
+    return repo_problems(found, repos.services())
 
 
-def repo_problems(repos, services):
+def repo_problems(repo_list, services):
     """Names of the missing or disabled repo services, standard repos and
-    the NazoOS repo. REPOS: (baseurl, enabled) of the opensuse.org repos,
+    the NazoOS repo. REPO_LIST: (baseurl, enabled) of the opensuse.org repos,
     SERVICES: {name: enabled}."""
     found = {}
-    for url, enabled in repos:
-        path = zypp_repos.url_path(url)
+    for url, enabled in repo_list:
+        path = repos.url_path(url)
         found[path] = found.get(path, False) or enabled
     bad = [s["name"] for s in catalog.REPO_SERVICES
            if not services.get(s["name"])]
     for repo in catalog.STANDARD_REPOS:
-        if found.get(zypp_repos.url_path(repo["url"])) is not True:
+        if found.get(repos.url_path(repo["url"])) is not True:
             bad.append(repo["alias"])
     if (not any(found.get(p) for p in catalog.NAZOOS_REPO_PATHS)
             and "nazoos" not in bad):
@@ -65,7 +64,8 @@ def unsatisfied():
 
 def packman_mix():
     """openSUSE builds of packages Packman replaces, while Packman is used."""
-    if zypp_repos.with_url("/packman/") is None:
+    # A repo the user switched off on purpose is not a mix
+    if system.packman_repo() != "on":
         return []
     return mixed_packman(proc.out(["rpm", "-qa", "--qf",
                                    "%{NAME}\t%{VENDOR}\n"]))
@@ -133,7 +133,7 @@ def check():
     out = []
     if rpmdb_broken():
         out.append(_finding("rpmdb", fix="repair-rpmdb"))
-    bad = repos()
+    bad = repo_findings()
     if bad:
         out.append(_finding("repos", bad, "repair-repos"))
     deps = unsatisfied()

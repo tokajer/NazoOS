@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 22 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Changes to the boot settings from two programs at once no longer get
+  lost.
+
+-------------------------------------------------------------------
 Thu Oct 22 02:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - New module repos (one reader for the zypp repos and services),

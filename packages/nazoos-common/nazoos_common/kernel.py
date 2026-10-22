@@ -7,6 +7,8 @@ The GUIs only read here; the root helpers and nazoos-kernel-boot write.
 State files: kernelstate, Secure Boot key: mok. No Qt imports here.
 """
 
+import contextlib
+import fcntl
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -37,6 +39,7 @@ KMP_NAZOOS_ONLY = ["acpi_call"]
 GRUB_CFG = Path("/boot/grub2/grub.cfg")
 GRUB_DEFAULT_FILE = Path("/etc/default/grub")
 BOOT = Path("/boot")
+GRUB_LOCK = Path("/run/nazoos-grub.lock")
 CMDLINE_RE = re.compile(r'^GRUB_CMDLINE_LINUX_DEFAULT=(["\']?)(.*?)\1\s*$',
                         re.M)
 
@@ -81,11 +84,20 @@ def top_entry(cfg_text):
 
 def update_grub_default(update):
     """Apply UPDATE (text -> text) to /etc/default/grub; True if changed."""
-    text = GRUB_DEFAULT_FILE.read_text()
-    new = update(text)
-    if new != text:
-        helper.write_atomic(GRUB_DEFAULT_FILE, new)
-    return new != text
+    # welcome, nazoos-update and the kernel file trigger may write at the
+    # same time: without the lock one read-modify-write loses the other
+    with contextlib.ExitStack() as stack:
+        try:
+            lock = stack.enter_context(open(GRUB_LOCK, "w"))
+        except OSError:  # no writable /run (odd chroot): go on unlocked
+            lock = None
+        if lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+        text = GRUB_DEFAULT_FILE.read_text()
+        new = update(text)
+        if new != text:
+            helper.write_atomic(GRUB_DEFAULT_FILE, new)
+        return new != text
 
 
 def grub_refresh():
