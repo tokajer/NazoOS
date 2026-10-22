@@ -4,9 +4,8 @@
 
 import re
 import xml.etree.ElementTree as ET
-from pathlib import Path
 
-from nazoos_common import repos, zypper
+from nazoos_common import proc, repos, zypper
 from nazoos_common.helper import FLATPAK, Fail, capture, say
 
 from .. import status
@@ -118,7 +117,7 @@ def mirrors_behind(pkgs):
 
 
 def flatpak_updates():
-    if not Path("/usr/bin/flatpak").exists():
+    if not proc.has("flatpak"):
         return []
     r = capture(FLATPAK + ["remote-ls", "--updates",
                            "--columns=application,branch"])

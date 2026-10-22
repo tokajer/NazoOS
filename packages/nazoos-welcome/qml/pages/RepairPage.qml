@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Repair page (ADR 0012): check finds known problems (repair.py), every
+// Repair page (ADR 0012): check finds known problems (repair_checks.py), every
 // finding has its own fix button; tools and bug report below.
 
 import QtQuick
@@ -28,7 +28,7 @@ Kirigami.ScrollablePage {
         }
     }
 
-    // Texts per finding id (ids from nazoos_welcome/repair.py)
+    // Texts per finding id (ids from nazoos_welcome/repair_checks.py)
     readonly property var texts: ({
         rpmdb: { icon: "package-broken", title: L.tr("Package database is damaged"),
                  text: L.tr("The list of installed packages cannot be read. Rebuilding it fixes most cases."),
@@ -59,7 +59,7 @@ Kirigami.ScrollablePage {
     })
 
     function doFix(f) {
-        if (f.id === "units") {
+        if (f.userFix) {
             // user units are restarted without a password
             backend.fixUnits(f.fix !== "")
         } else {
@@ -104,9 +104,9 @@ Kirigami.ScrollablePage {
                 title: t.title
                 subtitle: t.text
                 status: modelData.items.join(", ")
-                statusType: 2
+                statusType: SettingCard.Neutral
                 QQC2.Button {
-                    visible: t.button !== "" && (modelData.fix !== "" || modelData.userOnly)
+                    visible: t.button !== "" && (modelData.fix !== "" || modelData.userFix)
                     enabled: !backend.busy
                     text: t.button
                     icon.name: "tools-wizard"

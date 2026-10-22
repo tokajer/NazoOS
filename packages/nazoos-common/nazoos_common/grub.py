@@ -124,15 +124,18 @@ def cmdline_options(text):
 
 
 def cmdline_set(key, option):
-    """Replace the option `key` (or key=...) with `option`, None removes it."""
+    """Replace the option `key` (or key=...) with `option`, None removes it.
+    OPTION may be a function of the current options: it then runs under
+    the GRUB lock."""
     line = ""
 
     def update(text):
         nonlocal line
         m = _cmdline_match(text)
         opts = [o for o in m.group(2).split() if o.split("=")[0] != key]
-        if option is not None:
-            opts.append(option)
+        new = option(m.group(2).split()) if callable(option) else option
+        if new is not None:
+            opts.append(new)
         line = 'GRUB_CMDLINE_LINUX_DEFAULT="' + " ".join(opts) + '"'
         return text[:m.start()] + line + text[m.end():]
 

@@ -104,7 +104,7 @@ Kirigami.ScrollablePage {
                                     : (modelData.kind === "flatpak" ? "Flatpak" : "RPM")
                                     + (installed ? " · " + L.tr("Installed") : "")
                                     + (software ? " · " + L.tr("Software rendering (slower)") : "")
-                            statusType: needsKernel ? 2 : installed ? 1 : 0
+                            statusType: needsKernel ? SettingCard.Neutral : installed ? SettingCard.Positive : SettingCard.Normal
                             QQC2.Button {
                                 enabled: !backend.busy && !needsKernel
                                 text: installed ? L.tr("Remove") : L.tr("Install")

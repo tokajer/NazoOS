@@ -37,7 +37,7 @@ def main():
     if "--grub-only" in sys.argv or flavor != "nazoos":
         return 0
     release = os.uname().release
-    if not release.endswith("-nazoos"):
+    if not kernel.running_nazoos():
         # Started kernel-default on purpose (GRUB menu): neither good nor bad
         return 0
     # Waits until the boot is finished: "running" or "degraded"

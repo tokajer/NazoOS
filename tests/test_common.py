@@ -56,9 +56,9 @@ def test_status_missing(tools):
 def test_signing_cert(tools):
     tools["rpm -ql"] = ("/boot/vmlinuz-7.2.11-1-nazoos\n"
                         "/etc/uefi/certs/4D7A1A2B.crt\n")
-    assert mok.signing_cert() == "/etc/uefi/certs/4D7A1A2B.crt"
+    assert mok.signing_cert("kernel-nazoos") == "/etc/uefi/certs/4D7A1A2B.crt"
     tools["rpm -ql"] = "package kernel-nazoos is not installed\n"
-    assert mok.signing_cert() is None
+    assert mok.signing_cert("kernel-nazoos") is None
 
 
 @pytest.fixture
@@ -88,7 +88,7 @@ def test_stable(monkeypatch, state, prefer, count, installed, expected):
     if prefer:
         kernelstate.PREFER.touch()
     kernelstate.write_boots({"count": count})
-    monkeypatch.setattr(kernel.helper, "rpm_installed",
+    monkeypatch.setattr(kernel.proc, "rpm_installed",
                         lambda n: n in installed)
     assert kernel.stable() is expected
 
@@ -293,3 +293,43 @@ def test_sb_state(monkeypatch, rc, stdout, expected):
     monkeypatch.setattr(mok.subprocess, "run", run)
     assert mok.sb_state() == expected
     assert mok.uefi() is expected[0]
+
+
+@pytest.mark.parametrize("rc, stdout, expected", [
+    (0, "$6$abc$def\n", "$6$abc$def"),
+    (1, "$6$abc$def\n", ""),
+    (0, "garbage\n", ""),
+])
+def test_password_hash(monkeypatch, rc, stdout, expected):
+    def run(cmd, **kw):
+        return subprocess.CompletedProcess(cmd, rc, stdout, "")
+
+    monkeypatch.setattr(mok.subprocess, "run", run)
+    assert mok.password_hash("secret") == expected
+
+
+def test_password_hash_without_openssl(monkeypatch):
+    def run(cmd, **kw):
+        raise OSError("no openssl")
+
+    monkeypatch.setattr(mok.subprocess, "run", run)
+    assert mok.password_hash("secret") == ""
+
+
+def test_cmdline_set_callable_sees_the_current_options(monkeypatch, tmp_path):
+    default = tmp_path / "grub"
+    default.write_text('GRUB_CMDLINE_LINUX_DEFAULT="quiet a=1 b=2"\nX=1\n')
+    monkeypatch.setattr(grub, "GRUB_LOCK", tmp_path / "lock")
+    monkeypatch.setattr(grub, "GRUB_DEFAULT_FILE", default)
+    monkeypatch.setattr(grub, "grub_refresh", lambda: None)
+    monkeypatch.setattr(helper, "say", lambda text: None)
+    seen = []
+
+    def option(options):
+        seen.append(options)
+        return "a=3"
+
+    grub.cmdline_set("a", option)
+    assert seen == [["quiet", "a=1", "b=2"]]
+    assert default.read_text() == (
+        'GRUB_CMDLINE_LINUX_DEFAULT="quiet b=2 a=3"\nX=1\n')

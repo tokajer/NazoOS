@@ -50,7 +50,7 @@ Kirigami.ScrollablePage {
                         : modelData.mountpoint
                           ? L.tr("Mounted only for now at %1").arg(modelData.mountpoint)
                           : L.tr("Not mounted")
-                statusType: modelData.managed ? 1 : 0
+                statusType: modelData.managed ? SettingCard.Positive : SettingCard.Normal
                 QQC2.Button {
                     visible: modelData.managed && modelData.mountpoint !== ""
                     text: L.tr("Open")

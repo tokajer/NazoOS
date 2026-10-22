@@ -35,7 +35,7 @@ Kirigami.ScrollablePage {
             status: !page.st.nvidiaDriver ? L.tr("Not installed")
                     : page.st.nvidiaLoaded ? L.tr("Installed and active")
                     : L.tr("Installed – restart the computer to activate it")
-            statusType: !page.st.nvidiaDriver ? 2 : page.st.nvidiaLoaded ? 1 : 2
+            statusType: !page.st.nvidiaDriver ? SettingCard.Neutral : page.st.nvidiaLoaded ? SettingCard.Positive : SettingCard.Neutral
             extraContent: [
                 QQC2.ComboBox {
                     id: nvVariant
@@ -75,7 +75,7 @@ Kirigami.ScrollablePage {
             title: L.tr("AMD and Intel graphics")
             subtitle: L.tr("The open-source Mesa drivers are already included and kept up to date with the system. Nothing to do.")
             status: L.tr("Ready")
-            statusType: 1
+            statusType: SettingCard.Positive
         }
 
         SettingCard {
@@ -84,7 +84,7 @@ Kirigami.ScrollablePage {
             title: L.tr("ROCm for AMD graphics (optional)")
             subtitle: L.tr("Lets programs compute on the graphics card: Blender (HIP), DaVinci Resolve (OpenCL) and local AI tools. Not needed for games. Officially supported are Radeon RX 6000 (RDNA 2) and newer.")
             status: page.st.rocm ? L.tr("Installed") : ""
-            statusType: page.st.rocm ? 1 : 0
+            statusType: page.st.rocm ? SettingCard.Positive : SettingCard.Normal
             QQC2.Button {
                 visible: !page.st.rocm
                 enabled: !backend.busy
@@ -115,7 +115,7 @@ Kirigami.ScrollablePage {
                     : page.st.packmanRepo === "on" ? L.tr("Packman is enabled, codecs are not installed yet")
                     : page.st.packmanRepo === "off" ? L.tr("Packman is set up but switched off. Install switches it on again.")
                     : L.tr("Not installed")
-            statusType: page.st.codecs ? 1 : 0
+            statusType: page.st.codecs ? SettingCard.Positive : SettingCard.Normal
             QQC2.Button {
                 enabled: !backend.busy
                 text: page.st.codecs ? L.tr("Reinstall") : L.tr("Install")

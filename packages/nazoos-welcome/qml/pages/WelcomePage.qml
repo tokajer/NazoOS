@@ -123,7 +123,7 @@ Kirigami.ScrollablePage {
                 status: page.app.st.hasNvidia && !page.app.st.nvidiaDriver
                         ? L.tr("NVIDIA graphics card without driver")
                         : ""
-                statusType: 2
+                statusType: SettingCard.Neutral
                 QQC2.Button {
                     text: L.tr("Open")
                     onClicked: page.app.showPage("drivers")

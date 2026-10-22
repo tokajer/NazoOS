@@ -30,10 +30,9 @@ def main():
         from . import notify
         return notify.notify_one(args.notify_one)
 
-    from nazoos_common.qt import QML_DIR, application, find_qml
+    from nazoos_common.qt import application, run_qml
     from nazoos_common.single import Instance
-    from PySide6.QtCore import QCoreApplication, QUrl
-    from PySide6.QtQml import QQmlApplicationEngine
+    from PySide6.QtCore import QCoreApplication
 
     from .backend import Backend
     from .i18n import qml_translator
@@ -47,29 +46,16 @@ def main():
         instance.send(args.page)
         return 0
 
-    app = application("nazoos-update", "NazoOS Update", "org.nazoos.update",
-                      ("system-software-update",), VERSION, qt_args)
+    # Kept alive: the application dies with its last reference
+    _app = application("nazoos-update", "NazoOS Update", "org.nazoos.update",
+                       ("system-software-update",), VERSION, qt_args)
 
     translator = qml_translator()
     backend = Backend()
 
-    engine = QQmlApplicationEngine()
-    ctx = engine.rootContext()
-    ctx.setContextProperty("L", translator)
-    ctx.setContextProperty("backend", backend)
-    ctx.setContextProperty("startPage", args.page)
-    ctx.setContextProperty("instance", instance)
-    engine.addImportPath(QML_DIR)
-    engine.load(QUrl.fromLocalFile(
-        str(find_qml(__file__, "nazoos-update"))))
-    if not engine.rootObjects():
-        return 1
-    instance.listen()
-    rc = app.exec()
-    # The engine must go before the translator: QML bindings still call
-    # L.tr() while it is torn down ("Cannot call method 'tr' of null")
-    del engine
-    return rc
+    return run_qml(__file__, "nazoos-update", instance,
+                   {"L": translator, "backend": backend,
+                    "startPage": args.page})
 
 
 if __name__ == "__main__":

@@ -12,8 +12,10 @@ import threading
 import traceback
 from pathlib import Path
 
-from PySide6.QtCore import Property, QObject, QProcess, QTimer, Signal, Slot
+from PySide6.QtCore import (Property, QObject, QProcess, QTimer, QUrl, Signal,
+                            Slot)
 from PySide6.QtGui import QGuiApplication, QIcon
+from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtQuickControls2 import QQuickStyle
 from PySide6.QtWidgets import QApplication
 
@@ -55,6 +57,26 @@ def application(name, display_name, desktop_id, icons, version, qt_args):
     app.setWindowIcon(icon)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
     return app
+
+
+def run_qml(package_file, name, instance, context):
+    """Load NAME's Main.qml with the CONTEXT properties (and the single
+    instance as "instance"), run the event loop, return its exit code."""
+    engine = QQmlApplicationEngine()
+    ctx = engine.rootContext()
+    for key, value in context.items():
+        ctx.setContextProperty(key, value)
+    ctx.setContextProperty("instance", instance)
+    engine.addImportPath(QML_DIR)
+    engine.load(QUrl.fromLocalFile(str(find_qml(package_file, name))))
+    if not engine.rootObjects():
+        return 1
+    instance.listen()
+    rc = QApplication.instance().exec()
+    # The engine must go before the translator: QML bindings still call
+    # L.tr() while it is torn down ("Cannot call method 'tr' of null")
+    del engine
+    return rc
 
 
 class Translator(QObject):

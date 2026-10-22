@@ -4,9 +4,8 @@
 
 import re
 import time
-from pathlib import Path
 
-from nazoos_common import helper, kernel, mok, zypper
+from nazoos_common import helper, kernel, mok, proc, zypper
 from nazoos_common.helper import FLATPAK, Fail, capture, run, say
 
 from .. import status
@@ -30,7 +29,7 @@ def nazoos_key_missing():
     hash Calamares writes, ADR 0024)."""
     if not mok.uefi():
         return False
-    cert = mok.signing_cert()
+    cert = mok.signing_cert(kernel.KERNEL_PACKAGE)
     return cert is not None and mok.status(cert) == "missing"
 
 
@@ -72,7 +71,7 @@ def after_update_extras(dup_ran):
             kernel.sync_modules()
         except (Fail, OSError) as e:
             say(f"Note: {e}")
-    if Path("/usr/bin/flatpak").exists():
+    if proc.has("flatpak"):
         run(FLATPAK + ["update", "--noninteractive", "-y"], check=False)
         run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"],
             check=False)
@@ -124,7 +123,7 @@ def update(_args):
             raise Fail("the system update failed (zypper exit code {rc})",
                        rc=rc)
     after_update_extras(bool(cmd))
-    reboot = capture(["zypper", "needs-rebooting"]).returncode == 102
+    reboot = capture(["zypper", "needs-rebooting"]).returncode == zypper.NEEDS_REBOOT
     status.write(status.new(
         behind=list(behind) if behind else None, needs_reboot=reboot,
         updated=int(time.time())))

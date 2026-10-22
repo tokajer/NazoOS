@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from . import kernel, proc
+from . import proc
 
 CERT_PATH = re.compile(r"/etc/uefi/certs/\w+\.crt")
 
@@ -36,11 +36,24 @@ def uefi():
     return sb_state()[0]
 
 
-def signing_cert(package=kernel.KERNEL_PACKAGE):
+def signing_cert(package):
     """Path of the certificate that signs PACKAGE, or None."""
     certs = [f for f in proc.out(["rpm", "-ql", package]).split()
              if CERT_PATH.fullmatch(f)]
     return certs[0] if certs else None
+
+
+def password_hash(password):
+    """SHA-512 crypt hash (openssl passwd -6) of PASSWORD, "" if openssl
+    fails."""
+    try:
+        r = subprocess.run(["openssl", "passwd", "-6", "-stdin"],
+                           input=password, capture_output=True, text=True,
+                           timeout=10)
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    out = r.stdout.strip() if r.returncode == 0 else ""
+    return out if out.startswith("$6$") else ""
 
 
 def enrolled(cert):

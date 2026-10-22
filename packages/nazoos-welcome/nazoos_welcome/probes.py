@@ -7,13 +7,14 @@ import os
 import platform
 import re
 import shlex
-import shutil
 import subprocess
+import traceback
 from pathlib import Path
 
-from nazoos_common import grub, kernel, kernelstate, mok, proc, repos
+from nazoos_common import (grub, kernel, kernelstate, mok, proc, repos,
+                           zypper)
 
-from . import autostart, catalog
+from . import autostart, catalog, pollrate
 
 
 def rpm_vendors(names):
@@ -89,7 +90,7 @@ def flathub_configured():
 
 
 def flatpak_installed():
-    if shutil.which("flatpak") is None:
+    if not proc.has("flatpak"):
         return set()
     return set(proc.out(["flatpak", "list",
                      "--columns=application"]).split())
@@ -201,7 +202,7 @@ def usb_input_devices():
 
 def pollrate_state():
     """USB polling rate overrides (kernel-nazoos only)."""
-    configured = catalog.pollrate_from_cmdline(grub_cmdline())
+    configured = pollrate.from_cmdline(grub_cmdline())
     devices = usb_input_devices()
     ids = {d["id"] for d in devices}
     # Devices with an override that are not plugged in: can be reset
@@ -210,7 +211,7 @@ def pollrate_state():
             devices.append({"id": vp, "name": vp, "hz": 0,
                             "connected": False})
     return {
-        "available": Path(catalog.POLLRATE_SYSFS).exists(),
+        "available": Path(pollrate.SYSFS).exists(),
         "devices": devices,
         "configured": configured,
     }
@@ -238,7 +239,7 @@ def kernel_state():
     uefi, secure_boot, sb_raw = mok.sb_state()
     key = ""
     if uefi and kernel.KERNEL_PACKAGE in rpms:
-        cert = mok.signing_cert()
+        cert = mok.signing_cert(kernel.KERNEL_PACKAGE)
         if cert:
             key = ("enrolled" if mok.enrolled(cert)
                    else "pending" if _requested_this_boot()
@@ -246,7 +247,7 @@ def kernel_state():
     boots = kernelstate.read_boots()
     return {
         "release": release,
-        "running": release.endswith("-nazoos"),
+        "running": kernel.running_nazoos(),
         "installed": kernel.KERNEL_PACKAGE in rpms,
         "defaultInstalled": kernel.KERNEL_DEFAULT in rpms,
         "only": kernel.KERNEL_ONLY_PACKAGE in rpms,
@@ -278,8 +279,8 @@ def session_state():
         if r and r.returncode == 0:
             handheld = r.stdout.strip() or "handheld"
     return {
-        "installed": shutil.which("nazoos-session-select") is not None,
-        "steam": shutil.which("steam") is not None,
+        "installed": proc.has("nazoos-session-select"),
+        "steam": proc.has("steam"),
         "bootGaming": conf.get("BOOT_MODE") == "gaming",
         "user": conf.get("USER", ""),
         "handheld": handheld,
@@ -311,9 +312,9 @@ def deck_in_repos():
     if _deck_found:
         return True
     _deck_found = proc.rc(
-        ["zypper", "--non-interactive", "--no-refresh", "--quiet",
-         "search", "--type", "pattern", "--match-exact",
-         catalog.DECK_PATTERN], timeout=90) == 0
+        zypper.ZYPPER + ["--no-refresh", "--quiet", "search", "--type",
+                         "pattern", "--match-exact", catalog.DECK_PATTERN],
+        timeout=90) == 0
     return _deck_found
 
 
@@ -401,13 +402,23 @@ def _kparams():
 
 def _tools():
     return {
-        "hasBtrfsAssistant": shutil.which("btrfs-assistant") is not None,
-        "hasNazoosUpdate": shutil.which("nazoos-update") is not None,
-        "hasLact": shutil.which("lact") is not None,
-        "hasCoolerControl": shutil.which("coolercontrol") is not None,
-        "hasDiscover": shutil.which("plasma-discover") is not None,
-        "hasMyrlyn": shutil.which("myrlyn") is not None,
+        "hasBtrfsAssistant": proc.has("btrfs-assistant"),
+        "hasNazoosUpdate": proc.has("nazoos-update"),
+        "hasLact": proc.has("lact"),
+        "hasCoolerControl": proc.has("coolercontrol"),
+        "hasDiscover": proc.has("plasma-discover"),
+        "hasMyrlyn": proc.has("myrlyn"),
     }
+
+
+def _part(default, probe):
+    """probe() or, if it fails, DEFAULT: one broken probe does not drop
+    the rest of the state."""
+    try:
+        return probe()
+    except Exception:
+        traceback.print_exc()
+        return default
 
 
 def collect():
@@ -427,57 +438,15 @@ def collect():
     result = {
         "live": proc.is_live(),
         "autostart": autostart.enabled(),
-        "drives": drives(),
-        "kernel": kernel_state(),
-        "channel": update_channel(),
-        **_drivers(rpms, gpus()),
-        **_gaming(rpms, system_units),
-        **_apps(rpms, flatpak_installed()),
-        **_services(rpms, system_units, user_units),
-        **_kparams(),
-        **_tools(),
+        "drives": _part([], drives),
+        "kernel": _part({}, kernel_state),
+        "channel": _part("", update_channel),
+        **_part({}, lambda: _drivers(rpms, gpus())),
+        **_part({}, lambda: _gaming(rpms, system_units)),
+        **_part({}, lambda: _apps(rpms, flatpak_installed())),
+        **_part({}, lambda: _services(rpms, system_units, user_units)),
+        **_part({}, _kparams),
+        **_part({}, _tools),
     }
-    try:
-        result["sysinfo"] = sysinfo(result)
-    except Exception as e:
-        result["sysinfo"] = str(e)
     return result
 
-
-def sysinfo(state=None):
-    """Plain text summary for bug reports."""
-    osr = {}
-    for line in proc.read("/etc/os-release").splitlines():
-        if "=" in line:
-            k, v = line.split("=", 1)
-            osr[k] = v.strip('"')
-    cpu = re.search(r"^model name\s*:\s*(.+)$", proc.read("/proc/cpuinfo"), re.M)
-    mem = re.search(r"^MemTotal:\s*(\d+)", proc.read("/proc/meminfo"), re.M)
-    k = (state or {}).get("kernel", {})
-    sb = k["sbState"] if "sbState" in k else mok.sb_state()[2]
-    if not sb:
-        # mokutil explains on stderr only: firmware without Secure Boot
-        # (some VMs) or legacy BIOS
-        sb = ("not supported" if shutil.which("mokutil")
-              else "unknown (mokutil missing)")
-    lines = [
-        f"OS: {osr.get('PRETTY_NAME', 'unknown')} "
-        f"({osr.get('VERSION_ID', '')})",
-        f"Kernel: {platform.release()}",
-        f"Cmdline: {proc.read('/proc/cmdline').strip()}",
-        f"CPU: {cpu.group(1) if cpu else 'unknown'}",
-        f"RAM: {round(int(mem.group(1)) / 1024 ** 2) if mem else '?'} GB",
-        f"Session: {os.environ.get('XDG_SESSION_TYPE', '?')} / "
-        f"{os.environ.get('XDG_CURRENT_DESKTOP', '?')}",
-        f"Secure Boot: {sb}",
-    ]
-    state = state or {}
-    for g in state["gpus"] if "gpus" in state else gpus():
-        lines.append(f"GPU: {g['name']}")
-    if state:
-        lines.append(f"NVIDIA driver: {state.get('nvidiaDriver') or '-'}"
-                     f" (loaded: {state.get('nvidiaLoaded')})")
-        lines.append(f"Packman codecs: {state.get('codecs')}")
-        lines.append(f"scx: {state.get('scxScheduler') or '-'}"
-                     f" (active: {state.get('scxActive')})")
-    return "\n".join(lines)

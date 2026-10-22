@@ -192,7 +192,14 @@ KERNEL_PARAMS = [
     {"id": "mitigations-off", "param": "mitigations=off",
      "gpu": None, "warning": True, "name": "Disable CPU mitigations",
      "summary": "A few percent more performance on older CPUs, "
-                "but removes protection against Spectre-type attacks"},
+                "but removes protection against Spectre-type attacks",
+     "confirm": {
+         "title": "Disable CPU security mitigations?",
+         "text": "This removes protection against Spectre, Meltdown and "
+                 "similar CPU attacks. Malicious websites or programs could "
+                 "read data from other programs. Only do this if you know "
+                 "the risk.",
+         "ok": "Disable mitigations"}},
     # kernel-nazoos only (0008-0014 patches); kernel-default ignores it.
     # Shown on CPUs without the tsc_adjust flag (most AMD CPUs incl. the
     # Steam Deck). Not on by default: it writes the TSC directly
@@ -203,42 +210,6 @@ KERNEL_PARAMS = [
                 "clock falls back to HPET (Steam Deck, some AMD systems). "
                 "Needs the NazoOS kernel"},
 ]
-
-# USB polling rate per device (kernel-nazoos patch 0022, like Nobara's
-# custom-device-pollrates). Kernel option VID:PID:ms[,VID:PID:ms...];
-# usbcore loads from the initrd, so only the command line keeps it over a restart.
-# The sysfs file exists only in kernel-nazoos and holds at most 127 chars.
-POLLRATE_PARAM = "usbcore.interrupt_interval_override"
-POLLRATE_SYSFS = "/sys/module/usbcore/parameters/interrupt_interval_override"
-POLLRATE_MAXLEN = 127
-# Interval in ms: 0 = device default, then 125, 250, 500 and 1000 Hz
-POLLRATE_INTERVALS = [0, 8, 4, 2, 1]
-
-
-def pollrate_parse(value):
-    """{"045e:028e": 1, ...} from "045e:028e:1,..." (bad entries dropped)."""
-    result = {}
-    for entry in value.strip().split(","):
-        parts = entry.strip().lower().split(":")
-        if (len(parts) == 3 and all(len(p) == 4 for p in parts[:2])
-                and all(c in "0123456789abcdef" for c in parts[0] + parts[1])
-                and parts[2].isdigit() and int(parts[2]) > 0):
-            result[f"{parts[0]}:{parts[1]}"] = int(parts[2])
-    return result
-
-
-def pollrate_from_cmdline(options):
-    """Overrides configured in the kernel options OPTIONS (list), {} if none."""
-    overrides = {}
-    for opt in options:
-        if opt.startswith(POLLRATE_PARAM + "="):
-            overrides = pollrate_parse(opt.split("=", 1)[1])
-    return overrides
-
-
-def pollrate_format(overrides):
-    return ",".join(f"{vp}:{ms}" for vp, ms in sorted(overrides.items()))
-
 
 # sched_ext schedulers offered in the UI (ADR 0002), default first
 SCX_SCHEDULERS = ["scx_lavd", "scx_bpfland", "scx_rusty", "scx_flash"]

@@ -7,7 +7,7 @@ paths and commands never come from the caller.
 """
 
 from . import (apps, drivers, drives, kernel_switch, maintenance,
-               mok_queue, repairs, tuning)
+               mok_queue, repair_fixes, session, tuning)
 
 ACTIONS = {
     "codecs-install": drivers.codecs_install,
@@ -15,7 +15,7 @@ ACTIONS = {
     "rocm-install": drivers.rocm_install,
     "rocm-remove": drivers.rocm_remove,
     "deck-install": drivers.deck_install,
-    "session-boot-mode": drivers.session_boot_mode,
+    "session-boot-mode": session.session_boot_mode,
     "scx-enable": tuning.scx_enable,
     "scx-disable": tuning.scx_disable,
     "kparam": tuning.kparam,
@@ -35,15 +35,15 @@ ACTIONS = {
     "flatpak-repair": maintenance.flatpak_repair,
     "snapshot": maintenance.snapshot,
     "channel": maintenance.channel,
-    "repair-repos": repairs.repair_repos,
-    "repair-rpmdb": repairs.repair_rpmdb,
-    "repair-deps": repairs.repair_deps,
-    "repair-packman": repairs.repair_packman,
-    "repair-nvidia": repairs.repair_nvidia,
-    "repair-units": repairs.repair_units,
-    "repair-space": repairs.repair_space,
-    "repair-flathub": repairs.repair_flathub,
-    "repair-boot": repairs.repair_boot,
+    "repair-repos": repair_fixes.repair_repos,
+    "repair-rpmdb": repair_fixes.repair_rpmdb,
+    "repair-deps": repair_fixes.repair_deps,
+    "repair-packman": repair_fixes.repair_packman,
+    "repair-nvidia": repair_fixes.repair_nvidia,
+    "repair-units": repair_fixes.repair_units,
+    "repair-space": repair_fixes.repair_space,
+    "repair-flathub": repair_fixes.repair_flathub,
+    "repair-boot": repair_fixes.repair_boot,
     "automount-add": drives.automount_add,
     "automount-remove": drives.automount_remove,
 }

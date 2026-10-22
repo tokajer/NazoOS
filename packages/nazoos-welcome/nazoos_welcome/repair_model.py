@@ -4,7 +4,7 @@
 
 from PySide6.QtCore import Property, QObject, Signal, Slot
 
-from . import repair
+from . import repair_checks, report
 
 
 class RepairModel(QObject):
@@ -49,9 +49,9 @@ class RepairModel(QObject):
 
         def failed(e):  # a broken probe is a finding too
             self._set_findings([{"id": "error", "items": [str(e)],
-                                 "fix": "", "userOnly": False}])
+                                 "fix": "", "userFix": False}])
 
-        self._backend.background(repair.check, self._set_findings, failed)
+        self._backend.background(repair_checks.check, self._set_findings, failed)
 
     def _set_findings(self, found):
         self._checking = False
@@ -75,4 +75,4 @@ class RepairModel(QObject):
             backend.report_error("report", str(e))
 
         backend.background(
-            lambda: repair.report(state, findings, log), done, failed)
+            lambda: report.report(state, findings, log), done, failed)

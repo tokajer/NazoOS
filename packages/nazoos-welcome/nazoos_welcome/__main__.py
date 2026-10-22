@@ -6,10 +6,9 @@ import argparse
 import sys
 
 from nazoos_common import proc
-from nazoos_common.qt import QML_DIR, application, find_qml
+from nazoos_common.qt import application, run_qml
 from nazoos_common.single import Instance
-from PySide6.QtCore import QCoreApplication, QUrl
-from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtCore import QCoreApplication
 
 from . import autostart
 from .backend import Backend
@@ -44,34 +43,21 @@ def main():
             instance.send(args.page)
         return 0
 
-    app = application("nazoos-welcome", "NazoOS Welcome",
-                      "org.nazoos.welcome",
-                      ("nazoos-logo", "start-here"), VERSION, qt_args)
+    # Kept alive: the application dies with its last reference
+    _app = application("nazoos-welcome", "NazoOS Welcome",
+                       "org.nazoos.welcome",
+                       ("nazoos-logo", "start-here"), VERSION, qt_args)
 
     translator = make_translator()
     backend = Backend(translator)
     repair = RepairModel(backend)
 
-    engine = QQmlApplicationEngine()
-    ctx = engine.rootContext()
-    ctx.setContextProperty("L", translator)
-    ctx.setContextProperty("backend", backend)
-    ctx.setContextProperty("repair", repair)
-    ctx.setContextProperty("startPage", args.page or "welcome")
-    ctx.setContextProperty("instance", instance)
-    ctx.setContextProperty("appVersion", VERSION)
-    engine.addImportPath(QML_DIR)
-    engine.load(QUrl.fromLocalFile(
-        str(find_qml(__file__, "nazoos-welcome"))))
-    if not engine.rootObjects():
-        return 1
-    instance.listen()
+    # Only starts a thread: the result arrives through the event loop
     backend.refresh()
-    rc = app.exec()
-    # The engine must go before the translator: QML bindings still call
-    # L.tr() while it is torn down ("Cannot call method 'tr' of null")
-    del engine
-    return rc
+    return run_qml(__file__, "nazoos-welcome", instance,
+                   {"L": translator, "backend": backend, "repair": repair,
+                    "startPage": args.page or "welcome",
+                    "appVersion": VERSION})
 
 
 if __name__ == "__main__":

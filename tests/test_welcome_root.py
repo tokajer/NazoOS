@@ -8,9 +8,11 @@ import types
 
 import pytest
 
+from nazoos_common import grub, helper, kernel, mok, proc
 from nazoos_welcome import catalog
+from nazoos_welcome.pollrate import PARAM
 from nazoos_welcome.root import (apps, base, drivers, drives, kernel_switch,
-                                 maintenance, mok_queue, repairs, tuning)
+                                 maintenance, mok_queue, repair_fixes, tuning)
 
 MARK = catalog.FSTAB_MARKER
 
@@ -56,11 +58,11 @@ def test_kernel_install_leaves_installed_modules_to_the_swap(monkeypatch,
     ks = kernel_switch
     installed = {"xone-kmp-default", "xone-kmp-nazoos"}
     calls, swapped = [], []
-    monkeypatch.setattr(ks, "rpm_installed", lambda p: p in installed)
+    monkeypatch.setattr(proc, "rpm_installed", lambda p: p in installed)
     monkeypatch.setattr(ks.kernel, "kernel_repo", lambda: "nazoos-kernel")
     monkeypatch.setattr(ks, "repo_has", lambda alias, p: True)
     monkeypatch.setattr(ks, "prepare_mok", lambda alias, pkgs: False)
-    monkeypatch.setattr(ks, "run", lambda cmd, **kw: calls.append(cmd))
+    monkeypatch.setattr(helper, "run", lambda cmd, **kw: calls.append(cmd))
     monkeypatch.setattr(ks.kernel, "swap_rebuilds",
                         lambda alias, names: swapped.extend(names))
     monkeypatch.setattr(ks, "say", lambda text: None)
@@ -89,7 +91,7 @@ def add_env(monkeypatch, tmp_path):
         {"uuid": "abcd", "fstype": "ext4", "label": "Games",
          "managed": False}])
     monkeypatch.setattr(drives, "caller", lambda: (1000,))
-    monkeypatch.setattr(drives, "output", lambda cmd: "100\n")
+    monkeypatch.setattr(helper, "output", lambda cmd: "100\n")
     monkeypatch.setattr(drives, "say", lambda *a: None)
     return fstab
 
@@ -97,7 +99,7 @@ def add_env(monkeypatch, tmp_path):
 def test_add_refuses_a_drive_the_gui_would_not_offer(monkeypatch, add_env):
     monkeypatch.setattr(drives.probes, "drives", lambda: [])
     ran = []
-    monkeypatch.setattr(drives, "run", lambda *a, **k: ran.append(a) or 0)
+    monkeypatch.setattr(helper, "run", lambda *a, **k: ran.append(a) or 0)
     with pytest.raises(drives.Fail, match="removable or system drive"):
         drives.automount_add(["abcd"])
     assert add_env.read_text() == FSTAB_TEXT and not ran
@@ -109,7 +111,7 @@ def _failing_mount(monkeypatch):
     def run(cmd, check=True):
         ran.append(cmd[0])
         return 32 if cmd[0] == "mount" else 0
-    monkeypatch.setattr(drives, "run", run)
+    monkeypatch.setattr(helper, "run", run)
     return ran
 
 
@@ -136,13 +138,11 @@ def test_add_keeps_a_mount_dir_that_already_existed(monkeypatch, add_env,
 def _pollrate_env(monkeypatch, tmp_path, calls):
     sysfs = tmp_path / "interrupt_interval_override"
     sysfs.write_text("\n")
-    monkeypatch.setattr(catalog, "POLLRATE_SYSFS", str(sysfs))
+    monkeypatch.setattr(tuning, "SYSFS", str(sysfs))
     monkeypatch.setattr(tuning.probes, "usb_input_devices",
                         lambda: [{"id": "046d:c08b"}])
-    grub_file = tmp_path / "grub"
-    grub_file.write_text('GRUB_CMDLINE_LINUX_DEFAULT="quiet"\n')
-    monkeypatch.setattr(tuning.grub, "GRUB_DEFAULT_FILE", grub_file)
-    monkeypatch.setattr(tuning, "cmdline_set", lambda *a: calls.append(a))
+    monkeypatch.setattr(tuning, "cmdline_set", lambda key, option: calls.append(
+        (key, option(["quiet"]))))
     monkeypatch.setattr(tuning, "say", lambda *a: None)
 
 
@@ -158,7 +158,24 @@ def test_pollrate_sets_a_connected_device(monkeypatch, tmp_path):
     calls = []
     _pollrate_env(monkeypatch, tmp_path, calls)
     tuning.pollrate(["046d:c08b", "1"])
-    assert calls and calls[0][0] == catalog.POLLRATE_PARAM
+    assert calls == [(PARAM, f"{PARAM}=046d:c08b:1")]
+
+
+def test_pollrate_too_long_leaves_grub_unchanged(monkeypatch, fake_root,
+                                                 tmp_path):
+    sysfs = tmp_path / "interrupt_interval_override"
+    sysfs.write_text("\n")
+    monkeypatch.setattr(tuning, "SYSFS", str(sysfs))
+    monkeypatch.setattr(tuning.probes, "usb_input_devices",
+                        lambda: [{"id": "046d:c08b"}])
+    full = ",".join(f"{i:04x}:0001:1" for i in range(10))
+    text = f'GRUB_CMDLINE_LINUX_DEFAULT="quiet {PARAM}={full}"\n'
+    grub.GRUB_DEFAULT_FILE.write_text(text)
+    with pytest.raises(tuning.Fail, match="too many"):
+        tuning.pollrate(["046d:c08b", "1"])
+    assert grub.GRUB_DEFAULT_FILE.read_text() == text
+    assert fake_root.calls == []
+    assert sysfs.read_text() == "\n"
 
 
 def test_held_32bit():
@@ -173,8 +190,8 @@ def test_packman_switch_keeps_32bit_when_dup_fails(monkeypatch, tmp_path):
     def fake_run(cmd, check=True, **kw):
         calls.append(cmd)
         return next(codes)
-    monkeypatch.setattr(base, "run", fake_run)
-    monkeypatch.setattr(base, "output", lambda cmd: "libavcodec62-32bit\n")
+    monkeypatch.setattr(helper, "run", fake_run)
+    monkeypatch.setattr(helper, "output", lambda cmd: "libavcodec62-32bit\n")
     base.packman_switch("packman")
     verbs = [c[2] for c in calls]
     assert verbs == ["--gpg-auto-import-keys", "dist-upgrade", "addlock",
@@ -184,9 +201,9 @@ def test_packman_switch_keeps_32bit_when_dup_fails(monkeypatch, tmp_path):
 
 def test_packman_switch_fails_without_32bit(monkeypatch, tmp_path):
     monkeypatch.setattr(base, "ZYPP_LOCKS", tmp_path / "locks")
-    monkeypatch.setattr(base, "run", lambda cmd, check=True: 0
+    monkeypatch.setattr(helper, "run", lambda cmd, check=True: 0
                         if "refresh" in cmd else 4)
-    monkeypatch.setattr(base, "output", lambda cmd: "bash\n")
+    monkeypatch.setattr(helper, "output", lambda cmd: "bash\n")
     with pytest.raises(base.Fail):
         base.packman_switch("packman")
 
@@ -200,8 +217,8 @@ def test_packman_switch_leaves_locks_of_the_user(monkeypatch, tmp_path):
     def fake_run(cmd, check=True, **kw):
         calls.append(cmd)
         return next(codes)
-    monkeypatch.setattr(base, "run", fake_run)
-    monkeypatch.setattr(base, "output",
+    monkeypatch.setattr(helper, "run", fake_run)
+    monkeypatch.setattr(helper, "output",
                         lambda cmd: "Mesa-32bit\nlibavcodec62-32bit\n")
     base.packman_switch("packman")
     assert calls[2][3:] == ["libavcodec62-32bit"]
@@ -213,9 +230,9 @@ def test_packman_switch_fails_when_every_32bit_is_locked(monkeypatch,
     locks = tmp_path / "locks"
     locks.write_text("solvable_name: Mesa-32bit\n")
     monkeypatch.setattr(base, "ZYPP_LOCKS", locks)
-    monkeypatch.setattr(base, "run", lambda cmd, check=True: 0
+    monkeypatch.setattr(helper, "run", lambda cmd, check=True: 0
                         if "refresh" in cmd else 4)
-    monkeypatch.setattr(base, "output", lambda cmd: "Mesa-32bit\n")
+    monkeypatch.setattr(helper, "output", lambda cmd: "Mesa-32bit\n")
     with pytest.raises(base.Fail):
         base.packman_switch("packman")
 
@@ -229,8 +246,8 @@ def test_packman_switch_honours_glob_locks(monkeypatch, tmp_path):
     def fake_run(cmd, check=True, **kw):
         calls.append(cmd)
         return next(codes)
-    monkeypatch.setattr(base, "run", fake_run)
-    monkeypatch.setattr(base, "output",
+    monkeypatch.setattr(helper, "run", fake_run)
+    monkeypatch.setattr(helper, "output",
                         lambda cmd: "Mesa-32bit\nlibavcodec62-32bit\n")
     base.packman_switch("packman")
     assert calls[2][3:] == ["libavcodec62-32bit"]
@@ -267,7 +284,7 @@ def test_codecs_install_removes_the_repo_it_added_on_failure(
         monkeypatch, fake_root, tmp_path):
     _packman_env(monkeypatch, fake_root, tmp_path)
     fake_root.rc = {"dist-upgrade": 4}
-    with pytest.raises(drivers.Fail):
+    with pytest.raises(base.Fail):
         drivers.codecs_install([])
     assert fake_root.calls[-1][2:] == ["removerepo", catalog.PACKMAN_ALIAS]
 
@@ -277,7 +294,7 @@ def test_codecs_install_keeps_the_repo_when_packman_packages_are_in(
     _packman_env(monkeypatch, fake_root, tmp_path)
     fake_root.rc = {"dist-upgrade": 4}
     fake_root.out = lambda cmd: PACKMAN_VENDOR if "%{VENDOR}\n" in cmd else ""
-    with pytest.raises(drivers.Fail):
+    with pytest.raises(base.Fail):
         drivers.codecs_install([])
     assert not any("removerepo" in c for c in fake_root.calls)
 
@@ -287,7 +304,7 @@ def test_codecs_install_never_removes_a_repo_that_was_there(
     _packman_env(monkeypatch, fake_root, tmp_path,
                  existing=("packman", PACKMAN_URL, True))
     fake_root.rc = {"dist-upgrade": 4}
-    with pytest.raises(drivers.Fail):
+    with pytest.raises(base.Fail):
         drivers.codecs_install([])
     assert not any(c[2] in ("addrepo", "removerepo", "modifyrepo")
                    for c in fake_root.calls)
@@ -297,7 +314,7 @@ def test_nvidia_install_removes_the_repo_it_added_on_failure(
         monkeypatch, fake_root):
     _repos(monkeypatch, [])
     fake_root.rc = {"install": 107}
-    with pytest.raises(drivers.Fail):
+    with pytest.raises(base.Fail):
         drivers.nvidia_install(["open"])
     assert fake_root.calls[-1][2:] == ["removerepo",
                                        catalog.NVIDIA_REPO_ALIAS]
@@ -308,7 +325,7 @@ def test_nvidia_install_keeps_the_repo_when_a_driver_is_in(
     _repos(monkeypatch, [])
     fake_root.rc = {"install": 107}
     fake_root.installed = {"nvidia-video-G07"}
-    with pytest.raises(drivers.Fail):
+    with pytest.raises(base.Fail):
         drivers.nvidia_install(["open"])
     assert not any("removerepo" in c for c in fake_root.calls)
 
@@ -317,7 +334,7 @@ def test_nvidia_install_never_removes_a_repo_that_was_there(
         monkeypatch, fake_root):
     _repos(monkeypatch, [("nvidia", NVIDIA_URL, True)])
     fake_root.rc = {"install": 107}
-    with pytest.raises(drivers.Fail):
+    with pytest.raises(base.Fail):
         drivers.nvidia_install(["legacy"])
     assert not any("removerepo" in c for c in fake_root.calls)
 
@@ -336,7 +353,7 @@ def test_codecs_install_disables_the_repo_it_enabled_on_failure(
     _packman_env(monkeypatch, fake_root, tmp_path,
                  existing=("packman", PACKMAN_URL, False))
     fake_root.rc = {"dist-upgrade": 4}
-    with pytest.raises(drivers.Fail):
+    with pytest.raises(base.Fail):
         drivers.codecs_install([])
     assert fake_root.calls[-1][2:] == ["modifyrepo", "--disable", "packman"]
     assert not any("removerepo" in c for c in fake_root.calls)
@@ -348,7 +365,7 @@ def test_codecs_install_disables_the_repo_even_with_packman_packages_in(
                  existing=("packman", PACKMAN_URL, False))
     fake_root.rc = {"dist-upgrade": 4}
     fake_root.out = lambda cmd: PACKMAN_VENDOR if "%{VENDOR}\n" in cmd else ""
-    with pytest.raises(drivers.Fail):
+    with pytest.raises(base.Fail):
         drivers.codecs_install([])
     assert fake_root.calls[-1][2:] == ["modifyrepo", "--disable", "packman"]
 
@@ -364,7 +381,7 @@ def test_nvidia_install_disables_the_repo_it_enabled_on_failure(
         monkeypatch, fake_root):
     _repos(monkeypatch, [("nvidia", NVIDIA_URL, False)])
     fake_root.rc = {"install": 107}
-    with pytest.raises(drivers.Fail):
+    with pytest.raises(base.Fail):
         drivers.nvidia_install(["open"])
     assert fake_root.calls[0][2:] == ["modifyrepo", "--enable", "nvidia"]
     assert fake_root.calls[-1][2:] == ["modifyrepo", "--disable", "nvidia"]
@@ -379,19 +396,19 @@ def test_nvidia_install_disables_the_repo_it_enabled_on_failure(
 ])
 def test_repair_nvidia_picks_the_module(monkeypatch, fake_root, installed,
                                         rpms, expected):
-    monkeypatch.setattr(repairs.os, "uname", lambda: types.SimpleNamespace(
+    monkeypatch.setattr(repair_fixes.os, "uname", lambda: types.SimpleNamespace(
         release="7.2.11-1-nazoos"))
     fake_root.installed = installed
     fake_root.out = lambda cmd: rpms
-    repairs.repair_nvidia([])
-    assert fake_root.calls[1] == repairs.ZYPPER_IN + ["--force", expected]
+    repair_fixes.repair_nvidia([])
+    assert fake_root.calls[1] == repair_fixes.ZYPPER_IN + ["--force", expected]
 
 
 def test_repair_nvidia_without_driver(monkeypatch, fake_root):
-    monkeypatch.setattr(repairs.os, "uname", lambda: types.SimpleNamespace(
+    monkeypatch.setattr(repair_fixes.os, "uname", lambda: types.SimpleNamespace(
         release="7.2.11-1-nazoos"))
-    with pytest.raises(repairs.Fail):
-        repairs.repair_nvidia([])
+    with pytest.raises(repair_fixes.Fail):
+        repair_fixes.repair_nvidia([])
 
 
 def test_channel_snapshots_before_the_link_changes(monkeypatch, fake_root,
@@ -444,3 +461,26 @@ def test_cert_from_download_fails_when_unpacking_fails(
         returncode=cpio_rc, stdout=b"-----BEGIN CERTIFICATE-----"))
     with pytest.raises(base.Fail, match="could not be read"):
         mok_queue.cert_from_download("nazoos-kernel")
+
+
+@pytest.fixture
+def no_cert(monkeypatch):
+    asked = []
+    monkeypatch.setattr(mok, "signing_cert",
+                        lambda package: asked.append(package))
+    return asked
+
+
+def test_mok_import_asks_for_the_kernel_package_cert(no_cert):
+    with pytest.raises(mok_queue.Fail):
+        mok_queue.mok_import([])
+    assert no_cert == [kernel.KERNEL_PACKAGE]
+
+
+def test_prepare_mok_asks_for_the_kernel_package_cert(
+        monkeypatch, fake_root, no_cert):
+    monkeypatch.setattr(mok, "uefi", lambda: True)
+    fake_root.installed.add(kernel.KERNEL_PACKAGE)
+    with pytest.raises(mok_queue.Fail):
+        mok_queue.prepare_mok("nazoos-kernel", [])
+    assert no_cert == [kernel.KERNEL_PACKAGE]

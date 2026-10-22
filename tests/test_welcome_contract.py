@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from nazoos_common import proc
-from nazoos_welcome import probes
+from nazoos_welcome import probes, report
 from nazoos_welcome.root import ACTIONS
 
 WELCOME = Path(__file__).resolve().parent.parent / "packages/nazoos-welcome"
@@ -32,7 +32,7 @@ def silent_system(monkeypatch):
     monkeypatch.setattr(proc, "out", lambda cmd, timeout=30: "")
     monkeypatch.setattr(proc, "rc", lambda cmd, timeout=30: 1)
     monkeypatch.setattr(proc, "read", lambda path: "")
-    monkeypatch.setattr(probes.shutil, "which", lambda name: None)
+    monkeypatch.setattr(proc.shutil, "which", lambda name: None)
 
     def no_subprocess(*a, **k):
         raise OSError("no commands in this test")
@@ -43,19 +43,19 @@ def silent_system(monkeypatch):
 def test_every_state_key_of_the_qml_pages_exists(silent_system):
     keys = _qml_state_keys()
     assert "gpus" in keys   # the regex still finds something
-    missing = keys - BACKEND_KEYS - set(probes.collect())
+    missing = keys - BACKEND_KEYS - set(report.collect_state())
     assert not missing
 
 
 def test_every_repair_fix_is_a_root_action():
-    text = (WELCOME / "nazoos_welcome/repair.py").read_text()
+    text = (WELCOME / "nazoos_welcome/repair_checks.py").read_text()
     fixes = set(re.findall(r'"(repair-[a-z]+)"', text))
     assert fixes
     assert fixes <= set(ACTIONS)
 
 
 def test_every_repair_finding_has_a_text():
-    code = (WELCOME / "nazoos_welcome/repair.py").read_text()
+    code = (WELCOME / "nazoos_welcome/repair_checks.py").read_text()
     # "error" is made by RepairModel when the check itself breaks
     ids = set(re.findall(r'_finding\("([a-z]+)"', code)) | {"error"}
     assert len(ids) > 2

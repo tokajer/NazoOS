@@ -224,10 +224,10 @@ def test_second_start_hands_page_and_token_over(app, tmp_path, monkeypatch):
 
 
 def test_repair_model_rechecks_after_a_repair_action(app, monkeypatch):
-    from nazoos_welcome import backend, i18n, repair, repair_model
+    from nazoos_welcome import backend, i18n, repair_checks, repair_model
 
     calls = []
-    monkeypatch.setattr(repair, "check", lambda: calls.append(1) or [])
+    monkeypatch.setattr(repair_checks, "check", lambda: calls.append(1) or [])
     b = backend.Backend(i18n.translator())
     model = repair_model.RepairModel(b)
     # Not checked yet: a repair action does not start a check

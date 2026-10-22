@@ -191,7 +191,7 @@ def test_nazoos_key_missing(monkeypatch, uefi, cert, status,
                             expected):
     mok = update.mok
     monkeypatch.setattr(mok, "uefi", lambda: uefi)
-    monkeypatch.setattr(mok, "signing_cert", lambda: cert)
+    monkeypatch.setattr(mok, "signing_cert", lambda _p: cert)
     monkeypatch.setattr(mok, "status", lambda _c: status)
     assert update.nazoos_key_missing() is expected
 

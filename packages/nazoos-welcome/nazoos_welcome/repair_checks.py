@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Repair page (ADR 0012): finds known problems without root rights.
+"""Repair page (ADR 0012): finds known problems without root rights
+(no Qt here).
 
 Every finding names the helper action that fixes it. The texts shown to
 the user live in RepairPage.qml, keyed by the finding id.
@@ -9,8 +10,6 @@ the user live in RepairPage.qml, keyed by the finding id.
 import os
 import platform
 import re
-import shutil
-import time
 from pathlib import Path
 
 from nazoos_common import proc, repos
@@ -39,9 +38,9 @@ SPACE_MIN_GB = 5
 SPACE_MIN_PERCENT = 5
 
 
-def _finding(fid, items=(), fix="", user_only=False):
+def _finding(fid, items=(), fix="", user_fix=False):
     return {"id": fid, "items": list(items), "fix": fix,
-            "userOnly": user_only}
+            "userFix": user_fix}
 
 
 def repo_findings():
@@ -143,7 +142,7 @@ def low_space():
 
 
 def flathub_missing():
-    if shutil.which("flatpak") is None:
+    if not proc.has("flatpak"):
         return False
     return not probes.flathub_configured()
 
@@ -169,7 +168,7 @@ def check():
     if units or user_units:
         out.append(_finding("units", units + user_units,
                             "repair-units" if units else "",
-                            user_only=not units))
+                            user_fix=bool(user_units)))
     space = low_space()
     if space:
         out.append(_finding("space", [space], "repair-space"))
@@ -177,48 +176,3 @@ def check():
         out.append(_finding("flathub", fix="repair-flathub"))
     return out
 
-
-def restart_user_units():
-    """Fix part without root: failed units of the user session.
-    Returns the log and the units that still fail after the restart."""
-    log = ""
-    units = failed_units(user=True)
-    for unit in units:
-        log += f"$ systemctl --user restart {unit}\n"
-        log += proc.out(["systemctl", "--user", "restart", unit])
-    if not units:
-        return log, []
-    time.sleep(UNIT_SETTLE_SECONDS)
-    still = failed_units(user=True)
-    fixed = [u for u in units if u not in still]
-    if fixed:
-        proc.out(["systemctl", "--user", "reset-failed"] + fixed)
-    return log, still
-
-
-def report(state, findings, log):
-    """Write a bug report to the home folder, return its path."""
-    def section(title, text):
-        return f"\n===== {title} =====\n{text.strip() or '-'}\n"
-
-    text = "NazoOS bug report " + time.strftime("%Y-%m-%d %H:%M") + "\n"
-    text += section("System", state.get("sysinfo") or probes.sysinfo(state))
-    text += section("Repair check", "\n".join(
-        f"{f['id']}: {', '.join(f['items'])}" for f in findings)
-        if findings is not None else "not run")
-    text += section("Repositories", proc.out(["zypper", "--no-refresh",
-                                          "repos", "--uri"]))
-    text += section("Failed units", "\n".join(
-        failed_units() + [u + " (user)" for u in failed_units(user=True)]))
-    text += section("Errors since boot", proc.out(
-        ["journalctl", "--boot", "--priority=err", "--no-pager",
-         "--lines=300", "--output=short-monotonic"]))
-    text += section("Recently installed packages", "\n".join(
-        proc.out(["rpm", "-qa", "--last"]).splitlines()[:60]))
-    text += section("Kernel modules (GPU)", "\n".join(
-        line for line in proc.read("/proc/modules").splitlines()
-        if re.match(r"(amdgpu|nvidia\w*|i915|xe|nouveau) ", line)))
-    text += section("NazoOS Welcome log", log[-20000:])
-    path = Path.home() / time.strftime("nazoos-report-%Y%m%d-%H%M%S.txt")
-    path.write_text(text)
-    return str(path)

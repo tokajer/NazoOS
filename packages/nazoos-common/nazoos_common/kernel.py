@@ -8,9 +8,10 @@ Boot menu and command line: grub, state files: kernelstate, Secure Boot
 key: mok. No Qt imports here.
 """
 
+import os
 import xml.etree.ElementTree as ET
 
-from . import grub, helper, kernelstate, repos, zypper
+from . import grub, helper, kernelstate, proc, repos, zypper
 
 # NazoOS kernel (ADR 0007/0008). Opt-in: the repo is added on install.
 # Stage 1 installs kernel-nazoos next to kernel-default, stage 2 removes
@@ -34,6 +35,11 @@ KMP_DEFAULT_ONLY = ["nvidia-driver-G06-kmp-default"]
 KMP_NAZOOS_ONLY = ["acpi_call"]
 
 
+def running_nazoos():
+    """The running kernel is kernel-nazoos."""
+    return os.uname().release.endswith("-nazoos")
+
+
 def kmp(base, flavor):
     return f"{base}-kmp-{flavor}"
 
@@ -45,8 +51,8 @@ def stable():
         return False
     if kernelstate.read_boots().get("count", 0) < kernelstate.STABLE_BOOTS:
         return False
-    return (helper.rpm_installed(KERNEL_DEFAULT)
-            and not helper.rpm_installed(KERNEL_ONLY_PACKAGE))
+    return (proc.rpm_installed(KERNEL_DEFAULT)
+            and not proc.rpm_installed(KERNEL_ONLY_PACKAGE))
 
 
 def keep_default(log=print):
@@ -81,7 +87,7 @@ def sync_modules():
     not build right now is skipped and the update goes on (no hard
     Requires, kernel and packages stay separate).
     """
-    if not helper.rpm_installed(KERNEL_PACKAGE):
+    if not proc.rpm_installed(KERNEL_PACKAGE):
         return
     alias = kernel_repo()
     if alias is None:
@@ -89,10 +95,10 @@ def sync_modules():
                    "modules are not checked")
         return
     wanted = [kmp(b, "nazoos") for b in KMP_BASES
-              if helper.rpm_installed(kmp(b, "default"))]
+              if proc.rpm_installed(kmp(b, "default"))]
     wanted += [kmp(b, "nazoos") for b in KMP_NAZOOS_ONLY]
     new = [p for p in wanted
-           if not helper.rpm_installed(p) and zypper.repo_has(alias, p)]
+           if not proc.rpm_installed(p) and zypper.repo_has(alias, p)]
     if new:
         helper.run(zypper.ZYPPER_IN + new)
     swap_rebuilds(alias, wanted)

@@ -2,17 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Shared fixtures."""
 
-import importlib
-import pkgutil
 import subprocess
 
 import pytest
 
-import nazoos_welcome.root
-from nazoos_common import grub, helper
-
-# Every root module, so a new one cannot run real commands in tests
-ROOT_MODULES = [m.name for m in pkgutil.iter_modules(nazoos_welcome.root.__path__)]
+from nazoos_common import grub, helper, proc
 
 
 class FakeRoot:
@@ -51,9 +45,11 @@ class FakeRoot:
 @pytest.fixture
 def fake_root(monkeypatch, tmp_path):
     fake = FakeRoot()
-    # grub.* and kernel.* run helper.run / helper.output
+    # The root modules call helper.run / helper.output / proc.rpm_installed
+    # through their modules
     monkeypatch.setattr(helper, "run", fake.run)
     monkeypatch.setattr(helper, "output", fake.output)
+    monkeypatch.setattr(proc, "rpm_installed", fake.rpm_installed)
 
     def real_command(cmd, *_args, **_kw):
         pytest.fail(f"real command in a root test: {cmd}")
@@ -64,9 +60,4 @@ def fake_root(monkeypatch, tmp_path):
     monkeypatch.setattr(grub, "GRUB_DEFAULT_FILE", tmp_path / "grub-default")
     monkeypatch.setattr(grub, "GRUB_LOCK", tmp_path / "grub.lock")
     monkeypatch.setattr(grub, "GRUB_CFG", tmp_path / "grub.cfg")
-    for name in ROOT_MODULES:
-        module = importlib.import_module(f"nazoos_welcome.root.{name}")
-        for attr in ("run", "output", "rpm_installed"):
-            if hasattr(module, attr):
-                monkeypatch.setattr(module, attr, getattr(fake, attr))
     return fake

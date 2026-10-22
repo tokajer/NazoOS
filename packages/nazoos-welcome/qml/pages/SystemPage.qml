@@ -50,7 +50,7 @@ Kirigami.ScrollablePage {
             title: L.tr("Update channel")
             subtitle: L.tr("Stable gets NazoOS updates after they were tested. Beta gets them right away: newest changes, but things can break. Tumbleweed and the NazoOS kernel are the same in both.")
             status: beta ? L.tr("Beta (test versions)") : L.tr("Stable")
-            statusType: beta ? 2 : 1
+            statusType: beta ? SettingCard.Neutral : SettingCard.Positive
             QQC2.Button {
                 enabled: !backend.busy
                 text: channelCard.beta ? L.tr("Switch to Stable") : L.tr("Switch to Beta")
@@ -105,7 +105,7 @@ Kirigami.ScrollablePage {
                 status: !sst.installed ? L.tr("Not installed – switching on installs it")
                         : sst.active ? L.tr("Running")
                         : sst.enabled ? L.tr("Enabled, but not running") : ""
-                statusType: sst.active ? 1 : sst.enabled ? 2 : 0
+                statusType: sst.active ? SettingCard.Positive : sst.enabled ? SettingCard.Neutral : SettingCard.Normal
                 QQC2.Switch {
                     enabled: !backend.busy
                     checked: sst.enabled === true

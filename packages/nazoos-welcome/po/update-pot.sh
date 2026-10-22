@@ -32,6 +32,10 @@ for a in catalog.APPS:
     texts.append(a["summary"])
 for s in catalog.SERVICES + catalog.KERNEL_PARAMS:
     texts += [s["name"], s["summary"]]
+for k in catalog.KERNEL_PARAMS:
+    if "confirm" in k:
+        texts += [k["confirm"]["title"], k["confirm"]["text"],
+                  k["confirm"]["ok"]]
 texts += list(catalog.ACTION_LABELS.values())
 seen, out = set(), []
 for t in texts:

@@ -22,7 +22,6 @@ import traceback
 from pathlib import Path
 
 from . import errors, zypper
-from .proc import rpm_installed  # noqa: F401 (re-exported for the actions)
 
 FLATPAK = ["flatpak", "--system"]
 

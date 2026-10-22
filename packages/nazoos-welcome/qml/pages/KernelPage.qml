@@ -42,7 +42,7 @@ Kirigami.ScrollablePage {
                     : page.k.installed && !page.k.preferred ? L.tr("Installed, but the openSUSE kernel starts by default")
                     : page.k.installed ? L.tr("Installed – restart the computer to start it")
                     : ""
-            statusType: page.k.blocked ? 3 : page.k.running ? 1 : page.k.installed ? 2 : 0
+            statusType: page.k.blocked ? SettingCard.Negative : page.k.running ? SettingCard.Positive : page.k.installed ? SettingCard.Neutral : SettingCard.Normal
             QQC2.Button {
                 visible: !page.k.installed
                 enabled: !backend.busy && !page.k.blocked
@@ -66,7 +66,7 @@ Kirigami.ScrollablePage {
             title: L.tr("Remove the openSUSE kernel")
             subtitle: L.tr("Once the NazoOS kernel has started cleanly %1 times in a row, the openSUSE kernel can be removed. Updates then never install it again. Older NazoOS kernels and snapshots stay as fallback.").arg(page.k.stableBoots)
             status: L.tr("Clean starts in a row: %1 of %2").arg(Math.min(page.k.boots || 0, page.k.stableBoots)).arg(page.k.stableBoots)
-            statusType: (page.k.boots || 0) >= page.k.stableBoots ? 1 : 0
+            statusType: (page.k.boots || 0) >= page.k.stableBoots ? SettingCard.Positive : SettingCard.Normal
             QQC2.Button {
                 enabled: !backend.busy && (page.k.boots || 0) >= page.k.stableBoots
                 text: L.tr("Remove")
@@ -118,7 +118,7 @@ Kirigami.ScrollablePage {
             status: page.k.mok === "enrolled" ? L.tr("Key enrolled")
                     : page.k.mok === "pending" ? L.tr("Waiting for MokManager – restart the computer")
                     : L.tr("Key not enrolled")
-            statusType: page.k.mok === "enrolled" ? 1 : page.k.mok === "pending" ? 2 : 3
+            statusType: page.k.mok === "enrolled" ? SettingCard.Positive : page.k.mok === "pending" ? SettingCard.Neutral : SettingCard.Negative
             QQC2.Button {
                 visible: page.k.mok === "missing"
                 enabled: !backend.busy

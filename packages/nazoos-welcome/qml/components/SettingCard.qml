@@ -17,8 +17,8 @@ Kirigami.AbstractCard {
     property string title: ""
     property string subtitle: ""
     property string status: ""
-    // 0 neutral, 1 positive, 2 warning, 3 error
-    property int statusType: 0
+    enum StatusType { Normal, Positive, Neutral, Negative }
+    property int statusType: SettingCard.Normal
     default property alias controls: controlRow.data
     property alias extraContent: extraColumn.data
 

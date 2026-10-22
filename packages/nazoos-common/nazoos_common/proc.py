@@ -36,6 +36,11 @@ def rc(cmd, timeout=30):
         return 1
 
 
+def has(tool):
+    """TOOL is found in PATH."""
+    return shutil.which(tool) is not None
+
+
 def read(path):
     try:
         return Path(path).read_text(errors="replace")

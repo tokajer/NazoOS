@@ -5,10 +5,10 @@
 import contextlib
 import os
 
-from nazoos_common import grub, kernel, kernelstate
+from nazoos_common import grub, helper, kernel, kernelstate, proc
+from nazoos_common.kernel import running_nazoos
 
-from .base import (ZYPPER, ZYPPER_IN, Fail, repo_has, rpm_installed, run,
-                   running_nazoos, say)
+from .base import (ZYPPER, ZYPPER_IN, Fail, repo_has, say)
 from .mok_queue import MOK_RESTART, prepare_mok
 
 EFIVARS = "/sys/firmware/efi/efivars"
@@ -21,7 +21,7 @@ def nazoos_kmps(alias):
     # Check first that our kernel project builds them: without its NVIDIA
     # module kernel-nazoos would start without graphics driver
     kmps = [kernel.kmp(b, "nazoos") for b in kernel.KMP_BASES
-            if rpm_installed(kernel.kmp(b, "default"))]
+            if proc.rpm_installed(kernel.kmp(b, "default"))]
     missing = [p for p in kmps if not repo_has(alias, p)]
     gpu = [p for p in missing if p.startswith("nvidia-")]
     if gpu:
@@ -41,29 +41,29 @@ def nazoos_kmps(alias):
 
 def kernel_install(_args):
     """Stage 1: kernel-nazoos next to kernel-default, default boot entry."""
-    blockers = [p for p in kernel.KMP_DEFAULT_ONLY if rpm_installed(p)]
+    blockers = [p for p in kernel.KMP_DEFAULT_ONLY if proc.rpm_installed(p)]
     if blockers:
         raise Fail("the closed NVIDIA driver (G06) only exists for the "
                    "openSUSE kernel; switch to the open driver first")
     alias = kernel.kernel_repo()
     if alias is None:
         alias = kernel.KERNEL_REPO_ALIAS
-        run(ZYPPER + ["addrepo", "--refresh", "--priority", "90",
+        helper.run(ZYPPER + ["addrepo", "--refresh", "--priority", "90",
                       kernel.KERNEL_REPO_URL, alias])
-    run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
     pkgs = [kernel.KERNEL_PACKAGE] + nazoos_kmps(alias)
     queued = prepare_mok(alias, pkgs)
     # Modules left from an earlier install stay out of "zypper in": a
     # newer build of them for the same kernel conflicts with the old one
     # and ends zypper with 4 (VM 2026-10-19); they are swapped below
-    run(ZYPPER_IN + [p for p in pkgs
-                     if p == kernel.KERNEL_PACKAGE or not rpm_installed(p)])
+    helper.run(ZYPPER_IN + [p for p in pkgs
+                     if p == kernel.KERNEL_PACKAGE or not proc.rpm_installed(p)])
     kernel.swap_rebuilds(alias, pkgs[1:])
     kernelstate.STATE.mkdir(parents=True, exist_ok=True)
     kernelstate.PREFER.touch()
     kernelstate.write_boots({"count": 0})
     grub.ensure_grub_default(say)
-    run(["systemctl", "enable", "nazoos-kernel-boot.service"])
+    helper.run(["systemctl", "enable", "nazoos-kernel-boot.service"])
     say(MOK_RESTART if queued
         else "Restart the computer to start the NazoOS kernel.")
 
@@ -75,20 +75,20 @@ def kernel_only(_args):
     remove = [f"-{p}" for p in
               [kernel.KERNEL_DEFAULT, "kernel-default-base"]
               + [kernel.kmp(b, "default") for b in kernel.KMP_BASES]
-              if rpm_installed(p)]
+              if proc.rpm_installed(p)]
     # "-name" removes in the same transaction: zypper never has to pick a
     # conflict solution on its own
-    run(ZYPPER_IN + [kernel.KERNEL_ONLY_PACKAGE] + remove)
+    helper.run(ZYPPER_IN + [kernel.KERNEL_ONLY_PACKAGE] + remove)
 
 
 def kernel_restore(_args):
     """Way back: openSUSE kernel as default again, kernel-nazoos stays."""
     pkgs = [kernel.KERNEL_DEFAULT] + [
         kernel.kmp(b, "default") for b in kernel.KMP_BASES
-        if rpm_installed(kernel.kmp(b, "nazoos"))]
-    if rpm_installed(kernel.KERNEL_ONLY_PACKAGE):
+        if proc.rpm_installed(kernel.kmp(b, "nazoos"))]
+    if proc.rpm_installed(kernel.KERNEL_ONLY_PACKAGE):
         pkgs.append(f"-{kernel.KERNEL_ONLY_PACKAGE}")
-    run(ZYPPER_IN + pkgs)
+    helper.run(ZYPPER_IN + pkgs)
     kernelstate.PREFER.unlink(missing_ok=True)
     # The top entry boots the newest kernel of any flavor, often
     # kernel-nazoos: pin it to kernel-default (nazoos-kernel-boot keeps
@@ -102,18 +102,18 @@ def kernel_remove(_args):
     """Remove kernel-nazoos completely (only from the openSUSE kernel)."""
     if running_nazoos():
         raise Fail("start the openSUSE kernel first (boot menu)")
-    if not rpm_installed(kernel.KERNEL_DEFAULT):
+    if not proc.rpm_installed(kernel.KERNEL_DEFAULT):
         raise Fail("the openSUSE kernel is not installed")
     pkgs = [p for p in [kernel.KERNEL_PACKAGE, kernel.KERNEL_ONLY_PACKAGE]
             + [kernel.kmp(b, "nazoos")
                for b in kernel.KMP_BASES + kernel.KMP_NAZOOS_ONLY]
-            if rpm_installed(p)]
+            if proc.rpm_installed(p)]
     if pkgs:
         with efivars_read_only():
-            run(ZYPPER + ["remove", "--clean-deps"] + pkgs)
+            helper.run(ZYPPER + ["remove", "--clean-deps"] + pkgs)
     kernelstate.PREFER.unlink(missing_ok=True)
     grub.clear_grub_top_level(say)
-    run(["systemctl", "disable", "nazoos-kernel-boot.service"], check=False)
+    helper.run(["systemctl", "disable", "nazoos-kernel-boot.service"], check=False)
 
 
 @contextlib.contextmanager
@@ -128,9 +128,9 @@ def efivars_read_only():
     except OSError:
         was_rw = False
     if was_rw:
-        run(["mount", "-o", "remount,ro", EFIVARS], check=False)
+        helper.run(["mount", "-o", "remount,ro", EFIVARS], check=False)
     try:
         yield
     finally:
         if was_rw:
-            run(["mount", "-o", "remount,rw", EFIVARS], check=False)
+            helper.run(["mount", "-o", "remount,rw", EFIVARS], check=False)

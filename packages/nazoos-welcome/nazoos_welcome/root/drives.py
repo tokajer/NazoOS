@@ -6,10 +6,11 @@ import os
 import re
 from pathlib import Path
 
+from nazoos_common import helper
 from nazoos_common.helper import write_atomic
 
 from .. import catalog, probes
-from .base import Fail, arg, caller, output, run, say
+from .base import Fail, arg, caller, say
 
 FSTAB = Path("/etc/fstab")
 # suse-module-tools blacklists ntfs3; an /etc file of the same name wins
@@ -71,7 +72,7 @@ def without_entry(text, uuid):
 
 def _undo_add(uuid, mnt, created):
     write_atomic(FSTAB, without_entry(FSTAB.read_text(), uuid)[0])
-    run(["systemctl", "daemon-reload"], check=False)
+    helper.run(["systemctl", "daemon-reload"], check=False)
     if created:
         try:
             mnt.rmdir()
@@ -96,7 +97,7 @@ def automount_add(args):
         mnt = Path(catalog.MOUNT_BASE, f"{base}-{n}")
         n += 1
     uid = caller()[0]
-    gid = int(output(["id", "-g", str(uid)]).strip() or 100)
+    gid = int(helper.output(["id", "-g", str(uid)]).strip() or 100)
     fstype, opts = mount_options(fstype, uid, gid)
     created = not mnt.exists()
     mnt.mkdir(parents=True, exist_ok=True)
@@ -109,8 +110,8 @@ def automount_add(args):
     # A failed mount must not leave a boot-time entry (or a stray directory)
     # behind, whether mount returns non-zero or something raises
     try:
-        run(["systemctl", "daemon-reload"])
-        rc = run(["mount", str(mnt)], check=False)
+        helper.run(["systemctl", "daemon-reload"])
+        rc = helper.run(["mount", str(mnt)], check=False)
     except Exception:
         _undo_add(uuid, mnt, created)
         raise
@@ -132,9 +133,9 @@ def automount_remove(args):
     text, mnt = without_entry(FSTAB.read_text(), uuid)
     if mnt is None:
         raise Fail("only drives added by NazoOS Welcome can be removed here")
-    run(["umount", mnt], check=False)
+    helper.run(["umount", mnt], check=False)
     write_atomic(FSTAB, text)
-    run(["systemctl", "daemon-reload"])
+    helper.run(["systemctl", "daemon-reload"])
     try:
         Path(mnt).rmdir()
     except OSError:

@@ -3,14 +3,14 @@
 """Bridge between the QML pages and the system."""
 
 import os
-import subprocess
 import traceback
 
+from nazoos_common import mok
 from nazoos_common.qt import COMMON_LAUNCHERS, ActionRunner
 from PySide6.QtCore import Property, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 
-from . import autostart, catalog, probes, repair
+from . import autostart, catalog, probes, report, user_actions
 
 # Cheap probes for the card an action changed: read right after it, the
 # full probes.collect() takes 15-20 s (zypper searches).
@@ -105,7 +105,7 @@ class Backend(ActionRunner):
 
         # never kill the UI over a probe
         self.background(
-            probes.collect, self._set_state,
+            report.collect_state, self._set_state,
             lambda e: self._set_state(dict(self._state, error=str(e))))
 
     def _quick_refresh(self, action):
@@ -143,7 +143,7 @@ class Backend(ActionRunner):
             return
         self._begin("repair-units")
         self.background(
-            repair.restart_user_units,
+            user_actions.restart_user_units,
             lambda r: self._user_units_fixed(with_system, *r),
             lambda e: self._done("repair-units", False, str(e)))
 
@@ -198,14 +198,8 @@ class Backend(ActionRunner):
         process, on the helper's stdin (not visible in the process list)."""
         if self._busy:
             return
-        try:
-            r = subprocess.run(["openssl", "passwd", "-6", "-stdin"],
-                               input=password, capture_output=True, text=True,
-                               timeout=10)
-            mok_hash = r.stdout.strip() if r.returncode == 0 else ""
-        except (OSError, subprocess.TimeoutExpired):
-            mok_hash = ""
-        if not mok_hash.startswith("$6$"):
+        mok_hash = mok.password_hash(password)
+        if not mok_hash:
             self.report_error(action, self._gettext(
                 "The password for the Secure Boot key could not be "
                 "prepared (openssl is missing)."))
@@ -229,19 +223,13 @@ class Backend(ActionRunner):
     # --- user-level actions -----------------------------------------------------
 
     def _user_service(self, svc, on, then):
-        cmd = ["systemctl", "--user", "enable" if on else "disable", "--now",
-               svc["unit"]]
-
-        def work():
-            r = subprocess.run(cmd, capture_output=True, text=True)
-            return "$ " + " ".join(cmd) + "\n" + r.stdout + r.stderr
-
         def done(log):
             self._append(log)
             then()
 
         self.background(
-            work, done, lambda e: self._done("service", False, str(e)))
+            lambda: user_actions.set_user_unit(svc["unit"], on), done,
+            lambda e: self._done("service", False, str(e)))
 
     @Slot(str, bool)
     def setService(self, service_id, on):

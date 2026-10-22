@@ -8,9 +8,9 @@ import os
 import re
 from pathlib import Path
 
-from nazoos_common import proc, repos
+from nazoos_common import helper, proc, repos
 from nazoos_common.helper import (  # noqa: F401 (used by the actions)
-    FLATPAK, Fail, Passthrough, arg, output, rpm_installed, run, say)
+    FLATPAK, Fail, Passthrough, arg, say)
 from nazoos_common.zypper import (  # noqa: F401 (used by the actions)
     ZYPPER, ZYPPER_IN, repo_has)
 
@@ -30,7 +30,7 @@ def enable_repo(fragment):
         if enabled:
             return alias, False
     if matches:
-        run(ZYPPER + ["modifyrepo", "--enable", matches[0][0]])
+        helper.run(ZYPPER + ["modifyrepo", "--enable", matches[0][0]])
         return matches[0][0], True
     return None, False
 
@@ -44,25 +44,26 @@ def repo_in_use(fragment, alias, addrepo_args, keep):
     found, enabled = enable_repo(fragment)
     alias = found or alias
     if not found:
-        run(ZYPPER + ["addrepo"] + addrepo_args + [alias])
+        helper.run(ZYPPER + ["addrepo"] + addrepo_args + [alias])
     try:
         yield alias
     except Fail:
         # No half state
         if enabled:
-            run(ZYPPER + ["modifyrepo", "--disable", found], check=False)
+            helper.run(ZYPPER + ["modifyrepo", "--disable", found],
+                       check=False)
         elif not found and not keep():
-            run(ZYPPER + ["removerepo", alias], check=False)
+            helper.run(ZYPPER + ["removerepo", alias], check=False)
         raise
 
 
 def packman_switch(alias):
     """Switch installed multimedia packages to Packman's builds; if that
     fails, retry with the 32-bit libraries held back at openSUSE."""
-    run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
     dup = ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses", "--from",
                     alias, "--allow-vendor-change", "--allow-downgrade"]
-    rc = run(dup, check=False)
+    rc = helper.run(dup, check=False)
     if rc == 0:
         return
     # Packman often rebuilds its 32-bit libraries days after the 64-bit
@@ -71,16 +72,17 @@ def packman_switch(alias):
     # A lock the user set stays: only add (and later remove) our own
     locked = re.findall(r"^solvable_name:\s*(\S+)", proc.read(ZYPP_LOCKS),
                         re.M)
-    held = [n for n in held_32bit(output(["rpm", "-qa", "--qf", "%{NAME}\n"]))
+    held = [n for n in held_32bit(helper.output(
+                ["rpm", "-qa", "--qf", "%{NAME}\n"]))
             if not any(fnmatch.fnmatchcase(n, pat) for pat in locked)]
     if not held:
         raise Fail("'{cmd}' failed (exit code {rc})", cmd="zypper", rc=rc)
     say("Retrying without the 32-bit libraries: " + " ".join(held))
-    run(ZYPPER + ["addlock"] + held)
+    helper.run(ZYPPER + ["addlock"] + held)
     try:
-        run(dup)
+        helper.run(dup)
     finally:
-        run(ZYPPER + ["removelock"] + held, check=False)
+        helper.run(ZYPPER + ["removelock"] + held, check=False)
 
 
 def held_32bit(rpm_names):
@@ -91,17 +93,15 @@ def held_32bit(rpm_names):
 
 
 def flathub_ensure():
-    run(FLATPAK + ["remote-add", "--if-not-exists", "flathub", FLATHUB_URL])
+    helper.run(FLATPAK + ["remote-add", "--if-not-exists", "flathub",
+                          FLATHUB_URL])
 
 
 def caller():
     """(uid, name) of the user who started the helper via pkexec."""
     uid = int(os.environ.get("PKEXEC_UID", "-1"))
-    name = output(["id", "-nu", str(uid)]).strip()
+    name = helper.output(["id", "-nu", str(uid)]).strip()
     if uid < 1000 or not name:
         raise Fail("unknown user")
     return uid, name
 
-
-def running_nazoos():
-    return os.uname().release.endswith("-nazoos")

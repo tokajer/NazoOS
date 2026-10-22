@@ -8,6 +8,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from nazoos_common import proc
 from nazoos_common.helper import Fail, capture, locked, reboot, run
 
 from .. import status
@@ -114,7 +115,7 @@ def label_snapshots(update_after=None):
     pairs "Before/After software change", timeline ones "Automatic", the
     rest their description; always with the local date. Snapshots that
     already have a label are left alone."""
-    if not Path("/usr/bin/snapper").exists():
+    if not proc.has("snapper"):
         return 0
     wait_for_cleanup()
     with locked(LABEL_LOCK):

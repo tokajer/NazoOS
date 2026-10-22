@@ -8,10 +8,12 @@ import subprocess
 ZYPPER = ["zypper", "--non-interactive"]
 ZYPPER_IN = ZYPPER + ["install", "--auto-agree-with-licenses"]
 
+# zypper needs-rebooting / dup exit code: restart needed
+NEEDS_REBOOT = 102
 # zypper exit codes >= 100 that mean "done, but note this"
 # (man zypper, EXIT CODES)
 INFO = {
-    102: "restart the computer to finish the update",
+    NEEDS_REBOOT: "restart the computer to finish the update",
     103: "zypper updated itself; run the action again if something is missing",
     106: "some repositories could not be refreshed and were skipped",
 }

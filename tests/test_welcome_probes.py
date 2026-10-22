@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Parsers of the welcome probes (lspci, lsblk, repo files, rpm -qa)."""
 
-from nazoos_welcome import catalog, probes, repair
+from nazoos_welcome import catalog, probes, repair_checks
 
 MARK = catalog.FSTAB_MARKER
 
@@ -63,25 +63,25 @@ SERVICES = {s["name"]: True for s in catalog.REPO_SERVICES}
 
 
 def test_repo_problems_all_fine():
-    assert repair.repo_problems(STANDARD + [NAZOOS], SERVICES) == []
+    assert repair_checks.repo_problems(STANDARD + [NAZOOS], SERVICES) == []
 
 
 def test_repo_problems_disabled_standard_repo():
     repos = [(url, enabled and "update" not in url)
              for url, enabled in STANDARD]
-    assert repair.repo_problems(repos + [NAZOOS], SERVICES) == ["repo-update"]
+    assert repair_checks.repo_problems(repos + [NAZOOS], SERVICES) == ["repo-update"]
 
 
 def test_repo_problems_missing_service():
     services = dict(SERVICES, openSUSE=False)
-    assert repair.repo_problems(STANDARD + [NAZOOS], services) == ["openSUSE"]
+    assert repair_checks.repo_problems(STANDARD + [NAZOOS], services) == ["openSUSE"]
     # No service "nazoos" at all: reported once, not twice
     services = {"openSUSE": True}
-    assert repair.repo_problems(STANDARD, services) == ["nazoos"]
+    assert repair_checks.repo_problems(STANDARD, services) == ["nazoos"]
 
 
 def test_repo_problems_nazoos_repo_missing():
-    assert repair.repo_problems(STANDARD, SERVICES) == ["nazoos"]
+    assert repair_checks.repo_problems(STANDARD, SERVICES) == ["nazoos"]
 
 
 def test_mixed_packman():
@@ -89,20 +89,20 @@ def test_mixed_packman():
             "libavcodec61\topenSUSE\n"
             "Mesa\topenSUSE\n"
             "bash\topenSUSE\n")
-    assert repair.mixed_packman(text) == ["Mesa", "libavcodec61"]
+    assert repair_checks.mixed_packman(text) == ["Mesa", "libavcodec61"]
 
 
 def test_mixed_packman_32bit_kept_at_opensuse():
     text = ("libavcodec62\thttp://packman.links2linux.de\n"
             "libavcodec62-32bit\topenSUSE\n"
             "Mesa-32bit\topenSUSE\n")
-    assert repair.mixed_packman(text) == []
+    assert repair_checks.mixed_packman(text) == []
     text += "libavutil60-32bit\thttp://packman.links2linux.de\n"
-    assert repair.mixed_packman(text) == ["Mesa-32bit", "libavcodec62-32bit"]
+    assert repair_checks.mixed_packman(text) == ["Mesa-32bit", "libavcodec62-32bit"]
 
 
 def test_mixed_packman_without_packman_builds():
-    assert repair.mixed_packman("ffmpeg-7\topenSUSE\nMesa\topenSUSE\n") == []
+    assert repair_checks.mixed_packman("ffmpeg-7\topenSUSE\nMesa\topenSUSE\n") == []
 
 
 def test_deck_in_repos_caches_only_success(monkeypatch):
@@ -165,7 +165,41 @@ def testpackman_repo_state(monkeypatch):
 
 
 def test_packman_mix_ignores_disabled_repo(monkeypatch):
-    monkeypatch.setattr(repair.repos, "repos", lambda: [
+    monkeypatch.setattr(repair_checks.repos, "repos", lambda: [
         ("p", "https://x/packman/suse/", False)])
-    monkeypatch.setattr(repair.proc, "out", lambda cmd, **kw: 1 / 0)
-    assert repair.packman_mix() == []
+    monkeypatch.setattr(repair_checks.proc, "out", lambda cmd, **kw: 1 / 0)
+    assert repair_checks.packman_mix() == []
+
+
+def test_part_returns_the_default_for_a_broken_probe(capsys):
+    def broken():
+        raise RuntimeError("probe died")
+
+    assert probes._part([], broken) == []
+    assert "probe died" in capsys.readouterr().err
+    assert probes._part({}, lambda: {"a": 1}) == {"a": 1}
+
+
+def _units_finding(monkeypatch, system, user):
+    monkeypatch.setattr(repair_checks, "rpmdb_broken", lambda: False)
+    monkeypatch.setattr(repair_checks, "repo_findings", lambda: [])
+    monkeypatch.setattr(repair_checks, "unsatisfied", lambda: [])
+    monkeypatch.setattr(repair_checks, "packman_mix", lambda: [])
+    monkeypatch.setattr(repair_checks, "nvidia_module_missing", lambda: False)
+    monkeypatch.setattr(repair_checks, "low_space", lambda: None)
+    monkeypatch.setattr(repair_checks, "flathub_missing", lambda: False)
+    monkeypatch.setattr(repair_checks, "failed_units",
+                        lambda user=False: user_units if user else system)
+    user_units = user
+    return repair_checks.check()
+
+
+def test_units_finding_user_fix_only_with_failed_user_units(monkeypatch):
+    found = _units_finding(monkeypatch, ["a.service"], ["b.service"])
+    assert found[0]["userFix"] is True
+    assert found[0]["fix"] == "repair-units"
+    found = _units_finding(monkeypatch, ["a.service"], [])
+    assert found[0]["userFix"] is False
+    found = _units_finding(monkeypatch, [], ["b.service"])
+    assert found[0]["userFix"] is True
+    assert found[0]["fix"] == ""

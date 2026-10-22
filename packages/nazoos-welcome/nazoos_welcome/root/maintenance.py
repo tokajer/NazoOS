@@ -5,11 +5,10 @@
 import os
 from pathlib import Path
 
-from nazoos_common import repos
+from nazoos_common import helper, proc, repos
 
 from .. import catalog
-from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, Passthrough, arg,
-                   rpm_installed, run)
+from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, Passthrough, arg)
 
 # Root part of nazoos-update: one update path for both apps
 UPDATE_HELPER = "/usr/libexec/nazoos-update/nazoos-update-helper"
@@ -20,11 +19,11 @@ def service(args):
     if svc is None:
         raise Fail("unknown service")
     enable = arg(args, 1, ("on", "off")) == "on"
-    if enable and not rpm_installed(svc["package"]):
-        run(ZYPPER_IN + [svc["package"]])
+    if enable and not proc.rpm_installed(svc["package"]):
+        helper.run(ZYPPER_IN + [svc["package"]])
     if svc["user"]:
         return  # user units are switched by the GUI without root
-    run(["systemctl", "enable" if enable else "disable", "--now",
+    helper.run(["systemctl", "enable" if enable else "disable", "--now",
          svc["unit"]])
 
 
@@ -34,36 +33,36 @@ def system_update(_args):
     # snapshots, restart hint, its status file. A plain dup here
     # downgraded a fresh install (VM 2026-10-12)
     if os.access(UPDATE_HELPER, os.X_OK):
-        rc = run([UPDATE_HELPER, "update"], check=False)
+        rc = helper.run([UPDATE_HELPER, "update"], check=False)
         if rc:
             # Its own "@@error <reason>" line is already out: no second,
             # vaguer one on top
             raise Passthrough(rc)
         return
-    run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
-    run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses"])
-    if Path("/usr/bin/flatpak").exists():
-        run(FLATPAK + ["update", "--noninteractive", "-y"])
+    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    helper.run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses"])
+    if proc.has("flatpak"):
+        helper.run(FLATPAK + ["update", "--noninteractive", "-y"])
 
 
 def repo_refresh(_args):
-    run(ZYPPER + ["--gpg-auto-import-keys", "refresh", "--force"])
+    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", "--force"])
 
 
 def cache_clean(_args):
-    run(ZYPPER + ["clean", "--all"])
+    helper.run(ZYPPER + ["clean", "--all"])
 
 
 def flatpak_unused(_args):
-    run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"])
+    helper.run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"])
 
 
 def flatpak_repair(_args):
-    run(FLATPAK + ["repair"])
+    helper.run(FLATPAK + ["repair"])
 
 
 def create_snapshot(description):
-    run(["snapper", "-c", "root", "create", "--type", "single",
+    helper.run(["snapper", "-c", "root", "create", "--type", "single",
          "--cleanup-algorithm", "number", "--description", description])
 
 
@@ -90,11 +89,11 @@ def channel(args):
     tmp.unlink(missing_ok=True)
     tmp.symlink_to(f"nazoos-{target}-repoindex.xml")
     os.replace(tmp, link)
-    run(ZYPPER + ["refresh-services"])
+    helper.run(ZYPPER + ["refresh-services"])
     alias = repos.with_path(catalog.CHANNEL_REPO_PATHS[target])
     if alias is None:
         raise Fail("the {channel} repository did not appear after "
                    "refreshing the services", channel=target)
-    run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
-    run(ZYPPER + ["dist-upgrade", "--from", alias,
+    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+    helper.run(ZYPPER + ["dist-upgrade", "--from", alias,
                   "--auto-agree-with-licenses"])

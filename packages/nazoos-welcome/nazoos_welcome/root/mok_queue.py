@@ -8,9 +8,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from nazoos_common import kernel, kernelstate, mok
+from nazoos_common import helper, kernel, kernelstate, mok, proc
 
-from .base import ZYPPER_IN, RUN_DIR, Fail, output, rpm_installed, run, say
+from .base import ZYPPER_IN, RUN_DIR, Fail, say
 
 # The GUI sends the SHA-512 crypt hash (openssl passwd -6) of the
 # password the user picked for MokManager on stdin, never the password
@@ -34,7 +34,7 @@ def cert_from_download(alias):
                   key=lambda f: f.stat().st_mtime)
     if not rpms:
         raise Fail("the downloaded kernel package was not found")
-    files = output(["rpm", "-qlp", str(rpms[-1])]).split()
+    files = helper.output(["rpm", "-qlp", str(rpms[-1])]).split()
     certs = [f for f in files if mok.CERT_PATH.fullmatch(f)]
     if not certs:
         return None
@@ -78,7 +78,7 @@ def mok_queue(cert):
     try:
         # Same options as cert-post: --ignore-keyring, or mokutil skips a
         # key the running kernel already trusts (kernel-nazoos itself)
-        rc = run(["mokutil", "--import", cert, "--hash-file", str(hash_file),
+        rc = helper.run(["mokutil", "--import", cert, "--hash-file", str(hash_file),
                   "--ca-check", "--ignore-keyring"], check=False)
     finally:
         hash_file.unlink(missing_ok=True)
@@ -104,10 +104,10 @@ def prepare_mok(alias, pkgs):
     # and zypper ends with 107. A request already waiting for
     # MokManager makes it skip, so ours goes first: download, take the
     # certificate out of the package, queue it, then install
-    if rpm_installed(kernel.KERNEL_PACKAGE):
-        cert = mok.signing_cert()
+    if proc.rpm_installed(kernel.KERNEL_PACKAGE):
+        cert = mok.signing_cert(kernel.KERNEL_PACKAGE)
     else:
-        run(ZYPPER_IN + ["--download-only"] + pkgs)
+        helper.run(ZYPPER_IN + ["--download-only"] + pkgs)
         cert = cert_from_download(alias)
     if cert is None:
         raise Fail("kernel-nazoos has no signing certificate")
@@ -121,7 +121,7 @@ def prepare_mok(alias, pkgs):
 def mok_import(_args):
     """Queue our signing certificate for MokManager again (button on the
     kernel page), with a password the user picks (ADR 0024)."""
-    cert = mok.signing_cert()
+    cert = mok.signing_cert(kernel.KERNEL_PACKAGE)
     if cert is None:
         raise Fail("kernel-nazoos has no signing certificate")
     if mok_queue(cert):

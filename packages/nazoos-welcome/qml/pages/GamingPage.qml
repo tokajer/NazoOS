@@ -30,7 +30,7 @@ Kirigami.ScrollablePage {
                     ? L.tr("Active: %1").arg(page.st.scxScheduler)
                     : page.st.scxEnabled ? L.tr("Enabled, but not running")
                     : L.tr("Off (kernel scheduler)")
-            statusType: page.st.scxActive ? 1 : page.st.scxEnabled ? 3 : 0
+            statusType: page.st.scxActive ? SettingCard.Positive : page.st.scxEnabled ? SettingCard.Negative : SettingCard.Normal
             extraContent: [
                 RowLayout {
                     QQC2.Label { text: L.tr("Scheduler:") }
@@ -80,7 +80,7 @@ Kirigami.ScrollablePage {
                 status: kst.configured !== kst.active
                         ? L.tr("Restart the computer to apply the change")
                         : kst.active ? L.tr("On") : ""
-                statusType: kst.configured !== kst.active ? 2 : 1
+                statusType: kst.configured !== kst.active ? SettingCard.Neutral : SettingCard.Positive
                 QQC2.Switch {
                     enabled: !backend.busy
                     checked: kst.configured === true
@@ -88,11 +88,11 @@ Kirigami.ScrollablePage {
                         const id = modelData.id
                         const on = checked
                         checked = Qt.binding(() => kst.configured === true)
-                        if (on && modelData.warning) {
+                        if (on && modelData.confirm) {
                             page.app.confirm(
-                                L.tr("Disable CPU security mitigations?"),
-                                L.tr("This removes protection against Spectre, Meltdown and similar CPU attacks. Malicious websites or programs could read data from other programs. Only do this if you know the risk."),
-                                L.tr("Disable mitigations"),
+                                L.tr(modelData.confirm.title),
+                                L.tr(modelData.confirm.text),
+                                L.tr(modelData.confirm.ok),
                                 () => page.app.runAction("kparam", [id, "on"]))
                         } else {
                             page.app.runAction("kparam", [id, on ? "on" : "off"])
@@ -116,7 +116,7 @@ Kirigami.ScrollablePage {
             status: (page.pr.devices || []).length === 0
                     ? L.tr("No USB controller, mouse or keyboard is connected.")
                     : L.tr("After a change: unplug the device and plug it in again.")
-            statusType: 0
+            statusType: SettingCard.Normal
             extraContent: [
                 Repeater {
                     model: page.pr.devices || []
@@ -175,7 +175,7 @@ Kirigami.ScrollablePage {
             status: !page.ses.steam ? L.tr("Install Steam first (Apps page)")
                     : page.ses.bootGaming ? L.tr("Starts in gaming mode (user %1)").arg(page.ses.user)
                     : ""
-            statusType: !page.ses.steam ? 2 : page.ses.bootGaming ? 1 : 0
+            statusType: !page.ses.steam ? SettingCard.Neutral : page.ses.bootGaming ? SettingCard.Positive : SettingCard.Normal
             extraContent: [
                 RowLayout {
                     QQC2.Switch {
@@ -220,7 +220,7 @@ Kirigami.ScrollablePage {
                     : !page.st.deckAvailable ? L.tr("Not available yet")
                     : page.ses.handheld ? L.tr("Recommended: %1 detected").arg(page.ses.handheld)
                     : ""
-            statusType: page.st.deckInstalled ? 1 : page.ses.handheld ? 2 : 0
+            statusType: page.st.deckInstalled ? SettingCard.Positive : page.ses.handheld ? SettingCard.Neutral : SettingCard.Normal
             QQC2.Button {
                 visible: !page.st.deckInstalled
                 enabled: !backend.busy && page.st.deckAvailable === true
@@ -240,7 +240,7 @@ Kirigami.ScrollablePage {
             title: L.tr("Steam Deck dock firmware")
             subtitle: L.tr("Lets Steam update the firmware of the official Steam Deck dock. Downloads Valve's updater (proprietary) during installation.")
             status: installed ? L.tr("Installed") : ""
-            statusType: installed ? 1 : 0
+            statusType: installed ? SettingCard.Positive : SettingCard.Normal
             QQC2.Button {
                 enabled: !backend.busy
                 text: dockCard.installed ? L.tr("Remove") : L.tr("Install")
