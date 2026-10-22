@@ -15,7 +15,8 @@ from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 
 from .. import catalog, repair_checks, system
 from . import maintenance
-from .base import enable_repo, flathub_ensure, packman_switch
+from .base import (enable_repo, flathub_ensure, installed_names,
+                   packman_switch)
 
 
 def repair_repos(_args):
@@ -26,14 +27,14 @@ def repair_repos(_args):
         if not Path(svc["dir"], "repo", "repoindex.xml").exists():
             # Package removed or damaged; its %posttrans adds the service
             helper.run(ZYPPER + ["--gpg-auto-import-keys", "--plus-repo",
-                          svc["seed"], "install", "--force",
-                          "--auto-agree-with-licenses", svc["package"]])
+                                 svc["seed"], "install", "--force",
+                                 "--auto-agree-with-licenses", svc["package"]])
         elif not Path("/etc/zypp/services.d",
                       svc["name"] + ".service").exists():
             helper.run(ZYPPER + ["addservice", svc["dir"], svc["name"]])
         else:
             helper.run(ZYPPER + ["modifyservice", "--enable", "--refresh",
-                          svc["name"]])
+                                 svc["name"]])
     helper.run(ZYPPER + ["refresh-services"])
     paths = [repos.url_path(r["url"]) for r in system.STANDARD_REPOS]
     for path in paths + system.NAZOOS_REPO_PATHS:
@@ -71,7 +72,7 @@ def repair_nvidia(_args):
     flavor = release.rsplit("-", 1)[-1]
     # The module type that is installed for any kernel: G06 exists as open
     # (SUSE-signed) and closed build, both with nvidia-video-G06
-    installed = helper.output(["rpm", "-qa", "--qf", "%{NAME}\n"]).split()
+    installed = installed_names()
     candidates = [b for b in kernel.KMP_BASES if b.startswith("nvidia-")]
     candidates += [p.removesuffix("-kmp-default")
                    for p in kernel.KMP_DEFAULT_ONLY]

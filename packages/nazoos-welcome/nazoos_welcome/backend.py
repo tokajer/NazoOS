@@ -224,7 +224,7 @@ class Backend(ActionRunner):
             return
         self._run(action, args, mok_hash)
 
-    def _helper_finished(self, action, proc, ok, message):
+    def _helper_finished(self, action, helper_proc, ok, message):
         on_success, self._on_success = self._on_success, None
         if ok and on_success:
             on_success(lambda: self._done(action, True, message))
@@ -270,7 +270,12 @@ class Backend(ActionRunner):
 
     @Slot(bool)
     def setAutostart(self, enabled):
-        autostart.set_enabled(enabled)
+        try:
+            autostart.set_enabled(enabled)
+        except OSError as e:
+            self.report_error("autostart", self._gettext(
+                "The autostart setting could not be changed: %1")
+                .replace("%1", str(e)))
         self.refresh()
 
     @Slot(str)

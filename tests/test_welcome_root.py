@@ -60,7 +60,7 @@ def test_kernel_install_leaves_installed_modules_to_the_swap(monkeypatch,
     calls, swapped = [], []
     monkeypatch.setattr(proc, "rpm_installed", lambda p: p in installed)
     monkeypatch.setattr(base.repos, "repos", lambda: [])
-    monkeypatch.setattr(ks, "repo_has", lambda alias, p: True)
+    monkeypatch.setattr(ks, "in_repo", lambda alias, p: True)
     monkeypatch.setattr(ks, "prepare_mok", lambda alias, pkgs: False)
     monkeypatch.setattr(helper, "run", lambda cmd, **kw: calls.append(cmd))
     monkeypatch.setattr(ks.kmp_sync, "swap_rebuilds",
@@ -81,7 +81,7 @@ def test_kernel_install_leaves_installed_modules_to_the_swap(monkeypatch,
 def kernel_env(fake_root, monkeypatch, tmp_path, repos=()):
     ks = kernel_switch
     monkeypatch.setattr(base.repos, "repos", lambda: list(repos))
-    monkeypatch.setattr(ks, "repo_has", lambda alias, p: True)
+    monkeypatch.setattr(ks, "in_repo", lambda alias, p: True)
     monkeypatch.setattr(ks, "prepare_mok", lambda alias, pkgs: False)
     monkeypatch.setattr(ks, "say", lambda text: None)
     monkeypatch.setattr(ks.grub, "ensure_grub_default", lambda say: True)
@@ -142,6 +142,33 @@ def test_kernel_install_success_keeps_the_repo(fake_root, monkeypatch,
     assert zypper_words(fake_root, "modifyrepo", "--enable", "kernel-repo")
     assert not zypper_words(fake_root, "removerepo")
     assert not zypper_words(fake_root, "modifyrepo", "--disable")
+
+
+def test_kernel_install_enables_the_boot_service_when_grub_fails(
+        fake_root, monkeypatch, tmp_path):
+    ks = kernel_env(fake_root, monkeypatch, tmp_path)
+
+    def broken(say):
+        raise helper.Fail("x")
+    monkeypatch.setattr(ks.grub, "ensure_grub_default", broken)
+    with pytest.raises(helper.Fail):
+        ks.kernel_install([])
+    assert ["systemctl", "enable",
+            "nazoos-kernel-boot.service"] in fake_root.calls
+
+
+@pytest.mark.parametrize("rc, result", [(0, True), (104, False)])
+def test_in_repo_reads_the_search_exit_code(monkeypatch, rc, result):
+    monkeypatch.setattr(kernel_switch.zypper, "repo_search",
+                        lambda alias, name: rc)
+    assert kernel_switch.in_repo("a", "p") is result
+
+
+def test_in_repo_raises_when_the_search_fails(monkeypatch):
+    monkeypatch.setattr(kernel_switch.zypper, "repo_search",
+                        lambda alias, name: 106)
+    with pytest.raises(helper.Fail):
+        kernel_switch.in_repo("a", "p")
 
 
 def test_kernel_only_waits_for_the_clean_starts(fake_root, monkeypatch):
@@ -283,7 +310,7 @@ def test_pollrate_too_long_leaves_grub_unchanged(monkeypatch, fake_root,
 
 
 def test_held_32bit():
-    names = "libavcodec62\nlibavcodec62-32bit\nMesa-32bit\nbash-32bit\n"
+    names = ["libavcodec62", "libavcodec62-32bit", "Mesa-32bit", "bash-32bit"]
     assert base.held_32bit(names) == ["Mesa-32bit", "libavcodec62-32bit"]
 
 
@@ -534,6 +561,19 @@ def test_channel_snapshots_before_the_link_changes(monkeypatch, fake_root,
     assert link_seen == [False, True, True, True]
     assert link.readlink().name == "nazoos-stable-repoindex.xml"
     assert fake_root.calls[-1][-3:-1] == ["--from", "nazoos:nazoos"]
+
+
+def test_channel_restores_the_link_when_the_new_repo_is_missing(
+        monkeypatch, fake_root, tmp_path):
+    link = tmp_path / "repoindex.xml"
+    link.symlink_to("nazoos-beta-repoindex.xml")
+    monkeypatch.setattr(system, "CHANNEL_LINK", str(link))
+    monkeypatch.setattr(maintenance.repos, "with_path", lambda path: None)
+    with pytest.raises(helper.Fail):
+        maintenance.channel(["stable"])
+    assert link.readlink().name == "nazoos-beta-repoindex.xml"
+    assert not any("dist-upgrade" in c for c in fake_root.calls)
+    assert len(zypper_words(fake_root, "refresh-services")) == 2
 
 
 @pytest.mark.parametrize("unpack_rc, cpio_rc", [(1, 0), (0, 1)])

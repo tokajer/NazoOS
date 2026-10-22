@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 22 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- API 9: Secure Boot key checks of root actions fail on a broken mokutil/openssl instead of reading as "not enrolled" (strict=True); repo_search() tells "not in the repo" from a failed search.
+- Status constants for the key (ENROLLED/PENDING/MISSING) and kernel stage 2.
+
+-------------------------------------------------------------------
 Thu Oct 22 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - API 8: atomic writes and file locks in their own module (files.py), helper.py is only the root helper frame.

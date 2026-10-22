@@ -62,9 +62,9 @@ def cert_from_download(alias):
 def mok_queue(cert):
     """Queue CERT for MokManager with the password from the GUI.
     Returns False if nothing had to be done."""
-    status = mok.status(cert)
-    if status != "missing":
-        if status == "pending":
+    status = mok.status(cert, strict=True)
+    if status != mok.MISSING:
+        if status == mok.PENDING:
             # Queued by someone else (cert-post): let the GUI show it too
             _mark_requested()
         say(f"Secure Boot key: {status}, nothing to do")
@@ -80,8 +80,9 @@ def mok_queue(cert):
     try:
         # Same options as cert-post: --ignore-keyring, or mokutil skips a
         # key the running kernel already trusts (kernel-nazoos itself)
-        rc = helper.run(["mokutil", "--import", cert, "--hash-file", str(hash_file),
-                  "--ca-check", "--ignore-keyring"], check=False)
+        rc = helper.run(["mokutil", "--import", cert, "--hash-file",
+                         str(hash_file), "--ca-check", "--ignore-keyring"],
+                        check=False)
     finally:
         hash_file.unlink(missing_ok=True)
     if rc != 0:
@@ -89,7 +90,7 @@ def mok_queue(cert):
                    "exit code {rc})", rc=rc)
     # mokutil may skip the import with exit code 0 ("CA enrolled. Skip"):
     # only a key that waits in MokNew means MokManager at the next boot
-    if mok.status(cert) != "pending":
+    if mok.status(cert, strict=True) != mok.PENDING:
         say("Secure Boot key: already enrolled, nothing to do")
         return False
     _mark_requested()

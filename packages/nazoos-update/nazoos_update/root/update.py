@@ -30,7 +30,13 @@ def nazoos_key_missing():
     if not mok.uefi():
         return False
     cert = mok.signing_cert(kernel.KERNEL_PACKAGE)
-    return cert is not None and mok.status(cert) == "missing"
+    if cert is None:
+        return False
+    try:
+        return mok.status(cert, strict=True) == mok.MISSING
+    except (Fail, OSError):
+        # A broken mokutil must not turn a failed update into "only the key"
+        return False
 
 
 def only_trusted_certs(failed):
@@ -83,8 +89,9 @@ def after_update_extras(dup_ran):
         say(f"Note: {e}")
 
 
-def update(_args):
-    key_missing = False
+def run_dup(cmd):
+    """zypper CMD inside a snapshot pair, then labels the snapshots.
+    Returns True if only the NazoOS kernel key import failed."""
     failed = []
 
     def watch(line):
@@ -92,6 +99,21 @@ def update(_args):
         if m:
             failed.append(m.group(1))
 
+    last = snapshots.last_snapshot()
+    # snapper-zypp-plugin creates a pre/post snapshot pair around this
+    rc = run(zypper.ZYPPER + cmd, check=False, on_line=watch)
+    snapshots.label_snapshots(update_after=last)
+    verdict = script_failure(rc, failed)
+    if verdict == FAIL:
+        check.check_quietly()
+        raise Fail("the system update failed (zypper exit code {rc})",
+                   rc=rc)
+    # Installed, only the key import failed: the caller finishes the update
+    # (boot entry, modules) and says what to do at the end
+    return verdict == KEY_MISSING
+
+
+def update(_args):
     run(zypper.ZYPPER + ["--gpg-auto-import-keys", "refresh"])
     pkgs, problems = check.dup_preview()
     if problems:
@@ -108,20 +130,7 @@ def update(_args):
         say(f"Mirrors have Tumbleweed {behind[1]}, the system has "
             f"{behind[0]}: only NazoOS packages until they catch up")
         cmd = check.own_update_cmd()
-    if cmd:
-        last = snapshots.last_snapshot()
-        # snapper-zypp-plugin creates a pre/post snapshot pair around this
-        rc = run(zypper.ZYPPER + cmd, check=False, on_line=watch)
-        snapshots.label_snapshots(update_after=last)
-        verdict = script_failure(rc, failed)
-        if verdict == KEY_MISSING:
-            # Installed, only the key import failed: finish the update
-            # (boot entry, modules) and say what to do at the end
-            key_missing = True
-        elif verdict == FAIL:
-            check.check_quietly()
-            raise Fail("the system update failed (zypper exit code {rc})",
-                       rc=rc)
+    key_missing = run_dup(cmd) if cmd else False
     after_update_extras(bool(cmd))
     reboot = capture(["zypper", "needs-rebooting"]).returncode == zypper.NEEDS_REBOOT
     status.write(status.new(

@@ -34,7 +34,7 @@ def run_fake(app, tmp_path, body, code, translate=lambda s: s, stdin=None):
     script.write_text("import sys\n" + textwrap.dedent(body)
                       + f"\nsys.exit({code})\n")
     proc = HelperProcess(str(script), translate,
-                         launcher=(sys.executable,))
+                         launch_cmd=(sys.executable,))
     result, log = [], []
     proc.finished.connect(lambda ok, msg: result.append((ok, msg)))
     proc.output.connect(log.append)
@@ -79,7 +79,7 @@ def test_pkexec_cancelled(app, tmp_path):
 
 def test_launcher_missing(app, tmp_path):
     proc = HelperProcess("x", lambda s: s,
-                         launcher=(str(tmp_path / "no-pkexec"),))
+                         launch_cmd=(str(tmp_path / "no-pkexec"),))
     result = []
     proc.finished.connect(lambda ok, msg: result.append((ok, msg)))
     proc.start([])
@@ -195,7 +195,7 @@ def welcome(app, tmp_path, monkeypatch):
     monkeypatch.setattr(
         qt, "HelperProcess",
         lambda helper, tr, parent: HelperProcess(
-            helper, tr, parent, launcher=(sys.executable,)))
+            helper, tr, parent, launch_cmd=(sys.executable,)))
     monkeypatch.setitem(backend.catalog.ACTION_LABELS, "fails", "Failing")
     b = backend.Backend(i18n.translator())
     b.refresh = lambda: None

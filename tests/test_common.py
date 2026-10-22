@@ -4,6 +4,7 @@
 
 import fcntl
 import subprocess
+import types
 
 import pytest
 
@@ -52,6 +53,37 @@ def test_status_missing(tools):
     # No fingerprint (openssl missing): never "pending"
     del tools["openssl x509"]
     assert mok.status("/c.crt") == "missing"
+
+
+@pytest.fixture
+def strict_tools(monkeypatch):
+    """Fake helper.capture answers (stdout, stderr, rc) by command."""
+    answers = {"mokutil --test-key": ("/c.crt is not enrolled", "", 1),
+               "openssl x509": ("SHA1 Fingerprint=AB:CD", "", 0),
+               "mokutil --list-enrolled": ("", "MokListRT is empty", 1),
+               "mokutil --list-new": ("SHA1 Fingerprint: ab:cd", "", 0)}
+
+    def capture(cmd, **kw):
+        out, err, rc = answers[" ".join(cmd[:2])]
+        return types.SimpleNamespace(stdout=out, stderr=err, returncode=rc)
+
+    monkeypatch.setattr(mok.helper, "capture", capture)
+    return answers
+
+
+def test_strict_status_pending(strict_tools):
+    assert mok.status("/c.crt", strict=True) == mok.PENDING
+
+
+def test_strict_status_raises_on_an_empty_answer(strict_tools):
+    strict_tools["mokutil --list-new"] = ("", "", 1)
+    with pytest.raises(helper.Fail):
+        mok.status("/c.crt", strict=True)
+
+
+def test_strict_status_reads_stderr_answers(strict_tools):
+    strict_tools["mokutil --list-new"] = ("", "MokNew is empty", 1)
+    assert mok.status("/c.crt", strict=True) == mok.MISSING
 
 
 def test_signing_cert(tools):

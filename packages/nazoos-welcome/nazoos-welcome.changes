@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Oct 22 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Kernel install: a failed repo search stops with its real reason instead of "no build of your NVIDIA driver"; the boot counter is switched on before the boot menu step.
+- A failed repo switch, app or driver install removes the repo it added for any error, not only expected ones.
+- Update channel: a switch that fails before the upgrade points the repo back to the old channel.
+- Autostart switch shows an error when the setting cannot be saved.
+
+-------------------------------------------------------------------
 Thu Oct 22 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Requires nazoos-common API 8.

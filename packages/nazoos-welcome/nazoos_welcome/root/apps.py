@@ -19,7 +19,7 @@ from .base import flathub_ensure
 
 def flatpak_branches():
     listing = helper.output(FLATPAK + ["remote-ls", "flathub",
-                                "--columns=application,branch"])
+                                       "--columns=application,branch"])
     branches = {}
     for line in listing.splitlines():
         parts = line.split("\t")
@@ -88,7 +88,7 @@ def app_remove(args):
         # One by one: removing the app also removes its own extensions
         for ref in app["refs"]:
             installed = helper.output(FLATPAK + ["list",
-                                          "--columns=application"]).split()
+                                                 "--columns=application"]).split()
             if ref in installed:
                 helper.run(FLATPAK + ["uninstall", "--noninteractive", "-y", ref])
     else:
@@ -107,7 +107,7 @@ def waydroid_config():
     and upgrade."""
     wanted = {}
     tz = helper.output(["timedatectl", "show", "--property=Timezone",
-                 "--value"]).strip()
+                        "--value"]).strip()
     if re.fullmatch(r"[A-Za-z0-9_+-]+(/[A-Za-z0-9_+-]+)*", tz):
         wanted["persist.sys.timezone"] = tz
     if hw.in_vm():
@@ -144,10 +144,10 @@ def firewall_trust(ifaces, add):
     op = "--add" if add else "--remove"
     for iface in ifaces:
         helper.run(["firewall-cmd", "--permanent", "--zone=trusted",
-             f"{op}-interface={iface}"], check=False)
+                    f"{op}-interface={iface}"], check=False)
     if add:
         # Forwarding inside the zone: Android reaches the internet via the
         # host. Not taken back on removal: other interfaces may need it
-        helper.run(["firewall-cmd", "--permanent", "--zone=trusted", "--add-forward"],
-            check=False)
+        helper.run(["firewall-cmd", "--permanent", "--zone=trusted",
+                    "--add-forward"], check=False)
     helper.run(["firewall-cmd", "--reload"], check=False)

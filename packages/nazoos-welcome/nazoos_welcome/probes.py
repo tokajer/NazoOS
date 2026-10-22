@@ -100,9 +100,9 @@ def kernel_state():
     if uefi and kernel.KERNEL_PACKAGE in rpms:
         cert = mok.signing_cert(kernel.KERNEL_PACKAGE)
         if cert:
-            key = ("enrolled" if mok.enrolled(cert)
-                   else "pending" if _requested_this_boot()
-                   else "missing")
+            key = (mok.ENROLLED if mok.enrolled(cert)
+                   else mok.PENDING if _requested_this_boot()
+                   else mok.MISSING)
     boots = kernelstate.read_boots().get("count", 0)
     running = kernel.running_nazoos()
     preferred = kernelstate.PREFER.exists()
@@ -137,9 +137,9 @@ def kernel_phase(k):
         return "running"
     if not k["installed"]:
         return ""
-    if k["secureBoot"] and k["mok"] == "missing":
+    if k["secureBoot"] and k["mok"] == mok.MISSING:
         return "key-missing"
-    if k["secureBoot"] and k["mok"] == "pending":
+    if k["secureBoot"] and k["mok"] == mok.PENDING:
         return "key-pending"
     return "installed" if k["preferred"] else "not-preferred"
 

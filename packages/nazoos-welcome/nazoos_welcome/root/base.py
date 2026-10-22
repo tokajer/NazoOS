@@ -36,16 +36,16 @@ def enable_repo(fragment):
 @contextlib.contextmanager
 def repo_in_use(fragment, alias, addrepo_args, keep):
     """Alias of the repo whose URL contains FRAGMENT; added as ALIAS with
-    ADDREPO_ARGS (options and URL) if there is none. If the block raises
-    Fail, a repo this call switched on is switched off again and one it
-    added is removed, unless KEEP() says packages from it are installed."""
+    ADDREPO_ARGS (options and URL) if there is none. If the block raises,
+    a repo this call switched on is switched off again and one it added
+    is removed, unless KEEP() says packages from it are installed."""
     found, enabled = enable_repo(fragment)
     alias = found or alias
     if not found:
         helper.run(ZYPPER + ["addrepo"] + addrepo_args + [alias])
     try:
         yield alias
-    except Fail:
+    except Exception:
         # No half state
         if enabled:
             helper.run(ZYPPER + ["modifyrepo", "--disable", found],
@@ -70,8 +70,7 @@ def packman_switch(alias):
     # A lock the user set stays: only add (and later remove) our own
     locked = re.findall(r"^solvable_name:\s*(\S+)", proc.read(ZYPP_LOCKS),
                         re.M)
-    held = [n for n in held_32bit(helper.output(
-                ["rpm", "-qa", "--qf", "%{NAME}\n"]))
+    held = [n for n in held_32bit(installed_names())
             if not any(fnmatch.fnmatchcase(n, pat) for pat in locked)]
     if not held:
         raise Fail("'{cmd}' failed (exit code {rc})", cmd="zypper", rc=rc)
@@ -83,10 +82,15 @@ def packman_switch(alias):
         helper.run(ZYPPER + ["removelock"] + held, check=False)
 
 
-def held_32bit(rpm_names):
-    """Installed 32-bit packages of the Packman family, from rpm -qa."""
+def installed_names():
+    """Names of all installed packages (rpm -qa)."""
+    return helper.output(["rpm", "-qa", "--qf", "%{NAME}\n"]).split()
+
+
+def held_32bit(names):
+    """Installed 32-bit packages of the Packman family out of NAMES."""
     family = re.compile(system.PACKMAN_FAMILY)
-    return sorted({n for n in rpm_names.split()
+    return sorted({n for n in names
                    if n.endswith("-32bit") and family.fullmatch(n)})
 
 

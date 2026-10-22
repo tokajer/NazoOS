@@ -63,6 +63,15 @@ DETAILED_XML = """<?xml version='1.0'?>
 """
 
 
+def test_nazoos_key_missing_is_false_when_mokutil_is_broken(monkeypatch):
+    def broken(cert, strict=False):
+        raise Fail("x")
+    monkeypatch.setattr(update.mok, "uefi", lambda: True)
+    monkeypatch.setattr(update.mok, "signing_cert", lambda pkg: "/c.crt")
+    monkeypatch.setattr(update.mok, "status", broken)
+    assert update.nazoos_key_missing() is False
+
+
 def fake_zypper(monkeypatch, stdout, rc=0):
     calls = []
 
@@ -192,7 +201,7 @@ def test_nazoos_key_missing(monkeypatch, uefi, cert, status,
     mok = update.mok
     monkeypatch.setattr(mok, "uefi", lambda: uefi)
     monkeypatch.setattr(mok, "signing_cert", lambda _p: cert)
-    monkeypatch.setattr(mok, "status", lambda _c: status)
+    monkeypatch.setattr(mok, "status", lambda _c, strict=False: status)
     assert update.nazoos_key_missing() is expected
 
 

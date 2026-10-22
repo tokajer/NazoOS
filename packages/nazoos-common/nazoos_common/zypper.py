@@ -23,10 +23,22 @@ OK = (0, 100, 101, *INFO)
 # Longer than the helpers' ZYPP_LOCK_TIMEOUT (120/300 s) so a held zypp lock
 # is waited for, but a hung zypper cannot block the root action forever
 REPO_HAS_TIMEOUT = 360
+# zypper search: no matching package
+NOT_FOUND = 104
+
+
+def repo_search(alias, name):
+    """Exit code of searching package NAME in repo ALIAS: 0 found,
+    NOT_FOUND, anything else an error (127: zypper missing, 1: hung)."""
+    # --no-refresh: callers refreshed the repo right before (kernel_install
+    # "refresh ALIAS", kmp_sync after the update's refresh)
+    return proc.rc(ZYPPER + ["--quiet", "--no-refresh", "search",
+                             "--match-exact", "--type", "package",
+                             "--repo", alias, name],
+                   timeout=REPO_HAS_TIMEOUT)
 
 
 def repo_has(alias, name):
     """Package `name` exists in repo `alias` (zypper exit 104: not found).
     False as well if zypper is missing (proc.rc: 127) or hangs."""
-    return proc.rc(ZYPPER + ["--quiet", "search", "--match-exact", "--repo",
-                             alias, name], timeout=REPO_HAS_TIMEOUT) == 0
+    return repo_search(alias, name) == 0

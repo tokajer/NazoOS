@@ -51,13 +51,19 @@ def wanted_kmps():
             if proc.rpm_installed(kmp(b, "default"))]
 
 
+# stage2_state() answers (KernelPage.qml compares them)
+STAGE2_READY = "ready"
+STAGE2_WAITING = "waiting"
+
+
 def stage2_state(preferred, boots, default_installed, only):
     """Removing kernel-default (stage 2): "" (not offered: the user went
     back to the openSUSE kernel, or it is gone already), "waiting" (fewer
     than STABLE_BOOTS clean boots) or "ready"."""
     if not (preferred and default_installed and not only):
         return ""
-    return "ready" if boots >= kernelstate.STABLE_BOOTS else "waiting"
+    return (STAGE2_READY if boots >= kernelstate.STABLE_BOOTS
+            else STAGE2_WAITING)
 
 
 def stage2_now():
@@ -72,7 +78,7 @@ def stage2_now():
 
 def stage2_due():
     """Stage 2 can be offered now (notification)."""
-    return stage2_now() == "ready"
+    return stage2_now() == STAGE2_READY
 
 
 def keep_default(log=print):

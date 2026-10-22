@@ -25,7 +25,7 @@ def service(args):
     if svc["user"]:
         return  # user units are switched by the GUI without root
     helper.run(["systemctl", "enable" if enable else "disable", "--now",
-         svc["unit"]])
+                svc["unit"]])
 
 
 def system_update(_args):
@@ -60,11 +60,19 @@ def flatpak_repair(_args):
 
 def create_snapshot(description):
     helper.run(["snapper", "-c", "root", "create", "--type", "single",
-         "--cleanup-algorithm", "number", "--description", description])
+                "--cleanup-algorithm", "number", "--description", description])
 
 
 def snapshot(_args):
     create_snapshot("nazoos-welcome: manual snapshot")
+
+
+def _point(link, target):
+    """Make the symlink LINK point to TARGET in one atomic step."""
+    tmp = link.with_name(".repoindex.xml.nazoos-welcome")
+    tmp.unlink(missing_ok=True)
+    tmp.symlink_to(target)
+    os.replace(tmp, link)
 
 
 def channel(args):
@@ -82,15 +90,24 @@ def channel(args):
     # Before the link changes: the zypper snapshot alone would already
     # contain the new channel
     create_snapshot(f"nazoos-welcome: before switching to {target}")
-    tmp = link.with_name(".repoindex.xml.nazoos-welcome")
-    tmp.unlink(missing_ok=True)
-    tmp.symlink_to(f"nazoos-{target}-repoindex.xml")
-    os.replace(tmp, link)
-    helper.run(ZYPPER + ["refresh-services"])
-    alias = repos.with_path(system.CHANNEL_REPO_PATHS[target])
-    if alias is None:
-        raise Fail("the {channel} repository did not appear after "
-                   "refreshing the services", channel=target)
-    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+    old = os.readlink(link) if link.is_symlink() else None
+    _point(link, f"nazoos-{target}-repoindex.xml")
+    try:
+        helper.run(ZYPPER + ["refresh-services"])
+        alias = repos.with_path(system.CHANNEL_REPO_PATHS[target])
+        if alias is None:
+            raise Fail("the {channel} repository did not appear after "
+                       "refreshing the services", channel=target)
+        helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+    except Exception:
+        if old:
+            try:
+                _point(link, old)
+                helper.run(ZYPPER + ["refresh-services"], check=False)
+            except OSError as e:
+                helper.say(f"Note: could not restore {link}: {e}")
+        raise
+    # Outside the try: once dup started the packages may already be on the
+    # new channel; the snapshot is the way back
     helper.run(ZYPPER + ["dist-upgrade", "--from", alias,
-                  "--auto-agree-with-licenses"])
+                         "--auto-agree-with-licenses"])

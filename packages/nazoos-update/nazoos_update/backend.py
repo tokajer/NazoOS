@@ -98,8 +98,8 @@ class Backend(ActionRunner):
         self._begin(action)
         self._start(action, [])
 
-    def _helper_finished(self, action, proc, ok, message):
-        if proc.reboot:
+    def _helper_finished(self, action, helper_proc, ok, message):
+        if helper_proc.reboot:
             self._reboot = True
         if ok and action == "rollback":
             self._rolled_back = True

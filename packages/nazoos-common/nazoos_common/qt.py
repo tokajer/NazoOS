@@ -107,11 +107,11 @@ class HelperProcess(QObject):
     output = Signal(str)
     finished = Signal(bool, str)
 
-    def __init__(self, helper, gettext, parent=None, launcher=("pkexec",)):
+    def __init__(self, helper, gettext, parent=None, launch_cmd=("pkexec",)):
         super().__init__(parent)
         self._helper = helper
         self._gettext = gettext
-        self._launcher = list(launcher)
+        self._launch_cmd = list(launch_cmd)
         self._partial = ""
         self._error = ""
         self.reboot = False
@@ -123,7 +123,7 @@ class HelperProcess(QObject):
         proc.readyReadStandardOutput.connect(lambda: self._read(proc))
         proc.finished.connect(lambda code, _s: self._finished(code))
         proc.errorOccurred.connect(self._failed_start)
-        cmd = self._launcher + [self._helper] + [str(a) for a in args]
+        cmd = self._launch_cmd + [self._helper] + [str(a) for a in args]
         proc.start(cmd[0], cmd[1:])
         if stdin is not None:
             proc.write((stdin + "\n").encode())
@@ -257,8 +257,8 @@ class ActionRunner(QObject):
         proc.finished.connect(finished)
         proc.start([action, *args], stdin)
 
-    def _helper_finished(self, action, proc, ok, message):
-        """The run of ACTION ended; subclasses override. PROC.reboot is
+    def _helper_finished(self, action, helper_proc, ok, message):
+        """The run of ACTION ended; subclasses override. HELPER_PROC.reboot is
         True after an "@@reboot" line."""
         raise NotImplementedError
 

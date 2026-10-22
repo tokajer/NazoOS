@@ -5,15 +5,25 @@
 import contextlib
 import os
 
-from nazoos_common import grub, helper, kernel, kernelstate, kmp_sync, proc
+from nazoos_common import grub, helper, kernel, kernelstate, kmp_sync, proc, zypper
 from nazoos_common.helper import Fail, say
 from nazoos_common.kernel import running_nazoos
-from nazoos_common.zypper import ZYPPER, ZYPPER_IN, repo_has
+from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 
 from .base import repo_in_use
 from .mok_queue import MOK_RESTART, prepare_mok
 
 EFIVARS = "/sys/firmware/efi/efivars"
+
+
+def in_repo(alias, name):
+    """Package NAME is in repo ALIAS; a failed search raises instead of
+    reading as "no build" (the NVIDIA check would blame the kernel)."""
+    rc = zypper.repo_search(alias, name)
+    if rc not in (0, zypper.NOT_FOUND):
+        raise Fail("'{cmd}' failed (exit code {rc})", cmd="zypper search",
+                   rc=rc)
+    return rc == 0
 
 
 def nazoos_kmps(alias):
@@ -23,7 +33,7 @@ def nazoos_kmps(alias):
     # Check first that our kernel project builds them: without its NVIDIA
     # module kernel-nazoos would start without graphics driver
     kmps = kernel.wanted_kmps()
-    missing = [p for p in kmps if not repo_has(alias, p)]
+    missing = [p for p in kmps if not in_repo(alias, p)]
     gpu = [p for p in missing if p.startswith("nvidia-")]
     if gpu:
         raise Fail("the NazoOS kernel has no build of your NVIDIA driver "
@@ -36,7 +46,7 @@ def nazoos_kmps(alias):
     # repo has no build yet
     extra = [p for p in (kernel.kmp(b, "nazoos")
                          for b in kernel.KMP_NAZOOS_ONLY)
-             if repo_has(alias, p)]
+             if in_repo(alias, p)]
     return [p for p in kmps if p not in missing] + extra
 
 
@@ -53,6 +63,8 @@ def kernel_install(_args):
                      ) as alias:
         helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
         pkgs = [kernel.KERNEL_PACKAGE] + nazoos_kmps(alias)
+        # If the install below fails the queued key stays (harmless:
+        # MokManager enrolls it, a later install needs no key step)
         queued = prepare_mok(alias, pkgs)
         # Modules left from an earlier install stay out of "zypper in": a
         # newer build of them for the same kernel conflicts with the old
@@ -64,8 +76,10 @@ def kernel_install(_args):
     kernelstate.STATE.mkdir(parents=True, exist_ok=True)
     kernelstate.PREFER.touch()
     kernelstate.write_boots({"count": 0})
-    grub.ensure_grub_default(say)
+    # Before the boot menu step: if that fails, the boot counter must not
+    # stay off (stage 2 would never be offered)
     helper.run(["systemctl", "enable", "nazoos-kernel-boot.service"])
+    grub.ensure_grub_default(say)
     say(MOK_RESTART if queued
         else "Restart the computer to start the NazoOS kernel.")
 
@@ -75,11 +89,11 @@ def kernel_only(_args):
     if not running_nazoos():
         raise Fail("start the NazoOS kernel first")
     stage2 = kernel.stage2_now()
-    if stage2 == "waiting":
+    if stage2 == kernel.STAGE2_WAITING:
         raise Fail("the openSUSE kernel can be removed after {count} clean "
                    "starts of the NazoOS kernel",
                    count=kernelstate.STABLE_BOOTS)
-    if stage2 != "ready":
+    if stage2 != kernel.STAGE2_READY:
         raise Fail("the openSUSE kernel is already removed or was chosen "
                    "again on the Kernel page")
     remove = [f"-{p}" for p in

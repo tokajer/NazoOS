@@ -3,7 +3,7 @@
 """Secure Boot key of kernel-nazoos (ADR 0024), no Qt here.
 
 enrolled() works as a user; pending(), status() and covered() need root
-(mokutil --list-new reads MokNew).
+(mokutil --list-new reads MokNew). Root actions pass strict=True.
 """
 
 import re
@@ -11,9 +11,28 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from . import proc
+from . import helper, proc
 
 CERT_PATH = re.compile(r"/etc/uefi/certs/\w+\.crt")
+# status() answers
+ENROLLED = "enrolled"
+PENDING = "pending"
+MISSING = "missing"
+
+
+def _out(cmd, strict, expect=()):
+    """Output of CMD. STRICT (root actions): no timeout, and a missing
+    tool or an answer without any of the EXPECT words raises, so a
+    broken mokutil never reads as "not enrolled"/"not queued"."""
+    if not strict:
+        return proc.out(cmd)
+    r = helper.capture(cmd)
+    # Some answers ("MokNew is empty") may go to stderr
+    text = r.stdout + r.stderr
+    if not any(w in text.lower() for w in expect):
+        raise helper.Fail("'{cmd}' failed (exit code {rc})",
+                          cmd=" ".join(cmd[:2]), rc=r.returncode)
+    return text
 
 
 def sb_state():
@@ -56,17 +75,18 @@ def password_hash(password):
     return out if out.startswith("$6$") else ""
 
 
-def enrolled(cert):
+def enrolled(cert, strict=False):
     """The key CERT is already enrolled. On a running kernel-nazoos
     root's "mokutil --test-key" answers "already in the built-in trusted
     keyring" instead (VM 2026-10-19), so the fingerprint is also looked
     up in the enrolled list."""
-    test = proc.out(["mokutil", "--test-key", cert])
+    test = _out(["mokutil", "--test-key", cert], strict,
+                ("enroll", "keyring"))
     if "already enrolled" in test.lower():
         return True
-    fpr = fingerprint(cert)
-    listed = proc.out(["mokutil", "--list-enrolled"]).lower() \
-        .replace(":", "")
+    fpr = fingerprint(cert, strict)
+    listed = _out(["mokutil", "--list-enrolled"], strict,
+                  ("fingerprint", "empty")).lower().replace(":", "")
     return bool(fpr) and fpr in listed
 
 
@@ -100,22 +120,23 @@ def covered(cert):
             return False
 
 
-def fingerprint(cert):
+def fingerprint(cert, strict=False):
     """SHA-1 fingerprint of CERT, lower case without colons, or ""."""
-    fpr = proc.out(["openssl", "x509", "-in", cert, "-noout",
-                    "-fingerprint", "-sha1"])
+    fpr = _out(["openssl", "x509", "-in", cert, "-noout",
+                "-fingerprint", "-sha1"], strict, ("fingerprint",))
     return fpr.split("=")[-1].strip().replace(":", "").lower()
 
 
-def pending(cert):
+def pending(cert, strict=False):
     """Root only: CERT waits for MokManager at the next boot."""
-    fpr = fingerprint(cert)
-    queued = proc.out(["mokutil", "--list-new"]).lower().replace(":", "")
+    fpr = fingerprint(cert, strict)
+    queued = _out(["mokutil", "--list-new"], strict,
+                  ("fingerprint", "empty")).lower().replace(":", "")
     return bool(fpr) and fpr in queued
 
 
-def status(cert):
-    """Root only: enrolled, pending (waiting for MokManager) or missing."""
-    if enrolled(cert):
-        return "enrolled"
-    return "pending" if pending(cert) else "missing"
+def status(cert, strict=False):
+    """Root only: ENROLLED, PENDING (waiting for MokManager) or MISSING."""
+    if enrolled(cert, strict):
+        return ENROLLED
+    return PENDING if pending(cert, strict) else MISSING

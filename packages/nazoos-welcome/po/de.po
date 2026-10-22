@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-22 20:03+0200\n"
+"POT-Creation-Date: 2026-10-22 20:28+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -21,34 +21,36 @@ msgstr ""
 msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr "GRUB_CMDLINE_LINUX_DEFAULT nicht in {file} gefunden"
 
-#: ../nazoos-common/nazoos_common/helper.py:75 nazoos_welcome/root/base.py:77
+#: ../nazoos-common/nazoos_common/helper.py:70
+#: ../nazoos-common/nazoos_common/mok.py:33 nazoos_welcome/root/base.py:76
+#: nazoos_welcome/root/kernel_switch.py:24
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr "„{cmd}“ ist fehlgeschlagen (Exit-Code {rc})"
 
-#: ../nazoos-common/nazoos_common/helper.py:121
+#: ../nazoos-common/nazoos_common/helper.py:89
 msgid "missing argument"
 msgstr "Angabe fehlt"
 
-#: ../nazoos-common/nazoos_common/helper.py:123
+#: ../nazoos-common/nazoos_common/helper.py:91
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr "ungültige Angabe: {arg}"
 
-#: ../nazoos-common/nazoos_common/helper.py:132
+#: ../nazoos-common/nazoos_common/helper.py:100
 msgid "must run as root (via pkexec)"
 msgstr "muss mit Administratorrechten laufen (über pkexec)"
 
-#: ../nazoos-common/nazoos_common/helper.py:136
+#: ../nazoos-common/nazoos_common/helper.py:104
 msgid "unknown action"
 msgstr "unbekannte Aktion"
 
-#: ../nazoos-common/nazoos_common/helper.py:149
+#: ../nazoos-common/nazoos_common/helper.py:117
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr "Systemfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/helper.py:153
+#: ../nazoos-common/nazoos_common/helper.py:121
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr "Programmfehler: {detail}"
@@ -57,8 +59,8 @@ msgstr "Programmfehler: {detail}"
 msgid "pkexec could not be started."
 msgstr "pkexec konnte nicht gestartet werden."
 
-#: ../nazoos-common/nazoos_common/qt.py:159 nazoos_welcome/backend.py:152
-#: nazoos_welcome/backend.py:244
+#: ../nazoos-common/nazoos_common/qt.py:159 nazoos_welcome/backend.py:171
+#: nazoos_welcome/backend.py:263
 msgid "Done."
 msgstr "Fertig."
 
@@ -95,17 +97,21 @@ msgstr "Schließen"
 msgid "Nothing has run yet."
 msgstr "Bisher wurde nichts ausgeführt."
 
-#: nazoos_welcome/backend.py:149
+#: nazoos_welcome/backend.py:168
 msgid "These services still fail after a restart: %1"
 msgstr "Diese Dienste schlagen auch nach dem Neustart fehl: %1"
 
-#: nazoos_welcome/backend.py:203
+#: nazoos_welcome/backend.py:222
 msgid ""
 "The password for the Secure Boot key could not be prepared (openssl is "
 "missing)."
 msgstr ""
 "Das Passwort für den Secure-Boot-Schlüssel konnte nicht vorbereitet werden "
 "(openssl fehlt)."
+
+#: nazoos_welcome/backend.py:277
+msgid "The autostart setting could not be changed: %1"
+msgstr "Die Autostart-Einstellung konnte nicht geändert werden: %1"
 
 #: nazoos_welcome/catalog.py
 msgid "3D creation suite"
@@ -478,36 +484,36 @@ msgstr "Kabellose Controller, Headsets, Mäuse und Tastaturen"
 msgid "Write ISO images to USB sticks"
 msgstr "ISO-Abbilder auf USB-Sticks schreiben"
 
-#: nazoos_welcome/root/apps.py:47 nazoos_welcome/root/apps.py:77
+#: nazoos_welcome/root/apps.py:73 nazoos_welcome/root/apps.py:86
 msgid "unknown app"
 msgstr "unbekannte App"
 
-#: nazoos_welcome/root/apps.py:49
+#: nazoos_welcome/root/apps.py:75
 #, python-brace-format
 msgid "{app} needs the NazoOS kernel (Kernel page)"
 msgstr "{app} braucht den NazoOS-Kernel (Seite „Kernel“)"
 
-#: nazoos_welcome/root/base.py:103
+#: nazoos_welcome/root/base.py:107
 msgid "unknown user"
 msgstr "unbekannter Benutzer"
 
-#: nazoos_welcome/root/drives.py:90
+#: nazoos_welcome/root/drives.py:91
 msgid "this drive cannot be added here (removable or system drive)"
 msgstr ""
 "dieses Laufwerk kann hier nicht hinzugefügt werden (Wechseldatenträger oder "
 "Systemlaufwerk)"
 
-#: nazoos_welcome/root/drives.py:120
+#: nazoos_welcome/root/drives.py:121
 #, python-brace-format
 msgid "the drive could not be mounted (exit code {rc})"
 msgstr "das Laufwerk konnte nicht eingehängt werden (Exit-Code {rc})"
 
-#: nazoos_welcome/root/drives.py:135
+#: nazoos_welcome/root/drives.py:136
 msgid "only drives added by NazoOS Welcome can be removed here"
 msgstr ""
 "hier lassen sich nur Laufwerke entfernen, die NazoOS Welcome hinzugefügt hat"
 
-#: nazoos_welcome/root/kernel_switch.py:29
+#: nazoos_welcome/root/kernel_switch.py:39
 #, python-brace-format
 msgid ""
 "the NazoOS kernel has no build of your NVIDIA driver ({packages}); switch to "
@@ -517,7 +523,7 @@ msgstr ""
 "wechseln Sie zuerst auf der Seite „Treiber & Codecs“ zum offenen NVIDIA-"
 "Treiber"
 
-#: nazoos_welcome/root/kernel_switch.py:47
+#: nazoos_welcome/root/kernel_switch.py:57
 msgid ""
 "the closed NVIDIA driver (G06) only exists for the openSUSE kernel; switch "
 "to the open driver first"
@@ -525,11 +531,11 @@ msgstr ""
 "den geschlossenen NVIDIA-Treiber (G06) gibt es nur für den openSUSE-Kernel; "
 "wechseln Sie zuerst zum offenen Treiber"
 
-#: nazoos_welcome/root/kernel_switch.py:76
+#: nazoos_welcome/root/kernel_switch.py:90
 msgid "start the NazoOS kernel first"
 msgstr "starten Sie zuerst den NazoOS-Kernel"
 
-#: nazoos_welcome/root/kernel_switch.py:79
+#: nazoos_welcome/root/kernel_switch.py:93
 #, python-brace-format
 msgid ""
 "the openSUSE kernel can be removed after {count} clean starts of the NazoOS "
@@ -538,22 +544,22 @@ msgstr ""
 "der openSUSE-Kernel kann nach {count} fehlerfreien Starts des NazoOS-Kernels "
 "entfernt werden"
 
-#: nazoos_welcome/root/kernel_switch.py:83
+#: nazoos_welcome/root/kernel_switch.py:97
 msgid ""
 "the openSUSE kernel is already removed or was chosen again on the Kernel page"
 msgstr ""
 "der openSUSE-Kernel ist bereits entfernt oder wurde auf der Seite Kernel "
 "wieder gewählt"
 
-#: nazoos_welcome/root/kernel_switch.py:107
+#: nazoos_welcome/root/kernel_switch.py:121
 msgid "the openSUSE kernel is not in /boot"
 msgstr "der openSUSE-Kernel ist nicht in /boot"
 
-#: nazoos_welcome/root/kernel_switch.py:114
+#: nazoos_welcome/root/kernel_switch.py:128
 msgid "start the openSUSE kernel first (boot menu)"
 msgstr "starten Sie zuerst den openSUSE-Kernel (Startmenü)"
 
-#: nazoos_welcome/root/kernel_switch.py:116
+#: nazoos_welcome/root/kernel_switch.py:130
 msgid "the openSUSE kernel is not installed"
 msgstr "der openSUSE-Kernel ist nicht installiert"
 
@@ -565,11 +571,11 @@ msgstr "unbekannter Dienst"
 msgid "nazoos-update is not installed"
 msgstr "nazoos-update ist nicht installiert"
 
-#: nazoos_welcome/root/maintenance.py:81
+#: nazoos_welcome/root/maintenance.py:89
 msgid "nazoos-repos is not installed"
 msgstr "nazoos-repos ist nicht installiert"
 
-#: nazoos_welcome/root/maintenance.py:92
+#: nazoos_welcome/root/maintenance.py:99
 #, python-brace-format
 msgid "the {channel} repository did not appear after refreshing the services"
 msgstr ""
@@ -588,31 +594,31 @@ msgstr "das Signaturzertifikat konnte nicht gelesen werden"
 msgid "a password for the Secure Boot key is needed"
 msgstr "für den Secure-Boot-Schlüssel wird ein Passwort gebraucht"
 
-#: nazoos_welcome/root/mok_queue.py:88
+#: nazoos_welcome/root/mok_queue.py:89
 #, python-brace-format
 msgid "the Secure Boot key could not be prepared (mokutil exit code {rc})"
 msgstr ""
 "der Secure-Boot-Schlüssel konnte nicht vorbereitet werden (mokutil-Exit-Code "
 "{rc})"
 
-#: nazoos_welcome/root/mok_queue.py:115 nazoos_welcome/root/mok_queue.py:128
+#: nazoos_welcome/root/mok_queue.py:116 nazoos_welcome/root/mok_queue.py:129
 msgid "kernel-nazoos has no signing certificate"
 msgstr "kernel-nazoos hat kein Signaturzertifikat"
 
-#: nazoos_welcome/root/repair_fixes.py:47
+#: nazoos_welcome/root/repair_fixes.py:48
 #, python-brace-format
 msgid "still missing after restoring the services: {repos}"
 msgstr "fehlt auch nach dem Wiederherstellen der Dienste noch: {repos}"
 
-#: nazoos_welcome/root/repair_fixes.py:65
+#: nazoos_welcome/root/repair_fixes.py:66
 msgid "Packman is not set up; install the codecs first"
 msgstr "Packman ist nicht eingerichtet; installieren Sie zuerst die Codecs"
 
-#: nazoos_welcome/root/repair_fixes.py:89
+#: nazoos_welcome/root/repair_fixes.py:90
 msgid "no NVIDIA driver is installed"
 msgstr "es ist kein NVIDIA-Treiber installiert"
 
-#: nazoos_welcome/root/repair_fixes.py:100
+#: nazoos_welcome/root/repair_fixes.py:101
 #, python-brace-format
 msgid "still failing: {units}"
 msgstr "schlägt weiterhin fehl: {units}"
@@ -621,28 +627,28 @@ msgstr "schlägt weiterhin fehl: {units}"
 msgid "gaming mode is not installed (nazoos-session)"
 msgstr "der Gaming-Modus ist nicht installiert (nazoos-session)"
 
-#: nazoos_welcome/root/tuning.py:26
+#: nazoos_welcome/root/tuning.py:27
 #, python-brace-format
 msgid "{scheduler} is not part of the installed scx package"
 msgstr "{scheduler} gehört nicht zum installierten scx-Paket"
 
-#: nazoos_welcome/root/tuning.py:42
+#: nazoos_welcome/root/tuning.py:43
 msgid "unknown kernel option"
 msgstr "unbekannte Kernel-Option"
 
-#: nazoos_welcome/root/tuning.py:53
+#: nazoos_welcome/root/tuning.py:54
 msgid "needs the NazoOS kernel"
 msgstr "braucht den NazoOS-Kernel"
 
-#: nazoos_welcome/root/tuning.py:56
+#: nazoos_welcome/root/tuning.py:57
 msgid "invalid device id"
 msgstr "ungültige Geräte-ID"
 
-#: nazoos_welcome/root/tuning.py:69
+#: nazoos_welcome/root/tuning.py:70
 msgid "this device is not connected"
 msgstr "dieses Gerät ist nicht angeschlossen"
 
-#: nazoos_welcome/root/tuning.py:72
+#: nazoos_welcome/root/tuning.py:73
 msgid ""
 "too many devices with their own polling rate; reset one of them to the "
 "device default first"
