@@ -285,6 +285,7 @@ def test_label_holds_the_lock_while_naming(monkeypatch, tmp_path):
 
 def test_check_keeps_the_restart_hint_of_the_update(monkeypatch, tmp_path):
     monkeypatch.setattr(status_mod, "STATUS", tmp_path / "status.json")
+    monkeypatch.setattr(status_mod, "STATUS_LOCK", tmp_path / "status.lock")
     status_mod.write({"error": "", "needs_reboot": True, "updated": 5})
     status_mod.write({"error": "", "packages": [], "reboot": False})
     st = status_mod.read_status()
@@ -297,6 +298,7 @@ def test_check_keeps_the_restart_hint_of_the_update(monkeypatch, tmp_path):
 
 def test_failed_check_keeps_last_ok(monkeypatch, tmp_path):
     monkeypatch.setattr(status_mod, "STATUS", tmp_path / "status.json")
+    monkeypatch.setattr(status_mod, "STATUS_LOCK", tmp_path / "status.lock")
     status_mod.write({"error": ""})
     ok = status_mod.read_status()["last_ok"]
     assert ok > 0
@@ -331,3 +333,16 @@ def test_own_repos_are_the_enabled_nazoos_ones(monkeypatch):
     assert check.own_update_cmd() == [
         "update", "--auto-agree-with-licenses",
         "--repo", "nazoos:nazoos", "--repo", "nazoos-kernel"]
+
+
+@pytest.mark.parametrize("rc, trusted, key_missing, expected", [
+    (0, False, False, update.OK),
+    (107, True, False, update.OK),
+    (107, False, True, update.KEY_MISSING),
+    (107, False, False, update.FAIL),
+    (1, False, False, update.FAIL),
+])
+def test_script_failure(monkeypatch, rc, trusted, key_missing, expected):
+    monkeypatch.setattr(update, "only_trusted_certs", lambda failed: trusted)
+    monkeypatch.setattr(update, "nazoos_key_missing", lambda: key_missing)
+    assert update.script_failure(rc, ["x-ueficert"]) == expected

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Parsers of the welcome probes (lspci, lsblk, repo files, rpm -qa)."""
 
-from nazoos_welcome import catalog, repair, system
+from nazoos_welcome import catalog, probes, repair
 
 MARK = catalog.FSTAB_MARKER
 
@@ -15,7 +15,7 @@ LSPCI = """\
 
 
 def test_parse_gpus():
-    gpus = system.parse_gpus(LSPCI)
+    gpus = probes.parse_gpus(LSPCI)
     # The audio device is skipped
     assert [g["vendor"] for g in gpus] == ["amd", "nvidia", "other"]
     assert gpus[0]["name"] == ("Advanced Micro Devices, Inc. [AMD/ATI] "
@@ -25,7 +25,7 @@ def test_parse_gpus():
 
 
 def test_parse_gpus_empty():
-    assert system.parse_gpus("") == []
+    assert probes.parse_gpus("") == []
 
 
 def dev(uuid, fstype="ext4", mounts=(), **kw):
@@ -48,7 +48,7 @@ def test_parse_drives():
         dev("elsewhere", mounts=["/srv/x"]),
         dev("idle", "ntfs"),
     ]
-    result = system.parse_drives(devs, fstab, "rootuuid")
+    result = probes.parse_drives(devs, fstab, "rootuuid")
     assert [d["uuid"] for d in result] == ["ours", "media1", "idle"]
     ours, auto, idle = result
     assert ours["managed"] and ours["mountpoint"] == "/mnt/Games"
@@ -113,12 +113,12 @@ def test_deck_in_repos_caches_only_success(monkeypatch):
         calls.append(cmd)
         return next(codes)
 
-    monkeypatch.setattr(system, "_deck_found", False)
-    monkeypatch.setattr(system.proc, "rc", fake_rc)
+    monkeypatch.setattr(probes, "_deck_found", False)
+    monkeypatch.setattr(probes.proc, "rc", fake_rc)
     # First call: zypp lock held, no answer; the next call asks again
-    assert system.deck_in_repos() is False
-    assert system.deck_in_repos() is True
-    assert system.deck_in_repos() is True
+    assert probes.deck_in_repos() is False
+    assert probes.deck_in_repos() is True
+    assert probes.deck_in_repos() is True
     assert len(calls) == 2
 
 
@@ -135,27 +135,27 @@ ActiveState=inactive
 def test_parse_unit_states():
     units = ["a.service", "b.service", "missing.service"]
     # systemctl prints a block per unit; a unit without one is off
-    assert system.parse_unit_states(UNIT_SHOW, units) == {
+    assert probes.parse_unit_states(UNIT_SHOW, units) == {
         "a.service": (True, True), "b.service": (True, False),
         "missing.service": (False, False)}
-    assert system.parse_unit_states("", ["x.service"]) == {
+    assert probes.parse_unit_states("", ["x.service"]) == {
         "x.service": (False, False)}
     # A missing unit prints an empty UnitFileState; blank lines vary
     text = ("\n\nUnitFileState=\nActiveState=inactive\n\n\n\n"
             "UnitFileState=enabled\nActiveState=active\n")
-    assert system.parse_unit_states(text, ["gone.service", "a.service"]) == {
+    assert probes.parse_unit_states(text, ["gone.service", "a.service"]) == {
         "gone.service": (False, False), "a.service": (True, True)}
 
 
 def test_unit_states_without_units_runs_nothing(monkeypatch):
-    monkeypatch.setattr(system.proc, "out", lambda cmd: 1 / 0)
-    assert system.unit_states([]) == {}
+    monkeypatch.setattr(probes.proc, "out", lambda cmd: 1 / 0)
+    assert probes.unit_states([]) == {}
 
 
 def testpackman_repo_state(monkeypatch):
     def state(found):
-        monkeypatch.setattr(system.repos, "repos", lambda: found)
-        return system.packman_repo()
+        monkeypatch.setattr(probes.repos, "repos", lambda: found)
+        return probes.packman_repo()
 
     url = "https://ftp.gwdg.de/pub/linux/misc/packman/suse/x/"
     assert state([("p", url, True), ("o", "https://x/oss/", True)]) == "on"

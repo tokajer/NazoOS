@@ -4,23 +4,36 @@
 
 import os
 import subprocess
-import threading
 import traceback
 
-from nazoos_common.qt import ActionRunner
+from nazoos_common.qt import COMMON_LAUNCHERS, ActionRunner
 from PySide6.QtCore import Property, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 
-from . import catalog, repair, system
+from . import catalog, probes, repair
 
 # Cheap probes for the card an action changed: read right after it, the
-# full system.collect() takes 15-20 s (zypper searches).
-# action: (state key, function in system)
+# full probes.collect() takes 15-20 s (zypper searches).
+# action: (state key, probe function)
 QUICK_PROBES = {
-    "channel": ("channel", "update_channel"),
-    "session-boot-mode": ("session", "session_state"),
-    "automount-add": ("drives", "drives"),
-    "automount-remove": ("drives", "drives"),
+    "channel": ("channel", probes.update_channel),
+    "session-boot-mode": ("session", probes.session_state),
+    "automount-add": ("drives", probes.drives),
+    "automount-remove": ("drives", probes.drives),
+}
+
+# Apps the pages may start: desktop file patterns, then a fallback command
+LAUNCHERS = {
+    **COMMON_LAUNCHERS,
+    "discover": (["org.kde.discover.desktop"], ["plasma-discover"]),
+    "updates": ([], ["plasma-discover", "--mode", "update"]),
+    "nazoos-update": (["*nazoos-update*.desktop"], ["nazoos-update"]),
+    "lact": (["*LACT*.desktop", "*lact*.desktop"], ["lact", "gui"]),
+    "coolercontrol": (["*coolercontrol*.desktop"], ["coolercontrol"]),
+    "systemsettings": (["systemsettings.desktop"], ["systemsettings"]),
+    "installer": (["nazoos-installer.desktop"], None),
+    # Ends the desktop session (nazoos-session)
+    "gaming-mode": ([], ["nazoos-session-select", "gaming"]),
 }
 
 HELPER = os.environ.get("NAZOOS_WELCOME_HELPER",
@@ -30,16 +43,12 @@ HELPER = os.environ.get("NAZOOS_WELCOME_HELPER",
 class Backend(ActionRunner):
     stateChanged = Signal()
     canRetryChanged = Signal()
-    findingsChanged = Signal()
     # Retry of a failed action that needs the MokManager password again
     mokRetryRequested = Signal(str, "QVariantList")
-    # Path of a saved bug report
-    reportSaved = Signal(str)
-    # Runs a callable on the GUI thread (see _background)
-    _call = Signal(object)
 
     def __init__(self, translator):
-        super().__init__(HELPER, translator.gettext, catalog.ACTION_LABELS)
+        super().__init__(HELPER, translator.gettext, catalog.ACTION_LABELS,
+                         LAUNCHERS)
         self._state = {}
         # (action, args, needs MokManager password) of the last run() that
         # "Try again" may repeat, None after anything else
@@ -49,11 +58,6 @@ class Backend(ActionRunner):
         self._refresh_again = False
         # State keys read by _quick_refresh since the last full refresh
         self._quick = set()
-        self._call.connect(lambda f: f())
-        # Repair page: None = not checked yet
-        self._findings = None
-        self._checking = False
-        self._reporting = False
 
     # --- properties ---------------------------------------------------------
 
@@ -67,26 +71,17 @@ class Backend(ActionRunner):
 
     canRetry = Property(bool, _get_can_retry, notify=canRetryChanged)
 
+    def report_error(self, action, message):
+        """Show MESSAGE as failure of ACTION; an earlier action is not
+        offered again. Not a Slot."""
+        self._set_retry(None)
+        self.actionFinished.emit(action, False, message)
+
     def _set_retry(self, retry):
         changed = (retry is None) != (self._retry is None)
         self._retry = retry
         if changed:
             self.canRetryChanged.emit()
-
-    def _get_findings(self):
-        return self._findings if self._findings is not None else []
-
-    findings = Property("QVariantList", _get_findings, notify=findingsChanged)
-
-    def _get_checked(self):
-        return self._findings is not None
-
-    checked = Property(bool, _get_checked, notify=findingsChanged)
-
-    def _get_checking(self):
-        return self._checking
-
-    checking = Property(bool, _get_checking, notify=findingsChanged)
 
     def _get_catalog(self):
         return {
@@ -99,21 +94,6 @@ class Backend(ActionRunner):
 
     catalog = Property("QVariantMap", _get_catalog, constant=True)
 
-    def _background(self, work, done, failed):
-        """Run WORK in a thread, then DONE(result) on the GUI thread.
-
-        FAILED(exception) runs there instead if WORK raises, so the busy
-        flags of the callers cannot get stuck."""
-        def target():
-            try:
-                result = work()
-            except Exception as e:
-                traceback.print_exc()
-                self._call.emit(lambda e=e: failed(e))
-                return
-            self._call.emit(lambda: done(result))
-        threading.Thread(target=target, daemon=True).start()
-
     # --- state ----------------------------------------------------------------
 
     @Slot()
@@ -124,14 +104,14 @@ class Backend(ActionRunner):
         self._refreshing = True
 
         # never kill the UI over a probe
-        self._background(
-            system.collect, self._set_state,
+        self.background(
+            probes.collect, self._set_state,
             lambda e: self._set_state(dict(self._state, error=str(e))))
 
     def _quick_refresh(self, action):
         key, probe = QUICK_PROBES[action]
         try:
-            value = getattr(system, probe)()
+            value = probe()
         except Exception:
             traceback.print_exc()
             return
@@ -153,25 +133,8 @@ class Backend(ActionRunner):
             self._refresh_again = False
             self.refresh()
 
-    # --- repair page (ADR 0012) ----------------------------------------------
-
-    @Slot()
-    def checkSystem(self):
-        if self._checking:
-            return
-        self._checking = True
-        self.findingsChanged.emit()
-
-        def failed(e):  # a broken probe is a finding too
-            self._set_findings([{"id": "error", "items": [str(e)],
-                                 "fix": "", "userOnly": False}])
-
-        self._background(repair.check, self._set_findings, failed)
-
-    def _set_findings(self, found):
-        self._checking = False
-        self._findings = found
-        self.findingsChanged.emit()
+    # --- repair page (ADR 0012): units are root actions, the rest is
+    # RepairModel
 
     @Slot(bool)
     def fixUnits(self, with_system):
@@ -179,7 +142,7 @@ class Backend(ActionRunner):
         if self._busy:
             return
         self._begin("repair-units")
-        self._background(
+        self.background(
             repair.restart_user_units,
             lambda r: self._user_units_fixed(with_system, *r),
             lambda e: self._done("repair-units", False, str(e)))
@@ -196,25 +159,6 @@ class Backend(ActionRunner):
                 .replace("%1", ", ".join(still)))
         else:
             self._done("repair-units", True, self._gettext("Done."))
-
-    @Slot()
-    def saveReport(self):
-        if self._reporting:
-            return
-        self._reporting = True
-        state, findings, log = self._state, self._findings, self._log
-
-        def done(path):
-            self._reporting = False
-            self.reportSaved.emit(path)
-
-        def failed(e):
-            self._reporting = False
-            self._set_retry(None)
-            self.actionFinished.emit("report", False, str(e))
-
-        self._background(
-            lambda: repair.report(state, findings, log), done, failed)
 
     # --- root actions ---------------------------------------------------------
 
@@ -262,8 +206,7 @@ class Backend(ActionRunner):
         except (OSError, subprocess.TimeoutExpired):
             mok_hash = ""
         if not mok_hash.startswith("$6$"):
-            self._set_retry(None)
-            self.actionFinished.emit(action, False, self._gettext(
+            self.report_error(action, self._gettext(
                 "The password for the Secure Boot key could not be "
                 "prepared (openssl is missing)."))
             return
@@ -282,8 +225,6 @@ class Backend(ActionRunner):
         if action in QUICK_PROBES:
             self._quick_refresh(action)
         self.refresh()
-        if action.startswith("repair-") and self._findings is not None:
-            self.checkSystem()
 
     # --- user-level actions -----------------------------------------------------
 
@@ -299,7 +240,7 @@ class Backend(ActionRunner):
             self._append(log)
             then()
 
-        self._background(
+        self.background(
             work, done, lambda e: self._done("service", False, str(e)))
 
     @Slot(str, bool)
@@ -323,7 +264,7 @@ class Backend(ActionRunner):
 
     @Slot(bool)
     def setAutostart(self, enabled):
-        system.set_autostart(enabled)
+        probes.set_autostart(enabled)
         self.refresh()
 
     @Slot(str)

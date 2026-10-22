@@ -8,6 +8,8 @@ import shutil
 import signal
 import subprocess
 import sys
+import threading
+import traceback
 from pathlib import Path
 
 from PySide6.QtCore import Property, QObject, QProcess, QTimer, Signal, Slot
@@ -179,23 +181,12 @@ def launch(patterns, fallback, extra_dirs=()):
     return True
 
 
-# Apps the UI may start: desktop file patterns, then a fallback command
-LAUNCHERS = {
-    "discover": (["org.kde.discover.desktop"], ["plasma-discover"]),
-    "updates": ([], ["plasma-discover", "--mode", "update"]),
-    "nazoos-update": (["*nazoos-update*.desktop"], ["nazoos-update"]),
+# Apps both UIs may start: desktop file patterns, then a fallback command
+COMMON_LAUNCHERS = {
     "myrlyn": (["*myrlyn*sudo*.desktop", "*myrlyn*.desktop"], ["myrlyn"]),
     # btrfs-assistant itself needs root, the launcher asks for it
     "btrfs-assistant": (["*btrfs-assistant*.desktop"],
                         ["btrfs-assistant-launcher"]),
-    "lact": (["*LACT*.desktop", "*lact*.desktop"], ["lact", "gui"]),
-    "coolercontrol": (["*coolercontrol*.desktop"], ["coolercontrol"]),
-    "steam": (["steam.desktop"], ["steam"]),
-    "systemsettings": (["systemsettings.desktop"], ["systemsettings"]),
-    "installer": (["nazoos-installer.desktop"], None),
-    "repair": ([], ["nazoos-welcome", "--page", "repair"]),
-    # Ends the desktop session (nazoos-session)
-    "gaming-mode": ([], ["nazoos-session-select", "gaming"]),
 }
 
 
@@ -207,13 +198,18 @@ class ActionRunner(QObject):
     logChanged = Signal()
     # action, success, message (already translated)
     actionFinished = Signal(str, bool, str)
+    # Runs a callable on the GUI thread (see background)
+    _call = Signal(object)
 
-    def __init__(self, helper, gettext, labels):
-        """LABELS: {action: English label} of the actions that may run."""
+    def __init__(self, helper, gettext, labels, launchers):
+        """LABELS: {action: English label} of the actions that may run.
+        LAUNCHERS: {id: (desktop file patterns, fallback command)}."""
         super().__init__()
         self._helper = helper
         self._gettext = gettext
         self._labels = labels
+        self._launchers = launchers
+        self._call.connect(lambda f: f())
         self._busy = False
         self._task = ""
         self._log = ""
@@ -238,6 +234,21 @@ class ActionRunner(QObject):
         return self._log
 
     log = Property(str, _get_log, notify=logChanged)
+
+    def background(self, work, done, failed):
+        """Run WORK in a thread, then DONE(result) on the GUI thread.
+
+        FAILED(exception) runs there instead if WORK raises, so the busy
+        flags of the callers cannot get stuck."""
+        def target():
+            try:
+                result = work()
+            except Exception as e:
+                traceback.print_exc()
+                self._call.emit(lambda e=e: failed(e))
+                return
+            self._call.emit(lambda: done(result))
+        threading.Thread(target=target, daemon=True).start()
 
     def _append(self, text):
         self._log += text
@@ -279,7 +290,7 @@ class ActionRunner(QObject):
 
     @Slot(str)
     def launch(self, launcher_id):
-        entry = LAUNCHERS.get(launcher_id)
+        entry = self._launchers.get(launcher_id)
         if entry is None:
             return
         if not launch(*entry, extra_dirs=FLATPAK_EXPORTS):

@@ -3,10 +3,11 @@
 """nazoos_common.mok and kernelstate without mokutil or rpm."""
 
 import fcntl
+import subprocess
 
 import pytest
 
-from nazoos_common import helper, kernel, kernelstate, mok, repos
+from nazoos_common import grub, helper, kernelstate, mok, repos
 
 FPR = "SHA1 Fingerprint=AB:CD:EF:01\n"
 
@@ -240,18 +241,18 @@ def test_write_atomic_leaves_no_temp_file_after_a_failure(monkeypatch,
 def test_update_grub_default_unchanged_is_not_written(monkeypatch, tmp_path):
     default = tmp_path / "grub"
     default.write_text("A=1\n")
-    monkeypatch.setattr(kernel, "GRUB_LOCK", tmp_path / "lock")
-    monkeypatch.setattr(kernel, "GRUB_DEFAULT_FILE", default)
+    monkeypatch.setattr(grub, "GRUB_LOCK", tmp_path / "lock")
+    monkeypatch.setattr(grub, "GRUB_DEFAULT_FILE", default)
     monkeypatch.setattr(helper, "write_atomic", lambda *a: 1 / 0)
-    assert kernel.update_grub_default(lambda t: t) is False
+    assert grub.update_grub_default(lambda t: t) is False
 
 
 def test_update_grub_default_without_lock_dir(monkeypatch, tmp_path):
     default = tmp_path / "grub"
     default.write_text("A=1\n")
-    monkeypatch.setattr(kernel, "GRUB_LOCK", tmp_path / "missing" / "lock")
-    monkeypatch.setattr(kernel, "GRUB_DEFAULT_FILE", default)
-    assert kernel.update_grub_default(lambda t: t + "B=2\n") is True
+    monkeypatch.setattr(grub, "GRUB_LOCK", tmp_path / "missing" / "lock")
+    monkeypatch.setattr(grub, "GRUB_DEFAULT_FILE", default)
+    assert grub.update_grub_default(lambda t: t + "B=2\n") is True
     assert default.read_text() == "A=1\nB=2\n"
 
 
@@ -259,8 +260,8 @@ def test_update_grub_default_holds_the_lock(monkeypatch, tmp_path):
     lock = tmp_path / "grub.lock"
     default = tmp_path / "grub"
     default.write_text("A=1\n")
-    monkeypatch.setattr(kernel, "GRUB_LOCK", lock)
-    monkeypatch.setattr(kernel, "GRUB_DEFAULT_FILE", default)
+    monkeypatch.setattr(grub, "GRUB_LOCK", lock)
+    monkeypatch.setattr(grub, "GRUB_DEFAULT_FILE", default)
     held = []
 
     def update(text):
@@ -272,6 +273,23 @@ def test_update_grub_default_holds_the_lock(monkeypatch, tmp_path):
                 held.append(True)
         return text + "B=2\n"
 
-    assert kernel.update_grub_default(update) is True
+    assert grub.update_grub_default(update) is True
     assert held == [True]
     assert default.read_text() == "A=1\nB=2\n"
+
+
+@pytest.mark.parametrize("rc, stdout, expected", [
+    (0, "SecureBoot enabled\n", (True, True, "SecureBoot enabled")),
+    (0, "SecureBoot disabled\n", (True, False, "SecureBoot disabled")),
+    (1, "", (False, False, "")),
+    (OSError("no mokutil"), "", (False, False, "")),
+])
+def test_sb_state(monkeypatch, rc, stdout, expected):
+    def run(cmd, **kw):
+        if isinstance(rc, Exception):
+            raise rc
+        return subprocess.CompletedProcess(cmd, rc, stdout, "")
+
+    monkeypatch.setattr(mok.subprocess, "run", run)
+    assert mok.sb_state() == expected
+    assert mok.uefi() is expected[0]

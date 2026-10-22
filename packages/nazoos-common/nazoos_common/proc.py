@@ -1,7 +1,10 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Small probes that need no root rights (no Qt here): run a command,
-read a file, ask rpm, boot time."""
+read a file, ask rpm, boot time.
+
+Probes may fail: they answer empty on an error and have a timeout. Root
+actions that must not fail silently are in helper.py."""
 
 import os
 import shutil

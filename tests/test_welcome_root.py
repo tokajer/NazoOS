@@ -62,7 +62,7 @@ def test_kernel_install_leaves_installed_modules_to_the_swap(monkeypatch,
     monkeypatch.setattr(ks.kernel, "swap_rebuilds",
                         lambda alias, names: swapped.extend(names))
     monkeypatch.setattr(ks, "say", lambda text: None)
-    monkeypatch.setattr(ks.kernel, "ensure_grub_default", lambda say: True)
+    monkeypatch.setattr(ks.grub, "ensure_grub_default", lambda say: True)
     monkeypatch.setattr(ks.kernelstate, "STATE", tmp_path)
     monkeypatch.setattr(ks.kernelstate, "PREFER", tmp_path / "prefer")
     monkeypatch.setattr(ks.kernelstate, "write_boots", lambda data: None)
@@ -83,7 +83,7 @@ def add_env(monkeypatch, tmp_path):
     fstab.write_text(FSTAB_TEXT)
     monkeypatch.setattr(drives, "FSTAB", fstab)
     monkeypatch.setattr(catalog, "MOUNT_BASE", str(tmp_path / "mnt"))
-    monkeypatch.setattr(drives.system, "drives", lambda: [
+    monkeypatch.setattr(drives.probes, "drives", lambda: [
         {"uuid": "abcd", "fstype": "ext4", "label": "Games",
          "managed": False}])
     monkeypatch.setattr(drives, "caller", lambda: (1000,))
@@ -93,7 +93,7 @@ def add_env(monkeypatch, tmp_path):
 
 
 def test_add_refuses_a_drive_the_gui_would_not_offer(monkeypatch, add_env):
-    monkeypatch.setattr(drives.system, "drives", lambda: [])
+    monkeypatch.setattr(drives.probes, "drives", lambda: [])
     ran = []
     monkeypatch.setattr(drives, "run", lambda *a, **k: ran.append(a) or 0)
     with pytest.raises(drives.Fail, match="removable or system drive"):
@@ -135,9 +135,11 @@ def _pollrate_env(monkeypatch, tmp_path, calls):
     sysfs = tmp_path / "interrupt_interval_override"
     sysfs.write_text("\n")
     monkeypatch.setattr(catalog, "POLLRATE_SYSFS", str(sysfs))
-    monkeypatch.setattr(tuning.system, "usb_input_devices",
+    monkeypatch.setattr(tuning.probes, "usb_input_devices",
                         lambda: [{"id": "046d:c08b"}])
-    monkeypatch.setattr(tuning, "cmdline", lambda: (None, None, []))
+    grub_file = tmp_path / "grub"
+    grub_file.write_text('GRUB_CMDLINE_LINUX_DEFAULT="quiet"\n')
+    monkeypatch.setattr(tuning.grub, "GRUB_DEFAULT_FILE", grub_file)
     monkeypatch.setattr(tuning, "cmdline_set", lambda *a: calls.append(a))
     monkeypatch.setattr(tuning, "say", lambda *a: None)
 

@@ -7,7 +7,7 @@ import re
 import subprocess
 from pathlib import Path
 
-from .. import catalog, system
+from .. import catalog, probes
 from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, arg, flathub_ensure,
                    output, run, running_nazoos, say)
 
@@ -97,7 +97,7 @@ def waydroid_config():
                  "--value"]).strip()
     if re.fullmatch(r"[A-Za-z0-9_+-]+(/[A-Za-z0-9_+-]+)*", tz):
         wanted["persist.sys.timezone"] = tz
-    if system.in_vm():
+    if probes.in_vm():
         wanted.update(catalog.WAYDROID_SOFTWARE)
     path = Path(catalog.WAYDROID_CONFIG)
     cfg = configparser.ConfigParser(interpolation=None)
@@ -107,7 +107,7 @@ def waydroid_config():
     props = cfg["properties"]
     if all(props.get(k) == v for k, v in wanted.items()):
         return
-    if system.in_vm():
+    if probes.in_vm():
         say("Virtual machine: Waydroid uses software rendering")
     props.update(wanted)
     # 0755 like Waydroid's own: the GUI reads the config as the user

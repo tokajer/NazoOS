@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 
 from nazoos_common import kernel, repos
-from nazoos_common.kernel import grub_refresh
+from nazoos_common.grub import grub_refresh
 
 from .. import catalog, repair
 from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, enable_repo,
@@ -101,7 +101,7 @@ def repair_units(_args):
         return
     # Check only after a moment, and never reset-failed before: that
     # hid units that fail again right after the restart
-    time.sleep(catalog.UNIT_SETTLE_SECONDS)
+    time.sleep(repair.UNIT_SETTLE_SECONDS)
     still = repair.failed_units()
     fixed = [u for u in units if u not in still]
     if fixed:

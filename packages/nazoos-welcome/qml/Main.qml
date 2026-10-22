@@ -6,7 +6,6 @@ import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import org.kde.kirigami as Kirigami
 import org.nazoos.common
-import "pages"
 
 Kirigami.ApplicationWindow {
     id: root
@@ -21,6 +20,21 @@ Kirigami.ApplicationWindow {
     readonly property bool live: st.live === true
     readonly property string repoUrl: "https://github.com/tokajer/NazoOS"
     property string currentPage: ""
+    // Navigation: live = shown on the live medium too. The first page is
+    // the fallback for an unknown name. The list must stay constant: the
+    // drawer actions are created from it once (actions: ...map(createObject));
+    // a re-evaluation would create new Action objects and leak the old ones
+    readonly property var pages: [
+        { name: "welcome", title: L.tr("Welcome"), icon: "go-home", live: true, file: "WelcomePage.qml" },
+        { name: "drivers", title: L.tr("Drivers & codecs"), icon: "preferences-desktop-display", live: false, file: "DriversPage.qml" },
+        { name: "gaming", title: L.tr("Gaming & performance"), icon: "input-gaming", live: false, file: "GamingPage.qml" },
+        { name: "kernel", title: L.tr("Kernel"), icon: "preferences-system-linux", live: false, file: "KernelPage.qml" },
+        { name: "apps", title: L.tr("Apps"), icon: "plasmadiscover", live: false, file: "AppsPage.qml" },
+        { name: "drives", title: L.tr("Drives"), icon: "drive-harddisk", live: false, file: "DrivesPage.qml" },
+        { name: "system", title: L.tr("System"), icon: "preferences-system", live: false, file: "SystemPage.qml" },
+        { name: "repair", title: L.tr("Repair"), icon: "tools-wizard", live: false, file: "RepairPage.qml" },
+        { name: "help", title: L.tr("Help"), icon: "help-about", live: true, file: "HelpPage.qml" }
+    ]
 
     // --- helpers used by all pages ---------------------------------------
 
@@ -54,19 +68,15 @@ Kirigami.ApplicationWindow {
     }
 
     function showPage(name) {
-        const comps = {
-            welcome: welcomePage, drivers: driversPage, gaming: gamingPage,
-            kernel: kernelPage, apps: appsPage, drives: drivesPage,
-            system: systemPage, repair: repairPage, help: helpPage
-        }
-        if (!(name in comps)) name = "welcome"
+        const p = pages.find(x => x.name === name) || pages[0]
+        name = p.name
         if (name === currentPage) return
         // Drives, services or packages may have changed outside the app
         // since the last action (__main__.py loads it once at start)
         if (currentPage !== "") backend.refresh()
         currentPage = name
         pageStack.clear()
-        pageStack.push(comps[name])
+        pageStack.push(Qt.resolvedUrl("pages/" + p.file), { app: root })
         if (globalDrawer.modal) globalDrawer.close()
     }
 
@@ -90,71 +100,21 @@ Kirigami.ApplicationWindow {
         titleIcon: "nazoos-logo"
         modal: !root.wideScreen
         width: Kirigami.Units.gridUnit * 13
-        actions: [
-            Kirigami.Action {
-                text: L.tr("Welcome"); icon.name: "go-home"
-                checkable: true; checked: root.currentPage === "welcome"
-                onTriggered: root.showPage("welcome")
-            },
-            Kirigami.Action {
-                text: L.tr("Drivers & codecs"); icon.name: "preferences-desktop-display"
-                visible: !root.live
-                checkable: true; checked: root.currentPage === "drivers"
-                onTriggered: root.showPage("drivers")
-            },
-            Kirigami.Action {
-                text: L.tr("Gaming & performance"); icon.name: "input-gaming"
-                visible: !root.live
-                checkable: true; checked: root.currentPage === "gaming"
-                onTriggered: root.showPage("gaming")
-            },
-            Kirigami.Action {
-                text: L.tr("Kernel"); icon.name: "preferences-system-linux"
-                visible: !root.live
-                checkable: true; checked: root.currentPage === "kernel"
-                onTriggered: root.showPage("kernel")
-            },
-            Kirigami.Action {
-                text: L.tr("Apps"); icon.name: "plasmadiscover"
-                visible: !root.live
-                checkable: true; checked: root.currentPage === "apps"
-                onTriggered: root.showPage("apps")
-            },
-            Kirigami.Action {
-                text: L.tr("Drives"); icon.name: "drive-harddisk"
-                visible: !root.live
-                checkable: true; checked: root.currentPage === "drives"
-                onTriggered: root.showPage("drives")
-            },
-            Kirigami.Action {
-                text: L.tr("System"); icon.name: "preferences-system"
-                visible: !root.live
-                checkable: true; checked: root.currentPage === "system"
-                onTriggered: root.showPage("system")
-            },
-            Kirigami.Action {
-                text: L.tr("Repair"); icon.name: "tools-wizard"
-                visible: !root.live
-                checkable: true; checked: root.currentPage === "repair"
-                onTriggered: root.showPage("repair")
-            },
-            Kirigami.Action {
-                text: L.tr("Help"); icon.name: "help-about"
-                checkable: true; checked: root.currentPage === "help"
-                onTriggered: root.showPage("help")
-            }
-        ]
+        actions: root.pages.map(p => pageAction.createObject(root, { page: p }))
     }
 
-    Component { id: welcomePage; WelcomePage { app: root } }
-    Component { id: driversPage; DriversPage { app: root } }
-    Component { id: gamingPage; GamingPage { app: root } }
-    Component { id: kernelPage; KernelPage { app: root } }
-    Component { id: appsPage; AppsPage { app: root } }
-    Component { id: drivesPage; DrivesPage { app: root } }
-    Component { id: systemPage; SystemPage { app: root } }
-    Component { id: repairPage; RepairPage { app: root } }
-    Component { id: helpPage; HelpPage { app: root } }
+    Component {
+        id: pageAction
+        Kirigami.Action {
+            property var page
+            text: page.title
+            icon.name: page.icon
+            visible: page.live || !root.live
+            checkable: true
+            checked: root.currentPage === page.name
+            onTriggered: root.showPage(page.name)
+        }
+    }
 
     Connections {
         target: backend

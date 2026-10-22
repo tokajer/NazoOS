@@ -5,7 +5,7 @@
 import contextlib
 import os
 
-from nazoos_common import kernel, kernelstate
+from nazoos_common import grub, kernel, kernelstate
 
 from .base import (ZYPPER, ZYPPER_IN, Fail, repo_has, rpm_installed, run,
                    running_nazoos, say)
@@ -56,7 +56,7 @@ def kernel_install(_args):
     kernelstate.STATE.mkdir(parents=True, exist_ok=True)
     kernelstate.PREFER.touch()
     kernelstate.write_boots({"count": 0})
-    kernel.ensure_grub_default(say)
+    grub.ensure_grub_default(say)
     run(["systemctl", "enable", "nazoos-kernel-boot.service"])
     say(MOK_RESTART if queued
         else "Restart the computer to start the NazoOS kernel.")
@@ -87,7 +87,7 @@ def kernel_restore(_args):
     # The top entry boots the newest kernel of any flavor, often
     # kernel-nazoos: pin it to kernel-default (nazoos-kernel-boot keeps
     # this after updates)
-    if not kernel.ensure_grub_default(say, flavor="default"):
+    if not grub.ensure_grub_default(say, flavor="default"):
         raise Fail("the openSUSE kernel is not in /boot")
     say("Restart the computer to start the openSUSE kernel.")
 
@@ -106,7 +106,7 @@ def kernel_remove(_args):
         with efivars_read_only():
             run(ZYPPER + ["remove", "--clean-deps"] + pkgs)
     kernelstate.PREFER.unlink(missing_ok=True)
-    kernel.clear_grub_top_level(say)
+    grub.clear_grub_top_level(say)
     run(["systemctl", "disable", "nazoos-kernel-boot.service"], check=False)
 
 

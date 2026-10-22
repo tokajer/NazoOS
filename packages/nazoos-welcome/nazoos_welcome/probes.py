@@ -11,7 +11,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from nazoos_common import kernel, kernelstate, mok, proc, repos
+from nazoos_common import grub, kernel, kernelstate, mok, proc, repos
 
 from . import catalog
 
@@ -82,8 +82,7 @@ def unit_states(units, user=False):
 
 
 def grub_cmdline():
-    m = kernel.CMDLINE_RE.search(proc.read(kernel.GRUB_DEFAULT_FILE))
-    return m.group(2).split() if m else []
+    return grub.cmdline_options(proc.read(grub.GRUB_DEFAULT_FILE))
 
 
 def flatpak_installed():
@@ -253,12 +252,9 @@ def kernel_state():
               kernel.KERNEL_ONLY_PACKAGE] + kernel.KMP_DEFAULT_ONLY)
     rpms = rpm_vendors(names)
     release = platform.release()
-    sb_raw = proc.out(["mokutil", "--sb-state"]).strip()
-    sb = sb_raw.lower()
-    secure_boot = "secureboot enabled" in sb
-    # "SecureBoot enabled/disabled": UEFI, the kernel package queues its
-    # key for MokManager either way (ADR 0024)
-    uefi = "secureboot" in sb
+    # UEFI: the kernel package queues its key for MokManager with Secure
+    # Boot on or off (ADR 0024)
+    uefi, secure_boot, sb_raw = mok.sb_state()
     key = ""
     if uefi and kernel.KERNEL_PACKAGE in rpms:
         cert = mok.signing_cert()
@@ -477,9 +473,8 @@ def sysinfo(state=None):
             osr[k] = v.strip('"')
     cpu = re.search(r"^model name\s*:\s*(.+)$", proc.read("/proc/cpuinfo"), re.M)
     mem = re.search(r"^MemTotal:\s*(\d+)", proc.read("/proc/meminfo"), re.M)
-    sb = (state or {}).get("kernel", {}).get("sbState")
-    if not sb:
-        sb = proc.out(["mokutil", "--sb-state"]).strip()
+    k = (state or {}).get("kernel", {})
+    sb = k["sbState"] if "sbState" in k else mok.sb_state()[2]
     if not sb:
         # mokutil explains on stderr only: firmware without Secure Boot
         # (some VMs) or legacy BIOS

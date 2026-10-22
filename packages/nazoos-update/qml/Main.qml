@@ -20,6 +20,8 @@ Kirigami.ApplicationWindow {
     readonly property int count: st.count || 0
     readonly property int snapshot: st.snapshot || 0
     readonly property string error: st.error || ""
+    readonly property bool conflict: st.conflict === true
+    readonly property bool refreshFailed: st.refresh_failed === true
 
     function ago(seconds) {
         if (!seconds) return L.tr("never")
@@ -98,7 +100,7 @@ Kirigami.ApplicationWindow {
             // --- check failed / conflict ------------------------------------
             Kirigami.InlineMessage {
                 Layout.fillWidth: true
-                visible: root.error === "refresh"
+                visible: root.refreshFailed
                 type: Kirigami.MessageType.Error
                 text: L.tr("The package sources could not be reached. Check the internet connection and try again.")
                 actions: [
@@ -111,7 +113,7 @@ Kirigami.ApplicationWindow {
             }
             Kirigami.InlineMessage {
                 Layout.fillWidth: true
-                visible: root.error === "conflict"
+                visible: root.conflict
                 type: Kirigami.MessageType.Warning
                 text: L.tr("The update needs a decision that cannot be made automatically:") + "\n"
                       + (root.st.problems || []).join("\n")
@@ -153,7 +155,7 @@ Kirigami.ApplicationWindow {
                             Layout.fillWidth: true
                             wrapMode: Text.WordWrap
                             // the banner above says why; never "up to date" then
-                            text: root.error === "conflict" ? L.tr("Update on hold")
+                            text: root.conflict ? L.tr("Update on hold")
                                   : root.error ? L.tr("Updates could not be checked")
                                   : root.count > 0
                                   ? L.trn("%1 update available", "%1 updates available", root.count)
@@ -177,7 +179,7 @@ Kirigami.ApplicationWindow {
                         text: L.tr("Update now")
                         icon.name: "system-software-update"
                         highlighted: true
-                        enabled: !backend.busy && root.count > 0 && root.error !== "conflict"
+                        enabled: !backend.busy && root.count > 0 && !root.conflict
                         onClicked: backend.run("update")
                     }
                 }
@@ -283,8 +285,8 @@ Kirigami.ApplicationWindow {
             if (ok) {
                 root.showPassiveNotification(message)
             } else if ((action === "check" || action === "update")
-                       && root.error === "conflict"
-                       || action === "check" && root.error === "refresh") {
+                       && root.conflict
+                       || action === "check" && root.refreshFailed) {
                 // The banner above already says it, with its own button
             } else {
                 errorDialog.subtitle = message

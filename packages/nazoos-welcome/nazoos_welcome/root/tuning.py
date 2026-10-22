@@ -5,11 +5,12 @@
 import re
 from pathlib import Path
 
+from nazoos_common import grub
+from nazoos_common.grub import cmdline_set
 from nazoos_common.helper import set_var, write_atomic
 
-from .. import catalog, system
-from .base import (ZYPPER_IN, Fail, arg, cmdline, cmdline_set,
-                   rpm_installed, run, say)
+from .. import catalog, probes
+from .base import ZYPPER_IN, Fail, arg, rpm_installed, run, say
 
 SCX_DEFAULT = Path("/etc/default/scx")
 
@@ -52,13 +53,13 @@ def pollrate(args):
         raise Fail("invalid device id")
     ms = int(arg(args, 1, [str(i) for i in catalog.POLLRATE_INTERVALS]))
     overrides = {}
-    for opt in cmdline()[2]:
+    for opt in grub.cmdline_options(grub.GRUB_DEFAULT_FILE.read_text()):
         if opt.startswith(catalog.POLLRATE_PARAM + "="):
             overrides = catalog.pollrate_parse(opt.split("=", 1)[1])
     if ms == 0:
         overrides.pop(vidpid, None)
     elif vidpid in overrides or vidpid in {
-            d["id"] for d in system.usb_input_devices()}:
+            d["id"] for d in probes.usb_input_devices()}:
         overrides[vidpid] = ms
     else:
         raise Fail("this device is not connected")

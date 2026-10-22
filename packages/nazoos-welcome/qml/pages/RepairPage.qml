@@ -19,7 +19,7 @@ Kirigami.ScrollablePage {
     title: L.tr("Repair")
 
     Connections {
-        target: backend
+        target: repair
         function onReportSaved(path) {
             page.app.showPassiveNotification(
                 L.tr("Saved: %1").replace("%1", path), "long",
@@ -67,7 +67,7 @@ Kirigami.ScrollablePage {
         }
     }
 
-    Component.onCompleted: if (!backend.checked) backend.checkSystem()
+    Component.onCompleted: if (!repair.checked) repair.checkSystem()
 
     ColumnLayout {
         spacing: Kirigami.Units.largeSpacing
@@ -75,28 +75,28 @@ Kirigami.ScrollablePage {
         SectionHeader { text: L.tr("Check") }
 
         SettingCard {
-            iconName: backend.checking ? "view-refresh"
-                      : !backend.checked ? "system-search"
-                      : backend.findings.length === 0 ? "checkmark" : "dialog-warning"
-            title: backend.checking ? L.tr("Checking the system …")
-                   : !backend.checked ? L.tr("System check")
-                   : backend.findings.length === 0 ? L.tr("No known problems found")
-                   : L.tr("Problems found: %1").replace("%1", backend.findings.length)
+            iconName: repair.checking ? "view-refresh"
+                      : !repair.checked ? "system-search"
+                      : repair.findings.length === 0 ? "checkmark" : "dialog-warning"
+            title: repair.checking ? L.tr("Checking the system …")
+                   : !repair.checked ? L.tr("System check")
+                   : repair.findings.length === 0 ? L.tr("No known problems found")
+                   : L.tr("Problems found: %1").replace("%1", repair.findings.length)
             subtitle: L.tr("Looks for common problems: package database, repositories, missing dependencies, codec mix, NVIDIA module, failed services, disk space and Flathub.")
             QQC2.BusyIndicator {
-                visible: backend.checking
+                visible: repair.checking
                 running: visible
             }
             QQC2.Button {
-                enabled: !backend.checking && !backend.busy
+                enabled: !repair.checking && !backend.busy
                 text: L.tr("Check again")
                 icon.name: "view-refresh"
-                onClicked: backend.checkSystem()
+                onClicked: repair.checkSystem()
             }
         }
 
         Repeater {
-            model: backend.findings
+            model: repair.findings
             delegate: SettingCard {
                 required property var modelData
                 readonly property var t: page.texts[modelData.id] || page.texts.error
@@ -202,7 +202,7 @@ Kirigami.ScrollablePage {
             QQC2.Button {
                 text: L.tr("Create report")
                 icon.name: "document-save"
-                onClicked: backend.saveReport()
+                onClicked: repair.saveReport()
             }
             QQC2.Button {
                 text: L.tr("Report on GitHub")

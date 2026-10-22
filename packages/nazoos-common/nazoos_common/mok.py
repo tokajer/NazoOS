@@ -16,15 +16,24 @@ from . import kernel, proc
 CERT_PATH = re.compile(r"/etc/uefi/certs/\w+\.crt")
 
 
+def sb_state():
+    """(uefi, secure_boot, text) from "mokutil --sb-state"; text is
+    mokutil's answer ("SecureBoot enabled/disabled")."""
+    try:
+        r = subprocess.run(["mokutil", "--sb-state"],
+                           stdin=subprocess.DEVNULL, capture_output=True,
+                           text=True, timeout=30)
+    except (OSError, subprocess.TimeoutExpired):
+        return False, False, ""
+    text = r.stdout.strip()
+    uefi = r.returncode == 0
+    return uefi, uefi and "secureboot enabled" in text.lower(), text
+
+
 def uefi():
     """mokutil answers = UEFI. The kernel's cert-post script then calls
     mokutil, with Secure Boot on or off."""
-    try:
-        return subprocess.run(["mokutil", "--sb-state"],
-                              stdin=subprocess.DEVNULL,
-                              capture_output=True).returncode == 0
-    except OSError:
-        return False
+    return sb_state()[0]
 
 
 def signing_cert(package=kernel.KERNEL_PACKAGE):

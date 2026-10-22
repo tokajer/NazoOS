@@ -17,7 +17,8 @@ from . import snapshots
 ZYPPER_OK = (0, 100, 101, 102, 103, 106)
 # Package whose version is the Tumbleweed snapshot (YYYYMMDD)
 RELEASE_PKG = "openSUSE-release"
-# Package names that need a restart after the update
+# Package names that need a restart after the update, e.g. kernel-default,
+# glibc, systemd, dbus-1, nvidia-gl-G07, libQt6Core6, kwin6, sddm
 REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
                          r"libQt6|plasma6-workspace|plasma6-desktop|kwin|sddm)")
 

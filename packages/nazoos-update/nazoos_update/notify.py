@@ -18,6 +18,7 @@ import uuid
 from pathlib import Path
 
 from nazoos_common import kernelstate, proc
+from nazoos_common.helper import write_atomic
 
 from . import status
 from .i18n import _, ngettext
@@ -57,7 +58,7 @@ def _save(data):
     cutoff = int(time.time()) - 8 * 24 * 3600
     data = {k: t for k, t in data.items() if t > cutoff}
     STATE.mkdir(parents=True, exist_ok=True)
-    (STATE / "notified.json").write_text(json.dumps(data))
+    write_atomic(STATE / "notified.json", json.dumps(data))
 
 
 def _show(n):

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from nazoos_common.helper import write_atomic
 
-from .. import catalog, system
+from .. import catalog, probes
 from .base import Fail, arg, caller, output, run, say
 
 FSTAB = Path("/etc/fstab")
@@ -82,8 +82,8 @@ def _undo_add(uuid, mnt, created):
 def automount_add(args):
     uuid = arg(args, 0)
     # The GUI only offers non-removable extra drives; the helper is the
-    # trust boundary and applies the same rule (system.drives)
-    dev = next((d for d in system.drives()
+    # trust boundary and applies the same rule (probes.drives)
+    dev = next((d for d in probes.drives()
                 if d["uuid"] == uuid and not d["managed"]), None)
     if dev is None:
         raise Fail("this drive cannot be added here "

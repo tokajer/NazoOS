@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Reads the system state without root rights."""
+"""Update status for the GUI and the notifier; write() is root only."""
 
 import fcntl
 import json
@@ -11,9 +11,10 @@ import time
 from pathlib import Path
 
 from nazoos_common import proc
-from nazoos_common.helper import write_atomic
+from nazoos_common.helper import locked, write_atomic
 
 STATUS = Path("/var/lib/nazoos-update/status.json")
+STATUS_LOCK = Path("/run/nazoos-update-status.lock")
 # btrfs subvolume flags: BTRFS_IOC_SUBVOL_GETFLAGS
 # needs no root rights
 BTRFS_IOC_SUBVOL_GETFLAGS = 0x80089419
@@ -36,17 +37,21 @@ def read_status():
 def write(data):
     """Root only: write DATA as the new status. Keeps last_ok of the last
     working check and UPDATE_KEYS that DATA does not set."""
-    old = read_status()
-    now = int(time.time())
-    data["checked"] = now
-    # Time of the last check that worked: the notifier only complains
-    # about failing checks when they keep failing (laptop offline, ...)
-    data["last_ok"] = now if not data.get("error") else old.get("last_ok", 0)
-    for k in UPDATE_KEYS:
-        if k not in data and k in old:
-            data[k] = old[k]
-    STATUS.parent.mkdir(parents=True, exist_ok=True)
-    write_atomic(STATUS, json.dumps(data, indent=1))
+    # The timer's check and the GUI's update are separate root processes:
+    # without the lock one write drops the other's needs_reboot
+    with locked(STATUS_LOCK):
+        old = read_status()
+        now = int(time.time())
+        data["checked"] = now
+        # Time of the last check that worked: the notifier only complains
+        # about failing checks when they keep failing (laptop offline, ...)
+        data["last_ok"] = (now if not data.get("error")
+                           else old.get("last_ok", 0))
+        for k in UPDATE_KEYS:
+            if k not in data and k in old:
+                data[k] = old[k]
+        STATUS.parent.mkdir(parents=True, exist_ok=True)
+        write_atomic(STATUS, json.dumps(data, indent=1))
 
 
 def subvol_readonly(path="/"):
@@ -87,4 +92,6 @@ def collect():
     st["packages"] = st.get("packages") or []
     st["flatpaks"] = st.get("flatpaks") or []
     st["count"] = len(st["packages"]) + len(st["flatpaks"])
+    st["conflict"] = st.get("error") == ERROR_CONFLICT
+    st["refresh_failed"] = st.get("error") == ERROR_REFRESH
     return st

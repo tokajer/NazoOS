@@ -15,7 +15,28 @@ from pathlib import Path
 
 from nazoos_common import proc, repos
 
-from . import catalog, system
+from . import catalog, probes
+
+# Failed units the repair page ignores: known harmless upstream issues.
+# drkonqi-coredump-pickup (drkonqi6 6.7): RuntimeMaxSec=30min, ends with
+# result "timeout" after login although nothing crashed (VM 2026-10-11)
+IGNORED_UNITS = {"drkonqi-coredump-pickup.service"}
+# Apps started from the menu run as transient units app-<name>@<id>.service
+# (or .scope). One fails when the app exits with an error, e.g. a cancelled
+# password dialog of a pkexec launcher: not a system problem, and
+# restarting it would start the app again.
+# drkonqi-coredump-processor@ hands one crash to DrKonqi and ends with
+# result "timeout" after 5 min when nobody picks it up; a crash loop left
+# 26 of them (Waydroid in a VM, 2026-10-15). The crash is the problem,
+# restarting the unit fixes nothing
+IGNORED_UNIT_PATTERN = (r"app-.+@[0-9a-f]+\.(service|scope)"
+                        r"|drkonqi-coredump-processor@.+\.service")
+# Seconds to wait after restarting failed units: a Type=simple unit
+# fails again only after "systemctl restart" has returned
+UNIT_SETTLE_SECONDS = 3
+# Free space below which the repair page warns (whichever is larger)
+SPACE_MIN_GB = 5
+SPACE_MIN_PERCENT = 5
 
 
 def _finding(fid, items=(), fix="", user_only=False):
@@ -65,7 +86,7 @@ def unsatisfied():
 def packman_mix():
     """openSUSE builds of packages Packman replaces, while Packman is used."""
     # A repo the user switched off on purpose is not a mix
-    if system.packman_repo() != "on":
+    if probes.packman_repo() != "on":
         return []
     return mixed_packman(proc.out(["rpm", "-qa", "--qf",
                                    "%{NAME}\t%{VENDOR}\n"]))
@@ -90,7 +111,7 @@ def mixed_packman(rpm_qa_text):
 
 def nvidia_module_missing():
     """NVIDIA driver installed, but no module for the running kernel."""
-    if not system.rpm_vendors(
+    if not probes.rpm_vendors(
             [pkgs[1] for pkgs in catalog.NVIDIA_DRIVERS.values()]):
         return False
     release = platform.release()
@@ -105,8 +126,8 @@ def failed_units(user=False):
     units = [line.split()[0] for line in proc.out(
         base + ["list-units", "--failed", "--plain",
                 "--no-legend"]).splitlines() if line.strip()]
-    return [u for u in units if u not in catalog.IGNORED_UNITS
-            and not re.fullmatch(catalog.IGNORED_UNIT_PATTERN, u)]
+    return [u for u in units if u not in IGNORED_UNITS
+            and not re.fullmatch(IGNORED_UNIT_PATTERN, u)]
 
 
 def low_space():
@@ -116,9 +137,9 @@ def low_space():
         return None
     free = st.f_bavail * st.f_frsize
     total = st.f_blocks * st.f_frsize
-    limit = max(catalog.SPACE_MIN_GB * 1000 ** 3,
-                total * catalog.SPACE_MIN_PERCENT / 100)
-    return system.human_size(free) if free < limit else None
+    limit = max(SPACE_MIN_GB * 1000 ** 3,
+                total * SPACE_MIN_PERCENT / 100)
+    return probes.human_size(free) if free < limit else None
 
 
 def flathub_missing():
@@ -168,7 +189,7 @@ def restart_user_units():
         log += proc.out(["systemctl", "--user", "restart", unit])
     if not units:
         return log, []
-    time.sleep(catalog.UNIT_SETTLE_SECONDS)
+    time.sleep(UNIT_SETTLE_SECONDS)
     still = failed_units(user=True)
     fixed = [u for u in units if u not in still]
     if fixed:
@@ -182,7 +203,7 @@ def report(state, findings, log):
         return f"\n===== {title} =====\n{text.strip() or '-'}\n"
 
     text = "NazoOS bug report " + time.strftime("%Y-%m-%d %H:%M") + "\n"
-    text += section("System", state.get("sysinfo") or system.sysinfo(state))
+    text += section("System", state.get("sysinfo") or probes.sysinfo(state))
     text += section("Repair check", "\n".join(
         f"{f['id']}: {', '.join(f['items'])}" for f in findings)
         if findings is not None else "not run")

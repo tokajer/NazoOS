@@ -7,7 +7,7 @@ import os
 import re
 from pathlib import Path
 
-from nazoos_common import kernel, proc, repos
+from nazoos_common import proc, repos
 from nazoos_common.helper import (  # noqa: F401 (used by the actions)
     FLATPAK, ZYPPER, ZYPPER_IN, Fail, Passthrough, arg, output, repo_has,
     rpm_installed, run, say)
@@ -82,36 +82,3 @@ def caller():
 
 def running_nazoos():
     return os.uname().release.endswith("-nazoos")
-
-
-def _cmdline_match(text):
-    m = kernel.CMDLINE_RE.search(text)
-    if m is None:
-        raise Fail("GRUB_CMDLINE_LINUX_DEFAULT not found in {file}",
-                   file=str(kernel.GRUB_DEFAULT_FILE))
-    return m
-
-
-def cmdline():
-    """GRUB file text, match of GRUB_CMDLINE_LINUX_DEFAULT, its options."""
-    text = kernel.GRUB_DEFAULT_FILE.read_text()
-    m = _cmdline_match(text)
-    return text, m, m.group(2).split()
-
-
-def cmdline_set(key, option):
-    """Replace the option `key` (or key=...) with `option`, None removes it."""
-    line = ""
-
-    def update(text):
-        nonlocal line
-        m = _cmdline_match(text)
-        opts = [o for o in m.group(2).split() if o.split("=")[0] != key]
-        if option is not None:
-            opts.append(option)
-        line = 'GRUB_CMDLINE_LINUX_DEFAULT="' + " ".join(opts) + '"'
-        return text[:m.start()] + line + text[m.end():]
-
-    kernel.update_grub_default(update)
-    say(line)
-    kernel.grub_refresh()

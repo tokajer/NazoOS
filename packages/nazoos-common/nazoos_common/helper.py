@@ -5,8 +5,13 @@
 Every user-facing text is an English template for gettext:
 Fail("'{cmd}' failed (exit code {rc})", cmd=..., rc=...). The GUI
 translates it (errors.py); xgettext collects it with --keyword=Fail.
+
+Root actions: errors raise, and commands have no timeout because zypper
+may wait for its lock or the network. Probes that may fail: proc.py.
 """
 
+import contextlib
+import fcntl
 import os
 import re
 import stat
@@ -179,3 +184,17 @@ def main(actions, lock_timeout, max_args=None, argv=None):
                           {"detail": f"{type(e).__name__}: {e}"}))
         return 1
     return 0
+
+
+@contextlib.contextmanager
+def locked(path):
+    """Exclusive flock on PATH while the block runs; unlocked if PATH
+    cannot be opened (no writable /run in an odd chroot)."""
+    try:
+        f = open(path, "w")
+    except OSError:
+        yield
+        return
+    with f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        yield

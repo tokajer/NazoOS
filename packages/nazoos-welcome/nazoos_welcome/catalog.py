@@ -342,26 +342,6 @@ PACKMAN_FAMILY = (r"(ffmpeg-\d+|lib(avcodec|avdevice|avfilter|avformat|avutil"
                   r"|overlay))?"
                   r"|libgbm1|libvulkan_[a-z]+)"
                   r"(-32bit)?")
-# Failed units the repair page ignores: known harmless upstream issues.
-# drkonqi-coredump-pickup (drkonqi6 6.7): RuntimeMaxSec=30min, ends with
-# result "timeout" after login although nothing crashed (VM 2026-10-11)
-IGNORED_UNITS = {"drkonqi-coredump-pickup.service"}
-# Apps started from the menu run as transient units app-<name>@<id>.service
-# (or .scope). One fails when the app exits with an error, e.g. a cancelled
-# password dialog of a pkexec launcher: not a system problem, and
-# restarting it would start the app again.
-# drkonqi-coredump-processor@ hands one crash to DrKonqi and ends with
-# result "timeout" after 5 min when nobody picks it up; a crash loop left
-# 26 of them (Waydroid in a VM, 2026-10-15). The crash is the problem,
-# restarting the unit fixes nothing
-IGNORED_UNIT_PATTERN = (r"app-.+@[0-9a-f]+\.(service|scope)"
-                        r"|drkonqi-coredump-processor@.+\.service")
-# Seconds to wait after restarting failed units: a Type=simple unit
-# fails again only after "systemctl restart" has returned
-UNIT_SETTLE_SECONDS = 3
-# Free space below which the repair page warns (whichever is larger)
-SPACE_MIN_GB = 5
-SPACE_MIN_PERCENT = 5
 
 
 # Root actions of the helper, with the text shown while they run

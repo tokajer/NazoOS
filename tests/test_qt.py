@@ -87,7 +87,7 @@ def test_launcher_missing(app, tmp_path):
     assert result == [(False, "pkexec could not be started.")]
 
 
-def test_background_failure_reaches_the_gui_thread(app, monkeypatch):
+def testbackground_failure_reaches_the_gui_thread(app, monkeypatch):
     from nazoos_welcome import backend, i18n
 
     b = backend.Backend(i18n.translator())
@@ -96,7 +96,7 @@ def test_background_failure_reaches_the_gui_thread(app, monkeypatch):
     def work():
         raise RuntimeError("probe broke")
 
-    b._background(work, lambda r: seen.append(("done", r)),
+    b.background(work, lambda r: seen.append(("done", r)),
                   lambda e: seen.append(("failed", str(e))))
     wait(app, lambda: seen)
     assert seen == [("failed", "probe broke")]
@@ -108,7 +108,7 @@ def test_refresh_survives_a_broken_probe(app, monkeypatch):
     def collect():
         raise OSError("no lspci")
 
-    monkeypatch.setattr(backend.system, "collect", collect)
+    monkeypatch.setattr(backend.probes, "collect", collect)
     b = backend.Backend(i18n.translator())
     b.refresh()
     wait(app, lambda: not b._refreshing)
@@ -118,8 +118,9 @@ def test_refresh_survives_a_broken_probe(app, monkeypatch):
 def test_changed_card_is_read_before_the_full_refresh(app, monkeypatch):
     from nazoos_welcome import backend, i18n
 
-    monkeypatch.setattr(backend.system, "update_channel", lambda: "beta")
-    monkeypatch.setattr(backend.system, "collect",
+    monkeypatch.setitem(backend.QUICK_PROBES, "channel",
+                        ("channel", lambda: "beta"))
+    monkeypatch.setattr(backend.probes, "collect",
                         lambda: {"channel": "beta", "fresh": True})
     b = backend.Backend(i18n.translator())
     b._state = {"channel": "stable"}
@@ -220,3 +221,21 @@ def test_second_start_hands_page_and_token_over(app, tmp_path, monkeypatch):
     # Qt takes it from the environment on requestActivate()
     assert os.environ[TOKEN] == "launcher-token"
     monkeypatch.delenv(TOKEN)
+
+
+def test_repair_model_rechecks_after_a_repair_action(app, monkeypatch):
+    from nazoos_welcome import backend, i18n, repair, repair_model
+
+    calls = []
+    monkeypatch.setattr(repair, "check", lambda: calls.append(1) or [])
+    b = backend.Backend(i18n.translator())
+    model = repair_model.RepairModel(b)
+    # Not checked yet: a repair action does not start a check
+    b.actionFinished.emit("repair-rpmdb", True, "Done.")
+    assert calls == []
+    model.checkSystem()
+    wait(app, lambda: model.checked)
+    b.actionFinished.emit("kparam", True, "Done.")
+    assert len(calls) == 1
+    b.actionFinished.emit("repair-rpmdb", True, "Done.")
+    wait(app, lambda: len(calls) == 2 and not model.checking)

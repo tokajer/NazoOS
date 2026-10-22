@@ -4,7 +4,7 @@
 
 import xml.etree.ElementTree as ET
 
-from nazoos_common import kernel, kernelstate
+from nazoos_common import grub, kernel, kernelstate
 
 GRUB_CFG = """\
 ### BEGIN /etc/grub.d/10_linux ###
@@ -22,14 +22,14 @@ submenu 'Advanced options for NazoOS' $menuentry_id_option 'gnulinux-advanced-12
 
 
 def test_top_entry():
-    assert kernel.top_entry(GRUB_CFG) == (
+    assert grub.top_entry(GRUB_CFG) == (
         "gnulinux-simple-1234", "/@/boot/vmlinuz-7.2.11-1-nazoos")
-    assert kernel.top_entry("") == (None, "")
+    assert grub.top_entry("") == (None, "")
 
 
 def test_cmdline_re():
     text = 'A=1\nGRUB_CMDLINE_LINUX_DEFAULT="splash quiet"\n'
-    m = kernel.CMDLINE_RE.search(text)
+    m = grub.CMDLINE_RE.search(text)
     assert m.group(2).split() == ["splash", "quiet"]
 
 
@@ -37,9 +37,9 @@ def test_newest_kernel_compares_versions_not_text(tmp_path):
     for v in ("7.2.9-1", "7.2.11-1", "7.10.0-1"):
         (tmp_path / f"vmlinuz-{v}-nazoos").touch()
     (tmp_path / "vmlinuz-7.11.0-1-default").touch()
-    assert kernel.newest_kernel("nazoos", tmp_path) == \
+    assert grub.newest_kernel("nazoos", tmp_path) == \
         "/boot/vmlinuz-7.10.0-1-nazoos"
-    assert kernel.newest_kernel("longterm", tmp_path) == ""
+    assert grub.newest_kernel("longterm", tmp_path) == ""
 
 
 def test_kmp_rebuilds_finds_a_new_build_of_the_same_module():
@@ -61,11 +61,11 @@ def test_keep_default(monkeypatch, tmp_path):
     prefer = tmp_path / "kernel-prefer"
     monkeypatch.setattr(kernelstate, "PREFER", prefer)
     # The default argument of newest_kernel() is fixed at import
-    real = kernel.newest_kernel
-    monkeypatch.setattr(kernel, "newest_kernel",
+    real = grub.newest_kernel
+    monkeypatch.setattr(grub, "newest_kernel",
                         lambda flavor: real(flavor, tmp_path))
     flavors = []
-    monkeypatch.setattr(kernel, "ensure_grub_default",
+    monkeypatch.setattr(grub, "ensure_grub_default",
                         lambda log, flavor: flavors.append(flavor))
     # Neither preferred nor installed: nothing to keep
     assert kernel.keep_default() is None

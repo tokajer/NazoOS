@@ -3,13 +3,15 @@
 """Shared fixtures."""
 
 import importlib
+import pkgutil
 
 import pytest
 
-from nazoos_common import helper, kernel
+import nazoos_welcome.root
+from nazoos_common import grub, helper
 
-ROOT_MODULES = ("apps", "base", "drivers", "drives", "kernel_switch",
-                "maintenance", "mok_queue", "repairs", "tuning")
+# Every root module, so a new one cannot run real commands in tests
+ROOT_MODULES = [m.name for m in pkgutil.iter_modules(nazoos_welcome.root.__path__)]
 
 
 class FakeRoot:
@@ -48,12 +50,12 @@ class FakeRoot:
 @pytest.fixture
 def fake_root(monkeypatch, tmp_path):
     fake = FakeRoot()
-    # kernel.* and grub_refresh run helper.run / helper.output
+    # grub.* and kernel.* run helper.run / helper.output
     monkeypatch.setattr(helper, "run", fake.run)
     monkeypatch.setattr(helper, "output", fake.output)
-    monkeypatch.setattr(kernel, "GRUB_DEFAULT_FILE", tmp_path / "grub-default")
-    monkeypatch.setattr(kernel, "GRUB_LOCK", tmp_path / "grub.lock")
-    monkeypatch.setattr(kernel, "GRUB_CFG", tmp_path / "grub.cfg")
+    monkeypatch.setattr(grub, "GRUB_DEFAULT_FILE", tmp_path / "grub-default")
+    monkeypatch.setattr(grub, "GRUB_LOCK", tmp_path / "grub.lock")
+    monkeypatch.setattr(grub, "GRUB_CFG", tmp_path / "grub.cfg")
     for name in ROOT_MODULES:
         module = importlib.import_module(f"nazoos_welcome.root.{name}")
         for attr in ("run", "output", "rpm_installed"):

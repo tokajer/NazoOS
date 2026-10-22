@@ -6,7 +6,7 @@ import os
 import shutil
 import subprocess
 
-from nazoos_common.qt import ActionRunner
+from nazoos_common.qt import COMMON_LAUNCHERS, ActionRunner
 from PySide6.QtCore import Property, QFileSystemWatcher, QTimer, Signal, Slot
 
 from . import status
@@ -21,12 +21,17 @@ ACTION_LABELS = {
     "rollback": "Making the snapshot permanent",
 }
 
+LAUNCHERS = {
+    **COMMON_LAUNCHERS,
+    "repair": ([], ["nazoos-welcome", "--page", "repair"]),
+}
+
 
 class Backend(ActionRunner):
     stateChanged = Signal()
 
     def __init__(self):
-        super().__init__(HELPER, _, ACTION_LABELS)
+        super().__init__(HELPER, _, ACTION_LABELS, LAUNCHERS)
         self._state = {}
         self._reboot = False
         # The snapshot was made permanent; only a restart is left to do

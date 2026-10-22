@@ -14,6 +14,10 @@ from . import check, snapshots
 
 # zypper: a %post script failed, the packages are installed
 ZYPPER_SCRIPT_FAILED = 107
+# script_failure() verdicts
+OK = "ok"
+KEY_MISSING = "key_missing"
+FAIL = "fail"
 # rpm's line for it, e.g. "warning: %post(xpadneo-ueficert-0.10.1-1.32
 # .x86_64) scriptlet failed, exit status 255"
 SCRIPTLET_FAILED = re.compile(r"%\w+\((\S+)-[^-]+-[^-]+\) scriptlet failed")
@@ -42,6 +46,42 @@ def only_trusted_certs(failed):
              for f in helper.output(["rpm", "-ql", name]).split()
              if mok.CERT_PATH.fullmatch(f)]
     return bool(certs) and all(mok.covered(c) for c in certs)
+
+
+def script_failure(rc, failed):
+    """How to treat zypper's exit code RC after "dup": OK, KEY_MISSING
+    (installed, only the kernel key import failed) or FAIL. FAILED:
+    packages whose %post script failed."""
+    if rc == ZYPPER_SCRIPT_FAILED and only_trusted_certs(failed):
+        print("Note: the key import of " + ", ".join(failed)
+              + " failed, but the key is already trusted", flush=True)
+        return OK
+    if rc == ZYPPER_SCRIPT_FAILED and nazoos_key_missing():
+        return KEY_MISSING
+    return OK if rc in check.ZYPPER_OK else FAIL
+
+
+def after_update_extras(dup_ran):
+    """What follows the update: kernel modules (only after a dup),
+    Flatpaks, the boot entry."""
+    # dup only updates what is installed: kernel modules for
+    # kernel-nazoos that came later (acpi_call); a module missing
+    # from the repo is skipped there
+    if dup_ran:
+        try:
+            kernel.sync_modules()
+        except (Fail, OSError) as e:
+            helper.say(f"Note: {e}")
+    if Path("/usr/bin/flatpak").exists():
+        run(FLATPAK + ["update", "--noninteractive", "-y"], check=False)
+        run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"],
+            check=False)
+    # NazoOS kernel opt-in: a kernel update adds a new boot entry, keep
+    # the chosen kernel as default (ADR 0008)
+    try:
+        kernel.keep_default(helper.say)
+    except (Fail, OSError) as e:
+        helper.say(f"Note: {e}")
 
 
 def update(_args):
@@ -75,34 +115,16 @@ def update(_args):
         # snapper-zypp-plugin creates a pre/post snapshot pair around this
         rc = run(ZYPPER + cmd, check=False, on_line=watch)
         snapshots.label_snapshots(update_after=last)
-        if rc == ZYPPER_SCRIPT_FAILED and only_trusted_certs(failed):
-            print("Note: the key import of " + ", ".join(failed)
-                  + " failed, but the key is already trusted", flush=True)
-        elif rc == ZYPPER_SCRIPT_FAILED and nazoos_key_missing():
+        verdict = script_failure(rc, failed)
+        if verdict == KEY_MISSING:
             # Installed, only the key import failed: finish the update
             # (boot entry, modules) and say what to do at the end
             key_missing = True
-        elif rc not in check.ZYPPER_OK:
+        elif verdict == FAIL:
             check.check_quietly()
             raise Fail("the system update failed (zypper exit code {rc})",
                        rc=rc)
-        # dup only updates what is installed: kernel modules for
-        # kernel-nazoos that came later (acpi_call); a module missing
-        # from the repo is skipped there
-        try:
-            kernel.sync_modules()
-        except (Fail, OSError) as e:
-            helper.say(f"Note: {e}")
-    if Path("/usr/bin/flatpak").exists():
-        run(FLATPAK + ["update", "--noninteractive", "-y"], check=False)
-        run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"],
-            check=False)
-    # NazoOS kernel opt-in: a kernel update adds a new boot entry, keep
-    # the chosen kernel as default (ADR 0008)
-    try:
-        kernel.keep_default(helper.say)
-    except (Fail, OSError) as e:
-        helper.say(f"Note: {e}")
+    after_update_extras(bool(cmd))
     reboot = capture(["zypper", "needs-rebooting"]).returncode == 102
     status.write({"error": "", "problems": [], "packages": [],
                   "flatpaks": [], "reboot": False,

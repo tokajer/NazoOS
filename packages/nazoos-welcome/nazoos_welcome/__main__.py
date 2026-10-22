@@ -11,9 +11,10 @@ from nazoos_common.single import Instance
 from PySide6.QtCore import QCoreApplication, QUrl
 from PySide6.QtQml import QQmlApplicationEngine
 
-from . import system
+from . import probes
 from .backend import Backend
 from .i18n import translator as make_translator
+from .repair_model import RepairModel
 
 VERSION = "0.1.0"
 
@@ -23,14 +24,14 @@ def main():
     parser.add_argument("--autostart", action="store_true",
                         help="started at login: quit if disabled or live")
     parser.add_argument("--page", default="",
-                        help="page to open (welcome, drivers, gaming, kernel, "
-                             "apps, drives, system, repair, help)")
+                        help="page to open, e.g. kernel or repair "
+                             "(qml/Main.qml: pages)")
     args, qt_args = parser.parse_known_args()
 
     proc.refuse_root("nazoos-welcome")
 
     if args.autostart and (proc.is_live()
-                           or not system.autostart_enabled()):
+                           or not probes.autostart_enabled()):
         return 0
 
     # Already open: show the page there. A second autostart (Plasma's
@@ -49,11 +50,13 @@ def main():
 
     translator = make_translator()
     backend = Backend(translator)
+    repair = RepairModel(backend)
 
     engine = QQmlApplicationEngine()
     ctx = engine.rootContext()
     ctx.setContextProperty("L", translator)
     ctx.setContextProperty("backend", backend)
+    ctx.setContextProperty("repair", repair)
     ctx.setContextProperty("startPage", args.page or "welcome")
     ctx.setContextProperty("instance", instance)
     ctx.setContextProperty("appVersion", VERSION)
