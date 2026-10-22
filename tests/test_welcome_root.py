@@ -235,9 +235,18 @@ def test_packman_switch_honours_glob_locks(monkeypatch, tmp_path):
 PACKMAN_VENDOR = "http://packman.links2linux.de\n"
 
 
+PACKMAN_URL = "https://ftp.gwdg.de/pub/linux/misc/packman/suse/x/"
+NVIDIA_URL = "https://download.nvidia.com/opensuse/tumbleweed"
+
+
+def _repos(monkeypatch, found):
+    """FOUND: (alias, url, enabled) tuples of the repos on the system."""
+    monkeypatch.setattr(base.repos, "repos", lambda: found)
+
+
 def _packman_env(monkeypatch, fake_root, tmp_path, existing=None):
     monkeypatch.setattr(base, "ZYPP_LOCKS", tmp_path / "locks")
-    monkeypatch.setattr(drivers.repos, "with_url", lambda fragment: existing)
+    _repos(monkeypatch, [] if existing is None else [existing])
 
 
 def test_codecs_install_order(monkeypatch, fake_root, tmp_path):
@@ -271,17 +280,18 @@ def test_codecs_install_keeps_the_repo_when_packman_packages_are_in(
 
 def test_codecs_install_never_removes_a_repo_that_was_there(
         monkeypatch, fake_root, tmp_path):
-    _packman_env(monkeypatch, fake_root, tmp_path, existing="packman")
+    _packman_env(monkeypatch, fake_root, tmp_path,
+                 existing=("packman", PACKMAN_URL, True))
     fake_root.rc = {"dist-upgrade": 4}
     with pytest.raises(drivers.Fail):
         drivers.codecs_install([])
-    assert not any(c[2] in ("addrepo", "removerepo")
+    assert not any(c[2] in ("addrepo", "removerepo", "modifyrepo")
                    for c in fake_root.calls)
 
 
 def test_nvidia_install_removes_the_repo_it_added_on_failure(
         monkeypatch, fake_root):
-    monkeypatch.setattr(drivers.repos, "with_url", lambda fragment: None)
+    _repos(monkeypatch, [])
     fake_root.rc = {"install": 107}
     with pytest.raises(drivers.Fail):
         drivers.nvidia_install(["open"])
@@ -291,7 +301,7 @@ def test_nvidia_install_removes_the_repo_it_added_on_failure(
 
 def test_nvidia_install_keeps_the_repo_when_a_driver_is_in(
         monkeypatch, fake_root):
-    monkeypatch.setattr(drivers.repos, "with_url", lambda fragment: None)
+    _repos(monkeypatch, [])
     fake_root.rc = {"install": 107}
     fake_root.installed = {"nvidia-video-G07"}
     with pytest.raises(drivers.Fail):
@@ -301,11 +311,59 @@ def test_nvidia_install_keeps_the_repo_when_a_driver_is_in(
 
 def test_nvidia_install_never_removes_a_repo_that_was_there(
         monkeypatch, fake_root):
-    monkeypatch.setattr(drivers.repos, "with_url", lambda fragment: "nvidia")
+    _repos(monkeypatch, [("nvidia", NVIDIA_URL, True)])
     fake_root.rc = {"install": 107}
     with pytest.raises(drivers.Fail):
         drivers.nvidia_install(["legacy"])
     assert not any("removerepo" in c for c in fake_root.calls)
+
+
+def test_codecs_install_enables_a_disabled_repo(
+        monkeypatch, fake_root, tmp_path):
+    _packman_env(monkeypatch, fake_root, tmp_path,
+                 existing=("packman", PACKMAN_URL, False))
+    drivers.codecs_install([])
+    assert fake_root.calls[0][2:] == ["modifyrepo", "--enable", "packman"]
+    assert not any("addrepo" in c for c in fake_root.calls)
+
+
+def test_codecs_install_disables_the_repo_it_enabled_on_failure(
+        monkeypatch, fake_root, tmp_path):
+    _packman_env(monkeypatch, fake_root, tmp_path,
+                 existing=("packman", PACKMAN_URL, False))
+    fake_root.rc = {"dist-upgrade": 4}
+    with pytest.raises(drivers.Fail):
+        drivers.codecs_install([])
+    assert fake_root.calls[-1][2:] == ["modifyrepo", "--disable", "packman"]
+    assert not any("removerepo" in c for c in fake_root.calls)
+
+
+def test_codecs_install_disables_the_repo_even_with_packman_packages_in(
+        monkeypatch, fake_root, tmp_path):
+    _packman_env(monkeypatch, fake_root, tmp_path,
+                 existing=("packman", PACKMAN_URL, False))
+    fake_root.rc = {"dist-upgrade": 4}
+    fake_root.out = lambda cmd: PACKMAN_VENDOR if "%{VENDOR}\n" in cmd else ""
+    with pytest.raises(drivers.Fail):
+        drivers.codecs_install([])
+    assert fake_root.calls[-1][2:] == ["modifyrepo", "--disable", "packman"]
+
+
+def test_enable_repo_prefers_an_enabled_match(monkeypatch, fake_root):
+    _repos(monkeypatch, [("off", PACKMAN_URL, False),
+                         ("on", PACKMAN_URL, True)])
+    assert base.enable_repo("/packman/") == ("on", False)
+    assert not any("modifyrepo" in c for c in fake_root.calls)
+
+
+def test_nvidia_install_disables_the_repo_it_enabled_on_failure(
+        monkeypatch, fake_root):
+    _repos(monkeypatch, [("nvidia", NVIDIA_URL, False)])
+    fake_root.rc = {"install": 107}
+    with pytest.raises(drivers.Fail):
+        drivers.nvidia_install(["open"])
+    assert fake_root.calls[0][2:] == ["modifyrepo", "--enable", "nvidia"]
+    assert fake_root.calls[-1][2:] == ["modifyrepo", "--disable", "nvidia"]
 
 
 @pytest.mark.parametrize("installed, rpms, expected", [

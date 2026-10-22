@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 22 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Codecs and NVIDIA install switch on a Packman or NVIDIA repo the
+  user had disabled, and switch it off again if the install fails; the
+  Packman repair switches a disabled Packman repo on and leaves it on.
+
+-------------------------------------------------------------------
 Thu Oct 22 02:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Codecs and NVIDIA install remove a repo they added if the install

@@ -4,7 +4,9 @@
 # Started by nazoos-update-label.path. Sets the snapper userdata
 # "bootloader" of unnamed snapshots; snapper then rebuilds the GRUB
 # snapshot menu. Rewriting that menu changes /.snapshots again, so the
-# service runs once more and finds nothing left to name.
+# service runs once more and finds nothing left to name. Each run first
+# waits until /.snapshots is quiet for 3 s (wait_quiet), so a burst of
+# changes is one run and the start limit is never reached.
 [Unit]
 Description=NazoOS: name new snapshots for the boot menu
 ConditionPathExists=!/usr/share/calamares/settings.conf

@@ -13,8 +13,9 @@ from nazoos_common import kernel, repos
 from nazoos_common.kernel import grub_refresh
 
 from .. import catalog, repair
-from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, flathub_ensure, output,
-                   packman_switch, rpm_installed, run, say)
+from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, enable_repo,
+                   flathub_ensure, output, packman_switch, rpm_installed,
+                   run, say)
 
 
 def repair_repos(_args):
@@ -58,7 +59,7 @@ def repair_deps(_args):
 
 
 def repair_packman(_args):
-    alias = repos.with_url("/packman/")
+    alias, _enabled = enable_repo("/packman/")
     if alias is None:
         raise Fail("Packman is not set up; install the codecs first")
     packman_switch(alias)

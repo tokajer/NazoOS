@@ -7,7 +7,7 @@ import shutil
 import subprocess
 
 from nazoos_common.qt import ActionRunner
-from PySide6.QtCore import Property, QFileSystemWatcher, Signal, Slot
+from PySide6.QtCore import Property, QFileSystemWatcher, QTimer, Signal, Slot
 
 from . import status
 from .i18n import _
@@ -34,7 +34,12 @@ class Backend(ActionRunner):
         # Reload when the root check writes a new status
         self._watch = QFileSystemWatcher(self)
         self._watch.addPath(str(status.STATUS.parent))
-        self._watch.directoryChanged.connect(lambda _p: self.refresh())
+        # One status write is two directory events (tmp file, replace)
+        self._debounce = QTimer(self)
+        self._debounce.setSingleShot(True)
+        self._debounce.setInterval(200)
+        self._debounce.timeout.connect(self.refresh)
+        self._watch.directoryChanged.connect(lambda _p: self._debounce.start())
 
     def _get_state(self):
         return self._state

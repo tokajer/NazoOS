@@ -7,7 +7,7 @@ import os
 import re
 from pathlib import Path
 
-from nazoos_common import kernel, proc
+from nazoos_common import kernel, proc, repos
 from nazoos_common.helper import (  # noqa: F401 (used by the actions)
     FLATPAK, ZYPPER, ZYPPER_IN, Fail, Passthrough, arg, output, repo_has,
     rpm_installed, run, say)
@@ -17,6 +17,20 @@ from .. import catalog
 FLATHUB_URL = "https://dl.flathub.org/repo/flathub.flatpakrepo"
 RUN_DIR = Path("/run/nazoos-welcome")
 ZYPP_LOCKS = Path("/etc/zypp/locks")
+
+
+def enable_repo(fragment):
+    """Alias of the repo whose URL contains FRAGMENT, and whether this
+    call switched it on. An already enabled match wins; with none, the
+    first match is enabled. (None, False) if there is no match."""
+    matches = [(a, e) for a, url, e in repos.repos() if fragment in url]
+    for alias, enabled in matches:
+        if enabled:
+            return alias, False
+    if matches:
+        run(ZYPPER + ["modifyrepo", "--enable", matches[0][0]])
+        return matches[0][0], True
+    return None, False
 
 
 def packman_switch(alias):

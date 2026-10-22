@@ -230,6 +230,37 @@ def test_label_waits_for_snapper_cleanup(monkeypatch):
     assert calls == ["systemctl"] * 3
 
 
+def _fake_clock(monkeypatch):
+    now = [0.0]
+    monkeypatch.setattr(snapshots.time, "monotonic", lambda: now[0])
+    monkeypatch.setattr(snapshots.time, "sleep",
+                        lambda s: now.__setitem__(0, now[0] + s))
+    return now
+
+
+def test_wait_quiet_returns_after_the_stamp_was_stable(monkeypatch):
+    now = _fake_clock(monkeypatch)
+    calls = []
+
+    def stamp():
+        calls.append(now[0])
+        return (min(len(calls), 3), None)    # changes on the first calls
+
+    monkeypatch.setattr(snapshots, "_snapshots_stamp", stamp)
+    snapshots.wait_quiet(quiet=3, timeout=60)
+    # Reads at t=0, 3 (changed), 6 (changed), 9 (same)
+    assert now[0] == 9
+
+
+def test_wait_quiet_gives_up_at_the_timeout(monkeypatch):
+    now = _fake_clock(monkeypatch)
+    count = iter(range(1000))
+    monkeypatch.setattr(snapshots, "_snapshots_stamp",
+                        lambda: (next(count), None))
+    snapshots.wait_quiet(quiet=3, timeout=10)
+    assert now[0] == 12    # first sleep that ends past the timeout
+
+
 def test_label_holds_the_lock_while_naming(monkeypatch, tmp_path):
     lock = tmp_path / "label.lock"
     seen = []

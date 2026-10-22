@@ -83,6 +83,32 @@ def wait_for_cleanup(timeout=600):
         time.sleep(2)
 
 
+def _snapshots_stamp():
+    stamp = []
+    for p in (Path("/.snapshots"), Path("/.snapshots/grub-snapshot.cfg")):
+        try:
+            stamp.append(p.stat().st_mtime_ns)
+        except OSError:
+            stamp.append(None)
+    return tuple(stamp)
+
+
+def wait_quiet(quiet=3, timeout=60):
+    """Wait until /.snapshots has not changed for QUIET seconds. A burst
+    of snapshot changes (several deleted at once) becomes one run instead
+    of one per change, so the service never hits systemd's start limit
+    (5 starts in 10 s) and does not lock snapper's config while the user
+    is still deleting."""
+    end = time.monotonic() + timeout
+    stamp = _snapshots_stamp()
+    while time.monotonic() < end:
+        time.sleep(quiet)
+        now = _snapshots_stamp()
+        if now == stamp:
+            return
+        stamp = now
+
+
 def label_snapshots(update_after=None):
     """Readable boot menu entries. Snapshots of the update that started
     after snapshot UPDATE_AFTER get "Before/After update", other zypper
@@ -144,6 +170,7 @@ def rollback(_args):
 
 
 def label(_args):
+    wait_quiet()
     # The path unit misses changes while this runs (e.g. zypper's post
     # snapshot during our first pass): repeat until a pass names nothing
     for _round in range(10):
