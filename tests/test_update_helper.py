@@ -284,6 +284,7 @@ def test_label_holds_the_lock_while_naming(monkeypatch, tmp_path):
         return 2
 
     monkeypatch.setattr(snapshots, "LABEL_LOCK", str(lock))
+    monkeypatch.setattr(snapshots.proc, "has", lambda name: True)
     monkeypatch.setattr(snapshots, "Path", lambda p: tmp_path)
     monkeypatch.setattr(snapshots, "wait_for_cleanup", lambda: None)
     monkeypatch.setattr(snapshots, "name_snapshots", name_snapshots)
