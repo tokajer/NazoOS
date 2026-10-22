@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-22 19:38+0200\n"
+"POT-Creation-Date: 2026-10-22 20:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:75 nazoos_welcome/root/base.py:80
+#: ../nazoos-common/nazoos_common/helper.py:75 nazoos_welcome/root/base.py:77
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr ""
@@ -473,7 +473,7 @@ msgstr ""
 msgid "{app} needs the NazoOS kernel (Kernel page)"
 msgstr ""
 
-#: nazoos_welcome/root/base.py:106
+#: nazoos_welcome/root/base.py:103
 msgid "unknown user"
 msgstr ""
 
@@ -490,92 +490,104 @@ msgstr ""
 msgid "only drives added by NazoOS Welcome can be removed here"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:27
+#: nazoos_welcome/root/kernel_switch.py:29
 #, python-brace-format
 msgid ""
 "the NazoOS kernel has no build of your NVIDIA driver ({packages}); switch to "
 "the open NVIDIA driver on the Drivers page first"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:45
+#: nazoos_welcome/root/kernel_switch.py:47
 msgid ""
 "the closed NVIDIA driver (G06) only exists for the openSUSE kernel; switch "
 "to the open driver first"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:74
+#: nazoos_welcome/root/kernel_switch.py:76
 msgid "start the NazoOS kernel first"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:97
+#: nazoos_welcome/root/kernel_switch.py:79
+#, python-brace-format
+msgid ""
+"the openSUSE kernel can be removed after {count} clean starts of the NazoOS "
+"kernel"
+msgstr ""
+
+#: nazoos_welcome/root/kernel_switch.py:83
+msgid ""
+"the openSUSE kernel is already removed or was chosen again on the Kernel page"
+msgstr ""
+
+#: nazoos_welcome/root/kernel_switch.py:107
 msgid "the openSUSE kernel is not in /boot"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:104
+#: nazoos_welcome/root/kernel_switch.py:114
 msgid "start the openSUSE kernel first (boot menu)"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:106
+#: nazoos_welcome/root/kernel_switch.py:116
 msgid "the openSUSE kernel is not installed"
 msgstr ""
 
-#: nazoos_welcome/root/maintenance.py:20
+#: nazoos_welcome/root/maintenance.py:21
 msgid "unknown service"
 msgstr ""
 
-#: nazoos_welcome/root/maintenance.py:36
+#: nazoos_welcome/root/maintenance.py:37
 msgid "nazoos-update is not installed"
 msgstr ""
 
-#: nazoos_welcome/root/maintenance.py:80
+#: nazoos_welcome/root/maintenance.py:81
 msgid "nazoos-repos is not installed"
 msgstr ""
 
-#: nazoos_welcome/root/maintenance.py:91
+#: nazoos_welcome/root/maintenance.py:92
 #, python-brace-format
 msgid "the {channel} repository did not appear after refreshing the services"
 msgstr ""
 
-#: nazoos_welcome/root/mok_queue.py:36
+#: nazoos_welcome/root/mok_queue.py:38
 msgid "the downloaded kernel package was not found"
 msgstr ""
 
-#: nazoos_welcome/root/mok_queue.py:52
+#: nazoos_welcome/root/mok_queue.py:54
 msgid "the signing certificate could not be read"
 msgstr ""
 
-#: nazoos_welcome/root/mok_queue.py:72
+#: nazoos_welcome/root/mok_queue.py:74
 msgid "a password for the Secure Boot key is needed"
 msgstr ""
 
-#: nazoos_welcome/root/mok_queue.py:86
+#: nazoos_welcome/root/mok_queue.py:88
 #, python-brace-format
 msgid "the Secure Boot key could not be prepared (mokutil exit code {rc})"
 msgstr ""
 
-#: nazoos_welcome/root/mok_queue.py:113 nazoos_welcome/root/mok_queue.py:126
+#: nazoos_welcome/root/mok_queue.py:115 nazoos_welcome/root/mok_queue.py:128
 msgid "kernel-nazoos has no signing certificate"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:46
+#: nazoos_welcome/root/repair_fixes.py:47
 #, python-brace-format
 msgid "still missing after restoring the services: {repos}"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:64
+#: nazoos_welcome/root/repair_fixes.py:65
 msgid "Packman is not set up; install the codecs first"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:88
+#: nazoos_welcome/root/repair_fixes.py:89
 msgid "no NVIDIA driver is installed"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:99
+#: nazoos_welcome/root/repair_fixes.py:100
 #, python-brace-format
 msgid "still failing: {units}"
 msgstr ""
 
-#: nazoos_welcome/root/session.py:18
+#: nazoos_welcome/root/session.py:19
 msgid "gaming mode is not installed (nazoos-session)"
 msgstr ""
 
@@ -737,8 +749,8 @@ msgstr ""
 
 #: qml/pages/AppsPage.qml:110 qml/pages/AppsPage.qml:118
 #: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
-#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:72
-#: qml/pages/KernelPage.qml:77 qml/pages/KernelPage.qml:101
+#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:73
+#: qml/pages/KernelPage.qml:78 qml/pages/KernelPage.qml:102
 msgid "Remove"
 msgstr ""
 
@@ -1253,19 +1265,19 @@ msgstr ""
 msgid "Running: %1"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:38
+#: qml/pages/KernelPage.qml:37
 msgid "Installed – enroll the NazoOS key below first (Secure Boot)"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:40
+#: qml/pages/KernelPage.qml:38
 msgid "Installed – restart and enroll the key in the blue screen"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:42
+#: qml/pages/KernelPage.qml:40
 msgid "Installed, but the openSUSE kernel starts by default"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:43
+#: qml/pages/KernelPage.qml:41
 msgid "Installed – restart the computer to start it"
 msgstr ""
 
@@ -1287,69 +1299,69 @@ msgid ""
 "next step (suggested: nazoos)."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:66
+#: qml/pages/KernelPage.qml:67
 msgid "Remove the openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:67
+#: qml/pages/KernelPage.qml:68
 msgid ""
 "Once the NazoOS kernel has started cleanly %1 times in a row, the openSUSE "
 "kernel can be removed. Updates then never install it again. Older NazoOS "
 "kernels and snapshots stay as fallback."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:68
+#: qml/pages/KernelPage.qml:69
 msgid "Clean starts in a row: %1 of %2"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:75
+#: qml/pages/KernelPage.qml:76
 msgid "Remove the openSUSE kernel?"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:76
+#: qml/pages/KernelPage.qml:77
 msgid ""
 "Only the NazoOS kernel stays installed. You can bring the openSUSE kernel "
 "back here at any time."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:85
+#: qml/pages/KernelPage.qml:86
 msgid "Back to the openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:86
+#: qml/pages/KernelPage.qml:87
 msgid ""
 "Makes the openSUSE kernel the default again and installs it if it was "
 "removed. The NazoOS kernel can then be removed while the openSUSE kernel is "
 "running."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:90
+#: qml/pages/KernelPage.qml:91
 msgid "Use openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:96
+#: qml/pages/KernelPage.qml:97
 msgid "Remove NazoOS kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:99
+#: qml/pages/KernelPage.qml:100
 msgid "Remove the NazoOS kernel?"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:100
+#: qml/pages/KernelPage.qml:101
 msgid ""
 "The NazoOS kernel and its driver modules are removed. You can install it "
 "again later."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:108
+#: qml/pages/KernelPage.qml:109
 msgid "Secure Boot"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:114
+#: qml/pages/KernelPage.qml:115
 msgid "NazoOS key (MOK)"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:116
+#: qml/pages/KernelPage.qml:117
 msgid ""
 "With Secure Boot the computer only starts kernels with a trusted key. The "
 "NazoOS key is added once in the blue MokManager screen that appears after a "
@@ -1358,7 +1370,7 @@ msgid ""
 "choose the openSUSE kernel in the boot menu."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:117
+#: qml/pages/KernelPage.qml:118
 msgid ""
 "Secure Boot is off, the NazoOS kernel starts without the key. Enroll it "
 "anyway: kernel updates expect it, and Secure Boot can be turned on later. It "
@@ -1367,19 +1379,19 @@ msgid ""
 "(suggested: nazoos)."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:118
+#: qml/pages/KernelPage.qml:119
 msgid "Key enrolled"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:119
+#: qml/pages/KernelPage.qml:120
 msgid "Waiting for MokManager – restart the computer"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:120
+#: qml/pages/KernelPage.qml:121
 msgid "Key not enrolled"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:125
+#: qml/pages/KernelPage.qml:126
 msgid "Enroll key"
 msgstr ""
 

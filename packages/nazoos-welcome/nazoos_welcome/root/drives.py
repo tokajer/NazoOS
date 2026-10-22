@@ -1,16 +1,16 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Extra drives mounted at boot (fstab lines with catalog.FSTAB_MARKER)."""
+"""Extra drives mounted at boot (fstab lines with hw.FSTAB_MARKER)."""
 
 import os
 import re
 from pathlib import Path
 
 from nazoos_common import helper
-from nazoos_common.helper import write_atomic
+from nazoos_common.helper import Fail, arg, say, write_atomic
 
-from .. import catalog, probes
-from .base import Fail, arg, caller, say
+from .. import hw
+from .base import caller
 
 FSTAB = Path("/etc/fstab")
 # suse-module-tools blacklists ntfs3; an /etc file of the same name wins
@@ -61,7 +61,7 @@ def without_entry(text, uuid):
     while i < len(lines):
         line = lines[i]
         nxt = lines[i + 1] if i + 1 < len(lines) else ""
-        if line == catalog.FSTAB_MARKER and nxt.startswith(f"UUID={uuid} "):
+        if line == hw.FSTAB_MARKER and nxt.startswith(f"UUID={uuid} "):
             mnt = nxt.split()[1]
             i += 2
             continue
@@ -83,18 +83,18 @@ def _undo_add(uuid, mnt, created):
 def automount_add(args):
     uuid = arg(args, 0)
     # The GUI only offers non-removable extra drives; the helper is the
-    # trust boundary and applies the same rule (probes.drives)
-    dev = next((d for d in probes.drives()
+    # trust boundary and applies the same rule (hw.drives)
+    dev = next((d for d in hw.drives()
                 if d["uuid"] == uuid and not d["managed"]), None)
     if dev is None:
         raise Fail("this drive cannot be added here "
                    "(removable or system drive)")
     fstype = dev["fstype"]
     base = sanitize(dev["label"]) or uuid[:8]
-    mnt = Path(catalog.MOUNT_BASE, base)
+    mnt = Path(hw.MOUNT_BASE, base)
     n = 2
     while mnt.exists() and any(mnt.iterdir()):
-        mnt = Path(catalog.MOUNT_BASE, f"{base}-{n}")
+        mnt = Path(hw.MOUNT_BASE, f"{base}-{n}")
         n += 1
     uid = caller()[0]
     gid = int(helper.output(["id", "-g", str(uid)]).strip() or 100)
@@ -105,7 +105,7 @@ def automount_add(args):
     text = FSTAB.read_text()
     if not text.endswith("\n"):
         text += "\n"
-    write_atomic(FSTAB, text + f"{catalog.FSTAB_MARKER}\n{line}\n")
+    write_atomic(FSTAB, text + f"{hw.FSTAB_MARKER}\n{line}\n")
     say(line)
     # A failed mount must not leave a boot-time entry (or a stray directory)
     # behind, whether mount returns non-zero or something raises

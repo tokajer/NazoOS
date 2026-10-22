@@ -77,20 +77,34 @@ def test_boots_round_trip(state):
     assert kernelstate.read_boots() == {}
 
 
-@pytest.mark.parametrize("prefer, count, installed, expected", [
-    (True, 3, {"kernel-default"}, True),
-    (True, 2, {"kernel-default"}, False),
-    (False, 5, {"kernel-default"}, False),
-    (True, 3, {"kernel-default", "nazoos-kernel-only"}, False),
-    (True, 3, set(), False),
-])
-def test_stable(monkeypatch, state, prefer, count, installed, expected):
-    if prefer:
-        kernelstate.PREFER.touch()
+def test_stage2_now_asks_rpm_only_when_preferred(monkeypatch, state):
+    def no_rpm(name):
+        raise AssertionError("rpm asked")
+    monkeypatch.setattr(kernel.proc, "rpm_installed", no_rpm)
+    assert kernel.stage2_now() == ""
+    assert kernel.stage2_due() is False
+
+
+@pytest.mark.parametrize("count, expected", [(3, "ready"), (2, "waiting")])
+def test_stage2_now_counts_the_clean_starts(monkeypatch, state, count,
+                                            expected):
+    kernelstate.PREFER.touch()
     kernelstate.write_boots({"count": count})
     monkeypatch.setattr(kernel.proc, "rpm_installed",
-                        lambda n: n in installed)
-    assert kernel.stable() is expected
+                        lambda n: n == "kernel-default")
+    assert kernel.stage2_now() == expected
+    assert kernel.stage2_due() is (expected == "ready")
+
+
+@pytest.mark.parametrize("args, expected", [
+    ((True, 3, True, False), "ready"),
+    ((True, 2, True, False), "waiting"),
+    ((True, 9, True, True), ""),
+    ((False, 9, True, False), ""),
+    ((True, 3, False, False), ""),
+])
+def test_stage2_state(args, expected):
+    assert kernel.stage2_state(*args) == expected
 
 
 @pytest.mark.parametrize("updated, expected", [(50, False), (150, True)])

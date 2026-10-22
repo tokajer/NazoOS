@@ -9,12 +9,12 @@ import types
 import pytest
 
 from nazoos_common import grub, helper, kernel, mok, proc
-from nazoos_welcome import catalog
+from nazoos_welcome import hw, system
 from nazoos_welcome.pollrate import PARAM
 from nazoos_welcome.root import (apps, base, drivers, drives, kernel_switch,
                                  maintenance, mok_queue, repair_fixes, tuning)
 
-MARK = catalog.FSTAB_MARKER
+MARK = hw.FSTAB_MARKER
 
 
 def test_without_entry_removes_only_our_line():
@@ -63,7 +63,7 @@ def test_kernel_install_leaves_installed_modules_to_the_swap(monkeypatch,
     monkeypatch.setattr(ks, "repo_has", lambda alias, p: True)
     monkeypatch.setattr(ks, "prepare_mok", lambda alias, pkgs: False)
     monkeypatch.setattr(helper, "run", lambda cmd, **kw: calls.append(cmd))
-    monkeypatch.setattr(ks.kernel, "swap_rebuilds",
+    monkeypatch.setattr(ks.kmp_sync, "swap_rebuilds",
                         lambda alias, names: swapped.extend(names))
     monkeypatch.setattr(ks, "say", lambda text: None)
     monkeypatch.setattr(ks.grub, "ensure_grub_default", lambda say: True)
@@ -144,6 +144,35 @@ def test_kernel_install_success_keeps_the_repo(fake_root, monkeypatch,
     assert not zypper_words(fake_root, "modifyrepo", "--disable")
 
 
+def test_kernel_only_waits_for_the_clean_starts(fake_root, monkeypatch):
+    ks = kernel_switch
+    monkeypatch.setattr(ks, "running_nazoos", lambda: True)
+    monkeypatch.setattr(ks.kernel, "stage2_now", lambda: "waiting")
+    with pytest.raises(ks.Fail, match="clean starts"):
+        ks.kernel_only([])
+    assert not fake_root.calls
+
+
+def test_kernel_only_refuses_when_not_offered(fake_root, monkeypatch):
+    ks = kernel_switch
+    monkeypatch.setattr(ks, "running_nazoos", lambda: True)
+    monkeypatch.setattr(ks.kernel, "stage2_now", lambda: "")
+    with pytest.raises(ks.Fail, match="already removed"):
+        ks.kernel_only([])
+    assert not fake_root.calls
+
+
+def test_kernel_only_removes_the_default_kernel(fake_root, monkeypatch):
+    ks = kernel_switch
+    fake_root.installed = {ks.kernel.KERNEL_DEFAULT}
+    monkeypatch.setattr(ks, "running_nazoos", lambda: True)
+    monkeypatch.setattr(ks.kernel, "stage2_now", lambda: "ready")
+    ks.kernel_only([])
+    words = zypper_words(fake_root, ks.kernel.KERNEL_ONLY_PACKAGE,
+                         "-" + ks.kernel.KERNEL_DEFAULT)
+    assert words
+
+
 def test_system_update_needs_nazoos_update(monkeypatch):
     monkeypatch.setattr(maintenance.os, "access", lambda *a: False)
     ran = []
@@ -161,8 +190,8 @@ def add_env(monkeypatch, tmp_path):
     fstab = tmp_path / "fstab"
     fstab.write_text(FSTAB_TEXT)
     monkeypatch.setattr(drives, "FSTAB", fstab)
-    monkeypatch.setattr(catalog, "MOUNT_BASE", str(tmp_path / "mnt"))
-    monkeypatch.setattr(drives.probes, "drives", lambda: [
+    monkeypatch.setattr(hw, "MOUNT_BASE", str(tmp_path / "mnt"))
+    monkeypatch.setattr(drives.hw, "drives", lambda: [
         {"uuid": "abcd", "fstype": "ext4", "label": "Games",
          "managed": False}])
     monkeypatch.setattr(drives, "caller", lambda: (1000,))
@@ -172,7 +201,7 @@ def add_env(monkeypatch, tmp_path):
 
 
 def test_add_refuses_a_drive_the_gui_would_not_offer(monkeypatch, add_env):
-    monkeypatch.setattr(drives.probes, "drives", lambda: [])
+    monkeypatch.setattr(drives.hw, "drives", lambda: [])
     ran = []
     monkeypatch.setattr(helper, "run", lambda *a, **k: ran.append(a) or 0)
     with pytest.raises(drives.Fail, match="removable or system drive"):
@@ -214,7 +243,7 @@ def _pollrate_env(monkeypatch, tmp_path, calls):
     sysfs = tmp_path / "interrupt_interval_override"
     sysfs.write_text("\n")
     monkeypatch.setattr(tuning, "SYSFS", str(sysfs))
-    monkeypatch.setattr(tuning.probes, "usb_input_devices",
+    monkeypatch.setattr(tuning.hw, "usb_input_devices",
                         lambda: [{"id": "046d:c08b"}])
     monkeypatch.setattr(tuning, "cmdline_set", lambda key, option: calls.append(
         (key, option(["quiet"]))))
@@ -241,7 +270,7 @@ def test_pollrate_too_long_leaves_grub_unchanged(monkeypatch, fake_root,
     sysfs = tmp_path / "interrupt_interval_override"
     sysfs.write_text("\n")
     monkeypatch.setattr(tuning, "SYSFS", str(sysfs))
-    monkeypatch.setattr(tuning.probes, "usb_input_devices",
+    monkeypatch.setattr(tuning.hw, "usb_input_devices",
                         lambda: [{"id": "046d:c08b"}])
     full = ",".join(f"{i:04x}:0001:1" for i in range(10))
     text = f'GRUB_CMDLINE_LINUX_DEFAULT="quiet {PARAM}={full}"\n'
@@ -351,8 +380,8 @@ def test_codecs_install_order(monkeypatch, fake_root, tmp_path):
     verbs = [c[2] for c in fake_root.calls]
     assert verbs == ["addrepo", "--gpg-auto-import-keys", "dist-upgrade",
                      "install", "install"]
-    assert fake_root.calls[3][-len(catalog.PACKMAN_CODECS):] == (
-        catalog.PACKMAN_CODECS)
+    assert fake_root.calls[3][-len(system.PACKMAN_CODECS):] == (
+        system.PACKMAN_CODECS)
 
 
 def test_codecs_install_removes_the_repo_it_added_on_failure(
@@ -361,7 +390,7 @@ def test_codecs_install_removes_the_repo_it_added_on_failure(
     fake_root.rc = {"dist-upgrade": 4}
     with pytest.raises(base.Fail):
         drivers.codecs_install([])
-    assert fake_root.calls[-1][2:] == ["removerepo", catalog.PACKMAN_ALIAS]
+    assert fake_root.calls[-1][2:] == ["removerepo", system.PACKMAN_ALIAS]
 
 
 def test_codecs_install_keeps_the_repo_when_packman_packages_are_in(
@@ -392,7 +421,7 @@ def test_nvidia_install_removes_the_repo_it_added_on_failure(
     with pytest.raises(base.Fail):
         drivers.nvidia_install(["open"])
     assert fake_root.calls[-1][2:] == ["removerepo",
-                                       catalog.NVIDIA_REPO_ALIAS]
+                                       system.NVIDIA_REPO_ALIAS]
 
 
 def test_nvidia_install_keeps_the_repo_when_a_driver_is_in(
@@ -489,7 +518,7 @@ def test_repair_nvidia_without_driver(monkeypatch, fake_root):
 def test_channel_snapshots_before_the_link_changes(monkeypatch, fake_root,
                                                    tmp_path):
     link = tmp_path / "repoindex.xml"
-    monkeypatch.setattr(catalog, "CHANNEL_LINK", str(link))
+    monkeypatch.setattr(system, "CHANNEL_LINK", str(link))
     monkeypatch.setattr(maintenance.repos, "with_path",
                         lambda path: "nazoos:nazoos")
     link_seen = []

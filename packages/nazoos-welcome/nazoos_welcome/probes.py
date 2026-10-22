@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Reads the system state without root rights."""
 
-import json
 import os
 import platform
 import re
@@ -14,7 +13,7 @@ from pathlib import Path
 from nazoos_common import (grub, kernel, kernelstate, mok, proc, repos,
                            shellconf, zypper)
 
-from . import autostart, catalog, pollrate
+from . import autostart, catalog, hw, pollrate, system
 
 
 def rpm_vendors(names):
@@ -96,114 +95,18 @@ def flatpak_installed():
                      "--columns=application"]).split())
 
 
-def in_vm():
-    return proc.rc(["systemd-detect-virt", "--vm", "--quiet"]) == 0
-
-
 def waydroid_software():
     """Waydroid's config selects software rendering (set in a VM)."""
     m = re.search(r"^\s*ro\.hardware\.egl\s*=\s*(\S+)",
-                  proc.read(catalog.WAYDROID_CONFIG), re.M)
+                  proc.read(system.WAYDROID_CONFIG), re.M)
     return m is not None and \
-        m.group(1) == catalog.WAYDROID_SOFTWARE["ro.hardware.egl"]
-
-
-def drives():
-    data = proc.out(["lsblk", "--json", "--list", "--bytes", "--output",
-                     "PATH,UUID,FSTYPE,LABEL,SIZE,MOUNTPOINTS,TYPE,RM,"
-                     "HOTPLUG,PKNAME"])
-    try:
-        devs = json.loads(data).get("blockdevices", []) if data else []
-    except json.JSONDecodeError:
-        devs = []
-    return parse_drives(devs, proc.read("/etc/fstab"),
-                        proc.out(["findmnt", "-no", "UUID", "/"]).strip())
-
-
-def parse_drives(devs, fstab, root_uuid):
-    """Extra drives from the lsblk "blockdevices" list: no system drive,
-    no removable media, none the user already mounts by hand."""
-    ours = set(re.findall(re.escape(catalog.FSTAB_MARKER)
-                          + r"\nUUID=(\S+)", fstab))
-    result = []
-    for d in devs:
-        uuid = d.get("uuid")
-        if (not uuid or d.get("fstype") not in catalog.AUTOMOUNT_FS
-                or d.get("rm") or d.get("hotplug") or uuid == root_uuid):
-            continue
-        mps = [m for m in (d.get("mountpoints") or []) if m]
-        managed = uuid in ours
-        if not managed and (uuid in fstab or any(
-                not m.startswith("/run/media/") for m in mps)):
-            continue
-        result.append({
-            "uuid": uuid, "path": d.get("path", ""),
-            "fstype": d.get("fstype"), "label": d.get("label") or "",
-            "size": human_size(d.get("size") or 0),
-            "mountpoint": mps[0] if mps else "", "managed": managed,
-        })
-    return result
-
-
-def human_size(n):
-    n = float(n)
-    for unit in ("B", "KB", "MB", "GB", "TB"):
-        if n < 1000 or unit == "TB":
-            return f"{n:.0f} {unit}" if unit in ("B", "KB") else \
-                f"{n:.1f} {unit}"
-        n /= 1000
-    return ""
-
-
-def _interval_ms(ep):
-    """Polling interval of the sysfs endpoint EP in ms ("8ms" or "125us"),
-    None if unknown or zero."""
-    m = re.fullmatch(r"(\d+)(m|u)s", proc.read(ep / "interval").strip())
-    if not m:
-        return None
-    v = int(m.group(1)) / (1000 if m.group(2) == "u" else 1)
-    return v if v > 0 else None
-
-
-def usb_input_devices():
-    """Connected USB devices with a HID interface (controllers, mice,
-    keyboards) and their current polling rate in Hz (0 = unknown)."""
-    result = {}
-    for dev in sorted(Path("/sys/bus/usb/devices").glob("*")):
-        # Interfaces are named "1-2:1.0", root hubs "usb1"
-        if ":" in dev.name or dev.name.startswith("usb"):
-            continue
-        vid = proc.read(dev / "idVendor").strip()
-        pid = proc.read(dev / "idProduct").strip()
-        if not vid or not pid:
-            continue
-        hid, ms = False, None
-        for intf in dev.glob(f"{dev.name}:*"):
-            if proc.read(intf / "bInterfaceClass").strip() != "03":
-                continue
-            hid = True
-            for ep in intf.glob("ep_*"):
-                if (proc.read(ep / "type").strip() != "Interrupt"
-                        or proc.read(ep / "direction").strip() != "in"):
-                    continue
-                v = _interval_ms(ep)
-                if v and (ms is None or v < ms):
-                    ms = v
-        if not hid:
-            continue
-        name = " ".join(x for x in (proc.read(dev / "manufacturer").strip(),
-                                    proc.read(dev / "product").strip()) if x)
-        vp = f"{vid}:{pid}"
-        result.setdefault(vp, {"id": vp, "name": name or vp,
-                               "hz": round(1000 / ms) if ms else 0,
-                               "connected": True})
-    return list(result.values())
+        m.group(1) == system.WAYDROID_SOFTWARE["ro.hardware.egl"]
 
 
 def pollrate_state():
     """USB polling rate overrides (kernel-nazoos only)."""
     configured = pollrate.from_cmdline(grub_cmdline())
-    devices = usb_input_devices()
+    devices = hw.usb_input_devices()
     ids = {d["id"] for d in devices}
     # Devices with an override that are not plugged in: can be reset
     for vp in sorted(configured):
@@ -244,32 +147,55 @@ def kernel_state():
             key = ("enrolled" if mok.enrolled(cert)
                    else "pending" if _requested_this_boot()
                    else "missing")
-    boots = kernelstate.read_boots()
-    return {
+    boots = kernelstate.read_boots().get("count", 0)
+    running = kernel.running_nazoos()
+    preferred = kernelstate.PREFER.exists()
+    default_installed = kernel.KERNEL_DEFAULT in rpms
+    only = kernel.KERNEL_ONLY_PACKAGE in rpms
+    state = {
         "release": release,
-        "running": kernel.running_nazoos(),
+        "running": running,
         "installed": kernel.KERNEL_PACKAGE in rpms,
-        "defaultInstalled": kernel.KERNEL_DEFAULT in rpms,
-        "only": kernel.KERNEL_ONLY_PACKAGE in rpms,
-        "preferred": kernelstate.PREFER.exists(),
-        "boots": boots.get("count", 0),
+        "defaultInstalled": default_installed,
+        "only": only,
+        "preferred": preferred,
+        "boots": boots,
         "stableBoots": kernelstate.STABLE_BOOTS,
+        "stage2": (kernel.stage2_state(preferred, boots, default_installed,
+                                       only) if running else ""),
         "blocked": any(p in rpms for p in kernel.KMP_DEFAULT_ONLY),
         "secureBoot": secure_boot,
         "uefi": uefi,
         "mok": key,
         "sbState": sb_raw,
     }
+    state["phase"] = kernel_phase(state)
+    return state
+
+
+def kernel_phase(k):
+    """What the kernel card says, from the kernel_state() dict K."""
+    if k["blocked"]:
+        return "blocked"
+    if k["running"]:
+        return "running"
+    if not k["installed"]:
+        return ""
+    if k["secureBoot"] and k["mok"] == "missing":
+        return "key-missing"
+    if k["secureBoot"] and k["mok"] == "pending":
+        return "key-pending"
+    return "installed" if k["preferred"] else "not-preferred"
 
 
 def session_state():
     """Steam gaming mode (nazoos-session): boot mode and handheld model."""
     # The tool owns the file format: ask it, do not parse its file
-    text = proc.out([catalog.SESSION_CTL, "status"], timeout=10)
+    text = proc.out([system.SESSION_CTL, "status"], timeout=10)
     handheld = ""
-    if os.access(catalog.SESSION_DETECT, os.X_OK):
+    if os.access(system.SESSION_DETECT, os.X_OK):
         try:
-            r = subprocess.run([catalog.SESSION_DETECT], capture_output=True,
+            r = subprocess.run([system.SESSION_DETECT], capture_output=True,
                                text=True, timeout=10)
         except (OSError, subprocess.TimeoutExpired):
             r = None
@@ -287,10 +213,10 @@ def session_state():
 def update_channel():
     """"stable", "beta" or "" (nazoos-repos missing or link unknown)."""
     try:
-        target = os.readlink(catalog.CHANNEL_LINK)
+        target = os.readlink(system.CHANNEL_LINK)
     except OSError:
         return ""
-    for name in catalog.CHANNEL_REPO_PATHS:
+    for name in system.CHANNEL_REPO_PATHS:
         if target == f"nazoos-{name}-repoindex.xml":
             return name
     return ""
@@ -310,7 +236,7 @@ def deck_in_repos():
         return True
     _deck_found = proc.rc(
         zypper.ZYPPER + ["--no-refresh", "--quiet", "search", "--type",
-                         "pattern", "--match-exact", catalog.DECK_PATTERN],
+                         "pattern", "--match-exact", system.DECK_PATTERN],
         timeout=90) == 0
     return _deck_found
 
@@ -319,6 +245,12 @@ def packman_repo():
     """"on" (an enabled Packman repo), "off" (only disabled ones), ""."""
     found = [on for _a, url, on in repos.repos() if "/packman/" in url]
     return "on" if any(found) else "off" if found else ""
+
+
+# Each part names the RPMs it looks up; collect() asks rpm once for all
+_DRIVERS_RPMS = (["ffmpeg", "gstreamer-plugins-bad-codecs"]
+                 + [p for v in catalog.NVIDIA_DRIVERS.values() for p in v]
+                 + system.ROCM_PACKAGES)
 
 
 def _drivers(rpms, gpu_list):
@@ -336,7 +268,7 @@ def _drivers(rpms, gpu_list):
                                proc.read("/proc/cpuinfo"), re.M) is not None,
         "nvidiaDriver": nvidia_variant,
         "nvidiaLoaded": Path("/sys/module/nvidia").exists(),
-        "rocm": catalog.ROCM_PACKAGES[0] in rpms,
+        "rocm": system.ROCM_PACKAGES[0] in rpms,
         "packmanRepo": packman_repo(),
         # gstreamer-plugins-bad-codecs only exists in Packman
         "codecs": "packman" in rpms.get("ffmpeg", "").lower()
@@ -344,11 +276,14 @@ def _drivers(rpms, gpu_list):
     }
 
 
+_GAMING_RPMS = ["scx", system.DECK_PATTERN]
+
+
 def _gaming(rpms, units):
     scx_enabled, scx_active = units["scx.service"]
     scheduler = shellconf.get_var(proc.read("/etc/default/scx"),
                                   "SCX_SCHEDULER")
-    deck_installed = catalog.DECK_PATTERN in rpms
+    deck_installed = system.DECK_PATTERN in rpms
     return {
         "scxInstalled": "scx" in rpms,
         "scxEnabled": scx_enabled,
@@ -356,12 +291,15 @@ def _gaming(rpms, units):
         "scxScheduler": scheduler,
         "pollrate": pollrate_state(),
         # Waydroid card: software rendering is used (installed) or will be
-        "vm": in_vm(),
+        "vm": hw.in_vm(),
         "waydroidSoftware": waydroid_software(),
         "deckInstalled": deck_installed,
         "deckAvailable": deck_installed or deck_in_repos(),
         "session": session_state(),
     }
+
+
+_APPS_RPMS = [r for a in catalog.APPS if a["kind"] == "rpm" for r in a["refs"]]
 
 
 def _apps(rpms, flatpaks):
@@ -375,6 +313,9 @@ def _apps(rpms, flatpaks):
         "apps": apps,
         "flathub": flathub_configured(),
     }
+
+
+_SERVICES_RPMS = [s["package"] for s in catalog.SERVICES]
 
 
 def _services(rpms, system_units, user_units):
@@ -420,14 +361,8 @@ def _part(default, probe):
 
 def collect():
     """Full state for the UI, as plain JSON-friendly data."""
-    rpm_names = (["scx", catalog.DECK_PATTERN, "ffmpeg",
-                  "gstreamer-plugins-bad-codecs"]
-                 + [p for v in catalog.NVIDIA_DRIVERS.values() for p in v]
-                 + catalog.ROCM_PACKAGES
-                 + [s["package"] for s in catalog.SERVICES]
-                 + [r for a in catalog.APPS if a["kind"] == "rpm"
-                    for r in a["refs"]])
-    rpms = rpm_vendors(sorted(set(rpm_names)))
+    rpms = rpm_vendors(sorted(set(
+        _DRIVERS_RPMS + _GAMING_RPMS + _APPS_RPMS + _SERVICES_RPMS)))
     system_units = unit_states(["scx.service"] + [
         s["unit"] for s in catalog.SERVICES if not s["user"]])
     user_units = unit_states(
@@ -435,7 +370,7 @@ def collect():
     result = {
         "live": proc.is_live(),
         "autostart": autostart.enabled(),
-        "drives": _part([], drives),
+        "drives": _part([], hw.drives),
         "kernel": _part({}, kernel_state),
         "channel": _part("", update_channel),
         **_part({}, lambda: _drivers(rpms, gpus())),

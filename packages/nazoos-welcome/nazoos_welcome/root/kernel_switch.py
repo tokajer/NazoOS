@@ -5,10 +5,12 @@
 import contextlib
 import os
 
-from nazoos_common import grub, helper, kernel, kernelstate, proc
+from nazoos_common import grub, helper, kernel, kernelstate, kmp_sync, proc
+from nazoos_common.helper import Fail, say
 from nazoos_common.kernel import running_nazoos
+from nazoos_common.zypper import ZYPPER, ZYPPER_IN, repo_has
 
-from .base import ZYPPER, ZYPPER_IN, Fail, repo_has, repo_in_use, say
+from .base import repo_in_use
 from .mok_queue import MOK_RESTART, prepare_mok
 
 EFIVARS = "/sys/firmware/efi/efivars"
@@ -58,7 +60,7 @@ def kernel_install(_args):
         helper.run(ZYPPER_IN + [p for p in pkgs
                                 if p == kernel.KERNEL_PACKAGE
                                 or not proc.rpm_installed(p)])
-        kernel.swap_rebuilds(alias, pkgs[1:])
+        kmp_sync.swap_rebuilds(alias, pkgs[1:])
     kernelstate.STATE.mkdir(parents=True, exist_ok=True)
     kernelstate.PREFER.touch()
     kernelstate.write_boots({"count": 0})
@@ -72,6 +74,14 @@ def kernel_only(_args):
     """Stage 2: remove kernel-default for good (nazoos-kernel-only)."""
     if not running_nazoos():
         raise Fail("start the NazoOS kernel first")
+    stage2 = kernel.stage2_now()
+    if stage2 == "waiting":
+        raise Fail("the openSUSE kernel can be removed after {count} clean "
+                   "starts of the NazoOS kernel",
+                   count=kernelstate.STABLE_BOOTS)
+    if stage2 != "ready":
+        raise Fail("the openSUSE kernel is already removed or was chosen "
+                   "again on the Kernel page")
     remove = [f"-{p}" for p in
               [kernel.KERNEL_DEFAULT, "kernel-default-base"]
               + [kernel.kmp(b, "default") for b in kernel.KMP_BASES]

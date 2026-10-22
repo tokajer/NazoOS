@@ -132,7 +132,7 @@ def flatpak_updates():
 def check(_args=None):
     result = status.new()
     r = capture(zypper.ZYPPER + ["--gpg-auto-import-keys", "refresh"])
-    print(r.stdout, end="", flush=True)
+    print(r.stdout + r.stderr, end="", flush=True)
     if r.returncode != 0:
         result["error"] = status.ERROR_REFRESH
         result["detail"] = (r.stderr or r.stdout).strip()[-600:]

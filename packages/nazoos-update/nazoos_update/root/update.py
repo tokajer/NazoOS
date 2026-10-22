@@ -5,7 +5,7 @@
 import re
 import time
 
-from nazoos_common import helper, kernel, mok, proc, zypper
+from nazoos_common import helper, kernel, kmp_sync, mok, proc, zypper
 from nazoos_common.helper import FLATPAK, Fail, capture, run, say
 
 from .. import status
@@ -68,7 +68,7 @@ def after_update_extras(dup_ran):
     # from the repo is skipped there
     if dup_ran:
         try:
-            kernel.sync_modules()
+            kmp_sync.sync_modules()
         except (Fail, OSError) as e:
             say(f"Note: {e}")
     if proc.has("flatpak"):

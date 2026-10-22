@@ -30,19 +30,19 @@ Kirigami.ScrollablePage {
             fallbackIcon: "cpu"
             title: L.tr("NazoOS gaming kernel")
             subtitle: L.tr("The openSUSE kernel with gaming patches: BORE scheduler for smoother frame times, BBRv3, handheld drivers (Steam Deck, ROG Ally, MSI Claw, Zotac Zone and more), v4l2loopback for virtual cameras. It is installed next to the openSUSE kernel, which stays in the boot menu as a fallback.")
-            status: page.k.blocked ? L.tr("Not possible with the closed NVIDIA driver (G06). Switch to the open driver first.")
-                    : page.k.running ? L.tr("Running: %1").arg(page.k.release)
+            status: page.k.phase === "blocked" ? L.tr("Not possible with the closed NVIDIA driver (G06). Switch to the open driver first.")
+                    : page.k.phase === "running" ? L.tr("Running: %1").arg(page.k.release)
                     // Secure Boot without the key: GRUB falls back to the
                     // openSUSE kernel, a restart alone does not help
-                    : page.k.installed && page.k.secureBoot && page.k.mok === "missing"
-                      ? L.tr("Installed – enroll the NazoOS key below first (Secure Boot)")
-                    : page.k.installed && page.k.secureBoot && page.k.mok === "pending"
-                      ? L.tr("Installed – restart and enroll the key in the blue screen")
+                    : page.k.phase === "key-missing" ? L.tr("Installed – enroll the NazoOS key below first (Secure Boot)")
+                    : page.k.phase === "key-pending" ? L.tr("Installed – restart and enroll the key in the blue screen")
                     // After "Back to the openSUSE kernel" a restart starts that one
-                    : page.k.installed && !page.k.preferred ? L.tr("Installed, but the openSUSE kernel starts by default")
-                    : page.k.installed ? L.tr("Installed – restart the computer to start it")
+                    : page.k.phase === "not-preferred" ? L.tr("Installed, but the openSUSE kernel starts by default")
+                    : page.k.phase === "installed" ? L.tr("Installed – restart the computer to start it")
                     : ""
-            statusType: page.k.blocked ? SettingCard.Negative : page.k.running ? SettingCard.Positive : page.k.installed ? SettingCard.Neutral : SettingCard.Normal
+            statusType: page.k.phase === "blocked" ? SettingCard.Negative
+                        : page.k.phase === "running" ? SettingCard.Positive
+                        : !page.k.phase ? SettingCard.Normal : SettingCard.Neutral
             QQC2.Button {
                 visible: !page.k.installed
                 enabled: !backend.busy && !page.k.blocked
@@ -60,15 +60,16 @@ Kirigami.ScrollablePage {
         }
 
         SettingCard {
-            // Like kernel.stable(): not after "Back to the openSUSE kernel"
-            visible: page.k.running === true && page.k.preferred === true && page.k.defaultInstalled === true && !page.k.only
+            // The rule is kernel.stage2_state() in nazoos_common: not after
+            // "Back to the openSUSE kernel"
+            visible: !!page.k.stage2
             iconName: "edit-delete"
             title: L.tr("Remove the openSUSE kernel")
             subtitle: L.tr("Once the NazoOS kernel has started cleanly %1 times in a row, the openSUSE kernel can be removed. Updates then never install it again. Older NazoOS kernels and snapshots stay as fallback.").arg(page.k.stableBoots)
             status: L.tr("Clean starts in a row: %1 of %2").arg(Math.min(page.k.boots || 0, page.k.stableBoots)).arg(page.k.stableBoots)
-            statusType: (page.k.boots || 0) >= page.k.stableBoots ? SettingCard.Positive : SettingCard.Normal
+            statusType: page.k.stage2 === "ready" ? SettingCard.Positive : SettingCard.Normal
             QQC2.Button {
-                enabled: !backend.busy && (page.k.boots || 0) >= page.k.stableBoots
+                enabled: !backend.busy && page.k.stage2 === "ready"
                 text: L.tr("Remove")
                 icon.name: "edit-delete"
                 onClicked: page.app.confirm(

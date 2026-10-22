@@ -2,9 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Parsers of the welcome probes (lspci, lsblk, repo files, rpm -qa)."""
 
-from nazoos_welcome import catalog, probes, repair_checks
+import subprocess
 
-MARK = catalog.FSTAB_MARKER
+import pytest
+
+from nazoos_welcome import hw, probes, repair_checks, system
+
+MARK = hw.FSTAB_MARKER
 
 LSPCI = """\
 00:02.0 "Audio device [0403]" "Intel Corporation [8086]" "Tiger Lake HD Audio [a0c8]"
@@ -48,7 +52,7 @@ def test_parse_drives():
         dev("elsewhere", mounts=["/srv/x"]),
         dev("idle", "ntfs"),
     ]
-    result = probes.parse_drives(devs, fstab, "rootuuid")
+    result = hw.parse_drives(devs, fstab, "rootuuid")
     assert [d["uuid"] for d in result] == ["ours", "media1", "idle"]
     ours, auto, idle = result
     assert ours["managed"] and ours["mountpoint"] == "/mnt/Games"
@@ -56,10 +60,10 @@ def test_parse_drives():
     assert idle["mountpoint"] == "" and idle["size"] == "500.0 GB"
 
 
-STANDARD = [(r["url"], True) for r in catalog.STANDARD_REPOS]
-NAZOOS = ("https://download.opensuse.org" + catalog.NAZOOS_REPO_PATHS[1],
+STANDARD = [(r["url"], True) for r in system.STANDARD_REPOS]
+NAZOOS = ("https://download.opensuse.org" + system.NAZOOS_REPO_PATHS[1],
           True)
-SERVICES = {s["name"]: True for s in catalog.REPO_SERVICES}
+SERVICES = {s["name"]: True for s in system.REPO_SERVICES}
 
 
 def test_repo_problems_all_fine():
@@ -211,7 +215,7 @@ def test_session_state_asks_the_session_tool(monkeypatch):
                         asked.append(cmd) or "BOOT_MODE=gaming\nUSER=anna\n")
     monkeypatch.setattr(probes.os, "access", lambda *a: False)
     state = probes.session_state()
-    assert asked == [[catalog.SESSION_CTL, "status"]]
+    assert asked == [[system.SESSION_CTL, "status"]]
     assert state["bootGaming"] is True and state["user"] == "anna"
 
 
@@ -235,3 +239,14 @@ def test_restart_failed_without_units_does_not_wait(monkeypatch):
     monkeypatch.setattr(repair_checks.time, "sleep",
                         lambda s: 1 / 0)
     assert repair_checks.restart_failed(False, lambda cmd: 1 / 0) == []
+
+
+def test_user_unit_that_hangs_raises_timeout(monkeypatch):
+    from nazoos_welcome import user_actions
+
+    def hang(cmd, **kw):
+        raise subprocess.TimeoutExpired(cmd, kw["timeout"])
+
+    monkeypatch.setattr(user_actions.subprocess, "run", hang)
+    with pytest.raises(TimeoutError, match="psd.service: no answer"):
+        user_actions.set_user_unit("psd.service", True)

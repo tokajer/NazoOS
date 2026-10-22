@@ -4,7 +4,7 @@
 
 import xml.etree.ElementTree as ET
 
-from nazoos_common import grub, kernel, kernelstate
+from nazoos_common import grub, kernel, kernelstate, kmp_sync
 
 GRUB_CFG = """\
 ### BEGIN /etc/grub.d/10_linux ###
@@ -53,7 +53,7 @@ def test_kmp_rebuilds_finds_a_new_build_of_the_same_module():
                  "acpi_call-kmp-nazoos": {"1.2_k7.2.11_1-2.8"}}
     # Only the rebuild for the installed kernel version; the build for
     # the next kernel comes with the kernel update itself
-    assert kernel.rebuilds(xml, installed) == [
+    assert kmp_sync.rebuilds(xml, installed) == [
         "xone-kmp-nazoos = 0.3_k7.2.11_1-29.1"]
 
 

@@ -9,12 +9,10 @@ import re
 from pathlib import Path
 
 from nazoos_common import helper, proc, repos
-from nazoos_common.helper import (  # noqa: F401 (used by the actions)
-    FLATPAK, Fail, Passthrough, arg, say)
-from nazoos_common.zypper import (  # noqa: F401 (used by the actions)
-    ZYPPER, ZYPPER_IN, repo_has)
+from nazoos_common.helper import FLATPAK, Fail, say
+from nazoos_common.zypper import ZYPPER
 
-from .. import catalog
+from .. import system
 
 FLATHUB_URL = "https://dl.flathub.org/repo/flathub.flatpakrepo"
 RUN_DIR = Path("/run/nazoos-welcome")
@@ -87,7 +85,7 @@ def packman_switch(alias):
 
 def held_32bit(rpm_names):
     """Installed 32-bit packages of the Packman family, from rpm -qa."""
-    family = re.compile(catalog.PACKMAN_FAMILY)
+    family = re.compile(system.PACKMAN_FAMILY)
     return sorted({n for n in rpm_names.split()
                    if n.endswith("-32bit") and family.fullmatch(n)})
 

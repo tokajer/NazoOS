@@ -12,7 +12,7 @@ from nazoos_common.qt import ActionRunner, CoalescedLoad
 from PySide6.QtCore import Property, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 
-from . import autostart, catalog, probes, report, user_actions
+from . import autostart, catalog, hw, probes, report, user_actions
 
 # Cheap probes for the card an action changed: read right after it, the
 # full probes.collect() takes 15-20 s (zypper searches).
@@ -20,8 +20,8 @@ from . import autostart, catalog, probes, report, user_actions
 QUICK_PROBES = {
     "channel": ("channel", probes.update_channel),
     "session-boot-mode": ("session", probes.session_state),
-    "automount-add": ("drives", probes.drives),
-    "automount-remove": ("drives", probes.drives),
+    "automount-add": ("drives", hw.drives),
+    "automount-remove": ("drives", hw.drives),
 }
 
 # Apps the pages may start: desktop file patterns, then a fallback command
@@ -143,7 +143,7 @@ class Backend(ActionRunner):
         self._append(log)
         if with_system:
             # The system units follow, with the password dialog
-            self._launch("repair-units", [], None, None)
+            self._start_helper("repair-units", [], None, None)
         elif still:
             self._done("repair-units", False, self._gettext(
                 "These services still fail after a restart: %1")
@@ -171,9 +171,9 @@ class Backend(ActionRunner):
             print(f"nazoos-welcome: unknown action {action}", file=sys.stderr)
             return
         self._begin(action)
-        self._launch(action, args, stdin, on_success)
+        self._start_helper(action, args, stdin, on_success)
 
-    def _launch(self, action, args, stdin, on_success):
+    def _start_helper(self, action, args, stdin, on_success):
         # stdin only carries the MokManager password hash (runMok)
         self._set_retry(None if on_success else (
             action, list(args), stdin is not None))
@@ -237,17 +237,17 @@ class Backend(ActionRunner):
             return
         installed = self._state.get("services", {}).get(
             service_id, {}).get("installed", False)
-        if svc["user"]:
-            if installed or not on:
-                self._begin("service")
-                self._user_service(svc, on, lambda: self._done(
-                    "service", True, self._gettext("Done.")))
-                return
-            self._run("service", [service_id, "on" if on else "off"],
+        needs_root_install = on and not installed
+        if svc["user"] and not needs_root_install:
+            self._begin("service")
+            self._user_service(svc, on, lambda: self._done(
+                "service", True, self._gettext("Done.")))
+        elif svc["user"]:
+            self._run("service", [service_id, "on"],
                       on_success=lambda done: self._user_service(
                           svc, on, done))
-            return
-        self._run("service", [service_id, "on" if on else "off"])
+        else:
+            self._run("service", [service_id, "on" if on else "off"])
 
     @Slot(bool)
     def setAutostart(self, enabled):

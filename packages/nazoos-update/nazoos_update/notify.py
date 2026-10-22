@@ -114,7 +114,7 @@ def _item(key, title, body, action, page, icon="system-software-update",
             "command": command, "remind": remind}
 
 
-def pending(st, now, kernel_stable, has_welcome):
+def pending(st, now, stage2_ready, has_welcome):
     """The notifications that apply to status ST, as dicts for _send."""
     snap = st["snapshot"]
     if snap:
@@ -134,7 +134,7 @@ def pending(st, now, kernel_stable, has_welcome):
                              "computer to use them."),
                            _("Open"), "update", icon="system-reboot"))
 
-    if kernel_stable and has_welcome:
+    if stage2_ready and has_welcome:
         items.append(_item(
             "kernel-stable",
             _("NazoOS kernel runs stable"),
@@ -170,7 +170,7 @@ def pending(st, now, kernel_stable, has_welcome):
 
 
 def _pending_now():
-    return pending(status.collect(), int(time.time()), kernel.stable(),
+    return pending(status.collect(), int(time.time()), kernel.stage2_due(),
                    shutil.which("nazoos-welcome") is not None)
 
 

@@ -9,8 +9,10 @@ import sys
 from pathlib import Path
 
 from nazoos_common import helper, kernel, kernelstate, mok, proc
+from nazoos_common.helper import Fail, say
+from nazoos_common.zypper import ZYPPER_IN
 
-from .base import ZYPPER_IN, RUN_DIR, Fail, say
+from .base import RUN_DIR
 
 # The GUI sends the SHA-512 crypt hash (openssl passwd -6) of the
 # password the user picked for MokManager on stdin, never the password

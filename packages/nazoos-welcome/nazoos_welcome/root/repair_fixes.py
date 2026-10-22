@@ -10,18 +10,19 @@ from pathlib import Path
 
 from nazoos_common import helper, kernel, proc, repos
 from nazoos_common.grub import grub_refresh
+from nazoos_common.helper import Fail, say
+from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 
-from .. import catalog, repair_checks
+from .. import catalog, repair_checks, system
 from . import maintenance
-from .base import (ZYPPER, ZYPPER_IN, Fail, enable_repo, flathub_ensure,
-                   packman_switch, say)
+from .base import enable_repo, flathub_ensure, packman_switch
 
 
 def repair_repos(_args):
     # The repos belong to zypp services (ADR 0028): restore the service,
     # refresh-services adds its removed repos again but keeps disabled ones
     # disabled, so those are switched on afterwards
-    for svc in catalog.REPO_SERVICES:
+    for svc in system.REPO_SERVICES:
         if not Path(svc["dir"], "repo", "repoindex.xml").exists():
             # Package removed or damaged; its %posttrans adds the service
             helper.run(ZYPPER + ["--gpg-auto-import-keys", "--plus-repo",
@@ -34,13 +35,13 @@ def repair_repos(_args):
             helper.run(ZYPPER + ["modifyservice", "--enable", "--refresh",
                           svc["name"]])
     helper.run(ZYPPER + ["refresh-services"])
-    paths = [repos.url_path(r["url"]) for r in catalog.STANDARD_REPOS]
-    for path in paths + catalog.NAZOOS_REPO_PATHS:
+    paths = [repos.url_path(r["url"]) for r in system.STANDARD_REPOS]
+    for path in paths + system.NAZOOS_REPO_PATHS:
         alias = repos.with_path(path)
         if alias is not None:
             helper.run(ZYPPER + ["modifyrepo", "--enable", "--refresh",
                                  alias])
-    missing = [r["alias"] for r in catalog.STANDARD_REPOS
+    missing = [r["alias"] for r in system.STANDARD_REPOS
                if repos.with_path(repos.url_path(r["url"])) is None]
     if missing:
         raise Fail("still missing after restoring the services: {repos}",

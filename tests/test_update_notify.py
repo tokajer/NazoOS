@@ -35,7 +35,7 @@ def test_reboot_key_uses_updated():
     assert keys(state(needs_reboot=True, updated=77)) == ["reboot-77"]
 
 
-def test_kernel_stable_needs_both_flags():
+def test_stage2_ready_needs_both_flags():
     assert keys(state(), True, False) == []
     assert keys(state(), False, True) == []
     item = notify.pending(state(), NOW, True, True)[0]

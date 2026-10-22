@@ -287,7 +287,7 @@ def test_coalesced_load_starts_the_queued_load_after_a_raising_handler(app):
     from nazoos_common.qt import ActionRunner, CoalescedLoad
 
     runner = ActionRunner("h", lambda s: s, {}, {})
-    results = []
+    results, after = [], []
 
     def done(result):
         results.append(result)
@@ -306,10 +306,12 @@ def test_coalesced_load_starts_the_queued_load_after_a_raising_handler(app):
 
     runner._call.connect(call)
     loader = CoalescedLoad(runner, lambda: len(results), done, done)
-    loader.request()
+    loader.request(lambda: after.append("ran"))
     loader.request()
     wait(app, lambda: not loader.running and len(results) == 2)
     assert len(errors) == 1 and not loader.pending
+    # The callback of the first request runs although its handler raised
+    assert after == ["ran"]
 
 
 def test_update_refresh_survives_a_broken_collect(app, monkeypatch):

@@ -15,7 +15,7 @@ from pathlib import Path
 
 from nazoos_common import proc, repos
 
-from . import catalog, probes
+from . import catalog, hw, probes, system
 
 # Failed units the repair page ignores: known harmless upstream issues.
 # drkonqi-coredump-pickup (drkonqi6 6.7): RuntimeMaxSec=30min, ends with
@@ -60,12 +60,12 @@ def repo_problems(repo_list, services):
     for url, enabled in repo_list:
         path = repos.url_path(url)
         found[path] = found.get(path, False) or enabled
-    bad = [s["name"] for s in catalog.REPO_SERVICES
+    bad = [s["name"] for s in system.REPO_SERVICES
            if not services.get(s["name"])]
-    for repo in catalog.STANDARD_REPOS:
+    for repo in system.STANDARD_REPOS:
         if found.get(repos.url_path(repo["url"])) is not True:
             bad.append(repo["alias"])
-    if (not any(found.get(p) for p in catalog.NAZOOS_REPO_PATHS)
+    if (not any(found.get(p) for p in system.NAZOOS_REPO_PATHS)
             and "nazoos" not in bad):
         bad.append("nazoos")
     return bad
@@ -96,7 +96,7 @@ def mixed_packman(rpm_qa_text):
     """Names of the openSUSE builds in the "NAME<tab>VENDOR" lines, if at
     least one package of the family with the same word size comes from
     Packman (packman_switch() may keep all 32-bit ones at openSUSE)."""
-    family = re.compile(catalog.PACKMAN_FAMILY)
+    family = re.compile(system.PACKMAN_FAMILY)
     # Per word size: names from Packman, names from openSUSE
     packman = {"64": [], "32": []}
     opensuse = {"64": [], "32": []}
@@ -159,7 +159,7 @@ def low_space():
     total = st.f_blocks * st.f_frsize
     limit = max(SPACE_MIN_GB * 1000 ** 3,
                 total * SPACE_MIN_PERCENT / 100)
-    return probes.human_size(free) if free < limit else None
+    return hw.human_size(free) if free < limit else None
 
 
 def flathub_missing():

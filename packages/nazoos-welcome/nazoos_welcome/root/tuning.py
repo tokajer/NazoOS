@@ -7,13 +7,13 @@ from pathlib import Path
 
 from nazoos_common import helper, proc
 from nazoos_common.grub import cmdline_set
-from nazoos_common.helper import write_atomic
+from nazoos_common.helper import Fail, arg, say, write_atomic
 from nazoos_common.shellconf import set_var
+from nazoos_common.zypper import ZYPPER_IN
 
-from .. import catalog, probes
+from .. import catalog, hw
 from ..pollrate import (INTERVALS, MAXLEN, PARAM, SYSFS, format_overrides,
                         from_cmdline)
-from .base import ZYPPER_IN, Fail, arg, say
 
 SCX_DEFAULT = Path("/etc/default/scx")
 
@@ -55,7 +55,7 @@ def pollrate(args):
     if not re.fullmatch(r"[0-9a-f]{4}:[0-9a-f]{4}", vidpid):
         raise Fail("invalid device id")
     ms = int(arg(args, 1, [str(i) for i in INTERVALS]))
-    connected = vidpid in {d["id"] for d in probes.usb_input_devices()}
+    connected = vidpid in {d["id"] for d in hw.usb_input_devices()}
     value = ""
 
     def change(options):

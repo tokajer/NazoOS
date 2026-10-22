@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 22 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Requires nazoos-common API 7.
+- The update check log also shows zypper's error output.
+
+-------------------------------------------------------------------
 Thu Oct 22 16:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Requires nazoos-common API 6; status reloads share one implementation.

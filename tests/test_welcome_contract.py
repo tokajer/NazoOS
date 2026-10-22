@@ -72,3 +72,57 @@ def test_every_page_file_in_main_qml_exists():
     assert files
     for f in files:
         assert (WELCOME / "qml/pages" / f).is_file(), f
+
+
+def _qml_text():
+    return "\n".join(f.read_text() for f in (WELCOME / "qml").rglob("*.qml"))
+
+
+def _ids(text, fn):
+    """Literal ids of fn("id", ...) and fn(cond ? "a" : "b", ...) calls."""
+    ids = set(re.findall(rf'{fn}\("([a-z0-9-]+)"', text))
+    for pair in re.findall(
+            rf'{fn}\([^,\[)]*\?\s*"([a-z0-9-]+)"\s*:\s*"([a-z0-9-]+)"', text):
+        ids.update(pair)
+    return ids
+
+
+def test_every_action_id_in_the_qml_is_a_root_action():
+    ids = _ids(_qml_text(), "runAction") | _ids(_qml_text(), "askMok")
+    assert len(ids) > 5   # the regex still finds something
+    assert ids <= set(ACTIONS)
+
+
+def test_every_launcher_id_in_the_qml_exists():
+    pytest.importorskip("PySide6")
+    from nazoos_welcome import backend
+
+    ids = _ids(_qml_text(), r"backend\.launch")
+    assert ids
+    assert ids <= set(backend.LAUNCHERS)
+
+
+def test_kernel_page_phases_are_produced_by_the_probe():
+    page = (WELCOME / "qml/pages/KernelPage.qml").read_text()
+    used = set(re.findall(r'k\.phase === "([a-z-]+)"', page))
+    assert used == {"blocked", "running", "key-missing", "key-pending",
+                    "not-preferred", "installed"}
+    base = dict(blocked=False, running=False, installed=True,
+                secureBoot=False, mok="", preferred=True)
+    cases = [
+        dict(blocked=True), dict(running=True),
+        dict(secureBoot=True, mok="missing"),
+        dict(secureBoot=True, mok="pending"),
+        dict(preferred=False), {},
+    ]
+    assert {probes.kernel_phase({**base, **c}) for c in cases} >= used
+
+
+def test_kernel_page_stage2_values_are_produced_by_kernel():
+    from nazoos_common import kernel
+
+    page = (WELCOME / "qml/pages/KernelPage.qml").read_text()
+    used = set(re.findall(r'k\.stage2 === "([a-z]+)"', page))
+    assert used and used <= {"ready", "waiting"}
+    made = {kernel.stage2_state(True, n, True, False) for n in (0, 99)}
+    assert made == {"ready", "waiting"}

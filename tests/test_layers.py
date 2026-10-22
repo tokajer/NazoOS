@@ -14,6 +14,7 @@ import nazoos_welcome.root, nazoos_update.root, nazoos_welcome.probes
 import nazoos_welcome.repair_checks, nazoos_welcome.user_actions
 import nazoos_welcome.report
 import nazoos_common.launcher, nazoos_common.shellconf
+import nazoos_common.kmp_sync, nazoos_welcome.hw, nazoos_welcome.system
 import sys
 assert not any(m.startswith("PySide6") for m in sys.modules)
 """

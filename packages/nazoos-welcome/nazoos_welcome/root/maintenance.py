@@ -6,9 +6,10 @@ import os
 from pathlib import Path
 
 from nazoos_common import helper, proc, repos
+from nazoos_common.helper import FLATPAK, Fail, Passthrough, arg
+from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 
-from .. import catalog
-from .base import (FLATPAK, ZYPPER, ZYPPER_IN, Fail, Passthrough, arg)
+from .. import catalog, system
 
 # Root part of nazoos-update: one update path for both apps
 UPDATE_HELPER = "/usr/libexec/nazoos-update/nazoos-update-helper"
@@ -74,8 +75,8 @@ def channel(args):
     packages to the new channel's versions, also downwards (beta →
     stable); Tumbleweed and the kernel repo stay untouched.
     """
-    target = arg(args, 0, catalog.CHANNEL_REPO_PATHS)
-    link = Path(catalog.CHANNEL_LINK)
+    target = arg(args, 0, system.CHANNEL_REPO_PATHS)
+    link = Path(system.CHANNEL_LINK)
     if not link.parent.is_dir():
         raise Fail("nazoos-repos is not installed")
     # Before the link changes: the zypper snapshot alone would already
@@ -86,7 +87,7 @@ def channel(args):
     tmp.symlink_to(f"nazoos-{target}-repoindex.xml")
     os.replace(tmp, link)
     helper.run(ZYPPER + ["refresh-services"])
-    alias = repos.with_path(catalog.CHANNEL_REPO_PATHS[target])
+    alias = repos.with_path(system.CHANNEL_REPO_PATHS[target])
     if alias is None:
         raise Fail("the {channel} repository did not appear after "
                    "refreshing the services", channel=target)

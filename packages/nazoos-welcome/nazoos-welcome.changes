@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Oct 22 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Requires nazoos-common API 7.
+- Removing the openSUSE kernel is refused by the helper before 3 clean starts.
+- Switching a user service gives up after 60 seconds instead of keeping the window busy.
+- Kernel card texts come from one state value.
+
+-------------------------------------------------------------------
 Thu Oct 22 16:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - System update needs nazoos-update; the button is hidden without it.

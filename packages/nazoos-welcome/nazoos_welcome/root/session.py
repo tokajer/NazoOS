@@ -5,19 +5,20 @@
 from pathlib import Path
 
 from nazoos_common import helper
+from nazoos_common.helper import Fail, arg
 
-from .. import catalog
-from .base import Fail, arg, caller
+from .. import system
+from .base import caller
 
 
 def session_boot_mode(args):
     """Start in Steam's gaming mode (autologin of the calling user) or
     with the normal login screen (nazoos-session-ctl)."""
     mode = arg(args, 0, ("gaming", "desktop"))
-    if not Path(catalog.SESSION_CTL).exists():
+    if not Path(system.SESSION_CTL).exists():
         raise Fail("gaming mode is not installed (nazoos-session)")
     if mode == "gaming":
-        helper.run([catalog.SESSION_CTL, "boot-mode", "gaming",
+        helper.run([system.SESSION_CTL, "boot-mode", "gaming",
                     caller()[1]])
     else:
-        helper.run([catalog.SESSION_CTL, "boot-mode", "desktop"])
+        helper.run([system.SESSION_CTL, "boot-mode", "desktop"])

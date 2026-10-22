@@ -5,13 +5,12 @@ belong to them.
 
 The GUIs only read here; the root helpers and nazoos-kernel-boot write.
 Boot menu and command line: grub, state files: kernelstate, Secure Boot
-key: mok. No Qt imports here.
+key: mok, module sync as root: kmp_sync. No Qt imports here.
 """
 
 import os
-import xml.etree.ElementTree as ET
 
-from . import grub, helper, kernelstate, proc, repos, zypper
+from . import grub, kernelstate, proc, repos
 
 # NazoOS kernel (ADR 0007/0008). Opt-in: the repo is added on install.
 # Stage 1 installs kernel-nazoos next to kernel-default, stage 2 removes
@@ -51,15 +50,28 @@ def wanted_kmps():
             if proc.rpm_installed(kmp(b, "default"))]
 
 
-def stable():
-    """kernel-nazoos started cleanly STABLE_BOOTS times in a row and the
-    openSUSE kernel is still installed: time to offer stage 2."""
+def stage2_state(preferred, boots, default_installed, only):
+    """Removing kernel-default (stage 2): "" (not offered: the user went
+    back to the openSUSE kernel, or it is gone already), "waiting" (fewer
+    than STABLE_BOOTS clean boots) or "ready"."""
+    if not (preferred and default_installed and not only):
+        return ""
+    return "ready" if boots >= kernelstate.STABLE_BOOTS else "waiting"
+
+
+def stage2_now():
+    """stage2_state() of this system. rpm is only asked while the user
+    prefers kernel-nazoos (the notifier calls this every hour)."""
     if not kernelstate.PREFER.exists():
-        return False
-    if kernelstate.read_boots().get("count", 0) < kernelstate.STABLE_BOOTS:
-        return False
-    return (proc.rpm_installed(KERNEL_DEFAULT)
-            and not proc.rpm_installed(KERNEL_ONLY_PACKAGE))
+        return ""
+    return stage2_state(True, kernelstate.read_boots().get("count", 0),
+                        proc.rpm_installed(KERNEL_DEFAULT),
+                        proc.rpm_installed(KERNEL_ONLY_PACKAGE))
+
+
+def stage2_due():
+    """Stage 2 can be offered now (notification)."""
+    return stage2_now() == "ready"
 
 
 def keep_default(log=print):
@@ -82,79 +94,3 @@ def keep_default(log=print):
 def kernel_repo():
     """Alias of the NazoOS kernel repository, None if not configured."""
     return repos.with_url(KERNEL_REPO_PATH)
-
-
-def sync_modules():
-    """Kernel modules for kernel-nazoos that came after it was installed.
-
-    Run by nazoos-update after "zypper dup", which only updates installed
-    packages: a new KMP_NAZOOS_ONLY module (acpi_call), or a driver
-    installed for kernel-default later (xone after kernel-nazoos), would
-    never arrive. Only takes what the kernel repo has: a module that does
-    not build right now is skipped and the update goes on (no hard
-    Requires, kernel and packages stay separate).
-    """
-    if not proc.rpm_installed(KERNEL_PACKAGE):
-        return
-    alias = kernel_repo()
-    if alias is None:
-        helper.say("Note: the NazoOS kernel repository is missing, kernel "
-                   "modules are not checked")
-        return
-    wanted = wanted_kmps()
-    wanted += [kmp(b, "nazoos") for b in KMP_NAZOOS_ONLY]
-    new = [p for p in wanted
-           if not proc.rpm_installed(p) and zypper.repo_has(alias, p)]
-    if new:
-        helper.run(zypper.ZYPPER_IN + new)
-    swap_rebuilds(alias, wanted)
-
-
-def swap_rebuilds(alias, names):
-    """Replace installed modules of NAMES that the repo has in a newer
-    build for the same kernel version."""
-    rebuilt = kmp_rebuilds(alias, names)
-    if rebuilt:
-        # KMPs are multiversion and conflict per kernel version: zypper
-        # dup keeps the old build of a module rebuilt for the same kernel
-        # forever. With the exact edition named, the only conflict to
-        # resolve is the old build itself (VM 2026-10-19)
-        helper.run(zypper.ZYPPER_IN + ["--force-resolution"] + rebuilt)
-
-
-def kmp_rebuilds(alias, names):
-    """"name = edition" of repo builds of installed NAMES for a kernel
-    version that is installed in another build (OBS rebuilt the module
-    without a kernel update)."""
-    installed = {}
-    query = ["rpm", "-q", "--qf", "%{NAME} %{VERSION}-%{RELEASE}\n"]
-    for line in helper.output(query + names).splitlines():
-        parts = line.split()
-        if len(parts) == 2:
-            installed.setdefault(parts[0], set()).add(parts[1])
-    if not installed:
-        return []
-    try:
-        root = ET.fromstring(helper.output(
-            zypper.ZYPPER + ["--xmlout", "search", "--details",
-                             "--match-exact", "--type", "package",
-                             "--repo", alias] + sorted(installed)))
-    except ET.ParseError:
-        return []
-    return rebuilds(root, installed)
-
-
-def rebuilds(root, installed):
-    """"name = edition" of solvables in the zypper search XML ROOT that
-    are another build of an installed {name: {version-release}}."""
-    result = []
-    for s in root.iter("solvable"):
-        name, edition = s.get("name"), s.get("edition") or ""
-        # VERSION ends with the kernel version (_k7.2.11_1), RELEASE is
-        # the OBS build counter
-        version = edition.rsplit("-", 1)[0]
-        builds = installed.get(name, set())
-        if (edition not in builds
-                and any(b.rsplit("-", 1)[0] == version for b in builds)):
-            result.append(f"{name} = {edition}")
-    return result

@@ -313,9 +313,11 @@ class CoalescedLoad:
     def _finish(self, callbacks, handler, value):
         self.running = False
         try:
-            handler(value)
-            for callback in callbacks:
-                callback()
+            try:
+                handler(value)
+            finally:
+                for callback in callbacks:
+                    callback()
         finally:
             if self.pending:
                 self._start()

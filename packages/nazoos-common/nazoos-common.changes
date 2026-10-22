@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 22 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- API 7: kernel module sync in kmp_sync, one stage-2 rule (stage2_state/stage2_now) for the apps.
+- Reload callbacks run even when the state handler fails.
+
+-------------------------------------------------------------------
 Thu Oct 22 16:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - API 6: launchers and shell-style config helpers in their own modules,
