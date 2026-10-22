@@ -76,3 +76,8 @@ def test_keep_default(monkeypatch, tmp_path):
     prefer.touch()
     assert kernel.keep_default() == "nazoos"
     assert flavors == ["default", "nazoos"]
+
+
+def test_wanted_kmps_follow_the_default_modules(fake_root):
+    fake_root.installed = {"xone-kmp-default", "xpadneo-kmp-default"}
+    assert kernel.wanted_kmps() == ["xone-kmp-nazoos", "xpadneo-kmp-nazoos"]

@@ -7,7 +7,7 @@ import subprocess
 
 import pytest
 
-from nazoos_common import grub, helper, kernel, kernelstate, mok, repos
+from nazoos_common import grub, helper, kernel, kernelstate, mok, repos, shellconf
 
 FPR = "SHA1 Fingerprint=AB:CD:EF:01\n"
 
@@ -106,31 +106,52 @@ def test_restart_clears_needs_reboot(monkeypatch, updated, expected):
 
 def test_set_var_adds_replaces_and_removes():
     text = 'GRUB_TIMEOUT=8\nGRUB_DEFAULT=0\n'
-    text = helper.set_var(text, "GRUB_DEFAULT", "saved")
+    text = shellconf.set_var(text, "GRUB_DEFAULT", "saved")
     assert text == 'GRUB_TIMEOUT=8\nGRUB_DEFAULT=saved\n'
-    text = helper.set_var(text, "GRUB_TOP_LEVEL", '"/boot/vmlinuz-x"')
+    text = shellconf.set_var(text, "GRUB_TOP_LEVEL", '"/boot/vmlinuz-x"')
     assert text.endswith('GRUB_TOP_LEVEL="/boot/vmlinuz-x"\n')
-    text = helper.set_var(text, "GRUB_TOP_LEVEL", None)
+    text = shellconf.set_var(text, "GRUB_TOP_LEVEL", None)
     assert text == 'GRUB_TIMEOUT=8\nGRUB_DEFAULT=saved\n'
     # Removing a missing variable changes nothing
-    assert helper.set_var(text, "GRUB_TOP_LEVEL", None) == text
+    assert shellconf.set_var(text, "GRUB_TOP_LEVEL", None) == text
 
 
 def test_set_var_appends_after_a_missing_trailing_newline():
-    assert helper.set_var("A=1", "B", "2") == "A=1\nB=2\n"
-    assert helper.set_var("", "B", "2") == "B=2\n"
+    assert shellconf.set_var("A=1", "B", "2") == "A=1\nB=2\n"
+    assert shellconf.set_var("", "B", "2") == "B=2\n"
 
 
 def test_set_var_keeps_backslashes_and_escapes_the_name():
-    assert helper.set_var("A=1\n", "A", r"x\ny") == "A=x\\ny\n"
+    assert shellconf.set_var("A=1\n", "A", r"x\ny") == "A=x\\ny\n"
     # "." in the name is not a wildcard
-    assert helper.set_var("AxB=1\n", "A.B", "2") == "AxB=1\nA.B=2\n"
+    assert shellconf.set_var("AxB=1\n", "A.B", "2") == "AxB=1\nA.B=2\n"
 
 
 def test_set_var_only_matches_whole_names_at_line_start():
     text = '#GRUB_DEFAULT=0\nGRUB_DEFAULT_X=1\n'
-    assert helper.set_var(text, "GRUB_DEFAULT", "saved") == \
+    assert shellconf.set_var(text, "GRUB_DEFAULT", "saved") == \
         text + "GRUB_DEFAULT=saved\n"
+
+
+def test_get_var_reads_the_last_value_without_quotes():
+    text = 'A=1\n# B=no\n B = "two"\nB=three\nBB=x\n'
+    assert shellconf.get_var(text, "A") == "1"
+    assert shellconf.get_var(text, "B") == "three"
+    assert shellconf.get_var('B="two"\n', "B") == "two"
+    assert shellconf.get_var(text, "MISSING") == ""
+    assert shellconf.get_var("A.B=1\n", "AxB") == ""
+
+
+def test_get_var_is_tolerant_like_the_shell_would_be():
+    get = shellconf.get_var
+    assert get('A=1 # why\n', "A") == "1"
+    assert get("A='x y'\n", "A") == "x y"
+    assert get('A="x y" # why\n', "A") == "x y"
+    assert get('A="x"  \t\n', "A") == "x"
+    assert get('A="x"\r\nB=2\r\n', "A") == "x"
+    assert get('A=2\r\n', "A") == "2"
+    assert get('A=1\nA=2\n', "A") == "2"
+    assert get("B=1\n", "A") == ""
 
 
 @pytest.fixture

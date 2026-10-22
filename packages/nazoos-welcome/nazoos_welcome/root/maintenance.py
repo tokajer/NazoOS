@@ -32,17 +32,13 @@ def system_update(_args):
     # Tumbleweed snapshot (would only downgrade), boot menu names for the
     # snapshots, restart hint, its status file. A plain dup here
     # downgraded a fresh install (VM 2026-10-12)
-    if os.access(UPDATE_HELPER, os.X_OK):
-        rc = helper.run([UPDATE_HELPER, "update"], check=False)
-        if rc:
-            # Its own "@@error <reason>" line is already out: no second,
-            # vaguer one on top
-            raise Passthrough(rc)
-        return
-    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
-    helper.run(ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses"])
-    if proc.has("flatpak"):
-        helper.run(FLATPAK + ["update", "--noninteractive", "-y"])
+    if not os.access(UPDATE_HELPER, os.X_OK):
+        raise Fail("nazoos-update is not installed")
+    rc = helper.run([UPDATE_HELPER, "update"], check=False)
+    if rc:
+        # Its own "@@error <reason>" line is already out: no second,
+        # vaguer one on top
+        raise Passthrough(rc)
 
 
 def repo_refresh(_args):

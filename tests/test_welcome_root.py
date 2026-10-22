@@ -59,7 +59,7 @@ def test_kernel_install_leaves_installed_modules_to_the_swap(monkeypatch,
     installed = {"xone-kmp-default", "xone-kmp-nazoos"}
     calls, swapped = [], []
     monkeypatch.setattr(proc, "rpm_installed", lambda p: p in installed)
-    monkeypatch.setattr(ks.kernel, "kernel_repo", lambda: "nazoos-kernel")
+    monkeypatch.setattr(base.repos, "repos", lambda: [])
     monkeypatch.setattr(ks, "repo_has", lambda alias, p: True)
     monkeypatch.setattr(ks, "prepare_mok", lambda alias, pkgs: False)
     monkeypatch.setattr(helper, "run", lambda cmd, **kw: calls.append(cmd))
@@ -76,6 +76,81 @@ def test_kernel_install_leaves_installed_modules_to_the_swap(monkeypatch,
     assert "xone-kmp-nazoos" not in zypper_in
     assert ks.kernel.KERNEL_PACKAGE in zypper_in
     assert "xone-kmp-nazoos" in swapped
+
+
+def kernel_env(fake_root, monkeypatch, tmp_path, repos=()):
+    ks = kernel_switch
+    monkeypatch.setattr(base.repos, "repos", lambda: list(repos))
+    monkeypatch.setattr(ks, "repo_has", lambda alias, p: True)
+    monkeypatch.setattr(ks, "prepare_mok", lambda alias, pkgs: False)
+    monkeypatch.setattr(ks, "say", lambda text: None)
+    monkeypatch.setattr(ks.grub, "ensure_grub_default", lambda say: True)
+    monkeypatch.setattr(ks.kernelstate, "STATE", tmp_path)
+    monkeypatch.setattr(ks.kernelstate, "PREFER", tmp_path / "prefer")
+    monkeypatch.setattr(ks.kernelstate, "write_boots", lambda data: None)
+    return ks
+
+
+def zypper_words(fake_root, *words):
+    return [c for c in fake_root.calls if all(w in c for w in words)]
+
+
+def test_kernel_install_removes_its_repo_again_on_failure(fake_root,
+                                                          monkeypatch,
+                                                          tmp_path):
+    ks = kernel_env(fake_root, monkeypatch, tmp_path)
+    fake_root.rc = {"install": 4}
+    with pytest.raises(ks.Fail):
+        ks.kernel_install([])
+    assert zypper_words(fake_root, "removerepo", ks.kernel.KERNEL_REPO_ALIAS)
+
+
+def test_kernel_install_keeps_its_repo_when_the_kernel_is_installed(
+        fake_root, monkeypatch, tmp_path):
+    ks = kernel_env(fake_root, monkeypatch, tmp_path)
+    fake_root.rc = {"install": 4}
+    fake_root.installed = {ks.kernel.KERNEL_PACKAGE}
+    with pytest.raises(ks.Fail):
+        ks.kernel_install([])
+    assert not zypper_words(fake_root, "removerepo")
+
+
+def disabled_kernel_repo(ks):
+    return [("kernel-repo", ks.kernel.KERNEL_REPO_URL, False)]
+
+
+def test_kernel_install_switches_a_disabled_repo_off_again(fake_root,
+                                                           monkeypatch,
+                                                           tmp_path):
+    ks = kernel_env(fake_root, monkeypatch, tmp_path)
+    monkeypatch.setattr(base.repos, "repos",
+                        lambda: disabled_kernel_repo(ks))
+    fake_root.rc = {"install": 4}
+    with pytest.raises(ks.Fail):
+        ks.kernel_install([])
+    assert zypper_words(fake_root, "modifyrepo", "--enable", "kernel-repo")
+    assert zypper_words(fake_root, "modifyrepo", "--disable", "kernel-repo")
+    assert not zypper_words(fake_root, "removerepo")
+
+
+def test_kernel_install_success_keeps_the_repo(fake_root, monkeypatch,
+                                               tmp_path):
+    ks = kernel_env(fake_root, monkeypatch, tmp_path)
+    monkeypatch.setattr(base.repos, "repos",
+                        lambda: disabled_kernel_repo(ks))
+    ks.kernel_install([])
+    assert zypper_words(fake_root, "modifyrepo", "--enable", "kernel-repo")
+    assert not zypper_words(fake_root, "removerepo")
+    assert not zypper_words(fake_root, "modifyrepo", "--disable")
+
+
+def test_system_update_needs_nazoos_update(monkeypatch):
+    monkeypatch.setattr(maintenance.os, "access", lambda *a: False)
+    ran = []
+    monkeypatch.setattr(helper, "run", lambda *a, **k: ran.append(a))
+    with pytest.raises(maintenance.Fail, match="nazoos-update is not"):
+        maintenance.system_update([])
+    assert not ran
 
 
 FSTAB_TEXT = "UUID=root / btrfs defaults 0 0\n"

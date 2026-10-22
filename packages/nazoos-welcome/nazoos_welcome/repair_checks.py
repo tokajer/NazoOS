@@ -10,6 +10,7 @@ the user live in RepairPage.qml, keyed by the finding id.
 import os
 import platform
 import re
+import time
 from pathlib import Path
 
 from nazoos_common import proc, repos
@@ -127,6 +128,26 @@ def failed_units(user=False):
                 "--no-legend"]).splitlines() if line.strip()]
     return [u for u in units if u not in IGNORED_UNITS
             and not re.fullmatch(IGNORED_UNIT_PATTERN, u)]
+
+
+def restart_failed(user, run):
+    """Restart the failed units, wait, reset-failed the ones that recovered.
+    RUN(cmd) runs one systemctl command. Returns the units still failing."""
+    base = ["systemctl", "--user"] if user else ["systemctl"]
+    units = failed_units(user)
+    for unit in units:
+        if unit.endswith((".service", ".mount", ".socket")):
+            run(base + ["restart", unit])
+    if not units:
+        return []
+    # Check only after a moment, and never reset-failed before: that
+    # hid units that fail again right after the restart
+    time.sleep(UNIT_SETTLE_SECONDS)
+    still = failed_units(user)
+    fixed = [u for u in units if u not in still]
+    if fixed:
+        run(base + ["reset-failed"] + fixed)
+    return still
 
 
 def low_space():

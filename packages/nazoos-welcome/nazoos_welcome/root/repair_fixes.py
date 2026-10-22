@@ -6,7 +6,6 @@ Every action finds the broken parts itself; the caller only picks the action.
 """
 
 import os
-import time
 from pathlib import Path
 
 from nazoos_common import helper, kernel, proc, repos
@@ -94,19 +93,8 @@ def repair_nvidia(_args):
 
 
 def repair_units(_args):
-    units = repair_checks.failed_units()
-    for unit in units:
-        if unit.endswith((".service", ".mount", ".socket")):
-            helper.run(["systemctl", "restart", unit], check=False)
-    if not units:
-        return
-    # Check only after a moment, and never reset-failed before: that
-    # hid units that fail again right after the restart
-    time.sleep(repair_checks.UNIT_SETTLE_SECONDS)
-    still = repair_checks.failed_units()
-    fixed = [u for u in units if u not in still]
-    if fixed:
-        helper.run(["systemctl", "reset-failed"] + fixed)
+    still = repair_checks.restart_failed(
+        False, lambda cmd: helper.run(cmd, check=False))
     if still:
         raise Fail("still failing: {units}", units=", ".join(still))
 

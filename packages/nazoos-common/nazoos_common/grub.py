@@ -8,7 +8,7 @@ Root writes, the GUIs read. No Qt imports here.
 import re
 from pathlib import Path
 
-from . import helper
+from . import helper, shellconf
 
 GRUB_CFG = Path("/boot/grub2/grub.cfg")
 GRUB_DEFAULT_FILE = Path("/etc/default/grub")
@@ -81,8 +81,8 @@ def ensure_grub_default(log=print, flavor="nazoos"):
     if not path:
         log(f"no kernel-{flavor} in /boot")
         return False
-    changed = update_grub_default(lambda t: helper.set_var(
-        helper.set_var(t, "GRUB_DEFAULT", "saved"), "GRUB_TOP_LEVEL", f'"{path}"'))
+    changed = update_grub_default(lambda t: shellconf.set_var(
+        shellconf.set_var(t, "GRUB_DEFAULT", "saved"), "GRUB_TOP_LEVEL", f'"{path}"'))
     try:
         cfg = GRUB_CFG.read_text(errors="replace")
     except OSError:
@@ -103,7 +103,7 @@ def ensure_grub_default(log=print, flavor="nazoos"):
 
 def clear_grub_top_level(log=print):
     """Root only: back to the openSUSE behaviour (kernel-nazoos removed)."""
-    if update_grub_default(lambda t: helper.set_var(t, "GRUB_TOP_LEVEL", None)):
+    if update_grub_default(lambda t: shellconf.set_var(t, "GRUB_TOP_LEVEL", None)):
         log("boot menu: openSUSE default order")
         helper.run(["grub2-mkconfig", "-o", str(GRUB_CFG)])
     helper.run(["grub2-set-default", "0"])

@@ -8,7 +8,7 @@ import os
 from nazoos_common import grub, helper, kernel, kernelstate, proc
 from nazoos_common.kernel import running_nazoos
 
-from .base import (ZYPPER, ZYPPER_IN, Fail, repo_has, say)
+from .base import ZYPPER, ZYPPER_IN, Fail, repo_has, repo_in_use, say
 from .mok_queue import MOK_RESTART, prepare_mok
 
 EFIVARS = "/sys/firmware/efi/efivars"
@@ -20,8 +20,7 @@ def nazoos_kmps(alias):
     kernel-nazoos has."""
     # Check first that our kernel project builds them: without its NVIDIA
     # module kernel-nazoos would start without graphics driver
-    kmps = [kernel.kmp(b, "nazoos") for b in kernel.KMP_BASES
-            if proc.rpm_installed(kernel.kmp(b, "default"))]
+    kmps = kernel.wanted_kmps()
     missing = [p for p in kmps if not repo_has(alias, p)]
     gpu = [p for p in missing if p.startswith("nvidia-")]
     if gpu:
@@ -45,20 +44,21 @@ def kernel_install(_args):
     if blockers:
         raise Fail("the closed NVIDIA driver (G06) only exists for the "
                    "openSUSE kernel; switch to the open driver first")
-    alias = kernel.kernel_repo()
-    if alias is None:
-        alias = kernel.KERNEL_REPO_ALIAS
-        helper.run(ZYPPER + ["addrepo", "--refresh", "--priority", "90",
-                      kernel.KERNEL_REPO_URL, alias])
-    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
-    pkgs = [kernel.KERNEL_PACKAGE] + nazoos_kmps(alias)
-    queued = prepare_mok(alias, pkgs)
-    # Modules left from an earlier install stay out of "zypper in": a
-    # newer build of them for the same kernel conflicts with the old one
-    # and ends zypper with 4 (VM 2026-10-19); they are swapped below
-    helper.run(ZYPPER_IN + [p for p in pkgs
-                     if p == kernel.KERNEL_PACKAGE or not proc.rpm_installed(p)])
-    kernel.swap_rebuilds(alias, pkgs[1:])
+    with repo_in_use(kernel.KERNEL_REPO_PATH,
+                     kernel.KERNEL_REPO_ALIAS,
+                     ["--refresh", "--priority", "90", kernel.KERNEL_REPO_URL],
+                     lambda: proc.rpm_installed(kernel.KERNEL_PACKAGE)
+                     ) as alias:
+        helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+        pkgs = [kernel.KERNEL_PACKAGE] + nazoos_kmps(alias)
+        queued = prepare_mok(alias, pkgs)
+        # Modules left from an earlier install stay out of "zypper in": a
+        # newer build of them for the same kernel conflicts with the old
+        # one and ends zypper with 4 (VM 2026-10-19); they are swapped below
+        helper.run(ZYPPER_IN + [p for p in pkgs
+                                if p == kernel.KERNEL_PACKAGE
+                                or not proc.rpm_installed(p)])
+        kernel.swap_rebuilds(alias, pkgs[1:])
     kernelstate.STATE.mkdir(parents=True, exist_ok=True)
     kernelstate.PREFER.touch()
     kernelstate.write_boots({"count": 0})

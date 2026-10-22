@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-22 08:38+0200\n"
+"POT-Creation-Date: 2026-10-22 19:38+0200\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,64 +16,90 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../nazoos-common/nazoos_common/helper.py:92 nazoos_welcome/root/base.py:54
+#: ../nazoos-common/nazoos_common/grub.py:115
+#, python-brace-format
+msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
+msgstr "GRUB_CMDLINE_LINUX_DEFAULT nicht in {file} gefunden"
+
+#: ../nazoos-common/nazoos_common/helper.py:75 nazoos_welcome/root/base.py:80
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr "„{cmd}“ ist fehlgeschlagen (Exit-Code {rc})"
 
-#: ../nazoos-common/nazoos_common/helper.py:146
+#: ../nazoos-common/nazoos_common/helper.py:121
 msgid "missing argument"
 msgstr "Angabe fehlt"
 
-#: ../nazoos-common/nazoos_common/helper.py:148
+#: ../nazoos-common/nazoos_common/helper.py:123
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr "ungültige Angabe: {arg}"
 
-#: ../nazoos-common/nazoos_common/helper.py:157
+#: ../nazoos-common/nazoos_common/helper.py:132
 msgid "must run as root (via pkexec)"
 msgstr "muss mit Administratorrechten laufen (über pkexec)"
 
-#: ../nazoos-common/nazoos_common/helper.py:161
+#: ../nazoos-common/nazoos_common/helper.py:136
 msgid "unknown action"
 msgstr "unbekannte Aktion"
 
-#: ../nazoos-common/nazoos_common/helper.py:174
+#: ../nazoos-common/nazoos_common/helper.py:149
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr "Systemfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/helper.py:178
+#: ../nazoos-common/nazoos_common/helper.py:153
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr "Programmfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/qt.py:132
+#: ../nazoos-common/nazoos_common/qt.py:151
 msgid "pkexec could not be started."
 msgstr "pkexec konnte nicht gestartet werden."
 
-#: ../nazoos-common/nazoos_common/qt.py:140 nazoos_welcome/backend.py:198
-#: nazoos_welcome/backend.py:316
+#: ../nazoos-common/nazoos_common/qt.py:159 nazoos_welcome/backend.py:152
+#: nazoos_welcome/backend.py:244
 msgid "Done."
 msgstr "Fertig."
 
-#: ../nazoos-common/nazoos_common/qt.py:144
+#: ../nazoos-common/nazoos_common/qt.py:163
 msgid "Cancelled: no administrator password was given."
 msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
 
-#: ../nazoos-common/nazoos_common/qt.py:146
+#: ../nazoos-common/nazoos_common/qt.py:165
 msgid "Something went wrong."
 msgstr "Etwas ist schiefgelaufen."
 
-#: ../nazoos-common/nazoos_common/qt.py:287
+#: ../nazoos-common/nazoos_common/qt.py:276
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
-#: nazoos_welcome/backend.py:195
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:13
+msgid "Details"
+msgstr "Details"
+
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:19
+msgid "Copy"
+msgstr "Kopieren"
+
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:23
+#: qml/pages/HelpPage.qml:79
+msgid "Copied to the clipboard."
+msgstr "In die Zwischenablage kopiert."
+
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:245
+msgid "Close"
+msgstr "Schließen"
+
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:38
+msgid "Nothing has run yet."
+msgstr "Bisher wurde nichts ausgeführt."
+
+#: nazoos_welcome/backend.py:149
 msgid "These services still fail after a restart: %1"
 msgstr "Diese Dienste schlagen auch nach dem Neustart fehl: %1"
 
-#: nazoos_welcome/backend.py:267
+#: nazoos_welcome/backend.py:203
 msgid ""
 "The password for the Secure Boot key could not be prepared (openssl is "
 "missing)."
@@ -168,6 +194,14 @@ msgstr "Digitales Malen"
 #: nazoos_welcome/catalog.py
 msgid "Disable CPU mitigations"
 msgstr "CPU-Schutzmaßnahmen abschalten"
+
+#: nazoos_welcome/catalog.py
+msgid "Disable CPU security mitigations?"
+msgstr "CPU-Schutzmaßnahmen abschalten?"
+
+#: nazoos_welcome/catalog.py
+msgid "Disable mitigations"
+msgstr "Schutzmaßnahmen abschalten"
 
 #: nazoos_welcome/catalog.py
 msgid "Disabling the scheduler"
@@ -403,6 +437,16 @@ msgid "Switching the update channel"
 msgstr "Update-Kanal wird gewechselt"
 
 #: nazoos_welcome/catalog.py
+msgid ""
+"This removes protection against Spectre, Meltdown and similar CPU attacks. "
+"Malicious websites or programs could read data from other programs. Only do "
+"this if you know the risk."
+msgstr ""
+"Damit entfällt der Schutz vor Spectre, Meltdown und ähnlichen CPU-Angriffen. "
+"Bösartige Webseiten oder Programme könnten Daten anderer Programme auslesen. "
+"Tun Sie das nur, wenn Sie das Risiko kennen."
+
+#: nazoos_welcome/catalog.py
 msgid "Unlocks clock and voltage controls in LACT"
 msgstr "Schaltet Takt- und Spannungsregler in LACT frei"
 
@@ -434,53 +478,36 @@ msgstr "Kabellose Controller, Headsets, Mäuse und Tastaturen"
 msgid "Write ISO images to USB sticks"
 msgstr "ISO-Abbilder auf USB-Sticks schreiben"
 
-#: nazoos_welcome/root/apps.py:43 nazoos_welcome/root/apps.py:73
+#: nazoos_welcome/root/apps.py:47 nazoos_welcome/root/apps.py:77
 msgid "unknown app"
 msgstr "unbekannte App"
 
-#: nazoos_welcome/root/apps.py:45
+#: nazoos_welcome/root/apps.py:49
 #, python-brace-format
 msgid "{app} needs the NazoOS kernel (Kernel page)"
 msgstr "{app} braucht den NazoOS-Kernel (Seite „Kernel“)"
 
-#: nazoos_welcome/root/base.py:79
+#: nazoos_welcome/root/base.py:106
 msgid "unknown user"
 msgstr "unbekannter Benutzer"
 
-#: nazoos_welcome/root/base.py:90
-#, python-brace-format
-msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
-msgstr "GRUB_CMDLINE_LINUX_DEFAULT nicht in {file} gefunden"
-
-#: nazoos_welcome/root/drivers.py:80
-msgid "gaming mode is not installed (nazoos-session)"
-msgstr "der Gaming-Modus ist nicht installiert (nazoos-session)"
-
-#: nazoos_welcome/root/drives.py:89
+#: nazoos_welcome/root/drives.py:90
 msgid "this drive cannot be added here (removable or system drive)"
 msgstr ""
 "dieses Laufwerk kann hier nicht hinzugefügt werden (Wechseldatenträger oder "
 "Systemlaufwerk)"
 
-#: nazoos_welcome/root/drives.py:119
+#: nazoos_welcome/root/drives.py:120
 #, python-brace-format
 msgid "the drive could not be mounted (exit code {rc})"
 msgstr "das Laufwerk konnte nicht eingehängt werden (Exit-Code {rc})"
 
-#: nazoos_welcome/root/drives.py:134
+#: nazoos_welcome/root/drives.py:135
 msgid "only drives added by NazoOS Welcome can be removed here"
 msgstr ""
 "hier lassen sich nur Laufwerke entfernen, die NazoOS Welcome hinzugefügt hat"
 
-#: nazoos_welcome/root/kernel_switch.py:21
-msgid ""
-"the closed NVIDIA driver (G06) only exists for the openSUSE kernel; switch "
-"to the open driver first"
-msgstr ""
-"den geschlossenen NVIDIA-Treiber (G06) gibt es nur für den openSUSE-Kernel; "
-"wechseln Sie zuerst zum offenen Treiber"
-
-#: nazoos_welcome/root/kernel_switch.py:37
+#: nazoos_welcome/root/kernel_switch.py:27
 #, python-brace-format
 msgid ""
 "the NazoOS kernel has no build of your NVIDIA driver ({packages}); switch to "
@@ -490,31 +517,43 @@ msgstr ""
 "wechseln Sie zuerst auf der Seite „Treiber & Codecs“ zum offenen NVIDIA-"
 "Treiber"
 
-#: nazoos_welcome/root/kernel_switch.py:68
+#: nazoos_welcome/root/kernel_switch.py:45
+msgid ""
+"the closed NVIDIA driver (G06) only exists for the openSUSE kernel; switch "
+"to the open driver first"
+msgstr ""
+"den geschlossenen NVIDIA-Treiber (G06) gibt es nur für den openSUSE-Kernel; "
+"wechseln Sie zuerst zum offenen Treiber"
+
+#: nazoos_welcome/root/kernel_switch.py:74
 msgid "start the NazoOS kernel first"
 msgstr "starten Sie zuerst den NazoOS-Kernel"
 
-#: nazoos_welcome/root/kernel_switch.py:91
+#: nazoos_welcome/root/kernel_switch.py:97
 msgid "the openSUSE kernel is not in /boot"
 msgstr "der openSUSE-Kernel ist nicht in /boot"
 
-#: nazoos_welcome/root/kernel_switch.py:98
+#: nazoos_welcome/root/kernel_switch.py:104
 msgid "start the openSUSE kernel first (boot menu)"
 msgstr "starten Sie zuerst den openSUSE-Kernel (Startmenü)"
 
-#: nazoos_welcome/root/kernel_switch.py:100
+#: nazoos_welcome/root/kernel_switch.py:106
 msgid "the openSUSE kernel is not installed"
 msgstr "der openSUSE-Kernel ist nicht installiert"
 
-#: nazoos_welcome/root/maintenance.py:21
+#: nazoos_welcome/root/maintenance.py:20
 msgid "unknown service"
 msgstr "unbekannter Dienst"
 
-#: nazoos_welcome/root/maintenance.py:82
+#: nazoos_welcome/root/maintenance.py:36
+msgid "nazoos-update is not installed"
+msgstr "nazoos-update ist nicht installiert"
+
+#: nazoos_welcome/root/maintenance.py:80
 msgid "nazoos-repos is not installed"
 msgstr "nazoos-repos ist nicht installiert"
 
-#: nazoos_welcome/root/maintenance.py:95
+#: nazoos_welcome/root/maintenance.py:91
 #, python-brace-format
 msgid "the {channel} repository did not appear after refreshing the services"
 msgstr ""
@@ -525,65 +564,69 @@ msgstr ""
 msgid "the downloaded kernel package was not found"
 msgstr "das heruntergeladene Kernel-Paket wurde nicht gefunden"
 
-#: nazoos_welcome/root/mok_queue.py:50
+#: nazoos_welcome/root/mok_queue.py:52
 msgid "the signing certificate could not be read"
 msgstr "das Signaturzertifikat konnte nicht gelesen werden"
 
-#: nazoos_welcome/root/mok_queue.py:70
+#: nazoos_welcome/root/mok_queue.py:72
 msgid "a password for the Secure Boot key is needed"
 msgstr "für den Secure-Boot-Schlüssel wird ein Passwort gebraucht"
 
-#: nazoos_welcome/root/mok_queue.py:84
+#: nazoos_welcome/root/mok_queue.py:86
 #, python-brace-format
 msgid "the Secure Boot key could not be prepared (mokutil exit code {rc})"
 msgstr ""
 "der Secure-Boot-Schlüssel konnte nicht vorbereitet werden (mokutil-Exit-Code "
 "{rc})"
 
-#: nazoos_welcome/root/mok_queue.py:111 nazoos_welcome/root/mok_queue.py:124
+#: nazoos_welcome/root/mok_queue.py:113 nazoos_welcome/root/mok_queue.py:126
 msgid "kernel-nazoos has no signing certificate"
 msgstr "kernel-nazoos hat kein Signaturzertifikat"
 
-#: nazoos_welcome/root/repairs.py:46
+#: nazoos_welcome/root/repair_fixes.py:46
 #, python-brace-format
 msgid "still missing after restoring the services: {repos}"
 msgstr "fehlt auch nach dem Wiederherstellen der Dienste noch: {repos}"
 
-#: nazoos_welcome/root/repairs.py:64
+#: nazoos_welcome/root/repair_fixes.py:64
 msgid "Packman is not set up; install the codecs first"
 msgstr "Packman ist nicht eingerichtet; installieren Sie zuerst die Codecs"
 
-#: nazoos_welcome/root/repairs.py:88
+#: nazoos_welcome/root/repair_fixes.py:88
 msgid "no NVIDIA driver is installed"
 msgstr "es ist kein NVIDIA-Treiber installiert"
 
-#: nazoos_welcome/root/repairs.py:110
+#: nazoos_welcome/root/repair_fixes.py:99
 #, python-brace-format
 msgid "still failing: {units}"
 msgstr "schlägt weiterhin fehl: {units}"
 
-#: nazoos_welcome/root/tuning.py:22
+#: nazoos_welcome/root/session.py:18
+msgid "gaming mode is not installed (nazoos-session)"
+msgstr "der Gaming-Modus ist nicht installiert (nazoos-session)"
+
+#: nazoos_welcome/root/tuning.py:26
 #, python-brace-format
 msgid "{scheduler} is not part of the installed scx package"
 msgstr "{scheduler} gehört nicht zum installierten scx-Paket"
 
-#: nazoos_welcome/root/tuning.py:38
+#: nazoos_welcome/root/tuning.py:42
 msgid "unknown kernel option"
 msgstr "unbekannte Kernel-Option"
 
-#: nazoos_welcome/root/tuning.py:49
+#: nazoos_welcome/root/tuning.py:53
 msgid "needs the NazoOS kernel"
 msgstr "braucht den NazoOS-Kernel"
 
-#: nazoos_welcome/root/tuning.py:52
+#: nazoos_welcome/root/tuning.py:56
 msgid "invalid device id"
 msgstr "ungültige Geräte-ID"
 
-#: nazoos_welcome/root/tuning.py:64
+#: nazoos_welcome/root/tuning.py:69
 msgid "this device is not connected"
 msgstr "dieses Gerät ist nicht angeschlossen"
 
-#: nazoos_welcome/root/tuning.py:67
+#: nazoos_welcome/root/tuning.py:72
 msgid ""
 "too many devices with their own polling rate; reset one of them to the "
 "device default first"
@@ -591,60 +634,60 @@ msgstr ""
 "zu viele Geräte mit eigener Abfragerate; setzen Sie zuerst eines davon auf "
 "den Gerätestandard zurück"
 
-#: qml/Main.qml:14
+#: qml/Main.qml:13
 msgid "NazoOS Welcome"
 msgstr "NazoOS Willkommen"
 
-#: qml/Main.qml:95 qml/pages/WelcomePage.qml:15
+#: qml/Main.qml:28 qml/pages/WelcomePage.qml:15
 msgid "Welcome"
 msgstr "Willkommen"
 
-#: qml/Main.qml:100 qml/pages/DriversPage.qml:16
+#: qml/Main.qml:29 qml/pages/DriversPage.qml:16
 msgid "Drivers & codecs"
 msgstr "Treiber & Codecs"
 
-#: qml/Main.qml:106 qml/pages/GamingPage.qml:18
+#: qml/Main.qml:30 qml/pages/GamingPage.qml:18
 msgid "Gaming & performance"
 msgstr "Gaming & Leistung"
 
-#: qml/Main.qml:112 qml/pages/KernelPage.qml:21
+#: qml/Main.qml:31 qml/pages/KernelPage.qml:21
 msgid "Kernel"
 msgstr "Kernel"
 
-#: qml/Main.qml:118 qml/pages/AppsPage.qml:27
+#: qml/Main.qml:32 qml/pages/AppsPage.qml:27
 msgid "Apps"
 msgstr "Apps"
 
-#: qml/Main.qml:124 qml/pages/DrivesPage.qml:17
+#: qml/Main.qml:33 qml/pages/DrivesPage.qml:17
 msgid "Drives"
 msgstr "Laufwerke"
 
-#: qml/Main.qml:130 qml/pages/SystemPage.qml:16
+#: qml/Main.qml:34 qml/pages/SystemPage.qml:16
 msgid "System"
 msgstr "System"
 
-#: qml/Main.qml:136 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:38
-#: qml/pages/RepairPage.qml:156 qml/pages/SystemPage.qml:125
+#: qml/Main.qml:35 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:38
+#: qml/pages/RepairPage.qml:156 qml/pages/SystemPage.qml:127
 msgid "Repair"
 msgstr "Reparieren"
 
-#: qml/Main.qml:142 qml/pages/HelpPage.qml:15
+#: qml/Main.qml:36 qml/pages/HelpPage.qml:15
 msgid "Help"
 msgstr "Hilfe"
 
-#: qml/Main.qml:186 qml/Main.qml:243
+#: qml/Main.qml:146 qml/Main.qml:203
 msgid "Continue"
 msgstr "Weiter"
 
-#: qml/Main.qml:194 qml/Main.qml:254
+#: qml/Main.qml:154 qml/Main.qml:214
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: qml/Main.qml:219
+#: qml/Main.qml:179
 msgid "Password for the NazoOS key"
 msgstr "Passwort für den NazoOS-Schlüssel"
 
-#: qml/Main.qml:220
+#: qml/Main.qml:180
 msgid ""
 "After the restart a blue screen (MokManager) asks once for this password to "
 "enroll the NazoOS key. Suggested: \"nazoos\". 4 to 16 letters or digits."
@@ -653,11 +696,11 @@ msgstr ""
 "diesem Passwort, um den NazoOS-Schlüssel einzutragen. Vorschlag: „nazoos“. 4 "
 "bis 16 Buchstaben oder Ziffern."
 
-#: qml/Main.qml:227
+#: qml/Main.qml:187
 msgid "Password (4 to 16 letters or digits)"
 msgstr "Passwort (4 bis 16 Buchstaben oder Ziffern)"
 
-#: qml/Main.qml:236
+#: qml/Main.qml:196
 msgid ""
 "Z and Y are swapped in the blue screen on a German keyboard: type \"%1\" "
 "there."
@@ -665,37 +708,17 @@ msgstr ""
 "Im blauen Bildschirm sind Z und Y auf einer deutschen Tastatur vertauscht: "
 "Geben Sie dort „%1“ ein."
 
-#: qml/Main.qml:267
+#: qml/Main.qml:227
 msgid "That did not work"
 msgstr "Das hat nicht geklappt"
 
-#: qml/Main.qml:271
+#: qml/Main.qml:231
 msgid "Try again"
 msgstr "Erneut versuchen"
 
-#: qml/Main.qml:280 qml/components/BusyBar.qml:31
+#: qml/Main.qml:240 qml/components/BusyBar.qml:31
 msgid "Show details"
 msgstr "Details anzeigen"
-
-#: qml/Main.qml:285 qml/Main.qml:308
-msgid "Close"
-msgstr "Schließen"
-
-#: qml/Main.qml:294
-msgid "Details"
-msgstr "Details"
-
-#: qml/Main.qml:300
-msgid "Copy"
-msgstr "Kopieren"
-
-#: qml/Main.qml:304 qml/pages/HelpPage.qml:79
-msgid "Copied to the clipboard."
-msgstr "In die Zwischenablage kopiert."
-
-#: qml/Main.qml:317
-msgid "Nothing has run yet."
-msgstr "Bisher wurde nichts ausgeführt."
 
 #: qml/pages/AppsPage.qml:17
 msgid "Chat"
@@ -894,7 +917,9 @@ msgstr "Packman ist eingerichtet, die Codecs sind noch nicht installiert"
 
 #: qml/pages/DriversPage.qml:116
 msgid "Packman is set up but switched off. Install switches it on again."
-msgstr "Packman ist eingerichtet, aber ausgeschaltet. „Installieren“ schaltet es wieder ein."
+msgstr ""
+"Packman ist eingerichtet, aber ausgeschaltet. „Installieren“ schaltet es "
+"wieder ein."
 
 #: qml/pages/DriversPage.qml:121 qml/pages/RepairPage.qml:47
 msgid "Reinstall"
@@ -989,8 +1014,8 @@ msgstr "Nicht eingebunden"
 
 #: qml/pages/DrivesPage.qml:56 qml/pages/HelpPage.qml:31
 #: qml/pages/HelpPage.qml:40 qml/pages/HelpPage.qml:49
-#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:128
-#: qml/pages/SystemPage.qml:137 qml/pages/WelcomePage.qml:128
+#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:130
+#: qml/pages/SystemPage.qml:139 qml/pages/WelcomePage.qml:128
 #: qml/pages/WelcomePage.qml:137 qml/pages/WelcomePage.qml:146
 #: qml/pages/WelcomePage.qml:155
 msgid "Open"
@@ -1042,7 +1067,7 @@ msgstr ""
 msgid "Active: %1"
 msgstr "Aktiv: %1"
 
-#: qml/pages/GamingPage.qml:31 qml/pages/SystemPage.qml:107
+#: qml/pages/GamingPage.qml:31 qml/pages/SystemPage.qml:109
 msgid "Enabled, but not running"
 msgstr "Eingeschaltet, läuft aber nicht"
 
@@ -1069,24 +1094,6 @@ msgstr "Computer neu starten, um die Änderung zu übernehmen"
 #: qml/pages/GamingPage.qml:82
 msgid "On"
 msgstr "Ein"
-
-#: qml/pages/GamingPage.qml:93
-msgid "Disable CPU security mitigations?"
-msgstr "CPU-Schutzmaßnahmen abschalten?"
-
-#: qml/pages/GamingPage.qml:94
-msgid ""
-"This removes protection against Spectre, Meltdown and similar CPU attacks. "
-"Malicious websites or programs could read data from other programs. Only do "
-"this if you know the risk."
-msgstr ""
-"Damit entfällt der Schutz vor Spectre, Meltdown und ähnlichen CPU-Angriffen. "
-"Bösartige Webseiten oder Programme könnten Daten anderer Programme auslesen. "
-"Tun Sie das nur, wenn Sie das Risiko kennen."
-
-#: qml/pages/GamingPage.qml:95
-msgid "Disable mitigations"
-msgstr "Schutzmaßnahmen abschalten"
 
 #: qml/pages/GamingPage.qml:108
 msgid "Controllers and mice"
@@ -1810,11 +1817,11 @@ msgstr "Auf GitHub melden"
 msgid "Updates"
 msgstr "Updates"
 
-#: qml/pages/SystemPage.qml:25
+#: qml/pages/SystemPage.qml:26
 msgid "Update the system"
 msgstr "System aktualisieren"
 
-#: qml/pages/SystemPage.qml:26
+#: qml/pages/SystemPage.qml:27
 msgid ""
 "Installs all system and Flatpak updates. A snapshot is taken before, so you "
 "can go back if something breaks."
@@ -1822,15 +1829,15 @@ msgstr ""
 "Installiert alle System- und Flatpak-Updates. Vorher wird ein Snapshot "
 "erstellt, damit Sie zurückkehren können, falls etwas kaputtgeht."
 
-#: qml/pages/SystemPage.qml:29
+#: qml/pages/SystemPage.qml:31
 msgid "Update now"
 msgstr "Jetzt aktualisieren"
 
-#: qml/pages/SystemPage.qml:32
+#: qml/pages/SystemPage.qml:34
 msgid "Update the system now?"
 msgstr "System jetzt aktualisieren?"
 
-#: qml/pages/SystemPage.qml:33
+#: qml/pages/SystemPage.qml:35
 msgid ""
 "This can take a while. Keep the computer on and connected until it is done, "
 "then restart it."
@@ -1838,15 +1845,15 @@ msgstr ""
 "Das kann eine Weile dauern. Lassen Sie den Computer eingeschaltet und "
 "verbunden, bis es fertig ist, und starten Sie ihn dann neu."
 
-#: qml/pages/SystemPage.qml:34
+#: qml/pages/SystemPage.qml:36
 msgid "Update"
 msgstr "Aktualisieren"
 
-#: qml/pages/SystemPage.qml:50
+#: qml/pages/SystemPage.qml:52
 msgid "Update channel"
 msgstr "Update-Kanal"
 
-#: qml/pages/SystemPage.qml:51
+#: qml/pages/SystemPage.qml:53
 msgid ""
 "Stable gets NazoOS updates after they were tested. Beta gets them right "
 "away: newest changes, but things can break. Tumbleweed and the NazoOS kernel "
@@ -1856,31 +1863,31 @@ msgstr ""
 "sofort: neueste Änderungen, aber es kann etwas kaputtgehen. Tumbleweed und "
 "der NazoOS-Kernel sind in beiden gleich."
 
-#: qml/pages/SystemPage.qml:52
+#: qml/pages/SystemPage.qml:54
 msgid "Beta (test versions)"
 msgstr "Beta (Testversionen)"
 
-#: qml/pages/SystemPage.qml:52
+#: qml/pages/SystemPage.qml:54
 msgid "Stable"
 msgstr "Stabil"
 
-#: qml/pages/SystemPage.qml:56
+#: qml/pages/SystemPage.qml:58
 msgid "Switch to Beta"
 msgstr "Zu Beta wechseln"
 
-#: qml/pages/SystemPage.qml:56
+#: qml/pages/SystemPage.qml:58
 msgid "Switch to Stable"
 msgstr "Zu Stabil wechseln"
 
-#: qml/pages/SystemPage.qml:60
+#: qml/pages/SystemPage.qml:62
 msgid "Switch to the beta channel?"
 msgstr "Zum Beta-Kanal wechseln?"
 
-#: qml/pages/SystemPage.qml:60
+#: qml/pages/SystemPage.qml:62
 msgid "Switch to the stable channel?"
 msgstr "Zum stabilen Kanal wechseln?"
 
-#: qml/pages/SystemPage.qml:61
+#: qml/pages/SystemPage.qml:63
 msgid ""
 "NazoOS packages are replaced by their newest, untested versions. A snapshot "
 "is taken first, so you can go back. Report problems on GitHub."
@@ -1889,7 +1896,7 @@ msgstr ""
 "Vorher wird ein Snapshot erstellt, Sie können also zurück. Probleme bitte "
 "auf GitHub melden."
 
-#: qml/pages/SystemPage.qml:62
+#: qml/pages/SystemPage.qml:64
 msgid ""
 "NazoOS packages go back to the tested versions; some can become older. A "
 "snapshot is taken first."
@@ -1897,19 +1904,19 @@ msgstr ""
 "NazoOS-Pakete gehen zurück auf die getesteten Versionen; manche werden dabei "
 "älter. Vorher wird ein Snapshot erstellt."
 
-#: qml/pages/SystemPage.qml:63
+#: qml/pages/SystemPage.qml:65
 msgid "Switch"
 msgstr "Wechseln"
 
-#: qml/pages/SystemPage.qml:69
+#: qml/pages/SystemPage.qml:71
 msgid "Snapshots and rollback"
 msgstr "Snapshots und Rollback"
 
-#: qml/pages/SystemPage.qml:73
+#: qml/pages/SystemPage.qml:75
 msgid "Snapshots"
 msgstr "Snapshots"
 
-#: qml/pages/SystemPage.qml:74
+#: qml/pages/SystemPage.qml:76
 msgid ""
 "If the system does not start or misbehaves after an update: restart, choose "
 "\"Start bootloader from a read-only snapshot\" in the boot menu and pick the "
@@ -1921,27 +1928,27 @@ msgstr ""
 "den Stand vor dem Update auswählen. NazoOS Aktualisierung bietet dann an, "
 "diesen Stand dauerhaft zu übernehmen."
 
-#: qml/pages/SystemPage.qml:77
+#: qml/pages/SystemPage.qml:79
 msgid "Create snapshot"
 msgstr "Snapshot erstellen"
 
-#: qml/pages/SystemPage.qml:88
+#: qml/pages/SystemPage.qml:90
 msgid "Services"
 msgstr "Dienste"
 
-#: qml/pages/SystemPage.qml:105
+#: qml/pages/SystemPage.qml:107
 msgid "Not installed – switching on installs it"
 msgstr "Nicht installiert – wird beim Einschalten installiert"
 
-#: qml/pages/SystemPage.qml:106
+#: qml/pages/SystemPage.qml:108
 msgid "Running"
 msgstr "Läuft"
 
-#: qml/pages/SystemPage.qml:121
+#: qml/pages/SystemPage.qml:123
 msgid "Maintenance"
 msgstr "Wartung"
 
-#: qml/pages/SystemPage.qml:126
+#: qml/pages/SystemPage.qml:128
 msgid ""
 "Checks the system for common problems and fixes them. Also: refresh "
 "repositories, clean caches, repair Flatpak, bug report."
@@ -1949,11 +1956,11 @@ msgstr ""
 "Prüft das System auf häufige Probleme und behebt sie. Außerdem: Paketquellen "
 "aktualisieren, Caches leeren, Flatpak reparieren, Fehlerbericht."
 
-#: qml/pages/SystemPage.qml:134
+#: qml/pages/SystemPage.qml:136
 msgid "System settings"
 msgstr "Systemeinstellungen"
 
-#: qml/pages/SystemPage.qml:135
+#: qml/pages/SystemPage.qml:137
 msgid ""
 "Displays, sound, network, appearance and everything else of the desktop."
 msgstr ""

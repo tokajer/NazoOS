@@ -13,7 +13,6 @@ may wait for its lock or the network. Probes that may fail: proc.py.
 import contextlib
 import fcntl
 import os
-import re
 import stat
 import subprocess
 import sys
@@ -24,21 +23,6 @@ from pathlib import Path
 from . import errors, zypper
 
 FLATPAK = ["flatpak", "--system"]
-
-
-def set_var(text, name, value):
-    """Set NAME=VALUE in shell-style config TEXT; VALUE None removes it."""
-    line = f"{name}={value}" if value is not None else None
-    key = re.escape(name)
-    if re.search(rf"^{key}=", text, re.M):
-        # A function, so backslashes in VALUE are not read as escapes
-        return re.sub(rf"^{key}=.*\n?", lambda _m: line + "\n" if line else "",
-                      text, flags=re.M)
-    if not line:
-        return text
-    if text and not text.endswith("\n"):
-        text += "\n"
-    return text + line + "\n"
 
 
 class Fail(Exception):

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 22 16:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- API 6: launchers and shell-style config helpers in their own modules,
+  one list of kernel modules, shared reload logic for the app backends.
+- The single-instance lock no longer fails without a runtime directory.
+
+-------------------------------------------------------------------
 Thu Oct 22 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - API 5: zypper module, kernel stage-2 check and module package names

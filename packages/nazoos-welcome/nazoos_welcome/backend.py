@@ -3,10 +3,12 @@
 """Bridge between the QML pages and the system."""
 
 import os
+import sys
 import traceback
 
 from nazoos_common import mok
-from nazoos_common.qt import COMMON_LAUNCHERS, ActionRunner
+from nazoos_common.launcher import COMMON_LAUNCHERS
+from nazoos_common.qt import ActionRunner, CoalescedLoad
 from PySide6.QtCore import Property, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 
@@ -54,8 +56,10 @@ class Backend(ActionRunner):
         # "Try again" may repeat, None after anything else
         self._retry = None
         self._on_success = None
-        self._refreshing = False
-        self._refresh_again = False
+        # Never kill the UI over a probe
+        self._loader = CoalescedLoad(
+            self, report.collect_state, self._set_state,
+            lambda e: self._set_state(dict(self._state, error=str(e))))
         # State keys read by _quick_refresh since the last full refresh
         self._quick = set()
 
@@ -98,15 +102,7 @@ class Backend(ActionRunner):
 
     @Slot()
     def refresh(self):
-        if self._refreshing:
-            self._refresh_again = True
-            return
-        self._refreshing = True
-
-        # never kill the UI over a probe
-        self.background(
-            report.collect_state, self._set_state,
-            lambda e: self._set_state(dict(self._state, error=str(e))))
+        self._loader.request()
 
     def _quick_refresh(self, action):
         key, probe = QUICK_PROBES[action]
@@ -120,8 +116,7 @@ class Backend(ActionRunner):
         self.stateChanged.emit()
 
     def _set_state(self, st):
-        self._refreshing = False
-        if self._refresh_again:
+        if self._loader.pending:
             # Started before the last action: keep what _quick_refresh read
             st = dict(st, **{k: self._state[k] for k in self._quick
                              if k in self._state})
@@ -129,9 +124,6 @@ class Backend(ActionRunner):
             self._quick.clear()
         self._state = st
         self.stateChanged.emit()
-        if self._refresh_again:
-            self._refresh_again = False
-            self.refresh()
 
     # --- repair page (ADR 0012): units are root actions, the rest is
     # RepairModel
@@ -151,8 +143,7 @@ class Backend(ActionRunner):
         self._append(log)
         if with_system:
             # The system units follow, with the password dialog
-            self._end_busy()
-            self.run("repair-units", [])
+            self._launch("repair-units", [], None, None)
         elif still:
             self._done("repair-units", False, self._gettext(
                 "These services still fail after a restart: %1")
@@ -167,14 +158,22 @@ class Backend(ActionRunner):
         super()._begin(action)
 
     @Slot(str, "QVariantList")
-    def run(self, action, args, stdin=None, on_success=None):
+    def run(self, action, args):
+        self._run(action, args)
+
+    def _run(self, action, args, stdin=None, on_success=None):
         """ON_SUCCESS(done), if given, runs after exit code 0 and must
         call done() to finish the task."""
         if self._busy:
             return
         if action not in catalog.ACTION_LABELS:
+            # A programming error in QML: leave a trace in the journal
+            print(f"nazoos-welcome: unknown action {action}", file=sys.stderr)
             return
         self._begin(action)
+        self._launch(action, args, stdin, on_success)
+
+    def _launch(self, action, args, stdin, on_success):
         # stdin only carries the MokManager password hash (runMok)
         self._set_retry(None if on_success else (
             action, list(args), stdin is not None))
@@ -189,7 +188,7 @@ class Backend(ActionRunner):
         if needs_mok:
             self.mokRetryRequested.emit(action, args)
         else:
-            self.run(action, args)
+            self._run(action, args)
 
     @Slot(str, "QVariantList", str)
     def runMok(self, action, args, password):
@@ -204,7 +203,7 @@ class Backend(ActionRunner):
                 "The password for the Secure Boot key could not be "
                 "prepared (openssl is missing)."))
             return
-        self.run(action, args, mok_hash)
+        self._run(action, args, mok_hash)
 
     def _helper_finished(self, action, proc, ok, message):
         on_success, self._on_success = self._on_success, None
@@ -244,11 +243,11 @@ class Backend(ActionRunner):
                 self._user_service(svc, on, lambda: self._done(
                     "service", True, self._gettext("Done.")))
                 return
-            self.run("service", [service_id, "on" if on else "off"],
-                     on_success=lambda done: self._user_service(
-                         svc, on, done))
+            self._run("service", [service_id, "on" if on else "off"],
+                      on_success=lambda done: self._user_service(
+                          svc, on, done))
             return
-        self.run("service", [service_id, "on" if on else "off"])
+        self._run("service", [service_id, "on" if on else "off"])
 
     @Slot(bool)
     def setAutostart(self, enabled):

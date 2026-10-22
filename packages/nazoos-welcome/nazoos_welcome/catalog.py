@@ -261,8 +261,7 @@ ROCM_PACKAGES = ["rocm-hip", "rocm-opencl", "rocminfo", "amdsmi"]
 # Handheld / Steam Deck pattern (separate package, may not exist yet)
 DECK_PATTERN = "nazoos-deck"
 
-# Steam gaming mode (nazoos-session): boot mode file and tools
-SESSION_CONF = "/etc/nazoos/session.conf"
+# Steam gaming mode (nazoos-session): tools
 SESSION_CTL = "/usr/libexec/nazoos-session/nazoos-session-ctl"
 SESSION_DETECT = "/usr/libexec/nazoos-session/nazoos-detect-handheld"
 

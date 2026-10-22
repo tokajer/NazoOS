@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Thu Oct 22 16:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- System update needs nazoos-update; the button is hidden without it.
+- A failed NazoOS kernel install removes the kernel repository again.
+- Gaming mode state is read from nazoos-session instead of its config file.
+- The repair page restarts failed user services, sockets and mounts only,
+  like the system ones.
+
+-------------------------------------------------------------------
 Thu Oct 22 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The Waydroid configuration is written in one step, errors while

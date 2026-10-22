@@ -7,7 +7,8 @@ from pathlib import Path
 
 from nazoos_common import helper, proc
 from nazoos_common.grub import cmdline_set
-from nazoos_common.helper import set_var, write_atomic
+from nazoos_common.helper import write_atomic
+from nazoos_common.shellconf import set_var
 
 from .. import catalog, probes
 from ..pollrate import (INTERVALS, MAXLEN, PARAM, SYSFS, format_overrides,

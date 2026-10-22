@@ -111,7 +111,7 @@ def test_refresh_survives_a_broken_probe(app, monkeypatch):
     monkeypatch.setattr(backend.probes, "collect", collect)
     b = backend.Backend(i18n.translator())
     b.refresh()
-    wait(app, lambda: not b._refreshing)
+    wait(app, lambda: not b._loader.running)
     assert b.state.get("error") == "no lspci"
 
 
@@ -124,11 +124,13 @@ def test_changed_card_is_read_before_the_full_refresh(app, monkeypatch):
                         lambda: {"channel": "beta", "fresh": True})
     b = backend.Backend(i18n.translator())
     b._state = {"channel": "stable"}
-    b._refreshing = True  # a refresh from before the switch is running
+    # A refresh from before the switch is running
+    b._loader.running = True
     b._done("channel", True, "Done.")
     assert b.state["channel"] == "beta"
+    assert b._loader.pending
     # The old refresh lands late: it must not bring "stable" back
-    b._set_state({"channel": "stable"})
+    b._loader._finish([], b._set_state, {"channel": "stable"})
     assert b.state["channel"] == "beta"
     wait(app, lambda: b.state.get("fresh"))
     assert not b._quick
@@ -179,7 +181,7 @@ def test_retry_repeats_the_failed_action(app, welcome):
 
 def test_retry_of_a_mok_action_asks_for_the_password_again(app, welcome):
     b, seen = welcome
-    b.run("fails", ["x"], "hash")
+    b._run("fails", ["x"], "hash")
     wait(app, lambda: seen)
     asked = []
     b.mokRetryRequested.connect(lambda a, args: asked.append((a, args)))
@@ -254,6 +256,60 @@ def test_update_action_finishes_after_the_new_status_is_loaded(app, monkeypatch)
     b._done("update", False, "failed")
     wait(app, lambda: seen)
     assert seen == [conflict]
+
+
+def test_coalesced_load_runs_one_more_load_for_many_requests(app):
+    from nazoos_common.qt import ActionRunner, CoalescedLoad
+
+    runner = ActionRunner("h", lambda s: s, {}, {})
+    loads, results, after = [], [], []
+
+    def work():
+        loads.append(1)
+        return len(loads)
+
+    loader = CoalescedLoad(runner, work, results.append, results.append)
+    # Each callback records how many loads had finished when it ran
+    loader.request(lambda: after.append(("first", len(results))))
+    assert loader.running and not loader.pending
+    loader.request(lambda: after.append(("second", len(results))))
+    loader.request(lambda: after.append(("third", len(results))))
+    assert loader.pending
+    wait(app, lambda: not loader.running)
+    # Two requests during the first load share exactly one more load
+    assert loads == [1, 1] and results == [1, 2]
+    # The callbacks of the later requests waited for the second load
+    assert after == [("first", 1), ("second", 2), ("third", 2)]
+    assert not loader.pending
+
+
+def test_coalesced_load_starts_the_queued_load_after_a_raising_handler(app):
+    from nazoos_common.qt import ActionRunner, CoalescedLoad
+
+    runner = ActionRunner("h", lambda s: s, {}, {})
+    results = []
+
+    def done(result):
+        results.append(result)
+        if len(results) == 1:
+            raise RuntimeError("handler broke")
+
+    # The exception escapes in the GUI thread's slot: swallow it here
+    runner._call.disconnect()
+    errors = []
+
+    def call(f):
+        try:
+            f()
+        except RuntimeError as e:
+            errors.append(e)
+
+    runner._call.connect(call)
+    loader = CoalescedLoad(runner, lambda: len(results), done, done)
+    loader.request()
+    loader.request()
+    wait(app, lambda: not loader.running and len(results) == 2)
+    assert len(errors) == 1 and not loader.pending
 
 
 def test_update_refresh_survives_a_broken_collect(app, monkeypatch):

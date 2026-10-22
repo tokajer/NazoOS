@@ -19,6 +19,7 @@ from . import grub, helper, kernelstate, proc, repos, zypper
 KERNEL_REPO_ALIAS = "nazoos-kernel"
 KERNEL_REPO_URL = ("https://download.opensuse.org/repositories/"
                    "home:/Tokajer:/nazoos:/kernel/openSUSE_Tumbleweed/")
+KERNEL_REPO_PATH = KERNEL_REPO_URL.split("/repositories/")[1]
 KERNEL_PACKAGE = "kernel-nazoos"
 KERNEL_DEFAULT = "kernel-default"
 KERNEL_ONLY_PACKAGE = "nazoos-kernel-only"
@@ -42,6 +43,12 @@ def running_nazoos():
 
 def kmp(base, flavor):
     return f"{base}-kmp-{flavor}"
+
+
+def wanted_kmps():
+    """<base>-kmp-nazoos for every <base>-kmp-default that is installed."""
+    return [kmp(b, "nazoos") for b in KMP_BASES
+            if proc.rpm_installed(kmp(b, "default"))]
 
 
 def stable():
@@ -74,7 +81,7 @@ def keep_default(log=print):
 
 def kernel_repo():
     """Alias of the NazoOS kernel repository, None if not configured."""
-    return repos.with_url(KERNEL_REPO_URL.split("/repositories/")[1])
+    return repos.with_url(KERNEL_REPO_PATH)
 
 
 def sync_modules():
@@ -94,8 +101,7 @@ def sync_modules():
         helper.say("Note: the NazoOS kernel repository is missing, kernel "
                    "modules are not checked")
         return
-    wanted = [kmp(b, "nazoos") for b in KMP_BASES
-              if proc.rpm_installed(kmp(b, "default"))]
+    wanted = wanted_kmps()
     wanted += [kmp(b, "nazoos") for b in KMP_NAZOOS_ONLY]
     new = [p for p in wanted
            if not proc.rpm_installed(p) and zypper.repo_has(alias, p)]

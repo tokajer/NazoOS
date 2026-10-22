@@ -12,7 +12,7 @@ import traceback
 from pathlib import Path
 
 from nazoos_common import (grub, kernel, kernelstate, mok, proc, repos,
-                           zypper)
+                           shellconf, zypper)
 
 from . import autostart, catalog, pollrate
 
@@ -264,11 +264,8 @@ def kernel_state():
 
 def session_state():
     """Steam gaming mode (nazoos-session): boot mode and handheld model."""
-    conf = {}
-    for line in proc.read(catalog.SESSION_CONF).splitlines():
-        m = re.match(r'^(\w+)="?([^"]*)"?$', line.strip())
-        if m:
-            conf[m.group(1)] = m.group(2)
+    # The tool owns the file format: ask it, do not parse its file
+    text = proc.out([catalog.SESSION_CTL, "status"], timeout=10)
     handheld = ""
     if os.access(catalog.SESSION_DETECT, os.X_OK):
         try:
@@ -281,8 +278,8 @@ def session_state():
     return {
         "installed": proc.has("nazoos-session-select"),
         "steam": proc.has("steam"),
-        "bootGaming": conf.get("BOOT_MODE") == "gaming",
-        "user": conf.get("USER", ""),
+        "bootGaming": shellconf.get_var(text, "BOOT_MODE") == "gaming",
+        "user": shellconf.get_var(text, "USER"),
         "handheld": handheld,
     }
 
@@ -299,8 +296,8 @@ def update_channel():
     return ""
 
 
-# Only collect() writes it, and Backend.refresh() runs one collect() at a
-# time (_refreshing)
+# Only collect() writes it, and Backend's CoalescedLoad runs one collect()
+# at a time
 _deck_found = False
 
 
@@ -349,14 +346,14 @@ def _drivers(rpms, gpu_list):
 
 def _gaming(rpms, units):
     scx_enabled, scx_active = units["scx.service"]
-    m = re.search(r"^\s*SCX_SCHEDULER\s*=\s*\"?([\w-]+)",
-                  proc.read("/etc/default/scx"), re.M)
+    scheduler = shellconf.get_var(proc.read("/etc/default/scx"),
+                                  "SCX_SCHEDULER")
     deck_installed = catalog.DECK_PATTERN in rpms
     return {
         "scxInstalled": "scx" in rpms,
         "scxEnabled": scx_enabled,
         "scxActive": scx_active,
-        "scxScheduler": m.group(1) if m else "",
+        "scxScheduler": scheduler,
         "pollrate": pollrate_state(),
         # Waydroid card: software rendering is used (installed) or will be
         "vm": in_vm(),

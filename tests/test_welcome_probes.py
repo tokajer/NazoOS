@@ -203,3 +203,35 @@ def test_units_finding_user_fix_only_with_failed_user_units(monkeypatch):
     found = _units_finding(monkeypatch, [], ["b.service"])
     assert found[0]["userFix"] is True
     assert found[0]["fix"] == ""
+
+
+def test_session_state_asks_the_session_tool(monkeypatch):
+    asked = []
+    monkeypatch.setattr(probes.proc, "out", lambda cmd, timeout=30:
+                        asked.append(cmd) or "BOOT_MODE=gaming\nUSER=anna\n")
+    monkeypatch.setattr(probes.os, "access", lambda *a: False)
+    state = probes.session_state()
+    assert asked == [[catalog.SESSION_CTL, "status"]]
+    assert state["bootGaming"] is True and state["user"] == "anna"
+
+
+def test_restart_failed_resets_only_the_recovered(monkeypatch):
+    seen = iter([["a.service", "b.mount", "c.scope"], ["b.mount"]])
+    monkeypatch.setattr(repair_checks, "failed_units",
+                        lambda user=False: next(seen))
+    monkeypatch.setattr(repair_checks.time, "sleep", lambda s: None)
+    ran = []
+    still = repair_checks.restart_failed(True, ran.append)
+    assert still == ["b.mount"]
+    base = ["systemctl", "--user"]
+    # c.scope is no restartable unit type
+    assert ran == [base + ["restart", "a.service"],
+                   base + ["restart", "b.mount"],
+                   base + ["reset-failed", "a.service", "c.scope"]]
+
+
+def test_restart_failed_without_units_does_not_wait(monkeypatch):
+    monkeypatch.setattr(repair_checks, "failed_units", lambda user=False: [])
+    monkeypatch.setattr(repair_checks.time, "sleep",
+                        lambda s: 1 / 0)
+    assert repair_checks.restart_failed(False, lambda cmd: 1 / 0) == []

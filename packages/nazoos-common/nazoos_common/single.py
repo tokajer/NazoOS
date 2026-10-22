@@ -15,6 +15,7 @@ environment, where Qt takes it on the next requestActivate()."""
 
 import fcntl
 import os
+import sys
 import time
 from pathlib import Path
 
@@ -41,7 +42,13 @@ class Instance(QObject):
 
     def acquire(self):
         """True if this process is the first one."""
-        f = open(_runtime_dir() / f"{self._name}.lock", "w")
+        try:
+            f = open(_runtime_dir() / f"{self._name}.lock", "w")
+        except OSError as e:
+            print(f"{self._name}: no single-instance lock ({e})", file=sys.stderr)
+            # SHORTCUT: without a runtime dir (XDG_RUNTIME_DIR missing, e.g.
+            # started via su) there is no lock: two windows are possible
+            return True
         try:
             fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except OSError:

@@ -2,11 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """GUI side of the root helpers and small Qt helpers (needs PySide6)."""
 
-import glob
 import os
-import shutil
 import signal
-import subprocess
 import sys
 import threading
 import traceback
@@ -19,15 +16,13 @@ from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtQuickControls2 import QQuickStyle
 from PySide6.QtWidgets import QApplication
 
-from . import errors
+from . import errors, launcher
 
 # Works in the git tree and in /usr/share/nazoos-common
 QML_DIR = str(Path(__file__).resolve().parent.parent / "qml")
 # Characters kept in the log; trimmed to LOG_KEEP
 LOG_MAX = 300_000
 LOG_KEEP = 200_000
-# Flatpak apps (LACT, CoolerControl) have their desktop files here
-FLATPAK_EXPORTS = ["/var/lib/flatpak/exports/share"]
 
 
 def find_qml(package_file, name):
@@ -173,45 +168,6 @@ class HelperProcess(QObject):
             self.finished.emit(False, f"{msg} {reason}".strip())
 
 
-def desktop_file(patterns, extra_dirs=()):
-    """First desktop file matching one of PATTERNS in the XDG dirs."""
-    dirs = [Path.home() / ".local/share"] + [
-        Path(d) for d in os.environ.get(
-            "XDG_DATA_DIRS", "/usr/local/share:/usr/share").split(":")]
-    dirs += [Path(d) for d in extra_dirs]
-    for pattern in patterns:
-        for d in dirs:
-            hits = sorted(glob.glob(str(d / "applications" / pattern)))
-            if hits:
-                return hits[0]
-    return None
-
-
-def launch(patterns, fallback, extra_dirs=()):
-    """Start an app by its desktop file (like the menu does), else by
-    the FALLBACK command. False if neither is there."""
-    desktop = desktop_file(patterns, extra_dirs) if patterns else None
-    if desktop and shutil.which("kioclient"):
-        cmd = ["kioclient", "exec", desktop]
-    elif desktop and shutil.which("gio"):
-        cmd = ["gio", "launch", desktop]
-    elif fallback and shutil.which(fallback[0]):
-        cmd = fallback
-    else:
-        return False
-    subprocess.Popen(cmd, start_new_session=True)
-    return True
-
-
-# Apps both UIs may start: desktop file patterns, then a fallback command
-COMMON_LAUNCHERS = {
-    "myrlyn": (["*myrlyn*sudo*.desktop", "*myrlyn*.desktop"], ["myrlyn"]),
-    # btrfs-assistant itself needs root, the launcher asks for it
-    "btrfs-assistant": (["*btrfs-assistant*.desktop"],
-                        ["btrfs-assistant-launcher"]),
-}
-
-
 class ActionRunner(QObject):
     """busy/task/log of one root helper run at a time; base class of the
     Backends of nazoos-welcome and nazoos-update."""
@@ -315,6 +271,51 @@ class ActionRunner(QObject):
         entry = self._launchers.get(launcher_id)
         if entry is None:
             return
-        if not launch(*entry, extra_dirs=FLATPAK_EXPORTS):
+        if not launcher.launch(*entry):
             self.actionFinished.emit(
                 "launch", False, self._gettext("This program is not installed."))
+
+
+class CoalescedLoad:
+    """One background load at a time: a request during a load runs one
+    more load after it. AFTER callbacks run once a load that started after
+    their request has finished."""
+
+    def __init__(self, runner, work, done, failed):
+        """RUNNER: the ActionRunner whose background() runs WORK. DONE(result)
+        or FAILED(exception) run on the GUI thread before the callbacks."""
+        self._runner = runner
+        self._work = work
+        self._done = done
+        self._failed = failed
+        # A load is in flight / another one is queued after it
+        self.running = False
+        self.pending = False
+        # Callbacks for the next load that starts
+        self._after = []
+
+    def request(self, after=None):
+        if after:
+            self._after.append(after)
+        if self.running:
+            self.pending = True
+        else:
+            self._start()
+
+    def _start(self):
+        self.running = True
+        self.pending = False
+        callbacks, self._after = self._after, []
+        self._runner.background(
+            self._work, lambda r: self._finish(callbacks, self._done, r),
+            lambda e: self._finish(callbacks, self._failed, e))
+
+    def _finish(self, callbacks, handler, value):
+        self.running = False
+        try:
+            handler(value)
+            for callback in callbacks:
+                callback()
+        finally:
+            if self.pending:
+                self._start()

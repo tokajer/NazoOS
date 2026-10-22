@@ -21,10 +21,12 @@ Kirigami.ScrollablePage {
         SectionHeader { text: L.tr("Updates") }
 
         SettingCard {
+            visible: page.st.hasNazoosUpdate === true || page.st.hasDiscover === true
             iconName: "system-software-update"
             title: L.tr("Update the system")
             subtitle: L.tr("Installs all system and Flatpak updates. A snapshot is taken before, so you can go back if something breaks.")
             QQC2.Button {
+                visible: page.st.hasNazoosUpdate === true
                 enabled: !backend.busy
                 text: L.tr("Update now")
                 icon.name: "system-software-update"

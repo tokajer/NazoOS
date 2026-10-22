@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Oct 22 16:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Requires nazoos-common API 6; status reloads share one implementation.
+
+-------------------------------------------------------------------
 Thu Oct 22 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The update window no longer blocks while it reads the status; the
