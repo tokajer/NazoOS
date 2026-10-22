@@ -84,9 +84,14 @@ def _send(n):
     if not shutil.which("notify-send"):
         return
     # Keys only contain [a-z0-9-]. A still open notification with the
-    # same key makes this fail every hour: it is shown already
+    # same key makes this fail every hour: it is shown already.
+    # Tied to the graphical session so a logout stops the unit; without
+    # a session the start fails and the key stays unseen.
     r = subprocess.run(
         ["systemd-run", "--user", "--quiet", "--collect",
+         "-p", "Requisite=graphical-session.target",
+         "-p", "PartOf=graphical-session.target",
+         "-p", "After=graphical-session.target",
          f"--unit=nazoos-update-notice-{n['key']}.service", "--",
          "nazoos-update", "--notify-one", n["key"]],
         stderr=subprocess.DEVNULL)

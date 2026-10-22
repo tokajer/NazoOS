@@ -96,6 +96,8 @@ def test_send_starts_own_unit_and_marks_seen(sent):
     notify._send(ITEM)
     assert "--unit=nazoos-update-notice-updates-abc.service" in calls[0]
     assert "--notify-one" in calls[0] and "updates-abc" in calls[0]
+    assert "PartOf=graphical-session.target" in calls[0]
+    assert "Requisite=graphical-session.target" in calls[0]
     assert "updates-abc" in notify._load()
     # Seen within its remind time: not started again
     notify._send(ITEM)
