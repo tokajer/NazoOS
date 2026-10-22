@@ -8,7 +8,7 @@ Root writes, the GUIs read. No Qt imports here.
 import re
 from pathlib import Path
 
-from . import helper, shellconf
+from . import files, helper, shellconf
 
 GRUB_CFG = Path("/boot/grub2/grub.cfg")
 GRUB_DEFAULT_FILE = Path("/etc/default/grub")
@@ -55,11 +55,11 @@ def update_grub_default(update):
     """Apply UPDATE (text -> text) to /etc/default/grub; True if changed."""
     # welcome, nazoos-update and the kernel file trigger may write at the
     # same time: without the lock one read-modify-write loses the other
-    with helper.locked(GRUB_LOCK):
+    with files.locked(GRUB_LOCK):
         text = GRUB_DEFAULT_FILE.read_text()
         new = update(text)
         if new != text:
-            helper.write_atomic(GRUB_DEFAULT_FILE, new)
+            files.write_atomic(GRUB_DEFAULT_FILE, new)
         return new != text
 
 

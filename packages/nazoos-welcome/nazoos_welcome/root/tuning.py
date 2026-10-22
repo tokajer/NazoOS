@@ -6,8 +6,9 @@ import re
 from pathlib import Path
 
 from nazoos_common import helper, proc
+from nazoos_common.files import write_atomic
 from nazoos_common.grub import cmdline_set
-from nazoos_common.helper import Fail, arg, say, write_atomic
+from nazoos_common.helper import Fail, arg, say
 from nazoos_common.shellconf import set_var
 from nazoos_common.zypper import ZYPPER_IN
 

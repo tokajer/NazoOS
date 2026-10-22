@@ -7,7 +7,8 @@ import subprocess
 
 import pytest
 
-from nazoos_common import grub, helper, kernel, kernelstate, mok, repos, shellconf
+from nazoos_common import (files, grub, helper, kernel, kernelstate, mok,
+                           repos, shellconf)
 
 FPR = "SHA1 Fingerprint=AB:CD:EF:01\n"
 
@@ -235,16 +236,16 @@ def test_write_atomic_keeps_the_mode_of_an_existing_file(tmp_path):
     f = tmp_path / "conf"
     f.write_text("old")
     f.chmod(0o600)
-    helper.write_atomic(f, "new\n")
+    files.write_atomic(f, "new\n")
     assert f.read_text() == "new\n"
     assert f.stat().st_mode & 0o777 == 0o600
     assert [x.name for x in tmp_path.iterdir()] == ["conf"]
 
 
 def test_write_atomic_new_file_gets_the_mode(tmp_path):
-    helper.write_atomic(str(tmp_path / "other"), "x")
+    files.write_atomic(str(tmp_path / "other"), "x")
     assert (tmp_path / "other").stat().st_mode & 0o777 == 0o644
-    helper.write_atomic(tmp_path / "private", "x", mode=0o600)
+    files.write_atomic(tmp_path / "private", "x", mode=0o600)
     assert (tmp_path / "private").stat().st_mode & 0o777 == 0o600
 
 
@@ -253,7 +254,7 @@ def test_write_atomic_keeps_a_symlink(tmp_path):
     real.write_text("old")
     link = tmp_path / "link"
     link.symlink_to(real)
-    helper.write_atomic(link, "new\n")
+    files.write_atomic(link, "new\n")
     assert link.is_symlink()
     assert real.read_text() == "new\n"
     assert sorted(x.name for x in tmp_path.iterdir()) == ["link", "real"]
@@ -266,9 +267,9 @@ def test_write_atomic_leaves_no_temp_file_after_a_failure(monkeypatch,
 
     def broken(src, dst):
         raise OSError("disk full")
-    monkeypatch.setattr(helper.os, "replace", broken)
+    monkeypatch.setattr(files.os, "replace", broken)
     with pytest.raises(OSError):
-        helper.write_atomic(f, "new\n")
+        files.write_atomic(f, "new\n")
     assert f.read_text() == "old"
     assert [x.name for x in tmp_path.iterdir()] == ["conf"]
 
@@ -278,7 +279,7 @@ def test_update_grub_default_unchanged_is_not_written(monkeypatch, tmp_path):
     default.write_text("A=1\n")
     monkeypatch.setattr(grub, "GRUB_LOCK", tmp_path / "lock")
     monkeypatch.setattr(grub, "GRUB_DEFAULT_FILE", default)
-    monkeypatch.setattr(helper, "write_atomic", lambda *a: 1 / 0)
+    monkeypatch.setattr(files, "write_atomic", lambda *a: 1 / 0)
     assert grub.update_grub_default(lambda t: t) is False
 
 

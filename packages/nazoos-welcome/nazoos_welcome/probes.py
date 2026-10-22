@@ -5,52 +5,14 @@
 import os
 import platform
 import re
-import shlex
 import subprocess
 import traceback
 from pathlib import Path
 
-from nazoos_common import (grub, kernel, kernelstate, mok, proc, repos,
-                           shellconf, zypper)
+from nazoos_common import (grub, kernel, kernelstate, mok, proc, shellconf,
+                           zypper)
 
-from . import autostart, catalog, hw, pollrate, system
-
-
-def rpm_vendors(names):
-    """Installed names out of `names`, with their vendor."""
-    if not names:
-        return {}
-    found = {}
-    for line in proc.out(["rpm", "-q", "--qf", "%{NAME}\t%{VENDOR}\n"]
-                     + list(names)).splitlines():
-        parts = line.split("\t")
-        if len(parts) == 2:
-            found[parts[0]] = parts[1]
-    return found
-
-
-def gpus():
-    return parse_gpus(proc.out(["lspci", "-mm", "-nn"]))
-
-
-def parse_gpus(lspci_text):
-    """Display controllers out of the "lspci -mm -nn" text."""
-    result = []
-    for line in lspci_text.splitlines():
-        try:
-            f = shlex.split(line)
-        except ValueError:
-            continue
-        if len(f) < 4 or not re.search(r"\[03(00|02|80)\]", f[1]):
-            continue
-        vendor_id = re.search(r"\[([0-9a-f]{4})\]$", f[2])
-        vid = vendor_id.group(1) if vendor_id else ""
-        vendor = {"1002": "amd", "10de": "nvidia",
-                  "8086": "intel"}.get(vid, "other")
-        name = re.sub(r"\s*\[[0-9a-f]{4}\]$", "", f[3])
-        vname = re.sub(r"\s*\[[0-9a-f]{4}\]$", "", f[2])
-        result.append({"vendor": vendor, "name": f"{vname} {name}"})
-    return result
+from . import autostart, catalog, hw, pollrate, query, system
 
 
 def parse_unit_states(text, units):
@@ -73,19 +35,13 @@ def unit_states(units, user=False):
     """One systemctl call for all UNITS: {unit: (enabled, active)}."""
     if not units:
         return {}
-    base = ["systemctl", "--user"] if user else ["systemctl"]
     return parse_unit_states(
-        proc.out(base + ["show", "--property=UnitFileState,ActiveState"]
+        proc.out(proc.systemctl(user) + ["show", "--property=UnitFileState,ActiveState"]
                  + list(units)), units)
 
 
 def grub_cmdline():
     return grub.cmdline_options(proc.read(grub.GRUB_DEFAULT_FILE))
-
-
-def flathub_configured():
-    return "flathub" in proc.out(["flatpak", "remotes",
-                                  "--columns=name"]).split()
 
 
 def flatpak_installed():
@@ -135,7 +91,7 @@ def kernel_state():
     """NazoOS kernel opt-in (ADR 0008), without root rights."""
     names = ([kernel.KERNEL_PACKAGE, kernel.KERNEL_DEFAULT,
               kernel.KERNEL_ONLY_PACKAGE] + kernel.KMP_DEFAULT_ONLY)
-    rpms = rpm_vendors(names)
+    rpms = query.rpm_vendors(names)
     release = platform.release()
     # UEFI: the kernel package queues its key for MokManager with Secure
     # Boot on or off (ADR 0024)
@@ -241,12 +197,6 @@ def deck_in_repos():
     return _deck_found
 
 
-def packman_repo():
-    """"on" (an enabled Packman repo), "off" (only disabled ones), ""."""
-    found = [on for _a, url, on in repos.repos() if "/packman/" in url]
-    return "on" if any(found) else "off" if found else ""
-
-
 # Each part names the RPMs it looks up; collect() asks rpm once for all
 _DRIVERS_RPMS = (["ffmpeg", "gstreamer-plugins-bad-codecs"]
                  + [p for v in catalog.NVIDIA_DRIVERS.values() for p in v]
@@ -269,7 +219,7 @@ def _drivers(rpms, gpu_list):
         "nvidiaDriver": nvidia_variant,
         "nvidiaLoaded": Path("/sys/module/nvidia").exists(),
         "rocm": system.ROCM_PACKAGES[0] in rpms,
-        "packmanRepo": packman_repo(),
+        "packmanRepo": query.packman_repo(),
         # gstreamer-plugins-bad-codecs only exists in Packman
         "codecs": "packman" in rpms.get("ffmpeg", "").lower()
                   or "gstreamer-plugins-bad-codecs" in rpms,
@@ -311,7 +261,7 @@ def _apps(rpms, flatpaks):
             apps[a["id"]] = all(r in rpms for r in a["refs"])
     return {
         "apps": apps,
-        "flathub": flathub_configured(),
+        "flathub": query.flathub_configured(),
     }
 
 
@@ -361,7 +311,7 @@ def _part(default, probe):
 
 def collect():
     """Full state for the UI, as plain JSON-friendly data."""
-    rpms = rpm_vendors(sorted(set(
+    rpms = query.rpm_vendors(sorted(set(
         _DRIVERS_RPMS + _GAMING_RPMS + _APPS_RPMS + _SERVICES_RPMS)))
     system_units = unit_states(["scx.service"] + [
         s["unit"] for s in catalog.SERVICES if not s["user"]])
@@ -373,7 +323,7 @@ def collect():
         "drives": _part([], hw.drives),
         "kernel": _part({}, kernel_state),
         "channel": _part("", update_channel),
-        **_part({}, lambda: _drivers(rpms, gpus())),
+        **_part({}, lambda: _drivers(rpms, query.gpus())),
         **_part({}, lambda: _gaming(rpms, system_units)),
         **_part({}, lambda: _apps(rpms, flatpak_installed())),
         **_part({}, lambda: _services(rpms, system_units, user_units)),

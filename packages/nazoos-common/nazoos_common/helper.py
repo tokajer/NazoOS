@@ -10,15 +10,10 @@ Root actions: errors raise, and commands have no timeout because zypper
 may wait for its lock or the network. Probes that may fail: proc.py.
 """
 
-import contextlib
-import fcntl
 import os
-import stat
 import subprocess
 import sys
-import tempfile
 import traceback
-from pathlib import Path
 
 from . import errors, zypper
 
@@ -76,43 +71,16 @@ def run(cmd, check=True, on_line=None):
     return rc
 
 
-def write_atomic(path, text, mode=0o644):
-    """Replace PATH with TEXT in one step: a crash leaves the old or the
-    new file, never half of it. An existing file keeps mode and label."""
-    path = Path(os.path.realpath(path))
-    label = None
-    if path.exists():
-        mode = stat.S_IMODE(path.stat().st_mode)
-        try:
-            label = os.getxattr(path, "security.selinux")
-        except OSError:
-            pass
-    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix="." + path.name + ".")
-    try:
-        with os.fdopen(fd, "w") as f:
-            f.write(text)
-            f.flush()
-            os.fsync(f.fileno())
-        os.chmod(tmp, mode)
-        if label is not None:
-            # Tumbleweed uses SELinux; a new inode would get the
-            # directory's default label
-            try:
-                os.setxattr(tmp, "security.selinux", label)
-            except OSError:
-                pass
-        os.replace(tmp, path)
-    except BaseException:
-        Path(tmp).unlink(missing_ok=True)
-        raise
-
-
 def capture(cmd):
+    """For root actions: no timeout, errors are not swallowed. Returns the
+    CompletedProcess."""
     return subprocess.run(cmd, stdin=subprocess.DEVNULL,
                           capture_output=True, text=True)
 
 
 def output(cmd):
+    """For root actions: no timeout, errors are not swallowed. Returns
+    stdout whatever the exit code."""
     return capture(cmd).stdout
 
 
@@ -154,17 +122,3 @@ def main(actions, lock_timeout, max_args=None, argv=None):
                           {"detail": f"{type(e).__name__}: {e}"}))
         return 1
     return 0
-
-
-@contextlib.contextmanager
-def locked(path):
-    """Exclusive flock on PATH while the block runs; unlocked if PATH
-    cannot be opened (no writable /run in an odd chroot)."""
-    try:
-        f = open(path, "w")
-    except OSError:
-        yield
-        return
-    with f:
-        fcntl.flock(f, fcntl.LOCK_EX)
-        yield

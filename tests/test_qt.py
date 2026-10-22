@@ -115,6 +115,50 @@ def test_refresh_survives_a_broken_probe(app, monkeypatch):
     assert b.state.get("error") == "no lspci"
 
 
+def test_page_change_refreshes_only_a_stale_state(app, monkeypatch):
+    from nazoos_welcome import backend, i18n
+
+    calls = []
+
+    def collect():
+        calls.append(1)
+        return {"fresh": True}
+
+    monkeypatch.setattr(backend.report, "collect_state", collect)
+    b = backend.Backend(i18n.translator())
+    b.refresh()
+    wait(app, lambda: not b._loader.running)
+    assert len(calls) == 1
+    b.refreshStale()
+    assert not b._loader.running
+    assert len(calls) == 1
+    b._loaded_at -= backend.STALE_SECONDS + 1
+    b.refreshStale()
+    wait(app, lambda: not b._loader.running)
+    assert len(calls) == 2
+
+
+def test_page_change_retries_a_failed_load(app, monkeypatch):
+    from nazoos_welcome import backend, i18n
+
+    calls = []
+
+    def collect():
+        calls.append(1)
+        if len(calls) == 1:
+            raise RuntimeError("probe broke")
+        return {}
+
+    monkeypatch.setattr(backend.report, "collect_state", collect)
+    b = backend.Backend(i18n.translator())
+    b.refresh()
+    wait(app, lambda: not b._loader.running)
+    assert b.state.get("error") == "probe broke"
+    b.refreshStale()
+    wait(app, lambda: not b._loader.running)
+    assert len(calls) == 2
+
+
 def test_changed_card_is_read_before_the_full_refresh(app, monkeypatch):
     from nazoos_welcome import backend, i18n
 

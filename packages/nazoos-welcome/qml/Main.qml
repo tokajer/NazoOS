@@ -73,7 +73,7 @@ Kirigami.ApplicationWindow {
         if (name === currentPage) return
         // Drives, services or packages may have changed outside the app
         // since the last action (__main__.py loads it once at start)
-        if (currentPage !== "") backend.refresh()
+        if (currentPage !== "") backend.refreshStale()
         currentPage = name
         pageStack.clear()
         pageStack.push(Qt.resolvedUrl("pages/" + p.file), { app: root })

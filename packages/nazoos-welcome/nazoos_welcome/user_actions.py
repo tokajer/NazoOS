@@ -16,8 +16,7 @@ USER_UNIT_TIMEOUT = 60
 def set_user_unit(unit, on):
     """Enable and start (or disable and stop) the user UNIT, returns the
     log."""
-    cmd = ["systemctl", "--user", "enable" if on else "disable", "--now",
-           unit]
+    cmd = proc.systemctl(True) + ["enable" if on else "disable", "--now", unit]
     try:
         r = subprocess.run(cmd, capture_output=True, text=True,
                            timeout=USER_UNIT_TIMEOUT)

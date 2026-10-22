@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 22 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- API 8: atomic writes and file locks in their own module (files.py), helper.py is only the root helper frame.
+- Looking a package up in a repo gives up after 6 minutes instead of waiting for zypper forever.
+
+-------------------------------------------------------------------
 Thu Oct 22 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - API 7: kernel module sync in kmp_sync, one stage-2 rule (stage2_state/stage2_now) for the apps.

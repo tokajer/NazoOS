@@ -6,7 +6,7 @@ import subprocess
 
 import pytest
 
-from nazoos_welcome import hw, probes, repair_checks, system
+from nazoos_welcome import hw, probes, query, repair_checks, system
 
 MARK = hw.FSTAB_MARKER
 
@@ -19,7 +19,7 @@ LSPCI = """\
 
 
 def test_parse_gpus():
-    gpus = probes.parse_gpus(LSPCI)
+    gpus = query.parse_gpus(LSPCI)
     # The audio device is skipped
     assert [g["vendor"] for g in gpus] == ["amd", "nvidia", "other"]
     assert gpus[0]["name"] == ("Advanced Micro Devices, Inc. [AMD/ATI] "
@@ -29,7 +29,7 @@ def test_parse_gpus():
 
 
 def test_parse_gpus_empty():
-    assert probes.parse_gpus("") == []
+    assert query.parse_gpus("") == []
 
 
 def dev(uuid, fstype="ext4", mounts=(), **kw):
@@ -158,8 +158,8 @@ def test_unit_states_without_units_runs_nothing(monkeypatch):
 
 def testpackman_repo_state(monkeypatch):
     def state(found):
-        monkeypatch.setattr(probes.repos, "repos", lambda: found)
-        return probes.packman_repo()
+        monkeypatch.setattr(query.repos, "repos", lambda: found)
+        return query.packman_repo()
 
     url = "https://ftp.gwdg.de/pub/linux/misc/packman/suse/x/"
     assert state([("p", url, True), ("o", "https://x/oss/", True)]) == "on"

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 22 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Requires nazoos-common API 8.
+- A page change re-reads the system state only when it is older than 30 seconds.
+- The root helper no longer loads the GUI's state collection.
+
+-------------------------------------------------------------------
 Thu Oct 22 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Requires nazoos-common API 7.

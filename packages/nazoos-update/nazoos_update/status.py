@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 
 from nazoos_common import proc
-from nazoos_common.helper import locked, write_atomic
+from nazoos_common.files import locked, write_atomic
 
 STATUS = Path("/var/lib/nazoos-update/status.json")
 STATUS_LOCK = Path("/run/nazoos-update-status.lock")

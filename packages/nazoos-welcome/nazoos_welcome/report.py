@@ -10,7 +10,7 @@ from pathlib import Path
 
 from nazoos_common import mok, proc, zypper
 
-from . import probes, repair_checks
+from . import probes, query, repair_checks
 
 
 def collect_state():
@@ -25,6 +25,7 @@ def collect_state():
 
 def sysinfo(state=None):
     """Plain text summary for bug reports."""
+    state = state or {}
     osr = {}
     for line in proc.read("/etc/os-release").splitlines():
         if "=" in line:
@@ -32,7 +33,7 @@ def sysinfo(state=None):
             osr[k] = v.strip('"')
     cpu = re.search(r"^model name\s*:\s*(.+)$", proc.read("/proc/cpuinfo"), re.M)
     mem = re.search(r"^MemTotal:\s*(\d+)", proc.read("/proc/meminfo"), re.M)
-    k = (state or {}).get("kernel", {})
+    k = state.get("kernel", {})
     sb = k["sbState"] if "sbState" in k else mok.sb_state()[2]
     if not sb:
         # mokutil explains on stderr only: firmware without Secure Boot
@@ -50,8 +51,7 @@ def sysinfo(state=None):
         f"{os.environ.get('XDG_CURRENT_DESKTOP', '?')}",
         f"Secure Boot: {sb}",
     ]
-    state = state or {}
-    for g in state["gpus"] if "gpus" in state else probes.gpus():
+    for g in state["gpus"] if "gpus" in state else query.gpus():
         lines.append(f"GPU: {g['name']}")
     if state:
         lines.append(f"NVIDIA driver: {state.get('nvidiaDriver') or '-'}"

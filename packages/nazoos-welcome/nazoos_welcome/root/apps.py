@@ -8,7 +8,8 @@ import re
 from pathlib import Path
 
 from nazoos_common import helper, proc
-from nazoos_common.helper import FLATPAK, Fail, arg, say, write_atomic
+from nazoos_common.files import write_atomic
+from nazoos_common.helper import FLATPAK, Fail, arg, say
 from nazoos_common.kernel import running_nazoos
 from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 
@@ -41,21 +42,16 @@ def pick_branch(found, wanted):
     return wanted if wanted in found else max(found, key=key)
 
 
-def app_install(args):
-    app = catalog.by_id(catalog.APPS, arg(args, 0))
-    if app is None:
-        raise Fail("unknown app")
-    if app.get("kernel") == "nazoos" and not running_nazoos():
-        raise Fail("{app} needs the NazoOS kernel (Kernel page)",
-                   app=app["name"])
-    if app["kind"] != "flatpak":
-        helper.run(ZYPPER_IN + app["refs"])
-        for unit in app.get("units", []):
-            helper.run(["systemctl", "enable", "--now", unit])
-        firewall_trust(app.get("trusted", []), True)
-        if app.get("setup"):
-            SETUP[app["setup"]]()
-        return
+def _install_rpm(app):
+    helper.run(ZYPPER_IN + app["refs"])
+    for unit in app.get("units", []):
+        helper.run(["systemctl", "enable", "--now", unit])
+    firewall_trust(app.get("trusted", []), True)
+    if app.get("setup"):
+        SETUP[app["setup"]]()
+
+
+def _install_flatpak(app):
     flathub_ensure()
     # Extensions like Vulkan layers exist once per runtime version and
     # cannot be installed without a branch. Install the app first, then
@@ -69,6 +65,19 @@ def app_install(args):
         refs = [f"{ref}//{pick_branch(branches[ref], wanted)}"
                 for ref in multi]
         helper.run(FLATPAK + ["install", "--noninteractive", "-y", "flathub"] + refs)
+
+
+def app_install(args):
+    app = catalog.by_id(catalog.APPS, arg(args, 0))
+    if app is None:
+        raise Fail("unknown app")
+    if app.get("kernel") == "nazoos" and not running_nazoos():
+        raise Fail("{app} needs the NazoOS kernel (Kernel page)",
+                   app=app["name"])
+    if app["kind"] == "flatpak":
+        _install_flatpak(app)
+    else:
+        _install_rpm(app)
 
 
 def app_remove(args):

@@ -7,7 +7,8 @@ import re
 from pathlib import Path
 
 from nazoos_common import helper
-from nazoos_common.helper import Fail, arg, say, write_atomic
+from nazoos_common.files import write_atomic
+from nazoos_common.helper import Fail, arg, say
 
 from .. import hw
 from .base import caller

@@ -9,7 +9,8 @@ from datetime import datetime
 from pathlib import Path
 
 from nazoos_common import proc
-from nazoos_common.helper import Fail, capture, locked, reboot, run
+from nazoos_common.files import locked
+from nazoos_common.helper import Fail, capture, reboot, run
 
 from .. import status
 

@@ -18,7 +18,7 @@ import uuid
 from pathlib import Path
 
 from nazoos_common import kernel, proc
-from nazoos_common.helper import write_atomic
+from nazoos_common.files import write_atomic
 
 from . import status
 from .i18n import _, ngettext

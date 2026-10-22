@@ -15,7 +15,7 @@ from pathlib import Path
 
 from nazoos_common import proc, repos
 
-from . import catalog, hw, probes, system
+from . import catalog, hw, query, system
 
 # Failed units the repair page ignores: known harmless upstream issues.
 # drkonqi-coredump-pickup (drkonqi6 6.7): RuntimeMaxSec=30min, ends with
@@ -86,7 +86,7 @@ def unsatisfied():
 def packman_mix():
     """openSUSE builds of packages Packman replaces, while Packman is used."""
     # A repo the user switched off on purpose is not a mix
-    if probes.packman_repo() != "on":
+    if query.packman_repo() != "on":
         return []
     return mixed_packman(proc.out(["rpm", "-qa", "--qf",
                                    "%{NAME}\t%{VENDOR}\n"]))
@@ -111,7 +111,7 @@ def mixed_packman(rpm_qa_text):
 
 def nvidia_module_missing():
     """NVIDIA driver installed, but no module for the running kernel."""
-    if not probes.rpm_vendors(
+    if not query.rpm_vendors(
             [pkgs[1] for pkgs in catalog.NVIDIA_DRIVERS.values()]):
         return False
     release = platform.release()
@@ -122,9 +122,8 @@ def nvidia_module_missing():
 
 
 def failed_units(user=False):
-    base = ["systemctl", "--user"] if user else ["systemctl"]
     units = [line.split()[0] for line in proc.out(
-        base + ["list-units", "--failed", "--plain",
+        proc.systemctl(user) + ["list-units", "--failed", "--plain",
                 "--no-legend"]).splitlines() if line.strip()]
     return [u for u in units if u not in IGNORED_UNITS
             and not re.fullmatch(IGNORED_UNIT_PATTERN, u)]
@@ -133,7 +132,7 @@ def failed_units(user=False):
 def restart_failed(user, run):
     """Restart the failed units, wait, reset-failed the ones that recovered.
     RUN(cmd) runs one systemctl command. Returns the units still failing."""
-    base = ["systemctl", "--user"] if user else ["systemctl"]
+    base = proc.systemctl(user)
     units = failed_units(user)
     for unit in units:
         if unit.endswith((".service", ".mount", ".socket")):
@@ -165,7 +164,7 @@ def low_space():
 def flathub_missing():
     if not proc.has("flatpak"):
         return False
-    return not probes.flathub_configured()
+    return not query.flathub_configured()
 
 
 def check():

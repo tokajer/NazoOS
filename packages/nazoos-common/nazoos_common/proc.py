@@ -36,6 +36,11 @@ def rc(cmd, timeout=30):
         return 1
 
 
+def systemctl(user=False):
+    """systemctl, or systemctl --user for the user's units."""
+    return ["systemctl", "--user"] if user else ["systemctl"]
+
+
 def has(tool):
     """TOOL is found in PATH."""
     return shutil.which(tool) is not None

@@ -3,7 +3,8 @@
 """NazoOS kernel opt-in (ADR 0008): packages and the kernel modules that
 belong to them.
 
-The GUIs only read here; the root helpers and nazoos-kernel-boot write.
+The GUIs only use the read functions; keep_default() is root only (used by
+nazoos-update and nazoos-kernel-boot).
 Boot menu and command line: grub, state files: kernelstate, Secure Boot
 key: mok, module sync as root: kmp_sync. No Qt imports here.
 """

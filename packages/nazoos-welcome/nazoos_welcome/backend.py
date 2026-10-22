@@ -4,6 +4,7 @@
 
 import os
 import sys
+import time
 import traceback
 
 from nazoos_common import mok
@@ -38,6 +39,9 @@ LAUNCHERS = {
     "gaming-mode": ([], ["nazoos-session-select", "gaming"]),
 }
 
+# A page change re-reads the state only if it is older than this (s)
+STALE_SECONDS = 30
+
 HELPER = os.environ.get("NAZOOS_WELCOME_HELPER",
                         "/usr/libexec/nazoos-welcome/nazoos-welcome-helper")
 
@@ -52,13 +56,15 @@ class Backend(ActionRunner):
         super().__init__(HELPER, translator.gettext, catalog.ACTION_LABELS,
                          LAUNCHERS)
         self._state = {}
+        # time.monotonic() of the last successful load
+        self._loaded_at = float("-inf")
         # (action, args, needs MokManager password) of the last run() that
         # "Try again" may repeat, None after anything else
         self._retry = None
         self._on_success = None
         # Never kill the UI over a probe
         self._loader = CoalescedLoad(
-            self, report.collect_state, self._set_state,
+            self, report.collect_state, self._loaded,
             lambda e: self._set_state(dict(self._state, error=str(e))))
         # State keys read by _quick_refresh since the last full refresh
         self._quick = set()
@@ -104,6 +110,15 @@ class Backend(ActionRunner):
     def refresh(self):
         self._loader.request()
 
+    @Slot()
+    def refreshStale(self):
+        """refresh() unless a load is running or the state is fresh;
+        actions still refresh in full (_done)."""
+        if (self._loader.running
+                or time.monotonic() - self._loaded_at < STALE_SECONDS):
+            return
+        self.refresh()
+
     def _quick_refresh(self, action):
         key, probe = QUICK_PROBES[action]
         try:
@@ -114,6 +129,10 @@ class Backend(ActionRunner):
         self._quick.add(key)
         self._state = dict(self._state, **{key: value})
         self.stateChanged.emit()
+
+    def _loaded(self, st):
+        self._loaded_at = time.monotonic()
+        self._set_state(st)
 
     def _set_state(self, st):
         if self._loader.pending:
