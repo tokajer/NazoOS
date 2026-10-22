@@ -81,6 +81,12 @@ def test_strict_status_raises_on_an_empty_answer(strict_tools):
         mok.status("/c.crt", strict=True)
 
 
+def test_strict_status_silent_empty_queue(strict_tools):
+    # mokutil 0.7.2: no MokNew → no output at all, exit code 0
+    strict_tools["mokutil --list-new"] = ("", "", 0)
+    assert mok.status("/c.crt", strict=True) == mok.MISSING
+
+
 def test_strict_status_reads_stderr_answers(strict_tools):
     strict_tools["mokutil --list-new"] = ("", "MokNew is empty", 1)
     assert mok.status("/c.crt", strict=True) == mok.MISSING

@@ -20,15 +20,19 @@ PENDING = "pending"
 MISSING = "missing"
 
 
-def _out(cmd, strict, expect=()):
+def _out(cmd, strict, expect=(), empty_ok=False):
     """Output of CMD. STRICT (root actions): no timeout, and a missing
     tool or an answer without any of the EXPECT words raises, so a
-    broken mokutil never reads as "not enrolled"/"not queued"."""
+    broken mokutil never reads as "not enrolled"/"not queued".
+    EMPTY_OK: no output with exit code 0 is a valid empty list."""
     if not strict:
         return proc.out(cmd)
     r = helper.capture(cmd)
     # Some answers ("MokNew is empty") may go to stderr
     text = r.stdout + r.stderr
+    # mokutil 0.7.2 prints nothing for a missing MokNew (VM 2026-10-22)
+    if empty_ok and r.returncode == 0 and not text.strip():
+        return ""
     if not any(w in text.lower() for w in expect):
         raise helper.Fail("'{cmd}' failed (exit code {rc})",
                           cmd=" ".join(cmd[:2]), rc=r.returncode)
@@ -86,7 +90,7 @@ def enrolled(cert, strict=False):
         return True
     fpr = fingerprint(cert, strict)
     listed = _out(["mokutil", "--list-enrolled"], strict,
-                  ("fingerprint", "empty")).lower().replace(":", "")
+                  ("fingerprint", "empty"), empty_ok=True).lower().replace(":", "")
     return bool(fpr) and fpr in listed
 
 
@@ -131,7 +135,7 @@ def pending(cert, strict=False):
     """Root only: CERT waits for MokManager at the next boot."""
     fpr = fingerprint(cert, strict)
     queued = _out(["mokutil", "--list-new"], strict,
-                  ("fingerprint", "empty")).lower().replace(":", "")
+                  ("fingerprint", "empty"), empty_ok=True).lower().replace(":", "")
     return bool(fpr) and fpr in queued
 
 
