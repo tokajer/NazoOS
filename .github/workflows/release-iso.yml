@@ -1,25 +1,29 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# Publishes the release ISO (ADR 0025). Publishing of repository "images"
-# in home:Tokajer:nazoos:release stays disabled: OBS rebuilds the ISO on
-# every Tumbleweed change, and only this workflow may put one online.
-# Every 3 hours (and after each release): if OBS has a successfully built
-# nazoos-image:release that is not published yet, and the Tumbleweed
-# mirrors have its snapshot (.github/scripts/release-iso-check.py), it
-# enables publishing, waits until download.opensuse.org serves that ISO,
-# and disables publishing again.
+# Builds and publishes the release ISO (ADR 0025). Build and publishing of
+# repository "images" in home:Tokajer:nazoos:release stay disabled, so the
+# last built ISO is frozen: built against openSUSE:Factory/snapshot it is
+# often one snapshot ahead of the mirrors, and an ISO OBS rebuilt on every
+# snapshot never became publishable (2026-10-24).
+# Every hour (.github/scripts/release-iso-check.py decides):
+# - ISO missing or stale (older NazoOS packages than :release, or its
+#   Tumbleweed snapshot a week behind the mirrors): enable the build and
+#   start a rebuild; a later run disables the build again when it is done.
+# - Frozen ISO not published yet and the mirrors have its snapshot:
+#   enable publishing, wait until download.opensuse.org serves that ISO,
+#   disable publishing again.
 # Tumbleweed is rolling, so the ISO may follow it; only our packages go
 # through the release gate (release.yml).
 # Secrets: OBS_USER/OBS_PASSWORD – tokajer-bot, maintainer of
-# home:Tokajer:nazoos:release (set_flag needs project maintainer rights).
+# home:Tokajer:nazoos:release (set_flag and rebuild need maintainer rights).
 # Doku: https://openbuildservice.org/help/manuals/obs-user-guide/ (flags)
 
 name: Release ISO
 
 on:
   schedule:
-    - cron: "23 */3 * * *"
+    - cron: "23 * * * *"
   workflow_dispatch:
   workflow_call:
     secrets:
@@ -46,6 +50,9 @@ jobs:
       OBS_USER: ${{ secrets.OBS_USER }}
       OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
       FLAG_URL: "https://api.opensuse.org/source/home:Tokajer:nazoos:release?cmd=set_flag&flag=publish&repository=images"
+      BUILD_FLAG_URL: "https://api.opensuse.org/source/home:Tokajer:nazoos:release?cmd=set_flag&flag=build&repository=images"
+      REBUILD_URL: "https://api.opensuse.org/build/home:Tokajer:nazoos:release?cmd=rebuild&package=nazoos-image:release&repository=images&arch=x86_64"
+      RESULT_URL: "https://api.opensuse.org/build/home:Tokajer:nazoos:release/_result?package=nazoos-image:release&repository=images&multibuild=1"
       PUBLISHED: "https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/release/images/iso/NazoOS.x86_64-release.iso.sha256"
     steps:
       - uses: actions/checkout@v7
@@ -56,6 +63,33 @@ jobs:
           [ -n "$OBS_USER" ] && [ -n "$OBS_PASSWORD" ] ||
             { echo "::error::secrets OBS_USER / OBS_PASSWORD missing"; exit 1; }
           python3 .github/scripts/release-iso-check.py | tee -a "$GITHUB_OUTPUT"
+
+      - name: Freeze the finished ISO
+        if: steps.check.outputs.build == 'disable'
+        run: |
+          curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -X POST "$BUILD_FLAG_URL&status=disable"
+
+      # The rebuilt ISO is frozen by a later run, publishing waits for it
+      - name: Rebuild the ISO
+        if: steps.check.outputs.build == 'enable'
+        env:
+          REASON: ${{ steps.check.outputs.reason }}
+        run: |
+          curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -X POST "$BUILD_FLAG_URL&status=enable"
+          curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -X POST "$REBUILD_URL"
+          # Until the scheduler has taken it, _result still says
+          # "succeeded" for the old ISO and the next run would freeze it
+          for _ in $(seq 30); do
+            sleep 30
+            if ! curl -sSf -u "$OBS_USER:$OBS_PASSWORD" "$RESULT_URL" |
+                grep -Eq 'code="(succeeded|disabled)"'; then
+              echo "## Release ISO rebuilding" >> "$GITHUB_STEP_SUMMARY"
+              echo "$REASON" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          done
+          echo "::error::OBS did not start the image rebuild within 15 minutes"
+          exit 1
 
       - name: Publish
         if: steps.check.outputs.publish == 'true'
@@ -82,7 +116,7 @@ jobs:
           curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -X POST "$FLAG_URL&status=disable"
 
       - name: Summary
-        if: steps.check.outputs.publish != 'true'
+        if: steps.check.outputs.publish != 'true' && steps.check.outputs.build != 'enable'
         env:
           REASON: ${{ steps.check.outputs.reason }}
         run: |
