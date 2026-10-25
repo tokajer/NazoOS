@@ -70,6 +70,9 @@ Recommends:     vulkan-tools
 # -kmp-default and -kmp-nazoos alike (ADR 0008 stage 2 keeps working)
 Recommends:     xone
 Recommends:     xpadneo
+# Nintendo Switch: pairs two Joy-Cons into one controller (service
+# enabled by the nazoos-tweaks preset; joycond-autoload comes with it)
+Recommends:     joycond
 # Hardware
 Recommends:     OpenRGB
 Recommends:     lact
@@ -145,6 +148,8 @@ Recommends:     vim
 Recommends:     bash-completion
 Recommends:     fastfetch
 Recommends:     btop
+# GPU load, VRAM and temperature (btop barely shows the GPU)
+Recommends:     nvtop
 Recommends:     git-core
 Recommends:     wget
 Recommends:     unzip

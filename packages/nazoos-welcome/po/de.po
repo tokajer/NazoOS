@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-22 20:28+0200\n"
+"POT-Creation-Date: 2026-10-25 17:04+0100\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -22,7 +22,7 @@ msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr "GRUB_CMDLINE_LINUX_DEFAULT nicht in {file} gefunden"
 
 #: ../nazoos-common/nazoos_common/helper.py:70
-#: ../nazoos-common/nazoos_common/mok.py:33 nazoos_welcome/root/base.py:76
+#: ../nazoos-common/nazoos_common/mok.py:37 nazoos_welcome/root/base.py:76
 #: nazoos_welcome/root/kernel_switch.py:24
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
@@ -60,7 +60,7 @@ msgid "pkexec could not be started."
 msgstr "pkexec konnte nicht gestartet werden."
 
 #: ../nazoos-common/nazoos_common/qt.py:159 nazoos_welcome/backend.py:171
-#: nazoos_welcome/backend.py:263
+#: nazoos_welcome/backend.py:277
 msgid "Done."
 msgstr "Fertig."
 
@@ -97,11 +97,11 @@ msgstr "Schließen"
 msgid "Nothing has run yet."
 msgstr "Bisher wurde nichts ausgeführt."
 
-#: nazoos_welcome/backend.py:168
+#: nazoos_welcome/backend.py:178
 msgid "These services still fail after a restart: %1"
 msgstr "Diese Dienste schlagen auch nach dem Neustart fehl: %1"
 
-#: nazoos_welcome/backend.py:222
+#: nazoos_welcome/backend.py:233
 msgid ""
 "The password for the Secure Boot key could not be prepared (openssl is "
 "missing)."
@@ -109,7 +109,7 @@ msgstr ""
 "Das Passwort für den Secure-Boot-Schlüssel konnte nicht vorbereitet werden "
 "(openssl fehlt)."
 
-#: nazoos_welcome/backend.py:277
+#: nazoos_welcome/backend.py:291
 msgid "The autostart setting could not be changed: %1"
 msgstr "Die Autostart-Einstellung konnte nicht geändert werden: %1"
 
@@ -315,6 +315,10 @@ msgid "Manage Flatpak permissions"
 msgstr "Flatpak-Berechtigungen verwalten"
 
 #: nazoos_welcome/catalog.py
+msgid "Manage installed Flatpaks, their data and old versions"
+msgstr "Installierte Flatpaks, ihre Daten und alte Versionen verwalten"
+
+#: nazoos_welcome/catalog.py
 msgid "Media player with built-in codecs"
 msgstr "Mediaplayer mit eingebauten Codecs"
 
@@ -345,6 +349,10 @@ msgstr ""
 #: nazoos_welcome/catalog.py
 msgid "Preparing the Secure Boot key"
 msgstr "Secure-Boot-Schlüssel wird vorbereitet"
+
+#: nazoos_welcome/catalog.py
+msgid "Private messenger with end-to-end encryption"
+msgstr "Privater Messenger mit Ende-zu-Ende-Verschlüsselung"
 
 #: nazoos_welcome/catalog.py
 msgid "Profile-sync-daemon"
@@ -770,21 +778,21 @@ msgstr ""
 "Eine Auswahl beliebter Apps. Flatpaks kommen von Flathub und laufen in einer "
 "Sandbox; alles Weitere finden Sie in Discover."
 
-#: qml/pages/AppsPage.qml:103
+#: qml/pages/AppsPage.qml:104
 msgid "Needs the NazoOS kernel (Kernel page)"
 msgstr "Braucht den NazoOS-Kernel (Seite „Kernel“)"
 
-#: qml/pages/AppsPage.qml:105 qml/pages/DriversPage.qml:86
+#: qml/pages/AppsPage.qml:106 qml/pages/DriversPage.qml:86
 #: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:219
 #: qml/pages/GamingPage.qml:242
 msgid "Installed"
 msgstr "Installiert"
 
-#: qml/pages/AppsPage.qml:106
+#: qml/pages/AppsPage.qml:107
 msgid "Software rendering (slower)"
 msgstr "Software-Rendering (langsamer)"
 
-#: qml/pages/AppsPage.qml:110 qml/pages/DriversPage.qml:55
+#: qml/pages/AppsPage.qml:111 qml/pages/DriversPage.qml:55
 #: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
 #: qml/pages/DriversPage.qml:121 qml/pages/GamingPage.qml:227
 #: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:49
@@ -792,18 +800,18 @@ msgstr "Software-Rendering (langsamer)"
 msgid "Install"
 msgstr "Installieren"
 
-#: qml/pages/AppsPage.qml:110 qml/pages/AppsPage.qml:118
+#: qml/pages/AppsPage.qml:111 qml/pages/AppsPage.qml:119
 #: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
 #: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:73
 #: qml/pages/KernelPage.qml:78 qml/pages/KernelPage.qml:102
 msgid "Remove"
 msgstr "Entfernen"
 
-#: qml/pages/AppsPage.qml:116
+#: qml/pages/AppsPage.qml:117
 msgid "Remove %1?"
 msgstr "%1 entfernen?"
 
-#: qml/pages/AppsPage.qml:117
+#: qml/pages/AppsPage.qml:118
 msgid "Your settings and files in your home folder are kept."
 msgstr ""
 "Ihre Einstellungen und Dateien im persönlichen Ordner bleiben erhalten."

@@ -5,6 +5,8 @@
 # Read before openSUSE's 95-default-SUSE.preset and 99-default.preset
 # (disable *), the first matching line wins. Users can still disable them.
 enable coolercontrold.service
+# Joy-Con pairing (joycond from nazoos-pattern)
+enable joycond.service
 enable nazoos-xone-firmware.timer
 # TCP BBR, bbr3 on kernel-nazoos (each unit checks the kernel itself)
 enable nazoos-tcp-bbr.service

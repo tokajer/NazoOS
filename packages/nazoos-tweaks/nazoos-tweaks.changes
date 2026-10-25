@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Sun Oct 25 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Preset: enable joycond.service
+
+-------------------------------------------------------------------
 Wed Oct 21 08:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - BBRv3 was never used on kernel-nazoos: tcp_bbr (loaded via

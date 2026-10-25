@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Sun Oct 25 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Apps page: Signal and Warehouse (Flatpak)
+
+-------------------------------------------------------------------
 Sun Oct 25 17:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Apps page: cards show the real app icon before installation, taken from the Flathub and repo AppStream caches (theme icon as before when there is none).
