@@ -44,6 +44,8 @@ Recommends:     wine
 Recommends:     protontricks
 Recommends:     winetricks
 Recommends:     goverlay
+# Voice chat (non-oss like steam)
+Recommends:     discord
 # Graphics: all Mesa drivers regardless of hardware. Tumbleweed only pulls
 # the Vulkan drivers via modalias supplements, which do not match in an
 # image built without a GPU (KIWI/OBS) and are bound to kernel-default.
@@ -61,6 +63,8 @@ Recommends:     libvulkan_intel-32bit
 # NVK: Vulkan on NVIDIA before the proprietary driver is installed
 Recommends:     libvulkan_nouveau
 Recommends:     libvulkan_nouveau-32bit
+# vulkaninfo for bug reports and the llvmpipe check
+Recommends:     vulkan-tools
 # Xbox controllers: wireless dongle (xone) and Bluetooth (xpadneo). The
 # base packages require the generic xone-kmp/xpadneo-kmp, provided by
 # -kmp-default and -kmp-nazoos alike (ADR 0008 stage 2 keeps working)
@@ -112,6 +116,11 @@ Recommends:     filelight
 Recommends:     spectacle
 Recommends:     kdeconnect-kde
 Recommends:     elisa
+# Video player (mpv); full codecs after the Packman opt-in
+Recommends:     haruna
+# Video and PDF previews in Dolphin
+Recommends:     ffmpegthumbs
+Recommends:     kdegraphics-thumbnailers
 Recommends:     kamoso
 Recommends:     kfind
 Recommends:     kcharselect
@@ -124,7 +133,11 @@ Recommends:     kio-admin
 Recommends:     pavucontrol-qt
 # CJK glyphs in game titles and launchers
 Recommends:     google-noto-sans-cjk-fonts
+Recommends:     noto-coloremoji-fonts
 Recommends:     alsa-firmware
+# USB sticks, SD cards and Windows disks (dual boot)
+Recommends:     exfatprogs
+Recommends:     ntfs-3g
 # Command line basics (like CachyOS/Nobara); patterns-base-base is
 # minimal and ships no editor
 Recommends:     nano
@@ -135,6 +148,8 @@ Recommends:     btop
 Recommends:     git-core
 Recommends:     wget
 Recommends:     unzip
+# .7z archives in Ark
+Recommends:     7zip
 Recommends:     plocate
 Recommends:     ethtool
 Recommends:     openssh-clients
@@ -157,7 +172,7 @@ Summary:        Translations for the NazoOS desktop
 # English (ADR 0027). Weak dependencies on purpose: a package that is
 # renamed or dropped in Tumbleweed must not block "zypper dup".
 # List = every <name>-lang whose <name> is in the image; refresh it with
-# notes/translations.md (2026-10-21: 208 packages).
+# notes/translations.md (2026-10-25: 209 packages).
 Recommends:     accountsservice-lang
 Recommends:     appstream-glib-lang
 Recommends:     AppStream-lang
@@ -198,6 +213,7 @@ Recommends:     gstreamer-plugins-base-lang
 Recommends:     gstreamer-plugins-good-lang
 Recommends:     gvfs-lang
 Recommends:     gwenview-lang
+Recommends:     haruna-lang
 Recommends:     kaccounts-integration-lang
 Recommends:     kaccounts-providers-lang
 Recommends:     kactivitymanagerd6-lang
