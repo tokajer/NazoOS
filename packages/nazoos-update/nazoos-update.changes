@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Sun Oct 25 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Removing unused Flatpak runtimes after the update is now optional (checkbox in the window, off by default).
+
+-------------------------------------------------------------------
 Thu Oct 22 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - A broken mokutil no longer turns a failed update into "installed, only the key is missing".

@@ -66,9 +66,14 @@ def script_failure(rc, failed):
     return OK if rc in zypper.OK else FAIL
 
 
-def after_update_extras(dup_ran):
+# Optional argument of "update", chosen in the window
+CLEAN_FLATPAKS = "clean-flatpaks"
+
+
+def after_update_extras(dup_ran, clean_flatpaks=False):
     """What follows the update: kernel modules (only after a dup),
-    Flatpaks, the boot entry."""
+    Flatpaks (unused runtimes removed only if CLEAN_FLATPAKS), the boot
+    entry."""
     # dup only updates what is installed: kernel modules for
     # kernel-nazoos that came later (acpi_call); a module missing
     # from the repo is skipped there
@@ -79,6 +84,7 @@ def after_update_extras(dup_ran):
             say(f"Note: {e}")
     if proc.has("flatpak"):
         run(FLATPAK + ["update", "--noninteractive", "-y"], check=False)
+    if clean_flatpaks and proc.has("flatpak"):
         run(FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"],
             check=False)
     # NazoOS kernel opt-in: a kernel update adds a new boot entry, keep
@@ -113,7 +119,10 @@ def run_dup(cmd):
     return verdict == KEY_MISSING
 
 
-def update(_args):
+def update(args):
+    if args:
+        helper.arg(args, 0, (CLEAN_FLATPAKS,))
+    clean_flatpaks = bool(args)
     run(zypper.ZYPPER + ["--gpg-auto-import-keys", "refresh"])
     pkgs, problems = check.dup_preview()
     if problems:
@@ -131,7 +140,7 @@ def update(_args):
             f"{behind[0]}: only NazoOS packages until they catch up")
         cmd = check.own_update_cmd()
     key_missing = run_dup(cmd) if cmd else False
-    after_update_extras(bool(cmd))
+    after_update_extras(bool(cmd), clean_flatpaks)
     reboot = capture(["zypper", "needs-rebooting"]).returncode == zypper.NEEDS_REBOOT
     status.write(status.new(
         behind=list(behind) if behind else None, needs_reboot=reboot,

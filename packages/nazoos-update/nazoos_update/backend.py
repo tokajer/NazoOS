@@ -8,7 +8,8 @@ import subprocess
 
 from nazoos_common.launcher import COMMON_LAUNCHERS
 from nazoos_common.qt import ActionRunner, CoalescedLoad
-from PySide6.QtCore import Property, QFileSystemWatcher, QTimer, Signal, Slot
+from PySide6.QtCore import (Property, QFileSystemWatcher, QSettings, QTimer,
+                            Signal, Slot)
 
 from . import status
 from .i18n import _
@@ -30,6 +31,7 @@ LAUNCHERS = {
 
 class Backend(ActionRunner):
     stateChanged = Signal()
+    cleanFlatpaksChanged = Signal()
 
     def __init__(self):
         super().__init__(HELPER, _, ACTION_LABELS, LAUNCHERS)
@@ -42,6 +44,9 @@ class Backend(ActionRunner):
         self._reboot = False
         # The snapshot was made permanent; only a restart is left to do
         self._rolled_back = False
+        # Remove unused Flatpak runtimes after the update: the user's
+        # choice, off by default (~/.config/NazoOS/nazoos-update.conf)
+        self._settings = QSettings("NazoOS", "nazoos-update")
         # Reload when the root check writes a new status
         self._watch = QFileSystemWatcher(self)
         self._watch.addPath(str(status.STATUS.parent))
@@ -73,6 +78,17 @@ class Backend(ActionRunner):
 
     canRepair = Property(bool, _get_can_repair, constant=True)
 
+    def _get_clean_flatpaks(self):
+        return self._settings.value("cleanFlatpaks", False, type=bool)
+
+    def _set_clean_flatpaks(self, on):
+        if on != self._get_clean_flatpaks():
+            self._settings.setValue("cleanFlatpaks", on)
+            self.cleanFlatpaksChanged.emit()
+
+    cleanFlatpaks = Property(bool, _get_clean_flatpaks, _set_clean_flatpaks,
+                             notify=cleanFlatpaksChanged)
+
     @Slot()
     def refresh(self):
         self._request()
@@ -96,7 +112,8 @@ class Backend(ActionRunner):
         if self._busy or action not in ACTION_LABELS:
             return
         self._begin(action)
-        self._start(action, [])
+        clean = action == "update" and self._get_clean_flatpaks()
+        self._start(action, ["clean-flatpaks"] if clean else [])
 
     def _helper_finished(self, action, helper_proc, ok, message):
         if helper_proc.reboot:

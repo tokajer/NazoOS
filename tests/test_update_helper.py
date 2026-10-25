@@ -331,6 +331,23 @@ def test_update_stops_at_a_conflict(monkeypatch):
     assert written == [status_mod.new(error=status_mod.ERROR_CONFLICT, problems=["x"])]
 
 
+@pytest.mark.parametrize("clean", [False, True])
+def test_unused_flatpaks_go_only_when_chosen(monkeypatch, clean):
+    calls = []
+    monkeypatch.setattr(update, "run", lambda *a, **k: calls.append(a[0]) or 0)
+    monkeypatch.setattr(update.proc, "has", lambda _name: True)
+    monkeypatch.setattr(update.kernel, "keep_default", lambda _say: None)
+    update.after_update_extras(False, clean)
+    unused = update.FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"]
+    assert (unused in calls) is clean
+    assert update.FLATPAK + ["update", "--noninteractive", "-y"] in calls
+
+
+def test_update_rejects_unknown_arguments():
+    with pytest.raises(Fail):
+        update.update(["--unused"])
+
+
 def test_own_repos_are_the_enabled_nazoos_ones(monkeypatch):
     monkeypatch.setattr(check.repos, "repos", lambda: [
         ("nazoos:nazoos", "https://download.opensuse.org/x/", True),

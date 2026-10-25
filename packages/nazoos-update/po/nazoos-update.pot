@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-22 14:34+0200\n"
+"POT-Creation-Date: 2026-10-25 18:36+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,34 +23,35 @@ msgstr ""
 msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:75
+#: ../nazoos-common/nazoos_common/helper.py:70
+#: ../nazoos-common/nazoos_common/mok.py:37
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:121
+#: ../nazoos-common/nazoos_common/helper.py:89
 msgid "missing argument"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:123
+#: ../nazoos-common/nazoos_common/helper.py:91
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:132
+#: ../nazoos-common/nazoos_common/helper.py:100
 msgid "must run as root (via pkexec)"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:136
+#: ../nazoos-common/nazoos_common/helper.py:104
 msgid "unknown action"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:149
+#: ../nazoos-common/nazoos_common/helper.py:117
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:153
+#: ../nazoos-common/nazoos_common/helper.py:121
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr ""
@@ -87,7 +88,7 @@ msgstr ""
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:334
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:341
 msgid "Close"
 msgstr ""
 
@@ -187,50 +188,50 @@ msgstr ""
 msgid "the package sources could not be refreshed (no internet connection?)"
 msgstr ""
 
-#: nazoos_update/root/check.py:166 nazoos_update/root/update.py:103
+#: nazoos_update/root/check.py:166 nazoos_update/root/update.py:134
 #, python-brace-format
 msgid "the update needs a decision: {problem}"
 msgstr ""
 
-#: nazoos_update/root/snapshots.py:55
+#: nazoos_update/root/snapshots.py:56
 msgid "Before update"
 msgstr ""
 
-#: nazoos_update/root/snapshots.py:56
+#: nazoos_update/root/snapshots.py:57
 msgid "Before software change"
 msgstr ""
 
-#: nazoos_update/root/snapshots.py:58
+#: nazoos_update/root/snapshots.py:59
 msgid "After update"
 msgstr ""
 
-#: nazoos_update/root/snapshots.py:59
+#: nazoos_update/root/snapshots.py:60
 msgid "After software change"
 msgstr ""
 
-#: nazoos_update/root/snapshots.py:61
+#: nazoos_update/root/snapshots.py:62
 msgid "Automatic snapshot"
 msgstr ""
 
-#: nazoos_update/root/snapshots.py:68
+#: nazoos_update/root/snapshots.py:69
 msgid "Before rollback"
 msgstr ""
 
-#: nazoos_update/root/snapshots.py:129
+#: nazoos_update/root/snapshots.py:130
 #, no-python-format
 msgid "%Y-%m-%d %H:%M"
 msgstr ""
 
-#: nazoos_update/root/snapshots.py:162
+#: nazoos_update/root/snapshots.py:163
 msgid "the system was not started from a snapshot"
 msgstr ""
 
-#: nazoos_update/root/update.py:123
+#: nazoos_update/root/update.py:115
 #, python-brace-format
 msgid "the system update failed (zypper exit code {rc})"
 msgstr ""
 
-#: nazoos_update/root/update.py:133
+#: nazoos_update/root/update.py:151
 msgid ""
 "the update is installed, but the NazoOS kernel key is not enrolled: open "
 "NazoOS Welcome, page Kernel, \"Enroll key\""
@@ -274,7 +275,7 @@ msgstr ""
 msgid "Check now"
 msgstr ""
 
-#: qml/Main.qml:59 qml/Main.qml:329
+#: qml/Main.qml:59 qml/Main.qml:336
 msgid "Show details"
 msgstr ""
 
@@ -284,7 +285,7 @@ msgid ""
 "installed or changed. If everything works now, make this state permanent."
 msgstr ""
 
-#: qml/Main.qml:75 qml/Main.qml:305
+#: qml/Main.qml:75 qml/Main.qml:312
 msgid "Make permanent"
 msgstr ""
 
@@ -369,52 +370,56 @@ msgid ""
 msgstr ""
 
 #: qml/Main.qml:179
+msgid "Also remove Flatpak runtimes no app needs anymore"
+msgstr ""
+
+#: qml/Main.qml:186
 msgid "Update now"
 msgstr ""
 
-#: qml/Main.qml:192
+#: qml/Main.qml:199
 msgid "System packages"
 msgstr ""
 
-#: qml/Main.qml:217
+#: qml/Main.qml:224
 msgid "new"
 msgstr ""
 
-#: qml/Main.qml:218
+#: qml/Main.qml:225
 msgid "removed"
 msgstr ""
 
-#: qml/Main.qml:228
+#: qml/Main.qml:235
 msgid "Flatpak apps and runtimes"
 msgstr ""
 
-#: qml/Main.qml:244
+#: qml/Main.qml:251
 msgid "Snapshots (Btrfs Assistant)"
 msgstr ""
 
-#: qml/Main.qml:249
+#: qml/Main.qml:256
 msgid "Packages (Myrlyn)"
 msgstr ""
 
-#: qml/Main.qml:300
+#: qml/Main.qml:307
 msgid "Make this state permanent?"
 msgstr ""
 
-#: qml/Main.qml:301
+#: qml/Main.qml:308
 msgid ""
 "The system goes back to snapshot %1 for good. The current, broken state is "
 "kept as a snapshot, so this can be undone. Afterwards the computer has to "
 "restart."
 msgstr ""
 
-#: qml/Main.qml:310
+#: qml/Main.qml:317
 msgid "Cancel"
 msgstr ""
 
-#: qml/Main.qml:319
+#: qml/Main.qml:326
 msgid "That did not work"
 msgstr ""
 
-#: qml/Main.qml:323
+#: qml/Main.qml:330
 msgid "Repair"
 msgstr ""

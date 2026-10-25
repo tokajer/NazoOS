@@ -6,7 +6,8 @@
 The actions live in nazoos_update/root/ (list: root/__init__.py).
 Started by nazoos-update-check.service (action "check") and by the GUI
 via pkexec ("check", "update", "rollback"); "label" by
-nazoos-update-label.service. Takes no other arguments.
+nazoos-update-label.service. Only "update" takes an argument:
+"clean-flatpaks" also removes unused Flatpak runtimes.
 The status of the last check is written to STATUS as JSON, readable by
 every user; the GUI and the notifier only read it.
 The last output line "@@error {...}" carries a message for the user
@@ -29,4 +30,4 @@ from nazoos_common import helper  # noqa: E402
 from nazoos_update.root import ACTIONS  # noqa: E402
 
 if __name__ == "__main__":
-    sys.exit(helper.main(ACTIONS, lock_timeout=300, max_args=0))
+    sys.exit(helper.main(ACTIONS, lock_timeout=300, max_args=1))

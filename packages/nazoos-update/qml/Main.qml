@@ -174,6 +174,13 @@ Kirigami.ApplicationWindow {
                             opacity: 0.8
                             text: L.tr("Before the update a snapshot is taken automatically. If something breaks, pick it in the boot menu under \"Start bootloader from a read-only snapshot\".")
                         }
+                        QQC2.CheckBox {
+                            Layout.fillWidth: true
+                            text: L.tr("Also remove Flatpak runtimes no app needs anymore")
+                            checked: backend.cleanFlatpaks
+                            enabled: !backend.busy
+                            onToggled: backend.cleanFlatpaks = checked
+                        }
                     }
                     QQC2.Button {
                         text: L.tr("Update now")
