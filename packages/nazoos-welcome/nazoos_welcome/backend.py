@@ -62,6 +62,8 @@ class Backend(ActionRunner):
         # "Try again" may repeat, None after anything else
         self._retry = None
         self._on_success = None
+        # User units still failing while fixUnits' system half runs
+        self._user_still = []
         # Never kill the UI over a probe
         self._loader = CoalescedLoad(
             self, report.collect_state, self._loaded,
@@ -162,13 +164,21 @@ class Backend(ActionRunner):
         self._append(log)
         if with_system:
             # The system units follow, with the password dialog
+            self._user_still = still
             self._start_helper("repair-units", [], None, None)
-        elif still:
-            self._done("repair-units", False, self._gettext(
-                "These services still fail after a restart: %1")
-                .replace("%1", ", ".join(still)))
         else:
-            self._done("repair-units", True, self._gettext("Done."))
+            self._units_done(True, self._gettext("Done."), still)
+
+    def _units_done(self, ok, message, still):
+        """Finish fixUnits; user units that still fail make it a failure
+        and are named next to the helper's system units."""
+        if still:
+            user = self._gettext(
+                "These services still fail after a restart: %1").replace(
+                    "%1", ", ".join(still))
+            message = f"{message}\n{user}" if not ok and message else user
+            ok = False
+        self._done("repair-units", ok, message)
 
     # --- root actions ---------------------------------------------------------
 
@@ -226,7 +236,10 @@ class Backend(ActionRunner):
 
     def _helper_finished(self, action, helper_proc, ok, message):
         on_success, self._on_success = self._on_success, None
-        if ok and on_success:
+        if action == "repair-units":
+            still, self._user_still = self._user_still, []
+            self._units_done(ok, message, still)
+        elif ok and on_success:
             on_success(lambda: self._done(action, True, message))
         else:
             self._done(action, ok, message)

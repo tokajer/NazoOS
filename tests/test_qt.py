@@ -247,6 +247,36 @@ def test_failed_user_service_switch_offers_no_retry(app, welcome):
     assert not b.busy
 
 
+def _fix_units(app, b, seen, monkeypatch, still):
+    from nazoos_welcome import backend
+    monkeypatch.setattr(backend.user_actions, "restart_user_units",
+                        lambda: ("", still))
+    b.fixUnits(True)
+    wait(app, lambda: seen)
+    return seen[-1]
+
+
+def test_user_units_still_failing_are_reported_after_the_system_half(
+        app, welcome, monkeypatch):
+    b, seen = welcome
+    action, ok, message = _fix_units(app, b, seen, monkeypatch, ["u.service"])
+    assert "argv ['repair-units']" in b._log
+    assert (action, ok) == ("repair-units", False)
+    assert "u.service" in message
+
+
+def test_failing_user_and_system_units_are_both_named(
+        app, welcome, monkeypatch, tmp_path):
+    script = tmp_path / "helper-units"
+    script.write_text(f"print({errors.PREFIX + 'still failing: s.service'!r})"
+                      "\nraise SystemExit(1)\n")
+    b, seen = welcome
+    b._helper = str(script)
+    action, ok, message = _fix_units(app, b, seen, monkeypatch, ["u.service"])
+    assert not ok
+    assert "s.service" in message and "u.service" in message
+
+
 def test_second_start_hands_page_and_token_over(app, tmp_path, monkeypatch):
     from nazoos_common.single import TOKEN, Instance
 
