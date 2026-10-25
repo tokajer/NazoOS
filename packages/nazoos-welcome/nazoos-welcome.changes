@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Sun Oct 25 17:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Apps page: cards show the real app icon before installation, taken from the Flathub and repo AppStream caches (theme icon as before when there is none).
+
+-------------------------------------------------------------------
 Thu Oct 22 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Kernel install: a failed repo search stops with its real reason instead of "no build of your NVIDIA driver"; the boot counter is switched on before the boot menu step.

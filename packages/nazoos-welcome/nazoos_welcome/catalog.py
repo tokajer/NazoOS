@@ -9,6 +9,8 @@ paths and package lists are in system.py.
 
 # Optional apps (ADR 0003). Flatpaks come from Flathub (system-wide),
 # RPMs from the Tumbleweed repos. "refs" are installed together.
+# "appstream": component id of the icon in the AppStream caches when
+# neither "icon" nor a ref matches it (appicons.py)
 APPS = [
     # Gaming
     {"id": "protonupqt", "name": "ProtonUp-Qt", "category": "gaming",
@@ -131,9 +133,11 @@ APPS = [
      "summary": "Configure gaming mice (buttons, DPI, LEDs)"},
     {"id": "solaar", "name": "Solaar", "category": "hardware",
      "kind": "rpm", "refs": ["solaar"], "icon": "solaar",
+     "appstream": "io.github.pwr_solaar.solaar",
      "summary": "Logitech Unifying and Bolt receivers"},
     {"id": "skanpage", "name": "Skanpage", "category": "hardware",
      "kind": "rpm", "refs": ["skanpage"], "icon": "skanpage",
+     "appstream": "org.kde.skanpage",
      "summary": "Scan documents, also several pages into one PDF"},
     {"id": "hplip", "name": "HPLIP", "category": "hardware",
      "kind": "rpm", "refs": ["hplip"], "icon": "printer",
