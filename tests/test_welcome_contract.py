@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from nazoos_common import proc
-from nazoos_welcome import probes, report
+from nazoos_welcome import appicons, probes, report
 from nazoos_welcome.root import ACTIONS
 
 WELCOME = Path(__file__).resolve().parent.parent / "packages/nazoos-welcome"
@@ -38,6 +38,8 @@ def silent_system(monkeypatch):
         raise OSError("no commands in this test")
     monkeypatch.setattr(subprocess, "run", no_subprocess)
     monkeypatch.setattr(probes, "_deck_found", False)
+    # A download thread started here would run after the patches are undone
+    monkeypatch.setattr(appicons, "fetch_flathub", lambda *a, **k: None)
 
 
 def test_every_state_key_of_the_qml_pages_exists(silent_system):

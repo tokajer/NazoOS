@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Sun Oct 25 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Apps page: app icons also appear on a fresh install: the icon caches are read again with every state refresh, and a missing Flathub AppStream cache is downloaded in the background.
+
+-------------------------------------------------------------------
 Sun Oct 25 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Apps page: Signal and Warehouse (Flatpak)

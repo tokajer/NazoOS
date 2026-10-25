@@ -13,7 +13,7 @@ from nazoos_common.qt import ActionRunner, CoalescedLoad
 from PySide6.QtCore import Property, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 
-from . import appicons, autostart, catalog, hw, probes, report, user_actions
+from . import autostart, catalog, hw, probes, report, user_actions
 
 # Cheap probes for the card an action changed: read right after it, the
 # full probes.collect() takes 15-20 s (zypper searches).
@@ -56,7 +56,6 @@ class Backend(ActionRunner):
         super().__init__(HELPER, translator.gettext, catalog.ACTION_LABELS,
                          LAUNCHERS)
         self._state = {}
-        self._apps = appicons.with_icon_files(catalog.APPS)
         # time.monotonic() of the last successful load
         self._loaded_at = float("-inf")
         # (action, args, needs MokManager password) of the last run() that
@@ -98,7 +97,7 @@ class Backend(ActionRunner):
 
     def _get_catalog(self):
         return {
-            "apps": self._apps,
+            "apps": catalog.APPS,
             "categories": catalog.APP_CATEGORIES,
             "services": catalog.SERVICES,
             "kparams": catalog.KERNEL_PARAMS,

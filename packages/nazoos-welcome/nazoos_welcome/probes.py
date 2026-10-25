@@ -12,7 +12,7 @@ from pathlib import Path
 from nazoos_common import (grub, kernel, kernelstate, mok, proc, shellconf,
                            zypper)
 
-from . import autostart, catalog, hw, pollrate, query, system
+from . import appicons, autostart, catalog, hw, pollrate, query, system
 
 
 def parse_unit_states(text, units):
@@ -323,6 +323,7 @@ def collect():
         "drives": _part([], hw.drives),
         "kernel": _part({}, kernel_state),
         "channel": _part("", update_channel),
+        "appIcons": _part({}, lambda: appicons.collect(catalog.APPS)),
         **_part({}, lambda: _drivers(rpms, query.gpus())),
         **_part({}, lambda: _gaming(rpms, system_units)),
         **_part({}, lambda: _apps(rpms, flatpak_installed())),

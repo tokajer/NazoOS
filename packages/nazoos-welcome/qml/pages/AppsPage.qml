@@ -96,8 +96,8 @@ Kirigami.ScrollablePage {
                                 modelData.id === "waydroid"
                                 && (installed ? page.st.waydroidSoftware === true
                                               : page.st.vm === true)
-                            // Cached AppStream picture before install (appicons.py)
-                            iconName: modelData.iconFile || modelData.icon
+                            // Cached AppStream picture before install (appicons.py, re-read with the state)
+                            iconName: (page.st.appIcons || {})[modelData.id] || modelData.icon
                             fallbackIcon: page.categoryIcons[modelData.category]
                             title: modelData.name
                             subtitle: L.tr(modelData.summary)
