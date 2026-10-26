@@ -58,18 +58,24 @@ def snapshot_label(s, zypp_pre, is_update, _):
     elif s["type"] == "post" and s.get("pre-number") in zypp_pre:
         return _("After update") if is_update \
             else _("After software change")
-    elif s["type"] == "single" and s.get("description") == "timeline":
-        return _("Automatic snapshot")
-    elif s["type"] == "single" \
-            and (s.get("description") or "").startswith(
-                "nazoos-update: rollback") \
-            and status.subvol_readonly(f"/.snapshots/{num}/snapshot"):
-        # The read-only backup snapper keeps of the state before the
-        # rollback; the writable copy (new root) keeps its description
-        return _("Before rollback")
-    elif s["type"] == "single" and s.get("description"):
-        # Made by hand, nazoos-welcome or a rollback: its own text
-        return s["description"]
+    elif s["type"] == "single":
+        d = s.get("description") or ""
+        if d == "timeline":
+            return _("Automatic snapshot")
+        if d.startswith("nazoos-update: rollback"):
+            # snapper keeps a read-only backup of the state before the
+            # rollback; the writable copy is the new root
+            path = f"/.snapshots/{num}/snapshot"
+            if status.subvol_readonly(path):
+                return _("Before rollback")
+            if Path(path).is_dir():
+                return _("After rollback")
+        elif d == "nazoos-welcome: manual snapshot":
+            return _("Manual snapshot")
+        elif d.startswith("nazoos-welcome: before switching to "):
+            return _("Before channel switch")
+        # Made by hand: its own text
+        return d or None
     return None
 
 

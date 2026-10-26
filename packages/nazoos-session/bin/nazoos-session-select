@@ -61,7 +61,7 @@ stopped() {
 }
 
 report_failed() {
-  local reason title body action
+  local reason title body action tok token
   reason=$(cat "$FAILED_MARK" 2>/dev/null)
   rm -f "$FAILED_MARK"
   title=$(msg "Gaming mode could not start" "Gaming-Modus konnte nicht starten")
@@ -79,12 +79,17 @@ report_failed() {
   esac
   command -v notify-send >/dev/null || return 0
   # Blocks until the notification is closed (Type=oneshot, no timeout)
+  # The activation token (fd 3) lets the window take focus under Wayland
+  tok=$(mktemp -p "${XDG_RUNTIME_DIR:-/tmp}" 2>/dev/null)
   action=$(notify-send --app-name="NazoOS" --icon=dialog-warning \
     --urgency=critical --action=repair="$(msg "Fix" "Beheben")" \
-    "$title" "$body" 2>/dev/null)
+    --hint=string:desktop-entry:org.nazoos.welcome \
+    --activation-token-fd=3 "$title" "$body" 2>/dev/null 3>"${tok:-/dev/null}")
+  token=""
+  if [ -n "$tok" ]; then token=$(cat "$tok"); rm -f "$tok"; fi
   if [ "$action" = repair ]; then
     # Own unit: a child of this oneshot service dies with its cgroup
-    systemd-run --user --quiet --collect \
+    systemd-run --user --quiet --collect ${token:+"--setenv=XDG_ACTIVATION_TOKEN=$token"} \
       --unit="app-org.nazoos.welcome@$(tr -d - < /proc/sys/kernel/random/uuid).service" \
       -- nazoos-welcome --page repair
   fi

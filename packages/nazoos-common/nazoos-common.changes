@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Oct 26 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Changing the kernel command line no longer removes the line break
+  after GRUB_CMDLINE_LINUX_DEFAULT when it is the last line
+
+-------------------------------------------------------------------
 Mon Oct 26 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - API 11: zypper.offered_keys() reads the signing keys a refresh was offered

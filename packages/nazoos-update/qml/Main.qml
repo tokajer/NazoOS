@@ -17,6 +17,7 @@ Kirigami.ApplicationWindow {
     minimumHeight: Kirigami.Units.gridUnit * 20
 
     readonly property var st: backend.state
+    readonly property bool loaded: st.count !== undefined
     readonly property int count: st.count || 0
     readonly property int snapshot: st.snapshot || 0
     readonly property string error: st.error || ""
@@ -154,7 +155,7 @@ Kirigami.ApplicationWindow {
             // --- summary ----------------------------------------------------
             Kirigami.AbstractCard {
                 Layout.fillWidth: true
-                visible: root.snapshot === 0
+                visible: root.loaded && root.snapshot === 0
                 contentItem: RowLayout {
                     spacing: Kirigami.Units.largeSpacing
                     Kirigami.Icon {

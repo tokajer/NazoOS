@@ -427,6 +427,21 @@ def test_cmdline_set_callable_sees_the_current_options(monkeypatch, tmp_path):
         'GRUB_CMDLINE_LINUX_DEFAULT="quiet b=2 a=3"\nX=1\n')
 
 
+def test_cmdline_set_keeps_trailing_newlines_on_the_last_line(
+        monkeypatch, tmp_path):
+    default = tmp_path / "grub"
+    default.write_text('X=1\nGRUB_CMDLINE_LINUX_DEFAULT="quiet"\n\n')
+    monkeypatch.setattr(grub, "GRUB_LOCK", tmp_path / "lock")
+    monkeypatch.setattr(grub, "GRUB_DEFAULT_FILE", default)
+    monkeypatch.setattr(grub, "grub_refresh", lambda: None)
+    monkeypatch.setattr(helper, "say", lambda text: None)
+    grub.cmdline_set("a", lambda options: "a=1")
+    assert default.read_text() == (
+        'X=1\nGRUB_CMDLINE_LINUX_DEFAULT="quiet a=1"\n\n')
+    assert grub.cmdline_options(
+        'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"\r\n') == ["quiet", "splash"]
+
+
 def test_offered_keys_reads_the_refresh_output():
     from conftest import KEY_FPR, KEY_OUTPUT, KEY_URL
     assert zypper.offered_keys(KEY_OUTPUT) == [{

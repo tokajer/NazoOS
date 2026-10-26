@@ -179,14 +179,21 @@ def test_snapshot_label_singles(monkeypatch):
     assert label(dict(single, description="mine")) == "mine"
     assert label(single) is None
     rb = dict(single, description="nazoos-update: rollback to 4")
-    # The read-only backup is "Before rollback", the writable copy keeps
-    # its description
+    # The read-only backup is "Before rollback", the writable copy is
+    # "After rollback"
     monkeypatch.setattr(snapshots.status, "subvol_readonly",
                         lambda _p: True)
     assert label(rb) == "Before rollback"
     monkeypatch.setattr(snapshots.status, "subvol_readonly",
                         lambda _p: False)
+    # Unreadable path also gives False: no "After rollback" without the dir
     assert label(rb) == "nazoos-update: rollback to 4"
+    monkeypatch.setattr(snapshots.Path, "is_dir", lambda _self: True)
+    assert label(rb) == "After rollback"
+    assert label(dict(single, description="nazoos-welcome: manual snapshot")
+                 ) == "Manual snapshot"
+    assert label(dict(single, description="nazoos-welcome: before "
+                      "switching to beta")) == "Before channel switch"
 
 
 @pytest.mark.parametrize("uefi, cert, status, expected", [

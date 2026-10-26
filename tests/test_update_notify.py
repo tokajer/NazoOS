@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Notifications of nazoos-update --notify: which ones, and sending."""
 
+import os
 import subprocess
 import time
 
@@ -120,12 +121,41 @@ def test_save_drops_old_entries(monkeypatch, tmp_path):
 
 def test_show_launches_on_open(monkeypatch):
     launched = []
-    monkeypatch.setattr(notify, "_launch", launched.append)
+    monkeypatch.setattr(notify, "_launch",
+                        lambda cmd, token="": launched.append((cmd, token)))
     monkeypatch.setattr(
         notify.subprocess, "run",
         lambda cmd, **kw: subprocess.CompletedProcess(cmd, 0, "open\n", ""))
     notify._show(ITEM)
-    assert launched == [["nazoos-update", "--page", "update"]]
+    assert launched == [(["nazoos-update", "--page", "update"], "")]
+
+
+def test_show_passes_the_activation_token(monkeypatch):
+    launched = []
+    monkeypatch.setattr(notify, "_launch",
+                        lambda cmd, token="": launched.append(token))
+
+    def run(cmd, **kw):
+        fd = next(int(a.split("=")[1]) for a in cmd
+                  if a.startswith("--activation-token-fd="))
+        assert fd in kw["pass_fds"]
+        os.write(fd, b"tok123\n")
+        return subprocess.CompletedProcess(cmd, 0, "open\n", "")
+
+    monkeypatch.setattr(notify.subprocess, "run", run)
+    notify._show(ITEM)
+    assert launched == ["tok123"]
+
+
+def test_launch_sets_the_token_in_the_unit(monkeypatch):
+    calls = []
+    monkeypatch.setattr(notify.shutil, "which", lambda name: "/bin/" + name)
+    monkeypatch.setattr(notify.subprocess, "run",
+                        lambda cmd, **kw: calls.append(cmd))
+    notify._launch(["nazoos-update"], "tok123")
+    notify._launch(["nazoos-update"])
+    assert "--setenv=XDG_ACTIVATION_TOKEN=tok123" in calls[0]
+    assert not any(a.startswith("--setenv") for a in calls[1])
 
 
 def test_notify_one_ignores_a_gone_notification(monkeypatch):

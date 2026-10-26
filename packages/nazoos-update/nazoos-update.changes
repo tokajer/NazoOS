@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Mon Oct 26 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Notification buttons bring the window to the front (Wayland
+  activation token)
+- Boot menu names for manual snapshots, channel switches and the
+  state after a rollback, translated
+- The summary card appears only after the status was read (no
+  "Not checked yet" flash)
+
+-------------------------------------------------------------------
 Mon Oct 26 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - An unknown or changed repository key is shown as its own problem (with

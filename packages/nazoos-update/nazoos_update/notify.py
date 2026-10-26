@@ -31,19 +31,22 @@ REMIND = 24 * 3600
 CHECK_GRACE = 3 * 24 * 3600
 
 
-def _launch(cmd):
+def _launch(cmd, token=""):
     """Start the app in its own unit. A child of this oneshot service
     would be killed with the service's cgroup as soon as main() returns
     (start_new_session does not help). Unit name like KDE's app units:
-    app-<desktop id>@<id>.service"""
+    app-<desktop id>@<id>.service. TOKEN is the XDG activation token of
+    the clicked notification, so the window gets focus under Wayland."""
     app = "org.nazoos.welcome" if cmd[0] == "nazoos-welcome" \
         else "org.nazoos.update"
     if shutil.which("systemd-run"):
+        env = [f"--setenv=XDG_ACTIVATION_TOKEN={token}"] if token else []
         subprocess.run(["systemd-run", "--user", "--quiet", "--collect",
-                        f"--unit=app-{app}@{uuid.uuid4().hex}.service",
-                        "--"] + cmd)
+                        f"--unit=app-{app}@{uuid.uuid4().hex}.service"]
+                       + env + ["--"] + cmd)
     else:
-        subprocess.Popen(cmd, start_new_session=True)
+        env = dict(os.environ, XDG_ACTIVATION_TOKEN=token) if token else None
+        subprocess.Popen(cmd, start_new_session=True, env=env)
 
 
 def _load():
@@ -64,14 +67,23 @@ def _save(data):
 def _show(n):
     """Show the notification and wait for its button (blocks until it is
     closed); on click start the GUI on its page or command."""
-    r = subprocess.run(
-        ["notify-send", "--app-name=NazoOS Update", f"--icon={n['icon']}",
-         f"--urgency={n['urgency']}", f"--action=open={n['action']}",
-         "--hint=string:desktop-entry:org.nazoos.update",
-         n["title"], n["body"]],
-        capture_output=True, text=True)
+    rd, wr = os.pipe()
+    with os.fdopen(rd) as tokens:
+        try:
+            r = subprocess.run(
+                ["notify-send", "--app-name=NazoOS Update",
+                 f"--icon={n['icon']}", f"--urgency={n['urgency']}",
+                 f"--action=open={n['action']}", f"--activation-token-fd={wr}",
+                 "--hint=string:desktop-entry:org.nazoos.update",
+                 n["title"], n["body"]],
+                capture_output=True, text=True, pass_fds=(wr,))
+        finally:
+            os.close(wr)
+        # Empty if the notification server sends no activation token
+        token = tokens.read().strip()
     if r.stdout.strip() == "open":
-        _launch(n["command"] or ["nazoos-update", "--page", n["page"]])
+        _launch(n["command"] or ["nazoos-update", "--page", n["page"]],
+                token)
 
 
 def _send(n):
