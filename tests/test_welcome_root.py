@@ -609,10 +609,14 @@ def test_firewall_zone_moves_the_interface_to_the_waydroid_zone(
     assert fake_root.calls == [
         ["firewall-cmd", "--permanent", "--zone=nazoos-waydroid",
          "--change-interface=waydroid0"],
-        ["firewall-cmd", "--reload"]]
+        ["firewall-cmd", "--reload"],
+        ["firewall-cmd", "--zone=nazoos-waydroid",
+         "--change-interface=waydroid0"]]
     fake_root.calls.clear()
     apps.firewall_zone(["waydroid0"], False)
     assert fake_root.calls[0][-1] == "--remove-interface=waydroid0"
+    assert fake_root.calls[-1] == ["firewall-cmd", "--zone=nazoos-waydroid",
+                                   "--remove-interface=waydroid0"]
 
 
 def test_channel_snapshots_before_the_link_changes(monkeypatch, fake_root,

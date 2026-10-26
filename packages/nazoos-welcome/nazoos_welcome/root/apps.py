@@ -150,3 +150,9 @@ def firewall_zone(ifaces, add):
                     f"--zone={system.WAYDROID_ZONE}",
                     f"{op}-interface={iface}"], check=add)
     helper.run(["firewall-cmd", "--reload"], check=False)
+    # The reload keeps runtime bindings, and Waydroid binds waydroid0 to
+    # "trusted" at runtime on every start (waydroid-net.sh), so without
+    # this Android stays in trusted until the next boot.
+    for iface in ifaces:
+        helper.run(["firewall-cmd", f"--zone={system.WAYDROID_ZONE}",
+                    f"{op}-interface={iface}"], check=add)

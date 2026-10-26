@@ -182,7 +182,7 @@ def deck_in_repos():
 
 
 # Each part names the RPMs it looks up; collect() asks rpm once for all
-_DRIVERS_RPMS = (["ffmpeg", "gstreamer-plugins-bad-codecs"]
+_DRIVERS_RPMS = (["gstreamer-plugins-bad-codecs"]
                  + [p for v in system.NVIDIA_DRIVERS.values()
                     for p in v["packages"]]
                  + system.ROCM_PACKAGES)
@@ -206,8 +206,7 @@ def _drivers(rpms, gpu_list):
         "rocm": system.ROCM_PACKAGES[0] in rpms,
         "packmanRepo": query.packman_repo(),
         # gstreamer-plugins-bad-codecs only exists in Packman
-        "codecs": "packman" in rpms.get("ffmpeg", "").lower()
-                  or "gstreamer-plugins-bad-codecs" in rpms,
+        "codecs": "gstreamer-plugins-bad-codecs" in rpms,
     }
 
 
