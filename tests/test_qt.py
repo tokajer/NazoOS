@@ -171,13 +171,27 @@ def test_changed_card_is_read_before_the_full_refresh(app, monkeypatch):
     # A refresh from before the switch is running
     b._loader.running = True
     b._done("channel", True, "Done.")
-    assert b.state["channel"] == "beta"
+    wait(app, lambda: b.state["channel"] == "beta")
+    # The full refresh is only requested once the quick value is in
     assert b._loader.pending
     # The old refresh lands late: it must not bring "stable" back
     b._loader._finish([], b._set_state, {"channel": "stable"})
     assert b.state["channel"] == "beta"
     wait(app, lambda: b.state.get("fresh"))
     assert not b._quick
+
+
+def test_failing_quick_probe_still_refreshes(app, monkeypatch):
+    from nazoos_welcome import backend, i18n
+
+    def probe():
+        raise RuntimeError("lsblk broke")
+
+    monkeypatch.setitem(backend.QUICK_PROBES, "channel", ("channel", probe))
+    monkeypatch.setattr(backend.probes, "collect", lambda: {"fresh": True})
+    b = backend.Backend(i18n.translator())
+    b._done("channel", True, "Done.")
+    wait(app, lambda: b.state.get("fresh"))
 
 
 @pytest.fixture

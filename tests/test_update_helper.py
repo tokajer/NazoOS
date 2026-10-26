@@ -371,3 +371,18 @@ def test_script_failure(monkeypatch, rc, trusted, key_missing, expected):
     monkeypatch.setattr(update, "only_trusted_certs", lambda failed: trusted)
     monkeypatch.setattr(update, "nazoos_key_missing", lambda: key_missing)
     assert update.script_failure(rc, ["x-ueficert"]) == expected
+
+
+def test_failed_snapper_modify_is_reported_not_counted(monkeypatch, capsys):
+    monkeypatch.setattr(snapshots, "snapshots", lambda: [
+        {"number": 5, "type": "single", "description": "manual",
+         "date": "2026-10-25 10:00:00"}])
+    calls = []
+
+    def capture(cmd):
+        calls.append(cmd)
+        return subprocess.CompletedProcess(cmd, 1, "", "boom")
+    monkeypatch.setattr(snapshots, "capture", capture)
+    assert snapshots.name_snapshots(None) == 0
+    assert len(calls) == 1
+    assert "snapshot 5 could not be named: boom" in capsys.readouterr().out

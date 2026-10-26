@@ -6,7 +6,7 @@ import subprocess
 
 from nazoos_common import proc
 
-from .repair_checks import restart_failed
+from .units import restart_failed
 
 # A unit start that hangs would keep the window busy for good: the
 # background thread never returns

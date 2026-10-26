@@ -4,7 +4,7 @@
 
 Shared by the GUI and the root helper. The helper only accepts ids from
 this file, never package names, paths or commands from the caller. Repos,
-paths and package lists are in system.py.
+paths and the package lists the user does not pick are in system.py.
 """
 
 # Optional apps (ADR 0003). Flatpaks come from Flathub (system-wide),
@@ -185,7 +185,7 @@ SERVICES = [
 ]
 
 # Kernel command line options, written to GRUB_CMDLINE_LINUX_DEFAULT.
-# "gpu"/"cpu": only shown on matching hardware (GamingPage.qml)
+# "gpu"/"cpu": only shown on matching hardware (probes.kparam_shown)
 KERNEL_PARAMS = [
     {"id": "amdgpu-oc", "param": "amdgpu.ppfeaturemask=0xffffffff",
      "gpu": "amd", "warning": False, "name": "AMD GPU overclocking",

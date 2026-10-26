@@ -10,7 +10,12 @@ from pathlib import Path
 
 from nazoos_common import mok, proc, zypper
 
-from . import probes, query, repair_checks
+from . import probes, query, units
+
+JOURNAL_LINES = 300
+RECENT_PACKAGES = 60
+# Characters of the welcome log in the report
+LOG_TAIL = 20000
 
 
 def collect_state():
@@ -75,17 +80,17 @@ def report(state, findings, log):
     text += section("Repositories", proc.out(
         zypper.ZYPPER + ["--no-refresh", "repos", "--uri"]))
     text += section("Failed units", "\n".join(
-        repair_checks.failed_units()
-        + [u + " (user)" for u in repair_checks.failed_units(user=True)]))
+        units.failed_units()
+        + [u + " (user)" for u in units.failed_units(user=True)]))
     text += section("Errors since boot", proc.out(
         ["journalctl", "--boot", "--priority=err", "--no-pager",
-         "--lines=300", "--output=short-monotonic"]))
+         f"--lines={JOURNAL_LINES}", "--output=short-monotonic"]))
     text += section("Recently installed packages", "\n".join(
-        proc.out(["rpm", "-qa", "--last"]).splitlines()[:60]))
+        proc.out(["rpm", "-qa", "--last"]).splitlines()[:RECENT_PACKAGES]))
     text += section("Kernel modules (GPU)", "\n".join(
         line for line in proc.read("/proc/modules").splitlines()
         if re.match(r"(amdgpu|nvidia\w*|i915|xe|nouveau) ", line)))
-    text += section("NazoOS Welcome log", log[-20000:])
+    text += section("NazoOS Welcome log", log[-LOG_TAIL:])
     path = Path.home() / time.strftime("nazoos-report-%Y%m%d-%H%M%S.txt")
     path.write_text(text)
     return str(path)

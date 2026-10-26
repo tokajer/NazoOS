@@ -5,7 +5,6 @@
 import os
 import sys
 import time
-import traceback
 
 from nazoos_common import mok
 from nazoos_common.launcher import COMMON_LAUNCHERS
@@ -61,9 +60,7 @@ class Backend(ActionRunner):
         # (action, args, needs MokManager password) of the last run() that
         # "Try again" may repeat, None after anything else
         self._retry = None
-        self._on_success = None
-        # User units still failing while fixUnits' system half runs
-        self._user_still = []
+        self._on_finish = None
         # Never kill the UI over a probe
         self._loader = CoalescedLoad(
             self, report.collect_state, self._loaded,
@@ -123,14 +120,18 @@ class Backend(ActionRunner):
 
     def _quick_refresh(self, action):
         key, probe = QUICK_PROBES[action]
-        try:
-            value = probe()
-        except Exception:
-            traceback.print_exc()
-            return
-        self._quick.add(key)
-        self._state = dict(self._state, **{key: value})
-        self.stateChanged.emit()
+
+        def apply(value):
+            if self._state.get(key) != value:
+                self._quick.add(key)
+                self._state = dict(self._state, **{key: value})
+                self.stateChanged.emit()
+            self.refresh()
+
+        # Probes start lsblk / nazoos-session-ctl: not on the GUI thread. The
+        # full refresh follows the quick value, so a late quick result never
+        # lands on top of a newer full load
+        self.background(probe, apply, lambda _e: self.refresh())
 
     def _loaded(self, st):
         self._loaded_at = time.monotonic()
@@ -164,8 +165,11 @@ class Backend(ActionRunner):
         self._append(log)
         if with_system:
             # The system units follow, with the password dialog
-            self._user_still = still
-            self._start_helper("repair-units", [], None, None)
+            # "Try again" repeats the system half
+            self._start_helper(
+                "repair-units", [], None,
+                lambda ok, message: self._units_done(ok, message, still),
+                retry=True)
         else:
             self._units_done(True, self._gettext("Done."), still)
 
@@ -190,9 +194,10 @@ class Backend(ActionRunner):
     def run(self, action, args):
         self._run(action, args)
 
-    def _run(self, action, args, stdin=None, on_success=None):
-        """ON_SUCCESS(done), if given, runs after exit code 0 and must
-        call done() to finish the task."""
+    def _run(self, action, args, stdin=None, on_finish=None, retry=True):
+        """ON_FINISH(ok, message), if given, runs instead of _done() when
+        the helper ends and must finish the task with _done(). RETRY: "Try
+        again" may repeat this run."""
         if self._busy:
             return
         if action not in catalog.ACTION_LABELS:
@@ -200,13 +205,13 @@ class Backend(ActionRunner):
             print(f"nazoos-welcome: unknown action {action}", file=sys.stderr)
             return
         self._begin(action)
-        self._start_helper(action, args, stdin, on_success)
+        self._start_helper(action, args, stdin, on_finish, retry)
 
-    def _start_helper(self, action, args, stdin, on_success):
+    def _start_helper(self, action, args, stdin, on_finish, retry):
         # stdin only carries the MokManager password hash (runMok)
-        self._set_retry(None if on_success else (
-            action, list(args), stdin is not None))
-        self._on_success = on_success
+        self._set_retry((action, list(args), stdin is not None)
+                        if retry else None)
+        self._on_finish = on_finish
         self._start(action, args, stdin)
 
     @Slot()
@@ -235,12 +240,9 @@ class Backend(ActionRunner):
         self._run(action, args, mok_hash)
 
     def _helper_finished(self, action, helper_proc, ok, message):
-        on_success, self._on_success = self._on_success, None
-        if action == "repair-units":
-            still, self._user_still = self._user_still, []
-            self._units_done(ok, message, still)
-        elif ok and on_success:
-            on_success(lambda: self._done(action, True, message))
+        on_finish, self._on_finish = self._on_finish, None
+        if on_finish:
+            on_finish(ok, message)
         else:
             self._done(action, ok, message)
 
@@ -249,7 +251,8 @@ class Backend(ActionRunner):
         self.actionFinished.emit(action, ok, message)
         if action in QUICK_PROBES:
             self._quick_refresh(action)
-        self.refresh()
+        else:
+            self.refresh()
 
     # --- user-level actions -----------------------------------------------------
 
@@ -275,9 +278,15 @@ class Backend(ActionRunner):
             self._user_service(svc, on, lambda: self._done(
                 "service", True, self._gettext("Done.")))
         elif svc["user"]:
-            self._run("service", [service_id, "on"],
-                      on_success=lambda done: self._user_service(
-                          svc, on, done))
+            def finish(ok, message):
+                if ok:
+                    self._user_service(svc, on, lambda: self._done(
+                        "service", True, message))
+                    return
+                self._done("service", False, message)
+
+            self._run("service", [service_id, "on"], on_finish=finish,
+                      retry=False)
         else:
             self._run("service", [service_id, "on" if on else "off"])
 

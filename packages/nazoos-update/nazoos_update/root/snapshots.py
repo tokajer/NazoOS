@@ -10,7 +10,7 @@ from pathlib import Path
 
 from nazoos_common import proc
 from nazoos_common.files import locked
-from nazoos_common.helper import Fail, capture, reboot, run
+from nazoos_common.helper import Fail, capture, reboot, run, say
 
 from .. import status
 
@@ -149,8 +149,12 @@ def name_snapshots(update_after):
         # snapper splits userdata at "," and "="
         label = (text + " " + date.strftime(date_fmt)) \
             .replace(",", " ").replace("=", " ")
-        capture(["snapper", "modify", "--userdata",
-                 f"bootloader={label}", str(num)])
+        r = capture(["snapper", "modify", "--userdata",
+                     f"bootloader={label}", str(num)])
+        if r.returncode != 0:
+            say(f"Note: snapshot {num} could not be named: "
+                f"{(r.stderr or r.stdout).strip()}")
+            continue
         named += 1
     return named
 

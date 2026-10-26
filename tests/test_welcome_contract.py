@@ -16,6 +16,8 @@ WELCOME = Path(__file__).resolve().parent.parent / "packages/nazoos-welcome"
 STATE_KEY = re.compile(r"\b(?:st|app\.st|page\.st|root\.st)\.([A-Za-z_]+)")
 # Set by the backend itself, not by collect()
 BACKEND_KEYS = {"error"}
+PAGE_ARG = re.compile(
+    r'nazoos-welcome"?(?:,\s*"|\s+)--page"?(?:,\s*"|\s+)([a-z]+)')
 
 
 def _qml_state_keys():
@@ -128,3 +130,18 @@ def test_kernel_page_stage2_values_are_produced_by_kernel():
     assert used and used <= {"ready", "waiting"}
     made = {kernel.stage2_state(True, n, True, False) for n in (0, 99)}
     assert made == {"ready", "waiting"}
+
+
+def test_every_page_other_programs_open_exists():
+    """notify.py, nazoos-update and nazoos-session-select start
+    "nazoos-welcome --page NAME"; an unknown NAME silently opens the
+    welcome page (Main.qml showPage)."""
+    pages = set(re.findall(r'\{ name: "([a-z]+)"',
+                           (WELCOME / "qml/Main.qml").read_text()))
+    found = set()
+    for f in WELCOME.parent.rglob("*"):
+        if f.is_file() and "__pycache__" not in f.parts:
+            found.update(PAGE_ARG.findall(
+                f.read_text(errors="ignore")))
+    assert {"kernel", "repair"} <= found
+    assert found <= pages

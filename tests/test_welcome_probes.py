@@ -6,7 +6,7 @@ import subprocess
 
 import pytest
 
-from nazoos_welcome import hw, probes, query, repair_checks, system
+from nazoos_welcome import hw, probes, query, repair_checks, system, units
 
 MARK = hw.FSTAB_MARKER
 
@@ -192,7 +192,7 @@ def _units_finding(monkeypatch, system, user):
     monkeypatch.setattr(repair_checks, "nvidia_module_missing", lambda: False)
     monkeypatch.setattr(repair_checks, "low_space", lambda: None)
     monkeypatch.setattr(repair_checks, "flathub_missing", lambda: False)
-    monkeypatch.setattr(repair_checks, "failed_units",
+    monkeypatch.setattr(units, "failed_units",
                         lambda user=False: user_units if user else system)
     user_units = user
     return repair_checks.check()
@@ -221,11 +221,11 @@ def test_session_state_asks_the_session_tool(monkeypatch):
 
 def test_restart_failed_resets_only_the_recovered(monkeypatch):
     seen = iter([["a.service", "b.mount", "c.scope"], ["b.mount"]])
-    monkeypatch.setattr(repair_checks, "failed_units",
+    monkeypatch.setattr(units, "failed_units",
                         lambda user=False: next(seen))
-    monkeypatch.setattr(repair_checks.time, "sleep", lambda s: None)
+    monkeypatch.setattr(units.time, "sleep", lambda s: None)
     ran = []
-    still = repair_checks.restart_failed(True, ran.append)
+    still = units.restart_failed(True, ran.append)
     assert still == ["b.mount"]
     base = ["systemctl", "--user"]
     # c.scope is no restartable unit type
@@ -235,10 +235,10 @@ def test_restart_failed_resets_only_the_recovered(monkeypatch):
 
 
 def test_restart_failed_without_units_does_not_wait(monkeypatch):
-    monkeypatch.setattr(repair_checks, "failed_units", lambda user=False: [])
-    monkeypatch.setattr(repair_checks.time, "sleep",
+    monkeypatch.setattr(units, "failed_units", lambda user=False: [])
+    monkeypatch.setattr(units.time, "sleep",
                         lambda s: 1 / 0)
-    assert repair_checks.restart_failed(False, lambda cmd: 1 / 0) == []
+    assert units.restart_failed(False, lambda cmd: 1 / 0) == []
 
 
 def test_user_unit_that_hangs_raises_timeout(monkeypatch):
@@ -250,3 +250,27 @@ def test_user_unit_that_hangs_raises_timeout(monkeypatch):
     monkeypatch.setattr(user_actions.subprocess, "run", hang)
     with pytest.raises(TimeoutError, match="psd.service: no answer"):
         user_actions.set_user_unit("psd.service", True)
+
+
+@pytest.mark.parametrize("k, drivers, shown", [
+    ({"gpu": "amd"}, {}, False),
+    ({"gpu": "amd"}, {"hasAmd": False}, False),
+    ({"gpu": "amd"}, {"hasAmd": True}, True),
+    ({"gpu": None, "cpu": "no-tsc-adjust"}, {"tscAdjust": False}, True),
+    ({"gpu": None, "cpu": "no-tsc-adjust"}, {"tscAdjust": True}, False),
+    ({"gpu": None, "cpu": "no-tsc-adjust"}, {}, False),
+    ({"gpu": None}, {}, True),
+])
+def test_kparam_shown(k, drivers, shown):
+    assert probes.kparam_shown(k, drivers) is shown
+
+
+def test_kparams_marks_every_catalog_entry_with_shown(monkeypatch):
+    monkeypatch.setattr(probes.catalog, "KERNEL_PARAMS", [
+        {"id": "a", "param": "x=1", "gpu": "amd"},
+        {"id": "b", "param": "y"}])
+    monkeypatch.setattr(probes, "grub_cmdline", lambda: [])
+    monkeypatch.setattr(probes.proc, "read", lambda path: "")
+    kparams = probes._kparams({"hasAmd": False})["kparams"]
+    assert kparams["a"]["shown"] is False
+    assert kparams["b"]["shown"] is True

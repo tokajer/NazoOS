@@ -13,7 +13,7 @@ from nazoos_common.grub import grub_refresh
 from nazoos_common.helper import Fail, say
 from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 
-from .. import catalog, repair_checks, system
+from .. import catalog, system, units
 from . import maintenance
 from .base import (enable_repo, flathub_ensure, installed_names,
                    packman_switch)
@@ -95,7 +95,7 @@ def repair_nvidia(_args):
 
 
 def repair_units(_args):
-    still = repair_checks.restart_failed(
+    still = units.restart_failed(
         False, lambda cmd: helper.run(cmd, check=False))
     if still:
         raise Fail("still failing: {units}", units=", ".join(still))

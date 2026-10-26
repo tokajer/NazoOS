@@ -7,13 +7,16 @@ import re
 from pathlib import Path
 
 from nazoos_common import helper
-from nazoos_common.files import write_atomic
+from nazoos_common.files import locked, write_atomic
 from nazoos_common.helper import Fail, arg, say
 
 from .. import hw
 from .base import caller
 
 FSTAB = Path("/etc/fstab")
+# Two helper runs (e.g. a second pkexec start) must not lose each other's
+# fstab change; same pattern as grub.update_grub_default
+FSTAB_LOCK = Path("/run/nazoos-fstab.lock")
 # suse-module-tools blacklists ntfs3; an /etc file of the same name wins
 NTFS3_BLACKLIST = "60-blacklist_fs-ntfs3.conf"
 
@@ -72,7 +75,8 @@ def without_entry(text, uuid):
 
 
 def _undo_add(uuid, mnt, created):
-    write_atomic(FSTAB, without_entry(FSTAB.read_text(), uuid)[0])
+    with locked(FSTAB_LOCK):
+        write_atomic(FSTAB, without_entry(FSTAB.read_text(), uuid)[0])
     helper.run(["systemctl", "daemon-reload"], check=False)
     if created:
         try:
@@ -81,32 +85,41 @@ def _undo_add(uuid, mnt, created):
             pass
 
 
-def automount_add(args):
-    uuid = arg(args, 0)
-    # The GUI only offers non-removable extra drives; the helper is the
-    # trust boundary and applies the same rule (hw.drives)
-    dev = next((d for d in hw.drives()
-                if d["uuid"] == uuid and not d["managed"]), None)
-    if dev is None:
-        raise Fail("this drive cannot be added here "
-                   "(removable or system drive)")
-    fstype = dev["fstype"]
-    base = sanitize(dev["label"]) or uuid[:8]
+def _free_mountpoint(base):
+    """hw.MOUNT_BASE/BASE, or BASE-2, BASE-3 ... while that is a directory
+    with content."""
     mnt = Path(hw.MOUNT_BASE, base)
     n = 2
     while mnt.exists() and any(mnt.iterdir()):
         mnt = Path(hw.MOUNT_BASE, f"{base}-{n}")
         n += 1
+    return mnt
+
+
+def automount_add(args):
+    uuid = arg(args, 0)
     uid = caller()[0]
     gid = int(helper.output(["id", "-g", str(uid)]).strip() or 100)
-    fstype, opts = mount_options(fstype, uid, gid)
-    created = not mnt.exists()
-    mnt.mkdir(parents=True, exist_ok=True)
-    line = f"UUID={uuid} {mnt} {fstype} {opts} 0 0"
-    text = FSTAB.read_text()
-    if not text.endswith("\n"):
-        text += "\n"
-    write_atomic(FSTAB, text + f"{hw.FSTAB_MARKER}\n{line}\n")
+    # One lock from the "already managed" check to the fstab write: two
+    # parallel runs must neither add a UUID twice nor pick one mount point
+    with locked(FSTAB_LOCK):
+        # The GUI only offers non-removable extra drives; the helper is the
+        # trust boundary and applies the same rule (hw.drives)
+        dev = next((d for d in hw.drives()
+                    if d["uuid"] == uuid and not d["managed"]), None)
+        if dev is None:
+            raise Fail("this drive cannot be added here "
+                       "(removable or system drive)")
+        base = sanitize(dev["label"]) or uuid[:8]
+        mnt = _free_mountpoint(base)
+        fstype, opts = mount_options(dev["fstype"], uid, gid)
+        created = not mnt.exists()
+        mnt.mkdir(parents=True, exist_ok=True)
+        line = f"UUID={uuid} {mnt} {fstype} {opts} 0 0"
+        text = FSTAB.read_text()
+        if not text.endswith("\n"):
+            text += "\n"
+        write_atomic(FSTAB, text + f"{hw.FSTAB_MARKER}\n{line}\n")
     say(line)
     # A failed mount must not leave a boot-time entry (or a stray directory)
     # behind, whether mount returns non-zero or something raises
@@ -131,11 +144,18 @@ def automount_add(args):
 
 def automount_remove(args):
     uuid = arg(args, 0)
-    text, mnt = without_entry(FSTAB.read_text(), uuid)
-    if mnt is None:
-        raise Fail("only drives added by NazoOS Welcome can be removed here")
-    helper.run(["umount", mnt], check=False)
-    write_atomic(FSTAB, text)
+    with locked(FSTAB_LOCK):
+        text, mnt = without_entry(FSTAB.read_text(), uuid)
+        if mnt is None:
+            raise Fail(
+                "only drives added by NazoOS Welcome can be removed here")
+        if os.path.ismount(mnt):
+            # Before fstab is written: a busy drive keeps its entry
+            rc = helper.run(["umount", mnt], check=False)
+            if rc != 0:
+                raise Fail("the drive is in use; close the programs that use "
+                           "it and try again (exit code {rc})", rc=rc)
+        write_atomic(FSTAB, text)
     helper.run(["systemctl", "daemon-reload"])
     try:
         Path(mnt).rmdir()

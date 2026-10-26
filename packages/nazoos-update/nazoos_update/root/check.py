@@ -13,6 +13,8 @@ from . import snapshots
 
 # Package whose version is the Tumbleweed snapshot (YYYYMMDD)
 RELEASE_PKG = "openSUSE-release"
+# Characters of zypper's refresh error kept in the status
+DETAIL_MAX = 600
 # Package names that need a restart after the update, e.g. kernel-default,
 # glibc, systemd, dbus-1, nvidia-gl-G07, libQt6Core6, kwin6, sddm
 REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
@@ -135,7 +137,7 @@ def check(_args=None):
     print(r.stdout + r.stderr, end="", flush=True)
     if r.returncode != 0:
         result["error"] = status.ERROR_REFRESH
-        result["detail"] = (r.stderr or r.stdout).strip()[-600:]
+        result["detail"] = (r.stderr or r.stdout).strip()[-DETAIL_MAX:]
         status.write(result)
         raise Fail("the package sources could not be refreshed "
                    "(no internet connection?)")

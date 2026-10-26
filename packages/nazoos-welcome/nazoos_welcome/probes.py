@@ -178,6 +178,10 @@ def update_channel():
     return ""
 
 
+# Seconds the pattern search may take (15-20 s normally, slower when the
+# repos are cold)
+DECK_SEARCH_TIMEOUT = 90
+
 # Only collect() writes it, and Backend's CoalescedLoad runs one collect()
 # at a time
 _deck_found = False
@@ -193,7 +197,7 @@ def deck_in_repos():
     _deck_found = proc.rc(
         zypper.ZYPPER + ["--no-refresh", "--quiet", "search", "--type",
                          "pattern", "--match-exact", system.DECK_PATTERN],
-        timeout=90) == 0
+        timeout=DECK_SEARCH_TIMEOUT) == 0
     return _deck_found
 
 
@@ -278,13 +282,22 @@ def _services(rpms, system_units, user_units):
     return {"services": services}
 
 
-def _kparams():
+def kparam_shown(k, drivers):
+    """Kernel option K (catalog.KERNEL_PARAMS) is offered on this hardware.
+    DRIVERS: the _drivers() part of the state."""
+    return ((k.get("gpu") != "amd" or drivers.get("hasAmd") is True)
+            and (k.get("cpu") != "no-tsc-adjust"
+                 or drivers.get("tscAdjust") is False))
+
+
+def _kparams(drivers):
     configured = grub_cmdline()
     active_cmdline = proc.read("/proc/cmdline").split()
     kparams = {}
     for k in catalog.KERNEL_PARAMS:
         kparams[k["id"]] = {"configured": k["param"] in configured,
-                            "active": k["param"] in active_cmdline}
+                            "active": k["param"] in active_cmdline,
+                            "shown": kparam_shown(k, drivers)}
     return {"kparams": kparams}
 
 
@@ -317,6 +330,7 @@ def collect():
         s["unit"] for s in catalog.SERVICES if not s["user"]])
     user_units = unit_states(
         [s["unit"] for s in catalog.SERVICES if s["user"]], user=True)
+    drivers = _part({}, lambda: _drivers(rpms, query.gpus()))
     result = {
         "live": proc.is_live(),
         "autostart": autostart.enabled(),
@@ -324,11 +338,11 @@ def collect():
         "kernel": _part({}, kernel_state),
         "channel": _part("", update_channel),
         "appIcons": _part({}, lambda: appicons.collect(catalog.APPS)),
-        **_part({}, lambda: _drivers(rpms, query.gpus())),
+        **drivers,
         **_part({}, lambda: _gaming(rpms, system_units)),
         **_part({}, lambda: _apps(rpms, flatpak_installed())),
         **_part({}, lambda: _services(rpms, system_units, user_units)),
-        **_part({}, _kparams),
+        **_part({}, lambda: _kparams(drivers)),
         **_part({}, _tools),
     }
     return result

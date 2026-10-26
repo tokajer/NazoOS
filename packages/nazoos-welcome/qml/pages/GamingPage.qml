@@ -69,11 +69,11 @@ Kirigami.ScrollablePage {
         SectionHeader { text: L.tr("Kernel options") }
 
         Repeater {
-            model: backend.catalog.kparams.filter(k => (k.gpu !== "amd" || page.st.hasAmd)
-                                                      && (k.cpu !== "no-tsc-adjust" || page.st.tscAdjust === false))
+            model: backend.catalog.kparams
             delegate: SettingCard {
                 required property var modelData
                 readonly property var kst: (page.st.kparams || {})[modelData.id] || {}
+                visible: kst.shown === true
                 iconName: modelData.warning ? "security-low" : "preferences-system-power"
                 title: L.tr(modelData.name)
                 subtitle: L.tr(modelData.summary)

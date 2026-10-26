@@ -13,6 +13,8 @@ from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 from .base import repo_in_use
 from .mok_queue import MOK_RESTART, prepare_mok
 
+# zypper: a lower number wins, the default is 99; 90 beats the default repos
+KERNEL_REPO_PRIORITY = "90"
 EFIVARS = "/sys/firmware/efi/efivars"
 
 
@@ -58,7 +60,8 @@ def kernel_install(_args):
                    "openSUSE kernel; switch to the open driver first")
     with repo_in_use(kernel.KERNEL_REPO_PATH,
                      kernel.KERNEL_REPO_ALIAS,
-                     ["--refresh", "--priority", "90", kernel.KERNEL_REPO_URL],
+                     ["--refresh", "--priority", KERNEL_REPO_PRIORITY,
+                      kernel.KERNEL_REPO_URL],
                      lambda: proc.rpm_installed(kernel.KERNEL_PACKAGE)
                      ) as alias:
         helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])

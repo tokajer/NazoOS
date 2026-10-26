@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Sun Oct 25 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The window no longer waits for the quick re-read after an action.
+- A busy drive is no longer removed from the boot-time mounts.
+- Which kernel options are shown is decided by the probes, not the page.
+- Changes to /etc/fstab are locked against a second helper run.
+- Internal cleanup: units module.
+
+-------------------------------------------------------------------
 Sun Oct 25 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Apps page: app icons also appear on a fresh install: the icon caches are read again with every state refresh, and a missing Flathub AppStream cache is downloaded in the background.

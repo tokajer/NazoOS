@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Sun Oct 25 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Snapshot naming reports a failed "snapper modify" instead of retrying it.
+
+-------------------------------------------------------------------
 Sun Oct 25 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Removing unused Flatpak runtimes after the update is now optional (checkbox in the window, off by default).

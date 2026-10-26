@@ -217,6 +217,7 @@ def add_env(monkeypatch, tmp_path):
     fstab = tmp_path / "fstab"
     fstab.write_text(FSTAB_TEXT)
     monkeypatch.setattr(drives, "FSTAB", fstab)
+    monkeypatch.setattr(drives, "FSTAB_LOCK", tmp_path / "fstab.lock")
     monkeypatch.setattr(hw, "MOUNT_BASE", str(tmp_path / "mnt"))
     monkeypatch.setattr(drives.hw, "drives", lambda: [
         {"uuid": "abcd", "fstype": "ext4", "label": "Games",
@@ -264,6 +265,44 @@ def test_add_keeps_a_mount_dir_that_already_existed(monkeypatch, add_env,
     with pytest.raises(drives.Fail):
         drives.automount_add(["abcd"])
     assert (tmp_path / "mnt/Games").is_dir()
+
+
+def _remove_text(tmp_path):
+    # automount_remove rmdirs the mount point: keep it out of the host's /mnt
+    mnt = tmp_path / "mnt" / "Games"
+    return FSTAB_TEXT + f"{MARK}\nUUID=abcd {mnt} ext4 nofail 0 0\n", mnt
+
+
+def test_remove_keeps_the_entry_of_a_busy_drive(monkeypatch, add_env,
+                                                fake_root, tmp_path):
+    text, _ = _remove_text(tmp_path)
+    add_env.write_text(text)
+    monkeypatch.setattr(drives.os.path, "ismount", lambda p: True)
+    fake_root.rc = {"umount": 32}
+    with pytest.raises(drives.helper.Fail) as e:
+        drives.automount_remove(["abcd"])
+    assert e.value.params == {"rc": 32}
+    assert add_env.read_text() == text
+
+
+def test_remove_unmounts_a_mounted_drive(monkeypatch, add_env, fake_root,
+                                         tmp_path):
+    text, mnt = _remove_text(tmp_path)
+    add_env.write_text(text)
+    monkeypatch.setattr(drives.os.path, "ismount", lambda p: True)
+    drives.automount_remove(["abcd"])
+    assert add_env.read_text() == FSTAB_TEXT
+    assert ["umount", str(mnt)] in fake_root.calls
+
+
+def test_remove_does_not_unmount_a_drive_that_is_not_mounted(
+        monkeypatch, add_env, fake_root, tmp_path):
+    text, _ = _remove_text(tmp_path)
+    add_env.write_text(text)
+    monkeypatch.setattr(drives.os.path, "ismount", lambda p: False)
+    drives.automount_remove(["abcd"])
+    assert add_env.read_text() == FSTAB_TEXT
+    assert not any(c[0] == "umount" for c in fake_root.calls)
 
 
 def _pollrate_env(monkeypatch, tmp_path, calls):
