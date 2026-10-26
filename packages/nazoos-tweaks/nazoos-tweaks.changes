@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 26 19:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Waydroid firewall policy renamed to nazoos-wd-forward: firewalld
+  rejected the old name (more than 18 characters) and the image build
+  failed
+
+-------------------------------------------------------------------
 Mon Oct 26 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Firewall zone nazoos-waydroid and policy nazoos-waydroid-out for Waydroid

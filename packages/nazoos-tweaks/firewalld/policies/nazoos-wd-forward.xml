@@ -6,10 +6,12 @@ SPDX-License-Identifier: GPL-3.0-or-later
 Forwarding out of zone nazoos-waydroid, so Android reaches the internet
 and the local network. Traffic to this computer itself (HOST) is not
 covered by "ANY", there the zone's services apply.
+Short name: Tumbleweed's firewalld allows at most 18 characters for a
+policy (tests/test_layers.py checks it).
 Doku: https://firewalld.org/documentation/man-pages/firewalld.policies.html
 -->
 <policy target="ACCEPT">
-  <short>NazoOS Waydroid out</short>
+  <short>NazoOS Waydroid forward</short>
   <description>Forwards connections from the Android container (Waydroid) to the internet and the local network.</description>
   <ingress-zone name="nazoos-waydroid"/>
   <egress-zone name="ANY"/>

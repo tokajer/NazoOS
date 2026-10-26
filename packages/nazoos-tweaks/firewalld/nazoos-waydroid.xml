@@ -5,7 +5,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 Zone for Waydroid's bridge waydroid0; nazoos-welcome puts it here when
 Waydroid is installed. Android gets DHCP and DNS from Waydroid's dnsmasq
-on the host and reaches the internet via policy nazoos-waydroid-out, but
+on the host and reaches the internet via policy nazoos-wd-forward, but
 no other host service, because Android apps come from anywhere. Until
 2026-10 the bridge was in "trusted", which accepts everything.
 Doku: https://firewalld.org/documentation/man-pages/firewalld.zone.html

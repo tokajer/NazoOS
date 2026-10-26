@@ -41,3 +41,14 @@ def test_repo_keys_are_only_trusted_when_a_repo_is_added():
             if "--gpg-auto-import-keys" in p.read_text(errors="ignore"):
                 found.append(str(p.relative_to(ROOT)))
     assert found == ["packages/nazoos-welcome/nazoos_welcome/root/base.py"]
+
+
+def test_firewalld_names_fit():
+    # Tumbleweed's firewalld rejects longer names (nftables chain names);
+    # firewall-offline-cmd then fails the whole image build
+    fw = ROOT / "packages/nazoos-tweaks/firewalld"
+    zones = [p.stem for p in fw.glob("*.xml")]
+    policies = [p.stem for p in (fw / "policies").glob("*.xml")]
+    assert zones and policies
+    assert all(len(z) <= 17 for z in zones), zones
+    assert all(len(p) <= 18 for p in policies), policies
