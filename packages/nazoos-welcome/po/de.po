@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 22:53+0100\n"
+"POT-Creation-Date: 2026-10-26 21:38+0100\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -21,36 +21,37 @@ msgstr ""
 msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr "GRUB_CMDLINE_LINUX_DEFAULT nicht in {file} gefunden"
 
-#: ../nazoos-common/nazoos_common/helper.py:70
-#: ../nazoos-common/nazoos_common/mok.py:37 nazoos_welcome/root/base.py:76
+#: ../nazoos-common/nazoos_common/helper.py:72
+#: ../nazoos-common/nazoos_common/mok.py:37 nazoos_welcome/root/base.py:155
 #: nazoos_welcome/root/kernel_switch.py:26
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr "„{cmd}“ ist fehlgeschlagen (Exit-Code {rc})"
 
-#: ../nazoos-common/nazoos_common/helper.py:89
+#: ../nazoos-common/nazoos_common/helper.py:91
 msgid "missing argument"
 msgstr "Angabe fehlt"
 
-#: ../nazoos-common/nazoos_common/helper.py:91
+#: ../nazoos-common/nazoos_common/helper.py:93
+#: nazoos_welcome/root/repair_fixes.py:114
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr "ungültige Angabe: {arg}"
 
-#: ../nazoos-common/nazoos_common/helper.py:100
+#: ../nazoos-common/nazoos_common/helper.py:102
 msgid "must run as root (via pkexec)"
 msgstr "muss mit Administratorrechten laufen (über pkexec)"
 
-#: ../nazoos-common/nazoos_common/helper.py:104
+#: ../nazoos-common/nazoos_common/helper.py:106
 msgid "unknown action"
 msgstr "unbekannte Aktion"
 
-#: ../nazoos-common/nazoos_common/helper.py:117
+#: ../nazoos-common/nazoos_common/helper.py:119
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr "Systemfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/helper.py:121
+#: ../nazoos-common/nazoos_common/helper.py:123
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr "Programmfehler: {detail}"
@@ -59,8 +60,8 @@ msgstr "Programmfehler: {detail}"
 msgid "pkexec could not be started."
 msgstr "pkexec konnte nicht gestartet werden."
 
-#: ../nazoos-common/nazoos_common/qt.py:159 nazoos_welcome/backend.py:167
-#: nazoos_welcome/backend.py:271
+#: ../nazoos-common/nazoos_common/qt.py:159 nazoos_welcome/backend.py:174
+#: nazoos_welcome/backend.py:279
 msgid "Done."
 msgstr "Fertig."
 
@@ -97,11 +98,11 @@ msgstr "Schließen"
 msgid "Nothing has run yet."
 msgstr "Bisher wurde nichts ausgeführt."
 
-#: nazoos_welcome/backend.py:174
+#: nazoos_welcome/backend.py:181
 msgid "These services still fail after a restart: %1"
 msgstr "Diese Dienste schlagen auch nach dem Neustart fehl: %1"
 
-#: nazoos_welcome/backend.py:230
+#: nazoos_welcome/backend.py:237
 msgid ""
 "The password for the Secure Boot key could not be prepared (openssl is "
 "missing)."
@@ -109,7 +110,7 @@ msgstr ""
 "Das Passwort für den Secure-Boot-Schlüssel konnte nicht vorbereitet werden "
 "(openssl fehlt)."
 
-#: nazoos_welcome/backend.py:291
+#: nazoos_welcome/backend.py:299
 msgid "The autostart setting could not be changed: %1"
 msgstr "Die Autostart-Einstellung konnte nicht geändert werden: %1"
 
@@ -461,6 +462,10 @@ msgstr ""
 "Tun Sie das nur, wenn Sie das Risiko kennen."
 
 #: nazoos_welcome/catalog.py
+msgid "Trusting the repository key"
+msgstr "Schlüssel der Paketquelle wird vertraut"
+
+#: nazoos_welcome/catalog.py
 msgid "Unlocks clock and voltage controls in LACT"
 msgstr "Schaltet Takt- und Spannungsregler in LACT frei"
 
@@ -501,27 +506,35 @@ msgstr "unbekannte App"
 msgid "{app} needs the NazoOS kernel (Kernel page)"
 msgstr "{app} braucht den NazoOS-Kernel (Seite „Kernel“)"
 
-#: nazoos_welcome/root/base.py:107
+#: nazoos_welcome/root/base.py:152
+#, python-brace-format
+msgid ""
+"Packman is rebuilding some packages ({packages}); try again in a few days"
+msgstr ""
+"Packman baut einige Pakete gerade neu ({packages}); versuchen Sie es in ein "
+"paar Tagen erneut"
+
+#: nazoos_welcome/root/base.py:180
 msgid "unknown user"
 msgstr "unbekannter Benutzer"
 
-#: nazoos_welcome/root/drives.py:106
+#: nazoos_welcome/root/drives.py:113
 msgid "this drive cannot be added here (removable or system drive)"
 msgstr ""
 "dieses Laufwerk kann hier nicht hinzugefügt werden (Wechseldatenträger oder "
 "Systemlaufwerk)"
 
-#: nazoos_welcome/root/drives.py:133
+#: nazoos_welcome/root/drives.py:144
 #, python-brace-format
 msgid "the drive could not be mounted (exit code {rc})"
 msgstr "das Laufwerk konnte nicht eingehängt werden (Exit-Code {rc})"
 
-#: nazoos_welcome/root/drives.py:150
+#: nazoos_welcome/root/drives.py:161
 msgid "only drives added by NazoOS Welcome can be removed here"
 msgstr ""
 "hier lassen sich nur Laufwerke entfernen, die NazoOS Welcome hinzugefügt hat"
 
-#: nazoos_welcome/root/drives.py:155
+#: nazoos_welcome/root/drives.py:166
 #, python-brace-format
 msgid ""
 "the drive is in use; close the programs that use it and try again (exit code "
@@ -580,19 +593,19 @@ msgstr "starten Sie zuerst den openSUSE-Kernel (Startmenü)"
 msgid "the openSUSE kernel is not installed"
 msgstr "der openSUSE-Kernel ist nicht installiert"
 
-#: nazoos_welcome/root/maintenance.py:21
+#: nazoos_welcome/root/maintenance.py:18
 msgid "unknown service"
 msgstr "unbekannter Dienst"
 
-#: nazoos_welcome/root/maintenance.py:37
+#: nazoos_welcome/root/maintenance.py:34
 msgid "nazoos-update is not installed"
 msgstr "nazoos-update ist nicht installiert"
 
-#: nazoos_welcome/root/maintenance.py:89
+#: nazoos_welcome/root/maintenance.py:86
 msgid "nazoos-repos is not installed"
 msgstr "nazoos-repos ist nicht installiert"
 
-#: nazoos_welcome/root/maintenance.py:99
+#: nazoos_welcome/root/maintenance.py:96
 #, python-brace-format
 msgid "the {channel} repository did not appear after refreshing the services"
 msgstr ""
@@ -607,35 +620,54 @@ msgstr "das heruntergeladene Kernel-Paket wurde nicht gefunden"
 msgid "the signing certificate could not be read"
 msgstr "das Signaturzertifikat konnte nicht gelesen werden"
 
-#: nazoos_welcome/root/mok_queue.py:74
+#: nazoos_welcome/root/mok_queue.py:76
 msgid "a password for the Secure Boot key is needed"
 msgstr "für den Secure-Boot-Schlüssel wird ein Passwort gebraucht"
 
-#: nazoos_welcome/root/mok_queue.py:89
+#: nazoos_welcome/root/mok_queue.py:91
 #, python-brace-format
 msgid "the Secure Boot key could not be prepared (mokutil exit code {rc})"
 msgstr ""
 "der Secure-Boot-Schlüssel konnte nicht vorbereitet werden (mokutil-Exit-Code "
 "{rc})"
 
-#: nazoos_welcome/root/mok_queue.py:116 nazoos_welcome/root/mok_queue.py:129
+#: nazoos_welcome/root/mok_queue.py:118 nazoos_welcome/root/mok_queue.py:131
 msgid "kernel-nazoos has no signing certificate"
 msgstr "kernel-nazoos hat kein Signaturzertifikat"
 
-#: nazoos_welcome/root/repair_fixes.py:48
+#: nazoos_welcome/root/repair_fixes.py:53
 #, python-brace-format
 msgid "still missing after restoring the services: {repos}"
 msgstr "fehlt auch nach dem Wiederherstellen der Dienste noch: {repos}"
 
-#: nazoos_welcome/root/repair_fixes.py:66
+#: nazoos_welcome/root/repair_fixes.py:121
+#, python-brace-format
+msgid "the package source {repo} could not be refreshed"
+msgstr "die Paketquelle {repo} konnte nicht aktualisiert werden"
+
+#: nazoos_welcome/root/repair_fixes.py:126
+#, python-brace-format
+msgid ""
+"the package source {repo} now offers a different key ({fingerprint}); check "
+"again"
+msgstr ""
+"die Paketquelle {repo} bietet jetzt einen anderen Schlüssel an "
+"({fingerprint}); prüfen Sie erneut"
+
+#: nazoos_welcome/root/repair_fixes.py:132
+#, python-brace-format
+msgid "the key file of {repo} does not match the fingerprint"
+msgstr "die Schlüsseldatei von {repo} passt nicht zum Fingerabdruck"
+
+#: nazoos_welcome/root/repair_fixes.py:153
 msgid "Packman is not set up; install the codecs first"
 msgstr "Packman ist nicht eingerichtet; installieren Sie zuerst die Codecs"
 
-#: nazoos_welcome/root/repair_fixes.py:90
+#: nazoos_welcome/root/repair_fixes.py:177
 msgid "no NVIDIA driver is installed"
 msgstr "es ist kein NVIDIA-Treiber installiert"
 
-#: nazoos_welcome/root/repair_fixes.py:101
+#: nazoos_welcome/root/repair_fixes.py:188
 #, python-brace-format
 msgid "still failing: {units}"
 msgstr "schlägt weiterhin fehl: {units}"
@@ -706,7 +738,7 @@ msgid "System"
 msgstr "System"
 
 #: qml/Main.qml:35 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:38
-#: qml/pages/RepairPage.qml:156 qml/pages/SystemPage.qml:127
+#: qml/pages/RepairPage.qml:166 qml/pages/SystemPage.qml:127
 msgid "Repair"
 msgstr "Reparieren"
 
@@ -792,8 +824,8 @@ msgid "Needs the NazoOS kernel (Kernel page)"
 msgstr "Braucht den NazoOS-Kernel (Seite „Kernel“)"
 
 #: qml/pages/AppsPage.qml:106 qml/pages/DriversPage.qml:86
-#: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:218
-#: qml/pages/GamingPage.qml:241
+#: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:219
+#: qml/pages/GamingPage.qml:242
 msgid "Installed"
 msgstr "Installiert"
 
@@ -803,15 +835,15 @@ msgstr "Software-Rendering (langsamer)"
 
 #: qml/pages/AppsPage.qml:111 qml/pages/DriversPage.qml:55
 #: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
-#: qml/pages/DriversPage.qml:121 qml/pages/GamingPage.qml:226
-#: qml/pages/GamingPage.qml:245 qml/pages/KernelPage.qml:49
+#: qml/pages/DriversPage.qml:121 qml/pages/GamingPage.qml:227
+#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:49
 #: qml/pages/KernelPage.qml:55 qml/pages/WelcomePage.qml:103
 msgid "Install"
 msgstr "Installieren"
 
 #: qml/pages/AppsPage.qml:111 qml/pages/AppsPage.qml:119
 #: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
-#: qml/pages/GamingPage.qml:245 qml/pages/KernelPage.qml:73
+#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:73
 #: qml/pages/KernelPage.qml:78 qml/pages/KernelPage.qml:102
 msgid "Remove"
 msgstr "Entfernen"
@@ -960,7 +992,7 @@ msgstr ""
 "Packman ist eingerichtet, aber ausgeschaltet. „Installieren“ schaltet es "
 "wieder ein."
 
-#: qml/pages/DriversPage.qml:121 qml/pages/RepairPage.qml:47
+#: qml/pages/DriversPage.qml:121 qml/pages/RepairPage.qml:50
 msgid "Reinstall"
 msgstr "Neu installieren"
 
@@ -1126,23 +1158,23 @@ msgstr "scx_lavd ist der Standard und passt für die meisten Spiele."
 msgid "Kernel options"
 msgstr "Kernel-Optionen"
 
-#: qml/pages/GamingPage.qml:80
+#: qml/pages/GamingPage.qml:81
 msgid "Restart the computer to apply the change"
 msgstr "Computer neu starten, um die Änderung zu übernehmen"
 
-#: qml/pages/GamingPage.qml:81
+#: qml/pages/GamingPage.qml:82
 msgid "On"
 msgstr "Ein"
 
-#: qml/pages/GamingPage.qml:107
+#: qml/pages/GamingPage.qml:108
 msgid "Controllers and mice"
 msgstr "Controller und Mäuse"
 
-#: qml/pages/GamingPage.qml:113
+#: qml/pages/GamingPage.qml:114
 msgid "USB polling rate"
 msgstr "USB-Abfragerate"
 
-#: qml/pages/GamingPage.qml:114
+#: qml/pages/GamingPage.qml:115
 msgid ""
 "How often the computer asks a USB controller, mouse or keyboard for input. "
 "Many controllers only ask 125 or 250 times per second; 1000 Hz lowers the "
@@ -1155,35 +1187,35 @@ msgstr ""
 "Neustart erhalten. Wenn ein Gerät mit höherer Rate Probleme macht, stelle es "
 "wieder auf „Gerätestandard“."
 
-#: qml/pages/GamingPage.qml:116
+#: qml/pages/GamingPage.qml:117
 msgid "No USB controller, mouse or keyboard is connected."
 msgstr "Kein USB-Controller, keine Maus und keine Tastatur angeschlossen."
 
-#: qml/pages/GamingPage.qml:117
+#: qml/pages/GamingPage.qml:118
 msgid "After a change: unplug the device and plug it in again."
 msgstr "Nach einer Änderung: Gerät abstecken und wieder anstecken."
 
-#: qml/pages/GamingPage.qml:135
+#: qml/pages/GamingPage.qml:136
 msgid "not connected"
 msgstr "nicht angeschlossen"
 
-#: qml/pages/GamingPage.qml:137
+#: qml/pages/GamingPage.qml:138
 msgid "now %1 Hz"
 msgstr "jetzt %1 Hz"
 
-#: qml/pages/GamingPage.qml:144
+#: qml/pages/GamingPage.qml:145
 msgid "Device default"
 msgstr "Gerätestandard"
 
-#: qml/pages/GamingPage.qml:165
+#: qml/pages/GamingPage.qml:166
 msgid "Gaming mode"
 msgstr "Gaming-Modus"
 
-#: qml/pages/GamingPage.qml:172
+#: qml/pages/GamingPage.qml:173
 msgid "Steam gaming mode"
 msgstr "Steam-Gaming-Modus"
 
-#: qml/pages/GamingPage.qml:173
+#: qml/pages/GamingPage.qml:174
 msgid ""
 "Steam's console interface in Gamescope, like on the Steam Deck. Back to the "
 "desktop: Steam menu → Power → Switch to Desktop. Also available as a session "
@@ -1193,19 +1225,19 @@ msgstr ""
 "Desktop: Steam-Menü → Ein/Aus → Zum Desktop wechseln. Auch als Sitzung auf "
 "dem Anmeldebildschirm verfügbar."
 
-#: qml/pages/GamingPage.qml:174
+#: qml/pages/GamingPage.qml:175
 msgid "Install Steam first (Apps page)"
 msgstr "Zuerst Steam installieren (Seite Apps)"
 
-#: qml/pages/GamingPage.qml:175
+#: qml/pages/GamingPage.qml:176
 msgid "Starts in gaming mode (user %1)"
 msgstr "Startet im Gaming-Modus (Nutzer %1)"
 
-#: qml/pages/GamingPage.qml:184
+#: qml/pages/GamingPage.qml:185
 msgid "Start in gaming mode"
 msgstr "Im Gaming-Modus starten"
 
-#: qml/pages/GamingPage.qml:193
+#: qml/pages/GamingPage.qml:194
 msgid ""
 "Logs you in automatically and starts Steam, like a console. The desktop is "
 "then used for one session only."
@@ -1213,15 +1245,15 @@ msgstr ""
 "Meldet Sie automatisch an und startet Steam, wie bei einer Konsole. Der "
 "Desktop gilt dann jeweils nur für eine Sitzung."
 
-#: qml/pages/GamingPage.qml:202
+#: qml/pages/GamingPage.qml:203
 msgid "Switch now"
 msgstr "Jetzt wechseln"
 
-#: qml/pages/GamingPage.qml:205
+#: qml/pages/GamingPage.qml:206
 msgid "Switch to gaming mode?"
 msgstr "Zum Gaming-Modus wechseln?"
 
-#: qml/pages/GamingPage.qml:206
+#: qml/pages/GamingPage.qml:207
 msgid ""
 "This ends the desktop session. Save your work first. Steam starts in gaming "
 "mode; \"Switch to Desktop\" in Steam's power menu brings you back."
@@ -1230,19 +1262,19 @@ msgstr ""
 "startet im Gaming-Modus; „Zum Desktop wechseln“ im Ein/Aus-Menü von Steam "
 "bringt Sie zurück."
 
-#: qml/pages/GamingPage.qml:207
+#: qml/pages/GamingPage.qml:208
 msgid "Switch to gaming mode"
 msgstr "Zum Gaming-Modus wechseln"
 
-#: qml/pages/GamingPage.qml:212
+#: qml/pages/GamingPage.qml:213
 msgid "Handheld"
 msgstr "Handheld"
 
-#: qml/pages/GamingPage.qml:216
+#: qml/pages/GamingPage.qml:217
 msgid "Steam Deck and handheld support"
 msgstr "Steam Deck und Handhelds"
 
-#: qml/pages/GamingPage.qml:217
+#: qml/pages/GamingPage.qml:218
 msgid ""
 "Gamescope session with Steam's gaming mode, controller and fan support for "
 "Steam Deck, Legion Go, ROG Ally and similar devices."
@@ -1250,19 +1282,19 @@ msgstr ""
 "Gamescope-Sitzung mit Steams Spielmodus, Controller- und Lüfterunterstützung "
 "für Steam Deck, Legion Go, ROG Ally und ähnliche Geräte."
 
-#: qml/pages/GamingPage.qml:219
+#: qml/pages/GamingPage.qml:220
 msgid "Not available yet"
 msgstr "Noch nicht verfügbar"
 
-#: qml/pages/GamingPage.qml:220
+#: qml/pages/GamingPage.qml:221
 msgid "Recommended: %1 detected"
 msgstr "Empfohlen: %1 erkannt"
 
-#: qml/pages/GamingPage.qml:239
+#: qml/pages/GamingPage.qml:240
 msgid "Steam Deck dock firmware"
 msgstr "Steam-Deck-Dock-Firmware"
 
-#: qml/pages/GamingPage.qml:240
+#: qml/pages/GamingPage.qml:241
 msgid ""
 "Lets Steam update the firmware of the official Steam Deck dock. Downloads "
 "Valve's updater (proprietary) during installation."
@@ -1271,15 +1303,15 @@ msgstr ""
 "aktualisieren. Lädt bei der Installation Valves Updater (proprietär) "
 "herunter."
 
-#: qml/pages/GamingPage.qml:252 qml/pages/RepairPage.qml:123
+#: qml/pages/GamingPage.qml:253 qml/pages/RepairPage.qml:133
 msgid "Tools"
 msgstr "Werkzeuge"
 
-#: qml/pages/GamingPage.qml:256
+#: qml/pages/GamingPage.qml:257
 msgid "GPU and cooling"
 msgstr "Grafikkarte und Kühlung"
 
-#: qml/pages/GamingPage.qml:257
+#: qml/pages/GamingPage.qml:258
 msgid ""
 "LACT: GPU clocks, power limit and fan curve. CoolerControl: fans and pumps "
 "of the whole system."
@@ -1287,15 +1319,15 @@ msgstr ""
 "LACT: Takt, Leistungsgrenze und Lüfterkurve der Grafikkarte. CoolerControl: "
 "Lüfter und Pumpen des ganzen Systems."
 
-#: qml/pages/GamingPage.qml:272
+#: qml/pages/GamingPage.qml:273
 msgid "Steam launch options"
 msgstr "Steam-Startoptionen"
 
-#: qml/pages/GamingPage.qml:273
+#: qml/pages/GamingPage.qml:274
 msgid "In Steam, right-click a game → Properties → Launch options:"
 msgstr "In Steam: Rechtsklick auf ein Spiel → Eigenschaften → Startoptionen:"
 
-#: qml/pages/GamingPage.qml:282
+#: qml/pages/GamingPage.qml:283
 msgid ""
 "GameMode raises the game's priority while it runs; MangoHud shows FPS and "
 "frame times (toggle with Shift+F12)."
@@ -1583,8 +1615,8 @@ msgstr ""
 "Die Liste der installierten Pakete kann nicht gelesen werden. Ein Neuaufbau "
 "behebt das meistens."
 
-#: qml/pages/RepairPage.qml:35 qml/pages/RepairPage.qml:167
-#: qml/pages/RepairPage.qml:177 qml/pages/RepairPage.qml:181
+#: qml/pages/RepairPage.qml:35 qml/pages/RepairPage.qml:177
+#: qml/pages/RepairPage.qml:187 qml/pages/RepairPage.qml:191
 msgid "Rebuild"
 msgstr "Neu aufbauen"
 
@@ -1601,10 +1633,28 @@ msgstr ""
 "eingeschaltet."
 
 #: qml/pages/RepairPage.qml:39
+msgid "Repository key not trusted"
+msgstr "Schlüssel der Paketquelle nicht vertraut"
+
+#: qml/pages/RepairPage.qml:40
+msgid ""
+"This package source offers a signing key NazoOS does not trust yet, so it "
+"gets no updates. Only trust it if the provider's website shows the same "
+"fingerprint."
+msgstr ""
+"Diese Paketquelle bietet einen Signaturschlüssel an, dem NazoOS noch nicht "
+"vertraut, daher bekommt sie keine Updates. Vertrauen Sie ihm nur, wenn die "
+"Website des Anbieters denselben Fingerabdruck zeigt."
+
+#: qml/pages/RepairPage.qml:41 qml/pages/RepairPage.qml:73
+msgid "Trust key"
+msgstr "Schlüssel vertrauen"
+
+#: qml/pages/RepairPage.qml:42
 msgid "Packages with missing dependencies"
 msgstr "Pakete mit fehlenden Abhängigkeiten"
 
-#: qml/pages/RepairPage.qml:40
+#: qml/pages/RepairPage.qml:43
 msgid ""
 "Something these packages need is not installed. The missing parts are "
 "installed. If that needs a decision, Myrlyn shows the choices."
@@ -1613,15 +1663,15 @@ msgstr ""
 "werden installiert. Falls dafür eine Entscheidung nötig ist, zeigt Myrlyn "
 "die Möglichkeiten."
 
-#: qml/pages/RepairPage.qml:41
+#: qml/pages/RepairPage.qml:44
 msgid "Install missing"
 msgstr "Fehlendes installieren"
 
-#: qml/pages/RepairPage.qml:42
+#: qml/pages/RepairPage.qml:45
 msgid "Mixed multimedia packages"
 msgstr "Gemischte Multimedia-Pakete"
 
-#: qml/pages/RepairPage.qml:43
+#: qml/pages/RepairPage.qml:46
 msgid ""
 "Some codec libraries come from openSUSE, others from Packman. That breaks "
 "video playback. All of them are switched to Packman."
@@ -1629,15 +1679,15 @@ msgstr ""
 "Einige Codec-Bibliotheken stammen von openSUSE, andere von Packman. Dadurch "
 "funktioniert die Videowiedergabe nicht. Alle werden auf Packman umgestellt."
 
-#: qml/pages/RepairPage.qml:44
+#: qml/pages/RepairPage.qml:47
 msgid "Switch to Packman"
 msgstr "Auf Packman umstellen"
 
-#: qml/pages/RepairPage.qml:45
+#: qml/pages/RepairPage.qml:48
 msgid "NVIDIA driver missing for this kernel"
 msgstr "NVIDIA-Treiber fehlt für diesen Kernel"
 
-#: qml/pages/RepairPage.qml:46
+#: qml/pages/RepairPage.qml:49
 msgid ""
 "The NVIDIA kernel module is not built for the running kernel, so the desktop "
 "runs without the NVIDIA driver. It is installed again; restart afterwards."
@@ -1646,11 +1696,11 @@ msgstr ""
 "Desktop ohne NVIDIA-Treiber. Es wird neu installiert; starten Sie danach den "
 "Computer neu."
 
-#: qml/pages/RepairPage.qml:48
+#: qml/pages/RepairPage.qml:51
 msgid "Services that failed to start"
 msgstr "Dienste, die nicht starten konnten"
 
-#: qml/pages/RepairPage.qml:49
+#: qml/pages/RepairPage.qml:52
 msgid ""
 "These background services stopped with an error. They are restarted. If one "
 "keeps failing, create a bug report below."
@@ -1659,15 +1709,15 @@ msgstr ""
 "gestartet. Falls einer weiter fehlschlägt, erstellen Sie unten einen "
 "Fehlerbericht."
 
-#: qml/pages/RepairPage.qml:50
+#: qml/pages/RepairPage.qml:53
 msgid "Restart"
 msgstr "Neu starten"
 
-#: qml/pages/RepairPage.qml:51
+#: qml/pages/RepairPage.qml:54
 msgid "Little free disk space"
 msgstr "Wenig freier Speicherplatz"
 
-#: qml/pages/RepairPage.qml:52
+#: qml/pages/RepairPage.qml:55
 msgid ""
 "Updates can fail when the disk is full. Old snapshots, the package cache and "
 "unused Flatpak runtimes are removed."
@@ -1675,71 +1725,86 @@ msgstr ""
 "Updates können fehlschlagen, wenn die Festplatte voll ist. Alte Snapshots, "
 "der Paket-Cache und ungenutzte Flatpak-Laufzeitumgebungen werden entfernt."
 
-#: qml/pages/RepairPage.qml:53
+#: qml/pages/RepairPage.qml:56
 msgid "Free space"
 msgstr "Platz freigeben"
 
-#: qml/pages/RepairPage.qml:54
+#: qml/pages/RepairPage.qml:57
 msgid "Flathub is missing"
 msgstr "Flathub fehlt"
 
-#: qml/pages/RepairPage.qml:55
+#: qml/pages/RepairPage.qml:58
 msgid "Discover cannot show Flatpak apps without Flathub. It is added again."
 msgstr ""
 "Ohne Flathub kann Discover keine Flatpak-Apps anzeigen. Es wird wieder "
 "hinzugefügt."
 
-#: qml/pages/RepairPage.qml:56
+#: qml/pages/RepairPage.qml:59
 msgid "Add Flathub"
 msgstr "Flathub hinzufügen"
 
-#: qml/pages/RepairPage.qml:57
+#: qml/pages/RepairPage.qml:60
 msgid "The check itself failed"
 msgstr "Die Prüfung selbst ist fehlgeschlagen"
 
-#: qml/pages/RepairPage.qml:58
+#: qml/pages/RepairPage.qml:61
 msgid "Please create a bug report below."
 msgstr "Bitte erstellen Sie unten einen Fehlerbericht."
 
-#: qml/pages/RepairPage.qml:75
+#: qml/pages/RepairPage.qml:70
+msgid "Trust this key?"
+msgstr "Diesem Schlüssel vertrauen?"
+
+#: qml/pages/RepairPage.qml:71
+msgid ""
+"Package source and fingerprint:\n"
+"%1\n"
+"\n"
+"Packages signed with this key can change the whole system."
+msgstr "Paketquelle und Fingerabdruck:\n"
+"%1\n"
+"\n"
+"Mit diesem Schlüssel signierte Pakete können das ganze System verändern."
+
+#: qml/pages/RepairPage.qml:85
 msgid "Check"
 msgstr "Prüfung"
 
-#: qml/pages/RepairPage.qml:81
+#: qml/pages/RepairPage.qml:91
 msgid "Checking the system …"
 msgstr "System wird geprüft …"
 
-#: qml/pages/RepairPage.qml:82
+#: qml/pages/RepairPage.qml:92
 msgid "System check"
 msgstr "Systemprüfung"
 
-#: qml/pages/RepairPage.qml:83
+#: qml/pages/RepairPage.qml:93
 msgid "No known problems found"
 msgstr "Keine bekannten Probleme gefunden"
 
-#: qml/pages/RepairPage.qml:84
+#: qml/pages/RepairPage.qml:94
 msgid "Problems found: %1"
 msgstr "Gefundene Probleme: %1"
 
-#: qml/pages/RepairPage.qml:85
+#: qml/pages/RepairPage.qml:95
 msgid ""
 "Looks for common problems: package database, repositories, missing "
-"dependencies, codec mix, NVIDIA module, failed services, disk space and "
-"Flathub."
+"dependencies, codec mix, repository keys, NVIDIA module, failed services, "
+"disk space and Flathub."
 msgstr ""
 "Sucht nach häufigen Problemen: Paketdatenbank, Paketquellen, fehlende "
-"Abhängigkeiten, Codec-Mischung, NVIDIA-Modul, fehlgeschlagene Dienste, "
-"Speicherplatz und Flathub."
+"Abhängigkeiten, Codec-Mischung, Paketquellen-Schlüssel, NVIDIA-Modul, "
+"fehlgeschlagene Dienste, Speicherplatz und Flathub."
 
-#: qml/pages/RepairPage.qml:92
+#: qml/pages/RepairPage.qml:102
 msgid "Check again"
 msgstr "Erneut prüfen"
 
-#: qml/pages/RepairPage.qml:127
+#: qml/pages/RepairPage.qml:137
 msgid "Refresh repositories"
 msgstr "Paketquellen aktualisieren"
 
-#: qml/pages/RepairPage.qml:128
+#: qml/pages/RepairPage.qml:138
 msgid ""
 "Reloads the package lists. Helps when Discover or an installation reports "
 "outdated or broken repository data."
@@ -1747,15 +1812,15 @@ msgstr ""
 "Lädt die Paketlisten neu. Hilft, wenn Discover oder eine Installation "
 "veraltete oder fehlerhafte Paketquellen meldet."
 
-#: qml/pages/RepairPage.qml:131
+#: qml/pages/RepairPage.qml:141
 msgid "Refresh"
 msgstr "Aktualisieren"
 
-#: qml/pages/RepairPage.qml:137
+#: qml/pages/RepairPage.qml:147
 msgid "Clean package cache"
 msgstr "Paket-Cache leeren"
 
-#: qml/pages/RepairPage.qml:138
+#: qml/pages/RepairPage.qml:148
 msgid ""
 "Deletes downloaded package files and cached repository data to free disk "
 "space."
@@ -1763,15 +1828,15 @@ msgstr ""
 "Löscht heruntergeladene Pakete und zwischengespeicherte Paketquellen-Daten, "
 "um Speicherplatz freizugeben."
 
-#: qml/pages/RepairPage.qml:141
+#: qml/pages/RepairPage.qml:151
 msgid "Clean"
 msgstr "Leeren"
 
-#: qml/pages/RepairPage.qml:147
+#: qml/pages/RepairPage.qml:157
 msgid "Flatpak cleanup"
 msgstr "Flatpak aufräumen"
 
-#: qml/pages/RepairPage.qml:148
+#: qml/pages/RepairPage.qml:158
 msgid ""
 "Removes runtimes no app needs anymore, or repairs a broken Flatpak "
 "installation."
@@ -1779,24 +1844,24 @@ msgstr ""
 "Entfernt Laufzeitumgebungen, die keine App mehr braucht, oder repariert eine "
 "defekte Flatpak-Installation."
 
-#: qml/pages/RepairPage.qml:151
+#: qml/pages/RepairPage.qml:161
 msgid "Remove unused"
 msgstr "Unbenutzte entfernen"
 
-#: qml/pages/RepairPage.qml:163
+#: qml/pages/RepairPage.qml:173
 msgid "Rebuild package database"
 msgstr "Paketdatenbank neu aufbauen"
 
-#: qml/pages/RepairPage.qml:164
+#: qml/pages/RepairPage.qml:174
 msgid "Helps when installing or updating stops with an \"rpmdb\" error."
 msgstr ""
 "Hilft, wenn Installation oder Update mit einem „rpmdb“-Fehler abbricht."
 
-#: qml/pages/RepairPage.qml:173
+#: qml/pages/RepairPage.qml:183
 msgid "Rebuild boot files"
 msgstr "Startdateien neu erstellen"
 
-#: qml/pages/RepairPage.qml:174
+#: qml/pages/RepairPage.qml:184
 msgid ""
 "Creates the initramfs of every kernel and the boot menu again. Helps when "
 "the system hangs at startup or a driver is missing after a kernel update."
@@ -1804,19 +1869,19 @@ msgstr ""
 "Erstellt die Initramfs aller Kernel und das Bootmenü neu. Hilft, wenn das "
 "System beim Start hängt oder nach einem Kernel-Update ein Treiber fehlt."
 
-#: qml/pages/RepairPage.qml:179
+#: qml/pages/RepairPage.qml:189
 msgid "Rebuild boot files?"
 msgstr "Startdateien neu erstellen?"
 
-#: qml/pages/RepairPage.qml:180
+#: qml/pages/RepairPage.qml:190
 msgid "This takes a minute or two. Restart the computer afterwards."
 msgstr "Das dauert ein bis zwei Minuten. Starten Sie den Computer danach neu."
 
-#: qml/pages/RepairPage.qml:187
+#: qml/pages/RepairPage.qml:197
 msgid "Go back to an earlier state"
 msgstr "Zu einem früheren Zustand zurückkehren"
 
-#: qml/pages/RepairPage.qml:188
+#: qml/pages/RepairPage.qml:198
 msgid ""
 "If nothing here helps: restart, choose \"Start bootloader from a read-only "
 "snapshot\" in the boot menu and pick the state before the problem. NazoOS "
@@ -1826,15 +1891,15 @@ msgstr ""
 "read-only snapshot“ wählen und den Zustand vor dem Problem auswählen. NazoOS "
 "Update bietet dann an, diesen Zustand dauerhaft zu übernehmen."
 
-#: qml/pages/RepairPage.qml:196
+#: qml/pages/RepairPage.qml:206
 msgid "Get help"
 msgstr "Hilfe bekommen"
 
-#: qml/pages/RepairPage.qml:200
+#: qml/pages/RepairPage.qml:210
 msgid "Bug report"
 msgstr "Fehlerbericht"
 
-#: qml/pages/RepairPage.qml:201
+#: qml/pages/RepairPage.qml:211
 msgid ""
 "Saves system information, errors since startup, repositories and recent "
 "updates to a text file in your home folder. Look through it before you share "
@@ -1844,11 +1909,11 @@ msgstr ""
 "letzten Updates in einer Textdatei in Ihrem Persönlichen Ordner. Sehen Sie "
 "sie vor dem Teilen durch: Sie enthält Gerätenamen und Ihren Benutzernamen."
 
-#: qml/pages/RepairPage.qml:203
+#: qml/pages/RepairPage.qml:213
 msgid "Create report"
 msgstr "Bericht erstellen"
 
-#: qml/pages/RepairPage.qml:208
+#: qml/pages/RepairPage.qml:218
 msgid "Report on GitHub"
 msgstr "Auf GitHub melden"
 
@@ -2136,6 +2201,26 @@ msgstr "Mehr erfahren"
 #: qml/pages/WelcomePage.qml:174
 msgid "Show this window at login"
 msgstr "Dieses Fenster bei der Anmeldung anzeigen"
+
+#~ msgid ""
+#~ "Package source: %1\n"
+#~ "Fingerprint: %2\n"
+#~ "\n"
+#~ "Packages signed with this key can change the whole system."
+#~ msgstr ""
+#~ "Paketquelle: %1\n"
+#~ "Fingerabdruck: %2\n"
+#~ "\n"
+#~ "Mit diesem Schlüssel signierte Pakete können das ganze System verändern."
+
+#~ msgid ""
+#~ "Looks for common problems: package database, repositories, missing "
+#~ "dependencies, codec mix, NVIDIA module, failed services, disk space and "
+#~ "Flathub."
+#~ msgstr ""
+#~ "Sucht nach häufigen Problemen: Paketdatenbank, Paketquellen, fehlende "
+#~ "Abhängigkeiten, Codec-Mischung, NVIDIA-Modul, fehlgeschlagene Dienste, "
+#~ "Speicherplatz und Flathub."
 
 #~ msgid "drive not found or file system not supported"
 #~ msgstr "Laufwerk nicht gefunden oder Dateisystem nicht unterstützt"

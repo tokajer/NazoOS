@@ -1,6 +1,10 @@
 -------------------------------------------------------------------
 Mon Oct 26 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
+- Repair: trust an unknown or changed repository key after checking its
+  fingerprint
+- Codecs: if Packman is being rebuilt, packages that cannot be installed
+  yet are held back for a second try and the message says so
 - Codecs: installing works again with FFmpeg 9 in Tumbleweed (the
   installed FFmpeg version is kept and switched to Packman)
 - Waydroid: a system that had Waydroid before moves its network into the

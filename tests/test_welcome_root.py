@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Pure parts of the welcome root actions (nothing runs as root here)."""
 
+import io
 import re
 import subprocess
 import types
@@ -13,6 +14,8 @@ from nazoos_welcome import hw, system
 from nazoos_welcome.pollrate import PARAM
 from nazoos_welcome.root import (apps, base, drivers, drives, kernel_switch,
                                  maintenance, mok_queue, repair_fixes, tuning)
+
+from conftest import KEY_FPR, KEY_OUTPUT, KEY_URL  # noqa: E402
 
 MARK = hw.FSTAB_MARKER
 
@@ -372,7 +375,7 @@ def test_packman_switch_keeps_32bit_when_dup_fails(monkeypatch, tmp_path):
 
 def test_packman_switch_fails_without_32bit(monkeypatch, tmp_path):
     monkeypatch.setattr(base, "ZYPP_LOCKS", tmp_path / "locks")
-    monkeypatch.setattr(helper, "run", lambda cmd, check=True: 0
+    monkeypatch.setattr(helper, "run", lambda cmd, check=True, **kw: 0
                         if "refresh" in cmd else 4)
     monkeypatch.setattr(helper, "output", lambda cmd: "bash\n")
     with pytest.raises(base.Fail):
@@ -401,7 +404,7 @@ def test_packman_switch_fails_when_every_32bit_is_locked(monkeypatch,
     locks = tmp_path / "locks"
     locks.write_text("solvable_name: Mesa-32bit\n")
     monkeypatch.setattr(base, "ZYPP_LOCKS", locks)
-    monkeypatch.setattr(helper, "run", lambda cmd, check=True: 0
+    monkeypatch.setattr(helper, "run", lambda cmd, check=True, **kw: 0
                         if "refresh" in cmd else 4)
     monkeypatch.setattr(helper, "output", lambda cmd: "Mesa-32bit\n")
     with pytest.raises(base.Fail):
@@ -705,3 +708,235 @@ def test_prepare_mok_asks_for_the_kernel_package_cert(
     with pytest.raises(mok_queue.Fail):
         mok_queue.prepare_mok("nazoos-kernel", [])
     assert no_cert == [kernel.KERNEL_PACKAGE]
+
+
+GPG_COLONS = (f"pub:-:1024:17:1E8EDBE858DDEB32:1201034857:::-:::scSC:::::::\n"
+              f"fpr:::::::::{KEY_FPR}:\nuid:-::::\n"
+              "sub:-:2048:1:AAAA:::::e:::::::\n"
+              "fpr:::::::::" + "B" * 40 + ":\n")
+
+
+class FakeKeyEnv:
+    """repair_key with fake zypper refresh, download and gpg."""
+
+    def __init__(self, monkeypatch, fake_root, refresh_out=KEY_OUTPUT,
+                 refresh_rc=4, colons=GPG_COLONS):
+        self.captured = []
+        self.fetched = []
+
+        def capture(cmd):
+            self.captured.append(cmd)
+            if cmd[0] == "gpg":
+                return subprocess.CompletedProcess(cmd, 0, colons, "")
+            return subprocess.CompletedProcess(cmd, refresh_rc, refresh_out,
+                                               "")
+
+        def urlopen(url, timeout):
+            self.fetched.append(url)
+            return io.BytesIO(b"key data")
+        monkeypatch.setattr(helper, "capture", capture)
+        monkeypatch.setattr(helper, "UPDATE_HELPER", "/nonexistent")
+        monkeypatch.setattr(repair_fixes.repos, "repos",
+                            lambda: [("keytest", "https://x/", True)])
+        monkeypatch.setattr(repair_fixes.repos, "alias_of", lambda label: (
+            "keytest" if label == "Some Name (beta)" else None))
+        monkeypatch.setattr(repair_fixes.urllib.request, "urlopen", urlopen)
+        self.fake = fake_root
+
+    def verbs(self):
+        return [c[0:2] if c[0] == "rpm" else c[2] for c in self.fake.calls]
+
+
+@pytest.mark.parametrize("args", [
+    ["keytest", "4AFF"], ["keytest", KEY_FPR.lower()],
+    ["other", KEY_FPR], ["keytest"]])
+def test_repair_key_rejects_bad_arguments(monkeypatch, fake_root, args):
+    env = FakeKeyEnv(monkeypatch, fake_root)
+    with pytest.raises(helper.Fail):
+        repair_fixes.repair_key(args)
+    assert env.captured == [] and fake_root.calls == []
+
+
+def test_repair_key_refuses_a_different_fingerprint(monkeypatch, fake_root):
+    env = FakeKeyEnv(monkeypatch, fake_root)
+    with pytest.raises(helper.Fail) as e:
+        repair_fixes.repair_key(["keytest", "A" * 40])
+    assert "different" in e.value.template
+    assert env.fetched == [] and fake_root.calls == []
+
+
+def test_repair_key_refuses_a_key_file_with_another_fingerprint(
+        monkeypatch, fake_root):
+    FakeKeyEnv(monkeypatch, fake_root, colons=GPG_COLONS.replace(KEY_FPR,
+                                                                 "C" * 40))
+    with pytest.raises(helper.Fail) as e:
+        repair_fixes.repair_key(["keytest", KEY_FPR])
+    assert "does not match" in e.value.template
+    assert not any(c[0] == "rpm" for c in fake_root.calls)
+
+
+def test_repair_key_imports_the_matching_key(monkeypatch, fake_root):
+    env = FakeKeyEnv(monkeypatch, fake_root)
+    repair_fixes.repair_key(["keytest", KEY_FPR])
+    assert env.fetched == [KEY_URL]
+    gpg = next(c for c in env.captured if c[0] == "gpg")
+    assert "--homedir" in gpg and "--show-keys" in gpg
+    # gpg checks the file, rpm gets gpg's own export of that key
+    assert [c[:2] if c[0] in ("rpm", "gpg") else c[2]
+            for c in fake_root.calls] == [["gpg", "--batch"],
+                                          ["rpm", "--import"], "refresh"]
+    assert fake_root.calls[1][-1].endswith("clean.asc")
+    export = env.captured[-1]
+    assert "--export" in export and export[-1] == KEY_FPR
+
+
+def test_repair_key_ignores_plain_http_urls(monkeypatch, fake_root):
+    env = FakeKeyEnv(monkeypatch, fake_root,
+                     refresh_out=KEY_OUTPUT.replace("https://", "http://"))
+    with pytest.raises(helper.Fail):
+        repair_fixes.repair_key(["keytest", KEY_FPR])
+    assert env.fetched == []
+
+
+@pytest.mark.parametrize("colons", [
+    GPG_COLONS.replace("pub:-:", "pub:r:"),
+    GPG_COLONS.replace("pub:-:", "pub:e:"),
+    # the requested fingerprint belongs to a subkey of another primary
+    GPG_COLONS.replace(f"fpr:::::::::{KEY_FPR}:", "fpr:::::::::" + "D" * 40
+                       + ":").replace("B" * 40, KEY_FPR),
+])
+def test_repair_key_rejects_unusable_key_files(monkeypatch, fake_root,
+                                               colons):
+    FakeKeyEnv(monkeypatch, fake_root, colons=colons)
+    with pytest.raises(helper.Fail):
+        repair_fixes.repair_key(["keytest", KEY_FPR])
+    assert not any(c[0] == "rpm" for c in fake_root.calls)
+
+
+def test_repair_key_when_the_key_is_already_trusted(monkeypatch, fake_root):
+    env = FakeKeyEnv(monkeypatch, fake_root, refresh_out="", refresh_rc=0)
+    repair_fixes.repair_key(["keytest", KEY_FPR])
+    assert env.fetched == [] and fake_root.calls == []
+
+
+def test_repair_key_fails_when_the_refresh_fails_otherwise(
+        monkeypatch, fake_root):
+    FakeKeyEnv(monkeypatch, fake_root, refresh_out="no route", refresh_rc=4)
+    with pytest.raises(helper.Fail) as e:
+        repair_fixes.repair_key(["keytest", KEY_FPR])
+    assert "could not be refreshed" in e.value.template
+
+
+LIVEMEDIA = ("Problem: 1: nothing provides 'libliveMedia.so.120()(64bit)' "
+             "needed by the to be installed "
+             "vlc-noX-3.0.24-1699.9.pm.3.x86_64\n")
+
+
+@pytest.mark.parametrize("text", [
+    LIVEMEDIA,
+    " - nothing provides 'libliveMedia.so.120()(64bit)' needed by the to be "
+    "installed vlc-noX-3.0.24-1699.9.pm.3.x86_64\n",
+    "  the to be installed vlc-noX-3.0.24-1699.9.pm.3.x86_64 requires "
+    "'libliveMedia.so.120()(64bit)', but this requirement cannot be "
+    "provided\n",
+])
+def test_unresolvable_wordings(text):
+    assert base.unresolvable(text) == ["vlc-noX"]
+
+
+def test_unresolvable_several_and_32bit():
+    text = (LIVEMEDIA
+            + "nothing provides 'libx.so.1' needed by the to be installed "
+              "libfoo-32bit-1.2-3.1.i586\n"
+            + "nothing provides 'y' needed by the to be installed "
+              "ffmpeg-7-1.noarch\n"
+            + LIVEMEDIA + "unrelated line needed by nothing\n")
+    assert base.unresolvable(text) == ["ffmpeg", "libfoo-32bit", "vlc-noX"]
+    assert base.unresolvable("") == []
+
+
+def _dup_that_fails(monkeypatch, tmp_path, outputs):
+    """helper.run fake: refresh/addlock/removelock work, every dup fails
+    printing the next of OUTPUTS (the last one repeats)."""
+    monkeypatch.setattr(base, "ZYPP_LOCKS", tmp_path / "locks")
+    calls = []
+
+    def fake_run(cmd, check=True, on_line=None):
+        calls.append(cmd)
+        if cmd[2] == "dist-upgrade":
+            n = len([c for c in calls if c[2] == "dist-upgrade"])
+            on_line(outputs[min(n, len(outputs)) - 1])
+            return 4
+        return 0
+    monkeypatch.setattr(helper, "run", fake_run)
+    monkeypatch.setattr(helper, "output", lambda cmd: "bash\n")
+    return calls
+
+
+def test_packman_switch_locks_the_unresolvable_package(monkeypatch, tmp_path):
+    monkeypatch.setattr(base, "ZYPP_LOCKS", tmp_path / "locks")
+    calls, codes = [], iter([0, 4, 0, 0, 0])
+
+    def fake_run(cmd, check=True, on_line=None):
+        calls.append(cmd)
+        rc = next(codes)
+        if on_line and rc:
+            on_line(LIVEMEDIA)
+        return rc
+    monkeypatch.setattr(helper, "run", fake_run)
+    monkeypatch.setattr(helper, "output", lambda cmd: "bash\n")
+    base.packman_switch("packman")
+    assert [c[2] for c in calls] == ["refresh", "dist-upgrade", "addlock",
+                                     "dist-upgrade", "removelock"]
+    assert calls[2][3:] == ["vlc-noX", "vlc-noX-32bit"]
+    assert calls[4][3:] == ["vlc-noX", "vlc-noX-32bit"]
+
+
+def test_packman_switch_says_packman_is_rebuilding(monkeypatch, tmp_path):
+    calls = _dup_that_fails(monkeypatch, tmp_path, [LIVEMEDIA])
+    with pytest.raises(helper.Fail) as e:
+        base.packman_switch("packman")
+    assert e.value.template.startswith("Packman is rebuilding")
+    assert e.value.params == {"packages": "vlc-noX"}
+    # Nothing new to hold the second time: two dups, locks removed
+    assert [c[2] for c in calls] == ["refresh", "dist-upgrade", "addlock",
+                                     "dist-upgrade", "removelock"]
+
+
+def test_packman_switch_stops_after_three_tries(monkeypatch, tmp_path):
+    outs = [LIVEMEDIA, LIVEMEDIA.replace("vlc-noX", "other"),
+            LIVEMEDIA.replace("vlc-noX", "third")]
+    calls = _dup_that_fails(monkeypatch, tmp_path, outs)
+    with pytest.raises(helper.Fail) as e:
+        base.packman_switch("packman")
+    assert len([c for c in calls if c[2] == "dist-upgrade"]) == 3
+    assert e.value.params == {"packages": "other, third, vlc-noX"}
+    assert calls[-1][2] == "removelock"
+
+
+def test_packman_switch_leaves_user_locks_of_unresolvable_names(
+        monkeypatch, tmp_path):
+    locks = tmp_path / "locks"
+    locks.write_text("solvable_name: vlc-noX\n")
+    calls = _dup_that_fails(monkeypatch, tmp_path, [LIVEMEDIA])
+    monkeypatch.setattr(base, "ZYPP_LOCKS", locks)
+    with pytest.raises(helper.Fail):
+        base.packman_switch("packman")
+    # Only -32bit is ours; the user's lock is neither added nor removed
+    assert [c[3:] for c in calls if c[2] == "addlock"] == [["vlc-noX-32bit"]]
+    assert [c[3:] for c in calls if c[2] == "removelock"] == [
+        ["vlc-noX-32bit"]]
+
+
+def test_packman_switch_other_failure_is_not_a_rebuild(monkeypatch,
+                                                       tmp_path):
+    outs = [LIVEMEDIA, "Problem: conflict\n"]
+    _dup_that_fails(monkeypatch, tmp_path, outs)
+    with pytest.raises(helper.Fail) as e:
+        base.packman_switch("packman")
+    assert e.value.template.startswith("'{cmd}' failed")
+
+
+def test_unresolvable_name_cannot_be_an_option():
+    assert base.unresolvable("needed by the to be installed "
+                             "--help-1-2.noarch\n") == []

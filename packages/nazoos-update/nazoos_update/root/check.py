@@ -136,9 +136,19 @@ def check(_args=None):
     r = capture(zypper.ZYPPER + ["refresh"])
     print(r.stdout + r.stderr, end="", flush=True)
     if r.returncode != 0:
-        result["error"] = status.ERROR_REFRESH
+        keys = zypper.offered_keys(r.stdout + r.stderr)
+        result["error"] = status.ERROR_KEY if keys else status.ERROR_REFRESH
+        # zypper names the repo by its label; the Repair page needs the alias
+        result["keys"] = [
+            {"repo": repos.alias_of(k["label"]) or k["label"],
+             "label": k["label"], "fingerprint": k["fingerprint"],
+             "shown": f"{k['label']}: {zypper.group_hex(k['fingerprint'])}"}
+            for k in keys]
         result["detail"] = (r.stderr or r.stdout).strip()[-DETAIL_MAX:]
         status.write(result)
+        if keys:
+            raise Fail("the signing key of repository {repo} is unknown "
+                       "or has changed", repo=result["keys"][0]["label"])
         raise Fail("the package sources could not be refreshed "
                    "(no internet connection?)")
     pkgs, problems = dup_preview()

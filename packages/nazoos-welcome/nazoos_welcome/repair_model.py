@@ -55,7 +55,7 @@ class RepairModel(QObject):
 
     def _failed(self, e):  # a broken probe is a finding too
         self._set_findings([{"id": "error", "items": [str(e)],
-                             "fix": "", "userFix": False}])
+                             "fix": "", "userFix": False, "args": []}])
 
     def _set_findings(self, found):
         self._findings = found

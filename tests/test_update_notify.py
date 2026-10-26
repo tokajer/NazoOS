@@ -134,3 +134,14 @@ def test_notify_one_ignores_a_gone_notification(monkeypatch):
     monkeypatch.setattr(notify, "_pending_now", lambda: [ITEM])
     assert notify.notify_one("other") == 0 and shown == []
     assert notify.notify_one("updates-abc") == 0 and shown == [ITEM]
+
+
+def test_key_error_notifies_at_once_and_opens_repair():
+    # Last good check just now: inside the grace time
+    st = state(error=status.ERROR_KEY,
+               keys=[{"repo": "r", "fingerprint": "ABCDEF0123456789AB"}])
+    assert keys(st) == ["key-abcdef0123456789"]
+    assert keys(st, welcome=True) == keys(st)
+    item = notify.pending(st, NOW, False, True)[0]
+    assert item["command"] == ["nazoos-welcome", "--page", "repair"]
+    assert notify.pending(st, NOW, False, False)[0]["page"] == "update"

@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Oct 26 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- API 11: zypper.offered_keys() reads the signing keys a refresh was offered
+
+-------------------------------------------------------------------
 Mon Oct 26 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - API 10: proc.run() gives exit code and output of a probe; the kernel card phase lives next to stage 2; one constant for the path of the update helper.

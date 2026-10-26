@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 26 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- An unknown or changed repository key is shown as its own problem (with
+  fingerprint and a notification) instead of "no internet?"; the Repair
+  page of NazoOS Welcome can trust it
+
+-------------------------------------------------------------------
 Mon Oct 26 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Update check and update no longer trust new repository keys

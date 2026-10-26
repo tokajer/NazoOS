@@ -40,6 +40,15 @@ def repos():
     return out
 
 
+def alias_of(label):
+    """Alias of the repo whose name (alias if it has none) is LABEL, the
+    way zypper prints repos in its messages; None if there is none."""
+    for alias, sec in _sections(REPOS_DIR, "*.repo"):
+        if sec.get("name", alias).strip() == label:
+            return alias
+    return None
+
+
 def services():
     """{name: enabled} of the zypp services in /etc/zypp/services.d."""
     return {name: _enabled(sec)

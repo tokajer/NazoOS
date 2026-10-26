@@ -37,6 +37,7 @@ ACTIONS = {
     "channel": maintenance.channel,
     "repair-repos": repair_fixes.repair_repos,
     "repair-rpmdb": repair_fixes.repair_rpmdb,
+    "repair-key": repair_fixes.repair_key,
     "repair-deps": repair_fixes.repair_deps,
     "repair-packman": repair_fixes.repair_packman,
     "repair-nvidia": repair_fixes.repair_nvidia,

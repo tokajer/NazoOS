@@ -386,3 +386,37 @@ def test_failed_snapper_modify_is_reported_not_counted(monkeypatch, capsys):
     assert snapshots.name_snapshots(None) == 0
     assert len(calls) == 1
     assert "snapshot 5 could not be named: boom" in capsys.readouterr().out
+
+
+def _refresh_fails(monkeypatch, tmp_path, stdout):
+    monkeypatch.setattr(status_mod, "STATUS", tmp_path / "status.json")
+    monkeypatch.setattr(status_mod, "STATUS_LOCK", tmp_path / "status.lock")
+    monkeypatch.setattr(check, "capture", lambda cmd: subprocess.CompletedProcess(
+        cmd, 4, stdout, ""))
+
+
+def test_check_with_an_unknown_repo_key(monkeypatch, tmp_path):
+    from conftest import KEY_FPR, KEY_OUTPUT
+    _refresh_fails(monkeypatch, tmp_path, KEY_OUTPUT)
+    monkeypatch.setattr(check.repos, "alias_of", lambda label: "keytest")
+    with pytest.raises(Fail) as e:
+        check.check()
+    assert e.value.template == ("the signing key of repository {repo} "
+                                "is unknown or has changed")
+    assert e.value.params == {"repo": "Some Name (beta)"}
+    st = status_mod.read_status()
+    assert st["error"] == "key"
+    assert st["keys"] == [{
+        "repo": "keytest", "label": "Some Name (beta)",
+        "fingerprint": KEY_FPR,
+        "shown": "Some Name (beta): " + " ".join(
+            KEY_FPR[i:i + 4] for i in range(0, 40, 4))}]
+
+
+def test_check_without_a_network_stays_a_refresh_error(monkeypatch, tmp_path):
+    _refresh_fails(monkeypatch, tmp_path, "Could not resolve host\n")
+    with pytest.raises(Fail) as e:
+        check.check()
+    assert "no internet" in e.value.template
+    st = status_mod.read_status()
+    assert st["error"] == "refresh" and st["keys"] == []

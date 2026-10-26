@@ -61,3 +61,32 @@ def fake_root(monkeypatch, tmp_path):
     monkeypatch.setattr(grub, "GRUB_LOCK", tmp_path / "grub.lock")
     monkeypatch.setattr(grub, "GRUB_CFG", tmp_path / "grub.cfg")
     return fake
+
+
+# zypper's refresh output for a repo with an untrusted key (real, shortened)
+KEY_OUTPUT = """\
+Retrieving repository 'keytest' metadata [..
+Looking for gpg keys in repository Some Name (beta).
+  gpgkey=https://download.opensuse.org/repositories/games:/tools/openSUSE_Tumbleweed/repodata/repomd.xml.key
+..
+
+New repository or package signing key received:
+
+  Repository:       Some Name (beta)
+  Key Fingerprint:  4AFF 5EF3 C350 A53A 05D6 BA0D 1E8E DBE8 58DD EB32
+  Key Name:         games:tools OBS Project <games:tools@build.opensuse.org>
+  Key Algorithm:    DSA 1024
+  Rpm Name:         gpg-pubkey-58ddeb32-68091727
+
+    Note: Signing data enables ...
+  Repository:       Not This One
+Do you want to reject the key, trust temporarily, or trust always? [r/t/a/?] (r): r
+error]
+Repository 'keytest' is invalid.
+History:
+ - Signature verification failed for repomd.xml
+Could not refresh the repositories because of errors.
+"""
+KEY_FPR = "4AFF5EF3C350A53A05D6BA0D1E8EDBE858DDEB32"
+KEY_URL = ("https://download.opensuse.org/repositories/games:/tools/"
+           "openSUSE_Tumbleweed/repodata/repomd.xml.key")

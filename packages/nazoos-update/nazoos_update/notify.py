@@ -151,6 +151,18 @@ def pending(st, now, stage2_ready, has_welcome):
                            _("The update cannot be installed automatically "
                              "because of a package conflict."),
                            _("Fix"), "update", icon="dialog-warning"))
+    elif err == status.ERROR_KEY:
+        # Will not heal by itself: no grace time
+        key = f"key-{st['keys'][0]['fingerprint'][:16].lower()}"
+        items.append(_item(key,
+                           _("Repository key needs your decision"),
+                           _("A package source offers a signing key that "
+                             "is not trusted yet. Updates from it are "
+                             "blocked until you check the key."),
+                           _("Check key"), "" if has_welcome else "update",
+                           icon="dialog-warning",
+                           command=["nazoos-welcome", "--page", "repair"]
+                           if has_welcome else None))
     elif err and now - st.get("last_ok", now) > CHECK_GRACE:
         items.append(_item(f"error-{now // REMIND}",
                            _("Update check does not work"),

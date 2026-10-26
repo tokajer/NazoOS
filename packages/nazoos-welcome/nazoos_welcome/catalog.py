@@ -244,6 +244,7 @@ ACTION_LABELS = {
     "snapshot": "Creating a snapshot",
     "channel": "Switching the update channel",
     "repair-repos": "Repairing repositories",
+    "repair-key": "Trusting the repository key",
     "repair-rpmdb": "Rebuilding the package database",
     "repair-deps": "Installing missing dependencies",
     "repair-packman": "Switching codecs to Packman",

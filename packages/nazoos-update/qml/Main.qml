@@ -22,6 +22,7 @@ Kirigami.ApplicationWindow {
     readonly property string error: st.error || ""
     readonly property bool conflict: st.conflict === true
     readonly property bool refreshFailed: st.refresh_failed === true
+    readonly property bool keyFailed: st.key_failed === true
 
     function ago(seconds) {
         if (!seconds) return L.tr("never")
@@ -108,6 +109,21 @@ Kirigami.ApplicationWindow {
                         text: L.tr("Try again"); icon.name: "view-refresh"
                         enabled: !backend.busy
                         onTriggered: backend.run("check")
+                    }
+                ]
+            }
+            Kirigami.InlineMessage {
+                Layout.fillWidth: true
+                visible: root.keyFailed
+                type: Kirigami.MessageType.Warning
+                text: L.tr("A package source offers a signing key that is not trusted yet, so it cannot be refreshed:") + "\n"
+                      + root.st.keys.map(k => k.shown).join("\n")
+                      + "\n" + L.tr("Only trust it if the provider's website shows the same fingerprint. The Repair page of NazoOS Welcome can trust it.")
+                actions: [
+                    Kirigami.Action {
+                        text: L.tr("Open Repair"); icon.name: "tools-wizard"
+                        visible: backend.canRepair
+                        onTriggered: backend.launch("repair")
                     }
                 ]
             }
@@ -293,7 +309,9 @@ Kirigami.ApplicationWindow {
                 root.showPassiveNotification(message)
             } else if ((action === "check" || action === "update")
                        && root.conflict
-                       || action === "check" && root.refreshFailed) {
+                       || action === "update" && root.keyFailed
+                       || action === "check"
+                       && (root.refreshFailed || root.keyFailed)) {
                 // The banner above already says it, with its own button
             } else {
                 errorDialog.subtitle = message

@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Parsers of the welcome probes (lspci, lsblk, repo files, rpm -qa)."""
 
+import json
 import subprocess
 
 import pytest
@@ -274,3 +275,42 @@ def test_kparams_marks_every_catalog_entry_with_shown(monkeypatch):
     kparams = probes._kparams({"hasAmd": False})["kparams"]
     assert kparams["a"]["shown"] is False
     assert kparams["b"]["shown"] is True
+
+
+def test_untrusted_keys_from_the_update_status(monkeypatch, tmp_path):
+    f = tmp_path / "status.json"
+    monkeypatch.setattr(repair_checks, "UPDATE_STATUS", f)
+    key = {"repo": "r", "label": "R", "fingerprint": "AB" * 20}
+    f.write_text(json.dumps({"error": "key", "keys": [key]}))
+    assert repair_checks.untrusted_keys() == [key]
+    bad = [{"repo": "", "label": "R", "fingerprint": "AB" * 20}]
+    f.write_text(json.dumps({"error": "key", "keys": bad}))
+    assert repair_checks.untrusted_keys() == []
+    f.write_text(json.dumps({"error": "key", "keys": [{"repo": "r", "label": "R",
+                                                       "fingerprint": "ab"}]}))
+    assert repair_checks.untrusted_keys() == []
+    f.write_text(json.dumps({"error": "key", "keys": ["x"]}))
+    assert repair_checks.untrusted_keys() == []
+    f.write_text(json.dumps({"error": "refresh", "keys": [key]}))
+    assert repair_checks.untrusted_keys() == []
+    f.write_text("{broken")
+    assert repair_checks.untrusted_keys() == []
+
+
+def test_untrusted_keys_without_a_status_file(monkeypatch, tmp_path):
+    monkeypatch.setattr(repair_checks, "UPDATE_STATUS", tmp_path / "none")
+    assert repair_checks.untrusted_keys() == []
+
+
+def test_key_finding_carries_repo_and_fingerprint(monkeypatch):
+    for fn in ("rpmdb_broken", "unsatisfied", "packman_mix", "nvidia_module_missing",
+               "low_space", "flathub_missing", "repo_findings"):
+        monkeypatch.setattr(repair_checks, fn, lambda: [])
+    monkeypatch.setattr(repair_checks.units, "failed_units",
+                        lambda user=False: [])
+    monkeypatch.setattr(repair_checks, "untrusted_keys", lambda: [
+        {"repo": "r", "label": "R (x)", "fingerprint": "ABCD" * 10}])
+    (finding,) = repair_checks.check()
+    assert finding["id"] == "key" and finding["fix"] == "repair-key"
+    assert finding["args"] == ["r", "ABCD" * 10]
+    assert finding["items"] == ["R (x): " + " ".join(["ABCD"] * 10)]

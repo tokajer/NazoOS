@@ -36,6 +36,9 @@ Kirigami.ScrollablePage {
         repos: { icon: "repository", title: L.tr("Standard repositories missing or disabled"),
                  text: L.tr("Without them there are no updates. The missing ones are added again and all are switched on."),
                  button: L.tr("Repair") },
+        key: { icon: "security-medium", title: L.tr("Repository key not trusted"),
+               text: L.tr("This package source offers a signing key NazoOS does not trust yet, so it gets no updates. Only trust it if the provider's website shows the same fingerprint."),
+               button: L.tr("Trust key") },
         deps: { icon: "package-broken", title: L.tr("Packages with missing dependencies"),
                 text: L.tr("Something these packages need is not installed. The missing parts are installed. If that needs a decision, Myrlyn shows the choices."),
                 button: L.tr("Install missing") },
@@ -62,8 +65,15 @@ Kirigami.ScrollablePage {
         if (f.userFix) {
             // user units are restarted without a password
             backend.fixUnits(f.fix !== "")
+        } else if (f.id === "key") {
+            page.app.confirm(
+                L.tr("Trust this key?"),
+                L.tr("Package source and fingerprint:\n%1\n\nPackages signed with this key can change the whole system.")
+                    .replace("%1", f.items[0]),
+                L.tr("Trust key"),
+                () => page.app.runAction(f.fix, f.args))
         } else {
-            page.app.runAction(f.fix, [])
+            page.app.runAction(f.fix, f.args)
         }
     }
 
@@ -82,7 +92,7 @@ Kirigami.ScrollablePage {
                    : !repair.checked ? L.tr("System check")
                    : repair.findings.length === 0 ? L.tr("No known problems found")
                    : L.tr("Problems found: %1").replace("%1", repair.findings.length)
-            subtitle: L.tr("Looks for common problems: package database, repositories, missing dependencies, codec mix, NVIDIA module, failed services, disk space and Flathub.")
+            subtitle: L.tr("Looks for common problems: package database, repositories, missing dependencies, codec mix, repository keys, NVIDIA module, failed services, disk space and Flathub.")
             QQC2.BusyIndicator {
                 visible: repair.checking
                 running: visible

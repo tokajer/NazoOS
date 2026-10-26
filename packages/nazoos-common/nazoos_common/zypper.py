@@ -3,6 +3,8 @@
 """zypper command lines and exit codes shared by the GUIs' root helpers
 and the kernel code (no Qt here)."""
 
+import re
+
 from . import proc
 
 ZYPPER = ["zypper", "--non-interactive"]
@@ -42,3 +44,43 @@ def repo_has(alias, name):
     """Package `name` exists in repo `alias` (zypper exit 104: not found).
     False as well if zypper is missing (proc.rc: 127) or hangs."""
     return repo_search(alias, name) == 0
+
+
+def group_hex(fingerprint):
+    """"4AFF5EF3C350..." -> "4AFF 5EF3 C350 ..." """
+    return " ".join(fingerprint[i:i + 4]
+                    for i in range(0, len(fingerprint), 4))
+
+
+def offered_keys(text):
+    """Signing keys a refresh was offered, from its plain text output:
+    [{"label", "fingerprint" (40 hex, upper), "urls" (the gpgkey URLs
+    zypper tried for that repo)}]. LABEL is the repo name zypper prints,
+    not its alias (repos.alias_of)."""
+    # SHORTCUT: scrapes the English refresh text (the helpers set
+    # LC_ALL=C.UTF-8); if zypper rewords it no key is found and the check
+    # reports a plain refresh error.
+    urls, keys, key, looking = {}, [], None, None
+    for line in text.splitlines():
+        line = line.strip()
+        m = re.fullmatch(r"Looking for gpg keys in repository (.+)\.", line)
+        if m:
+            looking = m.group(1)
+        elif looking and line.startswith("gpgkey="):
+            urls.setdefault(looking, []).append(line[len("gpgkey="):])
+        elif line.startswith("New repository or package signing key"):
+            key = {}
+            keys.append(key)
+        elif key is not None and not line:
+            # The fields end at the first blank line
+            key = None if key else key
+        elif key is not None:
+            field, _, value = line.partition(":")
+            value = value.strip()
+            if field == "Repository":
+                key.setdefault("label", value)
+            elif field == "Key Fingerprint":
+                key.setdefault("fingerprint", re.sub(r"\s", "", value).upper())
+    return [dict(k, urls=urls.get(k["label"], [])) for k in keys
+            if "label" in k
+            and re.fullmatch(r"[0-9A-F]{40}", k.get("fingerprint", ""))]

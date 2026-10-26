@@ -5,13 +5,18 @@
 Every action finds the broken parts itself; the caller only picks the action.
 """
 
+import http.client
 import os
+import re
+import tempfile
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 from nazoos_common import helper, kernel, proc, repos
 from nazoos_common.grub import grub_refresh
-from nazoos_common.helper import Fail, say
-from nazoos_common.zypper import ZYPPER, ZYPPER_IN
+from nazoos_common.helper import Fail, arg, say
+from nazoos_common.zypper import ZYPPER, ZYPPER_IN, offered_keys
 
 from .. import system, units
 from . import maintenance
@@ -48,6 +53,88 @@ def repair_repos(_args):
         raise Fail("still missing after restoring the services: {repos}",
                    repos=", ".join(missing))
     helper.run(ZYPPER + ["refresh"])
+
+
+# A signing key is a few KB; more is not a key
+KEY_MAX_BYTES = 1 << 20
+
+
+def _primary_fingerprints(colons):
+    """Fingerprints of the usable primary keys in gpg --with-colons output.
+    A revoked or expired primary key is logged and left out."""
+    found, primary = [], False
+    for line in colons.splitlines():
+        fields = line.split(":")
+        if fields[0] == "pub":
+            primary = True
+            if len(fields) > 1 and fields[1] in ("r", "e"):
+                say("The key is revoked or expired.")
+                primary = False
+        elif fields[0] == "fpr" and primary and len(fields) > 9:
+            found.append(fields[9])
+            primary = False
+    return found
+
+
+def _import_key(url, fpr, tmp):
+    """Download the key at URL; if it is exactly the key FPR, import what
+    gpg verified (not the downloaded bytes) with rpm. False if the file is
+    not that key or cannot be fetched."""
+    keyfile = os.path.join(tmp, "key.asc")
+    try:
+        with urllib.request.urlopen(url, timeout=60) as resp:
+            data = resp.read(KEY_MAX_BYTES)
+        with open(keyfile, "wb") as f:
+            f.write(data)
+    except (urllib.error.URLError, http.client.HTTPException, OSError,
+            ValueError) as e:
+        say(f"{url}: {e}")
+        return False
+    # Own homedir: gpg would create /root/.gnupg otherwise
+    gpg = ["gpg", "--batch", "--homedir", tmp]
+    r = helper.capture(gpg + ["--show-keys", "--with-colons", keyfile])
+    if _primary_fingerprints(r.stdout) != [fpr]:
+        say(f"{url}: not the key {fpr}")
+        return False
+    helper.run(gpg + ["--import", keyfile])
+    clean = os.path.join(tmp, "clean.asc")
+    with open(clean, "w") as f:
+        f.write(helper.capture(gpg + ["--armor", "--export", fpr]).stdout)
+    helper.run(["rpm", "--import", clean])
+    return True
+
+
+def repair_key(args):
+    """Trust the key a repo offers, after the user compared its fingerprint
+    (the GUI shows the one from the refresh): zypper's own offer is read
+    again and the key file must have exactly that fingerprint."""
+    alias = arg(args, 0, [a for a, _url, _on in repos.repos()])
+    fpr = arg(args, 1)
+    if not re.fullmatch(r"[0-9A-F]{40}", fpr):
+        raise Fail("invalid argument: {arg}", arg=fpr)
+    r = helper.capture(ZYPPER + ["refresh", alias])
+    print(r.stdout + r.stderr, end="", flush=True)
+    offered = [k for k in offered_keys(r.stdout + r.stderr)
+               if repos.alias_of(k["label"]) == alias]
+    if not offered:
+        if r.returncode != 0:
+            raise Fail("the package source {repo} could not be refreshed",
+                       repo=alias)
+        say("The key is already trusted.")
+    else:
+        if offered[0]["fingerprint"] != fpr:
+            raise Fail("the package source {repo} now offers a different "
+                       "key ({fingerprint}); check again", repo=alias,
+                       fingerprint=offered[0]["fingerprint"])
+        with tempfile.TemporaryDirectory() as tmp:
+            urls = [u for u in offered[0]["urls"] if u.startswith("https://")]
+            if not any(_import_key(u, fpr, tmp) for u in urls):
+                raise Fail("the key file of {repo} does not match the "
+                           "fingerprint", repo=alias)
+        helper.run(ZYPPER + ["refresh", alias])
+    # Clears the finding: the status still says "key"
+    if os.access(helper.UPDATE_HELPER, os.X_OK):
+        helper.run([helper.UPDATE_HELPER, "check"], check=False)
 
 
 def repair_rpmdb(_args):

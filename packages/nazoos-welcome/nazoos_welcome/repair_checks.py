@@ -7,23 +7,29 @@ Every finding names the helper action that fixes it. The texts shown to
 the user live in RepairPage.qml, keyed by the finding id.
 """
 
+import json
 import os
 import platform
 import re
 from pathlib import Path
 
-from nazoos_common import proc, repos
+from nazoos_common import proc, repos, zypper
 
 from . import hw, query, system, units
 
 # Free space below which the repair page warns (whichever is larger)
 SPACE_MIN_GB = 5
 SPACE_MIN_PERCENT = 5
+# Written by nazoos-update's check, world-readable; nazoos_update is a
+# separate package, so it is not imported here
+UPDATE_STATUS = Path("/var/lib/nazoos-update/status.json")
+# status.ERROR_KEY of nazoos-update
+UPDATE_ERROR_KEY = "key"
 
 
-def _finding(fid, items=(), fix="", user_fix=False):
+def _finding(fid, items=(), fix="", user_fix=False, args=()):
     return {"id": fid, "items": list(items), "fix": fix,
-            "userFix": user_fix}
+            "userFix": user_fix, "args": list(args)}
 
 
 def repo_findings():
@@ -51,6 +57,19 @@ def repo_problems(repo_list, services):
             and "nazoos" not in bad):
         bad.append("nazoos")
     return bad
+
+
+def untrusted_keys():
+    """Repo keys the last update check could not trust: [{"repo" (alias),
+    "label", "fingerprint"}]."""
+    try:
+        st = json.loads(UPDATE_STATUS.read_text())
+        if st.get("error") != UPDATE_ERROR_KEY:
+            return []
+        return [k for k in st["keys"] if k["repo"] and k["label"]
+                and re.fullmatch(r"[0-9A-F]{40}", k["fingerprint"])]
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return []
 
 
 def rpmdb_broken():
@@ -129,6 +148,10 @@ def check():
     bad = repo_findings()
     if bad:
         out.append(_finding("repos", bad, "repair-repos"))
+    for key in untrusted_keys():
+        shown = f"{key['label']}: {zypper.group_hex(key['fingerprint'])}"
+        out.append(_finding("key", [shown], "repair-key",
+                            args=[key["repo"], key["fingerprint"]]))
     deps = unsatisfied()
     if deps:
         out.append(_finding("deps", deps, "repair-deps"))

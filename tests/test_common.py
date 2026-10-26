@@ -9,7 +9,7 @@ import types
 import pytest
 
 from nazoos_common import (files, grub, helper, kernel, kernelstate, mok,
-                           proc, repos, shellconf)
+                           proc, repos, shellconf, zypper)
 
 FPR = "SHA1 Fingerprint=AB:CD:EF:01\n"
 
@@ -425,3 +425,31 @@ def test_cmdline_set_callable_sees_the_current_options(monkeypatch, tmp_path):
     assert seen == [["quiet", "a=1", "b=2"]]
     assert default.read_text() == (
         'GRUB_CMDLINE_LINUX_DEFAULT="quiet b=2 a=3"\nX=1\n')
+
+
+def test_offered_keys_reads_the_refresh_output():
+    from conftest import KEY_FPR, KEY_OUTPUT, KEY_URL
+    assert zypper.offered_keys(KEY_OUTPUT) == [{
+        "label": "Some Name (beta)", "fingerprint": KEY_FPR,
+        "urls": [KEY_URL]}]
+
+
+def test_offered_keys_drops_a_bad_fingerprint():
+    from conftest import KEY_OUTPUT
+    text = KEY_OUTPUT.replace("1E8E DBE8 58DD EB32", "1E8E")
+    assert zypper.offered_keys(text) == []
+
+
+def test_alias_of_matches_the_name_or_the_alias(monkeypatch, tmp_path):
+    (tmp_path / "a.repo").write_text(
+        "[keytest]\nname=Some Name (beta)\nbaseurl=https://x/\n"
+        "[plain]\nbaseurl=https://y/\n")
+    monkeypatch.setattr(repos, "REPOS_DIR", tmp_path)
+    assert repos.alias_of("Some Name (beta)") == "keytest"
+    assert repos.alias_of("plain") == "plain"
+    assert repos.alias_of("keytest") is None
+
+
+def test_offered_keys_without_a_key_prompt():
+    assert zypper.offered_keys("Could not resolve host\nSkipping repo\n") == []
+    assert zypper.offered_keys("") == []

@@ -22,6 +22,7 @@ BTRFS_SUBVOL_RDONLY = 1 << 1
 # Error kinds in "error"; qml/Main.qml and notify.py compare these strings
 ERROR_REFRESH = "refresh"
 ERROR_CONFLICT = "conflict"
+ERROR_KEY = "key"
 # Written by an update; later checks keep them (collect() hides
 # needs_reboot after the next boot)
 UPDATE_KEYS = ("needs_reboot", "updated")
@@ -38,7 +39,7 @@ def new(**fields):
     """A status for write(): every key a check or an update sets, FIELDS
     on top. UPDATE_KEYS stay out unless given: write() keeps the old ones."""
     data = {"error": "", "detail": "", "problems": [], "packages": [],
-            "flatpaks": [], "update_needs_reboot": False, "behind": None}
+            "flatpaks": [], "keys": [], "update_needs_reboot": False, "behind": None}
     data.update(fields)
     return data
 
@@ -103,4 +104,6 @@ def collect():
     st["count"] = len(st["packages"]) + len(st["flatpaks"])
     st["conflict"] = st.get("error") == ERROR_CONFLICT
     st["refresh_failed"] = st.get("error") == ERROR_REFRESH
+    st["key_failed"] = st.get("error") == ERROR_KEY
+    st["keys"] = st.get("keys") or []
     return st
