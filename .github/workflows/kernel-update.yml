@@ -11,6 +11,7 @@
 # Errors open an issue (or comment on the open one).
 # Secrets: OBS_USER, OBS_PASSWORD – bot account that is maintainer of
 # home:Tokajer:nazoos:kernel/kernel-source only. See kernel/README.md.
+# The build runs without secrets; check and upload log in in their own jobs.
 # Doku: https://docs.github.com/actions/writing-workflows/workflow-syntax-for-github-actions
 
 name: Kernel update
@@ -42,45 +43,28 @@ permissions:
   issues: write
 
 jobs:
-  update:
+  check:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
-    # Same tools as the maintainer's distrobox
     container: registry.opensuse.org/opensuse/tumbleweed:latest
     defaults:
       run:
         # explicit bash = -eo pipefail: "script | tee" fails if the script fails
         shell: bash
-    env:
-      GH_TOKEN: ${{ github.token }}
-      GH_REPO: ${{ github.repository }}
-      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    outputs:
+      action: ${{ steps.check.outputs.action }}
     steps:
       - name: Install tools
-        run: >
-          zypper -n in --no-recommends git curl quilt make gcc flex bison bc
-          perl xz bzip2 python3 perl-Text-Glob osc rsync gh tar gzip
-          diffutils patch which
+        run: zypper -n in --no-recommends git curl osc gh tar gzip
 
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: OBS login
         env:
           OBS_USER: ${{ secrets.OBS_USER }}
           OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
-        run: |
-          [ -n "$OBS_USER" ] && [ -n "$OBS_PASSWORD" ] ||
-            { echo "::error::secrets OBS_USER / OBS_PASSWORD missing"; exit 1; }
-          mkdir -p ~/.config/osc
-          umask 077
-          printf '%s\n' \
-            '[general]' \
-            'apiurl = https://api.opensuse.org' \
-            '[https://api.opensuse.org]' \
-            "user = $OBS_USER" \
-            "pass = $OBS_PASSWORD" \
-            'credentials_mgr_class = osc.credentials.PlaintextConfigFileCredentialsManager' \
-            > ~/.config/osc/oscrc
+        run: .github/scripts/osc-login.sh
 
       - name: Check versions
         id: check
@@ -104,6 +88,9 @@ jobs:
       - name: Report new kernel series
         if: steps.check.outputs.action == 'series'
         env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           SERIES: ${{ steps.check.outputs.series }}
           PINNED: ${{ steps.check.outputs.pinned }}
         run: |
@@ -116,18 +103,78 @@ jobs:
           Found by: $RUN_URL"
           fi
 
+  build:
+    needs: check
+    if: needs.check.outputs.action == 'build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    # Same tools as the maintainer's distrobox
+    container: registry.opensuse.org/opensuse/tumbleweed:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Install tools
+        run: >
+          zypper -n in --no-recommends git curl quilt make gcc flex bison bc
+          perl xz bzip2 python3 perl-Text-Glob osc rsync gh tar gzip
+          diffutils patch which
+
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
       - name: Build OBS package
-        if: steps.check.outputs.action == 'build'
-        run: kernel/make-obs-package.sh
+        run: kernel/make-obs-package.sh /tmp/nazoos-kernel
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: kernel-source-nazoos
+          path: /tmp/nazoos-kernel/kernel-source-nazoos
+          retention-days: 1
+          if-no-files-found: error
+
+  upload:
+    needs: build
+    # Fresh container: the build job had no secrets and its output is only
+    # copied (rsync) here, never executed
+    runs-on: ubuntu-latest
+    container: registry.opensuse.org/opensuse/tumbleweed:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Install tools
+        run: zypper -n in --no-recommends git osc rsync tar gzip
+
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: kernel-source-nazoos
+          path: /tmp/nazoos-kernel/kernel-source-nazoos
 
       - name: Upload to OBS
-        if: steps.check.outputs.action == 'build'
+        env:
+          OBS_USER: ${{ secrets.OBS_USER }}
+          OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
         run: |
-          kernel/upload-obs.sh | tee upload.log
+          .github/scripts/osc-login.sh
+          kernel/upload-obs.sh /tmp/nazoos-kernel | tee upload.log
           tail -1 upload.log >> "$GITHUB_STEP_SUMMARY"
 
+  report:
+    needs: [check, build, upload]
+    if: failure()
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
       - name: Report failure
-        if: failure()
         run: |
           title="Kernel update failed"
           issue=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')

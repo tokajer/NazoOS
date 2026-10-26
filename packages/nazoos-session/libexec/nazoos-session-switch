@@ -5,7 +5,8 @@
 # NazoOS gaming mode: what a user may do without a password (pkexec,
 # org.nazoos.session.policy). Only switches the caller's own session and
 # only while the caller sits at the computer (a session on seat0; "switch"
-# additionally needs it to be the active one).
+# additionally needs it to be the active one, "failed" not to be another
+# user's).
 # Usage: nazoos-session-switch switch|started gaming|desktop
 #        nazoos-session-switch failed gaming
 
@@ -41,14 +42,27 @@ for s in $(loginctl show-user "$uid" -p Sessions --value 2>/dev/null); do
 done
 [ "$local_session" = yes ] || die "only possible at the computer itself (no local session of $user)"
 
-# Switching changes the next login: only for the user whose session is in
-# front on seat0, not one in the background (fast user switching).
-# "started"/"failed" run while a session starts or ends, when it may not be
-# the active one (yet or any more): they keep the seat0 check only
-if [ "$cmd" = switch ]; then
+# Switching and a failure report change the next login: only for the user
+# whose session is in front on seat0, not one in the background (fast user
+# switching). "started" runs while a session starts, when it may not be the
+# active one yet: it keeps the seat0 check only. "failed" runs while the
+# gaming session ends, so no active session, the caller's own (closing) or
+# the greeter is fine; any other user's session is refused (fails closed).
+# Accepted: while the greeter is in front a background user can still arm
+# their own one-time desktop login (their own account, no privilege gain).
+if [ "$cmd" != started ]; then
   active=$(loginctl show-seat seat0 -p ActiveSession --value 2>/dev/null || :)
-  [ -n "$active" ] && [ "$(loginctl show-session "$active" -p User --value 2>/dev/null)" = "$uid" ] \
-    || die "only the user in front of the computer can switch"
+  active_uid=
+  [ -z "$active" ] || active_uid=$(loginctl show-session "$active" -p User --value 2>/dev/null || :)
+  case $cmd in
+    switch)
+      [ "$active_uid" = "$uid" ] || die "only the user in front of the computer can switch" ;;
+    failed)
+      if [ -n "$active" ] && [ "$active_uid" != "$uid" ] \
+        && [ "$(loginctl show-session "$active" -p Class --value 2>/dev/null || :)" != greeter ]; then
+        die "only the user in front of the computer can do this"
+      fi ;;
+  esac
 fi
 
 exec "$CTL" "$cmd" "$kind" "$user"

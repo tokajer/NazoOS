@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Oct 26 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Reporting a failed gaming mode start no longer works for a second
+  user in the background (it set the next autologin to their account)
+
+-------------------------------------------------------------------
 Mon Oct 26 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Switching between gaming mode and desktop without password only works

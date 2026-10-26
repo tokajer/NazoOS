@@ -53,10 +53,13 @@ jobs:
 
       - name: Check key
         run: |
+          GNUPGHOME=$(mktemp -d)
+          export GNUPGHOME
           # Field 7 of the pub line = expiry (epoch, empty = never),
           # field 10 of the first fpr line = fingerprint of the primary key
           expiry() { gpg --show-keys --with-colons "$1" | awk -F: '$1=="pub"{print ($7=="" ? 9999999999 : $7); exit}'; }
           fpr() { gpg --show-keys --with-colons "$1" | awk -F: '$1=="fpr"{print $10; exit}'; }
+          pubs() { gpg --show-keys --with-colons "$1" | grep -c '^pub:'; }
           # Open an issue unless one with this title is open already
           issue() {
             if [ "$(gh issue list --state open --search "\"$1\" in:title" --json number --jq length)" = 0 ]; then
@@ -66,16 +69,23 @@ jobs:
             fi
           }
 
-          curl -sfL --retry 3 "$URL" -o remote.asc
-          [ "$(fpr "$KEY")" = "$FPR" ] ||
-            { echo "::error::$KEY does not have the pinned fingerprint $FPR"; exit 1; }
+          curl -sfL --retry 3 "$URL" -o download.asc
+          [ "$(fpr "$KEY")" = "$FPR" ] && [ "$(pubs "$KEY")" = 1 ] ||
+            { echo "::error::$KEY is not exactly the pinned key $FPR"; exit 1; }
+          [ "$(pubs download.asc)" = 1 ] ||
+            { echo "::error::$URL does not contain exactly one key"; exit 1; }
 
-          if [ "$(fpr remote.asc)" != "$FPR" ]; then
-            issue "OBS repository signing key changed" "The OBS repository now signs with key \`$(fpr remote.asc)\`, nazoos-tweaks ships \`$FPR\`. Installed systems will refuse the repo.
+          if [ "$(fpr download.asc)" != "$FPR" ]; then
+            issue "OBS repository signing key changed" "The OBS repository now signs with key \`$(fpr download.asc)\`, nazoos-tweaks ships \`$FPR\`. Installed systems will refuse the repo.
 
           Not updated automatically. Check in OBS whether the key was replaced on purpose (\`osc signkey home:Tokajer\`). If yes: new file in packages/nazoos-tweaks/rpm-keys/ (name: \`gpg-pubkey-<last 8 of key id>-<creation time hex>.asc\`), update KEY and FPR in .github/workflows/rpm-key.yml and the %files list in nazoos-tweaks.spec."
             exit 0
           fi
+
+          # Only the pinned key as gpg parsed it goes into the PR: config.sh
+          # imports every key in the file, appended keys would reach every install
+          gpg --batch --quiet --import download.asc
+          gpg --batch --armor --export-options export-minimal --export "$FPR" > remote.asc
 
           local_exp=$(expiry "$KEY")
           remote_exp=$(expiry remote.asc)
