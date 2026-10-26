@@ -213,7 +213,7 @@ def test_session_state_asks_the_session_tool(monkeypatch):
     asked = []
     monkeypatch.setattr(probes.proc, "out", lambda cmd, timeout=30:
                         asked.append(cmd) or "BOOT_MODE=gaming\nUSER=anna\n")
-    monkeypatch.setattr(probes.os, "access", lambda *a: False)
+    monkeypatch.setattr(probes.proc, "run", lambda cmd, timeout=30: (127, ""))
     state = probes.session_state()
     assert asked == [[system.SESSION_CTL, "status"]]
     assert state["bootGaming"] is True and state["user"] == "anna"

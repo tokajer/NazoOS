@@ -5,14 +5,14 @@
 import os
 import platform
 import re
-import subprocess
 import traceback
 from pathlib import Path
 
 from nazoos_common import (grub, kernel, kernelstate, mok, proc, shellconf,
                            zypper)
 
-from . import appicons, autostart, catalog, hw, pollrate, query, system
+from . import (appicons, autostart, catalog, hw, pollrate, query, report,
+               system)
 
 
 def parse_unit_states(text, units):
@@ -125,23 +125,8 @@ def kernel_state():
         "mok": key,
         "sbState": sb_raw,
     }
-    state["phase"] = kernel_phase(state)
+    state["phase"] = kernel.phase(state)
     return state
-
-
-def kernel_phase(k):
-    """What the kernel card says, from the kernel_state() dict K."""
-    if k["blocked"]:
-        return "blocked"
-    if k["running"]:
-        return "running"
-    if not k["installed"]:
-        return ""
-    if k["secureBoot"] and k["mok"] == mok.MISSING:
-        return "key-missing"
-    if k["secureBoot"] and k["mok"] == mok.PENDING:
-        return "key-pending"
-    return "installed" if k["preferred"] else "not-preferred"
 
 
 def session_state():
@@ -149,14 +134,9 @@ def session_state():
     # The tool owns the file format: ask it, do not parse its file
     text = proc.out([system.SESSION_CTL, "status"], timeout=10)
     handheld = ""
-    if os.access(system.SESSION_DETECT, os.X_OK):
-        try:
-            r = subprocess.run([system.SESSION_DETECT], capture_output=True,
-                               text=True, timeout=10)
-        except (OSError, subprocess.TimeoutExpired):
-            r = None
-        if r and r.returncode == 0:
-            handheld = r.stdout.strip() or "handheld"
+    code, model = proc.run([system.SESSION_DETECT], timeout=10)
+    if code == 0:
+        handheld = model.strip() or "handheld"
     return {
         "installed": proc.has("nazoos-session-select"),
         "steam": proc.has("steam"),
@@ -203,15 +183,16 @@ def deck_in_repos():
 
 # Each part names the RPMs it looks up; collect() asks rpm once for all
 _DRIVERS_RPMS = (["ffmpeg", "gstreamer-plugins-bad-codecs"]
-                 + [p for v in catalog.NVIDIA_DRIVERS.values() for p in v]
+                 + [p for v in system.NVIDIA_DRIVERS.values()
+                    for p in v["packages"]]
                  + system.ROCM_PACKAGES)
 
 
 def _drivers(rpms, gpu_list):
     vendors = {g["vendor"] for g in gpu_list}
     nvidia_variant = ""
-    for variant, pkgs in catalog.NVIDIA_DRIVERS.items():
-        if pkgs[1] in rpms:
+    for variant, d in system.NVIDIA_DRIVERS.items():
+        if d["video"] in rpms:
             nvidia_variant = variant
     return {
         "gpus": gpu_list,
@@ -323,7 +304,8 @@ def _part(default, probe):
 
 
 def collect():
-    """Full state for the UI, as plain JSON-friendly data."""
+    """Full state for the UI, as plain JSON-friendly data, plus the "sysinfo"
+    text."""
     rpms = query.rpm_vendors(sorted(set(
         _DRIVERS_RPMS + _GAMING_RPMS + _APPS_RPMS + _SERVICES_RPMS)))
     system_units = unit_states(["scx.service"] + [
@@ -345,5 +327,9 @@ def collect():
         **_part({}, lambda: _kparams(drivers)),
         **_part({}, _tools),
     }
+    try:
+        result["sysinfo"] = report.sysinfo(result)
+    except Exception as e:
+        result["sysinfo"] = str(e)
     return result
 

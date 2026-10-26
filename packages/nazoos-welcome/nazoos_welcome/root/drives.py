@@ -96,10 +96,9 @@ def _free_mountpoint(base):
     return mnt
 
 
-def automount_add(args):
-    uuid = arg(args, 0)
-    uid = caller()[0]
-    gid = int(helper.output(["id", "-g", str(uid)]).strip() or 100)
+def _add_entry(uuid, uid, gid):
+    """Pick the mount point and write the fstab entry. Returns (mount
+    point, file system, directory was created, fstab line)."""
     # One lock from the "already managed" check to the fstab write: two
     # parallel runs must neither add a UUID twice nor pick one mount point
     with locked(FSTAB_LOCK):
@@ -120,6 +119,14 @@ def automount_add(args):
         if not text.endswith("\n"):
             text += "\n"
         write_atomic(FSTAB, text + f"{hw.FSTAB_MARKER}\n{line}\n")
+    return mnt, fstype, created, line
+
+
+def automount_add(args):
+    uuid = arg(args, 0)
+    uid = caller()[0]
+    gid = int(helper.output(["id", "-g", str(uid)]).strip() or 100)
+    mnt, fstype, created, line = _add_entry(uuid, uid, gid)
     say(line)
     # A failed mount must not leave a boot-time entry (or a stray directory)
     # behind, whether mount returns non-zero or something raises

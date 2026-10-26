@@ -12,7 +12,7 @@ Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  desktop-file-utils
 BuildRequires:  gettext-tools
 # %check imports the helper
-BuildRequires:  nazoos-common(api) >= 9
+BuildRequires:  nazoos-common(api) >= 10
 BuildRequires:  python3
 BuildRequires:  systemd-rpm-macros
 BuildArch:      noarch
@@ -23,7 +23,7 @@ Requires:       python3
 Requires:       python3-pyside6
 Requires:       qt6-declarative-imports
 # Helper frame, error messages, MOK check, kernel opt-in state (ADR 0030)
-Requires:       nazoos-common(api) >= 9
+Requires:       nazoos-common(api) >= 10
 # Notifications with an "Update now" button
 Requires:       libnotify-tools
 Requires:       polkit
@@ -63,6 +63,10 @@ install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-update/nazoos_update \
   nazoos_update/*.py
 install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-update/nazoos_update/root \
   nazoos_update/root/*.py
+# Bug reports name the real build, not the default in the source; grep fails the build if the line moves
+sed -i 's/^VERSION = .*/VERSION = "%{version}"/' \
+  %{buildroot}%{_datadir}/nazoos-update/nazoos_update/__main__.py
+grep -q '^VERSION = "%{version}"$' %{buildroot}%{_datadir}/nazoos-update/nazoos_update/__main__.py
 install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-update/qml qml/*.qml
 install -Dm0644 data/org.nazoos.update.desktop \
   %{buildroot}%{_datadir}/applications/org.nazoos.update.desktop

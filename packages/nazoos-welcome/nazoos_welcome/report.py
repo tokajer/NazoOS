@@ -10,22 +10,12 @@ from pathlib import Path
 
 from nazoos_common import mok, proc, zypper
 
-from . import probes, query, units
+from . import query, units
 
 JOURNAL_LINES = 300
 RECENT_PACKAGES = 60
 # Characters of the welcome log in the report
 LOG_TAIL = 20000
-
-
-def collect_state():
-    """probes.collect() plus the "sysinfo" text."""
-    st = probes.collect()
-    try:
-        st["sysinfo"] = sysinfo(st)
-    except Exception as e:
-        st["sysinfo"] = str(e)
-    return st
 
 
 def sysinfo(state=None):

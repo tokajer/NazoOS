@@ -8,6 +8,8 @@ import shlex
 
 from nazoos_common import proc, repos
 
+PCI_VENDORS = {"1002": "amd", "10de": "nvidia", "8086": "intel"}
+
 
 def rpm_vendors(names):
     """Installed names out of `names`, with their vendor."""
@@ -38,8 +40,7 @@ def parse_gpus(lspci_text):
             continue
         vendor_id = re.search(r"\[([0-9a-f]{4})\]$", f[2])
         vid = vendor_id.group(1) if vendor_id else ""
-        vendor = {"1002": "amd", "10de": "nvidia",
-                  "8086": "intel"}.get(vid, "other")
+        vendor = PCI_VENDORS.get(vid, "other")
         name = re.sub(r"\s*\[[0-9a-f]{4}\]$", "", f[3])
         vname = re.sub(r"\s*\[[0-9a-f]{4}\]$", "", f[2])
         result.append({"vendor": vendor, "name": f"{vname} {name}"})

@@ -69,6 +69,8 @@ def mok_queue(cert):
             _mark_requested()
         say(f"Secure Boot key: {status}, nothing to do")
         return False
+    # Read only here, never at start: kernel-install can also run without
+    # stdin from the GUI, where an eager read would block forever
     mok_hash = sys.stdin.readline().strip()
     if not MOK_HASH.fullmatch(mok_hash):
         raise Fail("a password for the Secure Boot key is needed")

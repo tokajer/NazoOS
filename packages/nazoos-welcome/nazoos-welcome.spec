@@ -12,7 +12,7 @@ Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  desktop-file-utils
 BuildRequires:  gettext-tools
 # %check imports the helper's actions
-BuildRequires:  nazoos-common(api) >= 9
+BuildRequires:  nazoos-common(api) >= 10
 BuildRequires:  python3
 BuildRequires:  systemd-rpm-macros
 BuildArch:      noarch
@@ -23,7 +23,7 @@ Requires:       python3
 Requires:       python3-pyside6
 Requires:       qt6-declarative-imports
 # Helper frame, error messages, MOK check, kernel opt-in state (ADR 0030)
-Requires:       nazoos-common(api) >= 9
+Requires:       nazoos-common(api) >= 10
 # Root actions via pkexec + our Polkit policy
 Requires:       polkit
 # System probes (lspci, lsblk/findmnt) and actions
@@ -77,6 +77,10 @@ install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-welcome/nazoos_welcome \
   nazoos_welcome/*.py
 install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-welcome/nazoos_welcome/root \
   nazoos_welcome/root/*.py
+# Bug reports name the real build, not the default in the source; grep fails the build if the line moves
+sed -i 's/^VERSION = .*/VERSION = "%{version}"/' \
+  %{buildroot}%{_datadir}/nazoos-welcome/nazoos_welcome/__main__.py
+grep -q '^VERSION = "%{version}"$' %{buildroot}%{_datadir}/nazoos-welcome/nazoos_welcome/__main__.py
 install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-welcome/qml qml/*.qml
 install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-welcome/qml/components \
   qml/components/*.qml

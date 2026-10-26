@@ -13,7 +13,7 @@ from nazoos_common.grub import grub_refresh
 from nazoos_common.helper import Fail, say
 from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 
-from .. import catalog, system, units
+from .. import system, units
 from . import maintenance
 from .base import (enable_repo, flathub_ensure, installed_names,
                    packman_switch)
@@ -82,9 +82,9 @@ def repair_nvidia(_args):
         kmp = kernel.kmp(bases[0], flavor)
     else:
         # Driver without a module: the meta package names the module base
-        for meta, video, *_rest in catalog.NVIDIA_DRIVERS.values():
-            if proc.rpm_installed(video):
-                kmp = kernel.kmp(meta.removesuffix("-kmp-meta"), flavor)
+        for d in system.NVIDIA_DRIVERS.values():
+            if proc.rpm_installed(d["video"]):
+                kmp = kernel.kmp(d["module"], flavor)
                 break
         else:
             raise Fail("no NVIDIA driver is installed")

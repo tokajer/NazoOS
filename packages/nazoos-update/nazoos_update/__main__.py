@@ -7,6 +7,7 @@ import sys
 
 from nazoos_common import proc
 
+# Replaced by the .spec at build time
 VERSION = "0.1.0"
 
 

@@ -6,7 +6,7 @@ from nazoos_common import helper, proc
 from nazoos_common.helper import arg, say
 from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 
-from .. import catalog, system
+from .. import system
 from .base import packman_switch, repo_in_use
 
 
@@ -27,8 +27,8 @@ def codecs_install(_args):
 
 
 def nvidia_install(args):
-    variant = arg(args, 0, catalog.NVIDIA_DRIVERS)
-    drivers = catalog.NVIDIA_DRIVERS[variant]
+    variant = arg(args, 0, system.NVIDIA_DRIVERS)
+    drivers = system.NVIDIA_DRIVERS[variant]["packages"]
     with repo_in_use(
             "://download.nvidia.com/", system.NVIDIA_REPO_ALIAS,
             ["--refresh", "--name", "NVIDIA", system.NVIDIA_REPO_URL],

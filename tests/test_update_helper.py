@@ -98,19 +98,19 @@ def test_dup_preview_lists_the_changes(monkeypatch):
 def test_dup_preview_problems(monkeypatch):
     fake_zypper(monkeypatch, PROBLEM_XML, rc=4)
     assert check.dup_preview() == (
-        None, ["nothing provides libfoo.so.1 needed by bar"])
+        [], ["nothing provides libfoo.so.1 needed by bar"])
 
 
 def test_dup_preview_problem_from_prompt(monkeypatch):
     fake_zypper(monkeypatch, PROMPT_XML, rc=4)
-    assert check.dup_preview() == (None, [
+    assert check.dup_preview() == ([], [
         "nothing provides 'libfoo.so.1' needed by the to be installed "
         "bar-1.0-1.1.x86_64"])
 
 
 def test_dup_preview_problem_detailed(monkeypatch):
     fake_zypper(monkeypatch, DETAILED_XML, rc=4)
-    assert check.dup_preview() == (None, [
+    assert check.dup_preview() == ([], [
         "nothing provides 'nazoos-x' needed by the to be installed "
         "foo-2-1.noarch; the installed foo-1-1.noarch does not belong to a "
         "distupgrade repository and must be replaced"])
@@ -319,7 +319,7 @@ def test_failed_check_keeps_last_ok(monkeypatch, tmp_path):
 def test_update_stops_at_a_conflict(monkeypatch):
     calls, written = [], []
     monkeypatch.setattr(update, "run", lambda *a, **k: calls.append(a[0]) or 0)
-    monkeypatch.setattr(check, "dup_preview", lambda *a: (None, ["x"]))
+    monkeypatch.setattr(check, "dup_preview", lambda *a: ([], ["x"]))
     monkeypatch.setattr(check, "flatpak_updates", lambda: [])
     monkeypatch.setattr(update.status, "write", written.append)
     with pytest.raises(Fail) as e:

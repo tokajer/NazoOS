@@ -42,14 +42,9 @@ def _out(cmd, strict, expect=(), empty_ok=False):
 def sb_state():
     """(uefi, secure_boot, text) from "mokutil --sb-state"; text is
     mokutil's answer ("SecureBoot enabled/disabled")."""
-    try:
-        r = subprocess.run(["mokutil", "--sb-state"],
-                           stdin=subprocess.DEVNULL, capture_output=True,
-                           text=True, timeout=30)
-    except (OSError, subprocess.TimeoutExpired):
-        return False, False, ""
-    text = r.stdout.strip()
-    uefi = r.returncode == 0
+    code, text = proc.run(["mokutil", "--sb-state"])
+    text = text.strip()
+    uefi = code == 0
     return uefi, uefi and "secureboot enabled" in text.lower(), text
 
 
@@ -114,14 +109,8 @@ def covered(cert):
             return False
         bundle = Path(d, "enrolled.pem")
         bundle.write_text(pems)
-        try:
-            return subprocess.run(
-                ["openssl", "verify", "-partial_chain", "-no_check_time",
-                 "-CAfile", str(bundle), cert],
-                stdin=subprocess.DEVNULL, capture_output=True,
-                timeout=30).returncode == 0
-        except (OSError, subprocess.TimeoutExpired):
-            return False
+        return proc.rc(["openssl", "verify", "-partial_chain",
+                        "-no_check_time", "-CAfile", str(bundle), cert]) == 0
 
 
 def fingerprint(cert, strict=False):

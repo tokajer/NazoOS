@@ -11,9 +11,6 @@ from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 
 from .. import catalog, system
 
-# Root part of nazoos-update: one update path for both apps
-UPDATE_HELPER = "/usr/libexec/nazoos-update/nazoos-update-helper"
-
 
 def service(args):
     svc = catalog.by_id(catalog.SERVICES, arg(args, 0))
@@ -33,9 +30,9 @@ def system_update(_args):
     # Tumbleweed snapshot (would only downgrade), boot menu names for the
     # snapshots, restart hint, its status file. A plain dup here
     # downgraded a fresh install (VM 2026-10-12)
-    if not os.access(UPDATE_HELPER, os.X_OK):
+    if not os.access(helper.UPDATE_HELPER, os.X_OK):
         raise Fail("nazoos-update is not installed")
-    rc = helper.run([UPDATE_HELPER, "update"], check=False)
+    rc = helper.run([helper.UPDATE_HELPER, "update"], check=False)
     if rc:
         # Its own "@@error <reason>" line is already out: no second,
         # vaguer one on top

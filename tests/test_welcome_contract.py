@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
-from nazoos_common import proc
-from nazoos_welcome import appicons, probes, report
+from nazoos_common import kernel, proc
+from nazoos_welcome import appicons, probes
 from nazoos_welcome.root import ACTIONS
 
 WELCOME = Path(__file__).resolve().parent.parent / "packages/nazoos-welcome"
@@ -33,6 +33,7 @@ def silent_system(monkeypatch):
     answers empty (directory listings in /sys, /etc/zypp are still read)."""
     monkeypatch.setattr(proc, "out", lambda cmd, timeout=30: "")
     monkeypatch.setattr(proc, "rc", lambda cmd, timeout=30: 1)
+    monkeypatch.setattr(proc, "run", lambda cmd, timeout=30: (127, ""))
     monkeypatch.setattr(proc, "read", lambda path: "")
     monkeypatch.setattr(proc.shutil, "which", lambda name: None)
 
@@ -47,7 +48,7 @@ def silent_system(monkeypatch):
 def test_every_state_key_of_the_qml_pages_exists(silent_system):
     keys = _qml_state_keys()
     assert "gpus" in keys   # the regex still finds something
-    missing = keys - BACKEND_KEYS - set(report.collect_state())
+    missing = keys - BACKEND_KEYS - set(probes.collect())
     assert not missing
 
 
@@ -119,7 +120,7 @@ def test_kernel_page_phases_are_produced_by_the_probe():
         dict(secureBoot=True, mok="pending"),
         dict(preferred=False), {},
     ]
-    assert {probes.kernel_phase({**base, **c}) for c in cases} >= used
+    assert {kernel.phase({**base, **c}) for c in cases} >= used
 
 
 def test_kernel_page_stage2_values_are_produced_by_kernel():

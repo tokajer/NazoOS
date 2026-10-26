@@ -18,6 +18,7 @@ import sys
 import time
 from pathlib import Path
 
+# Same block in nazoos-welcome-helper and nazoos-update-helper: keep them alike
 # Our modules from the installed location (or the git checkout)
 _src = Path(__file__).resolve().parent.parent
 for base in (Path("/usr/share/nazoos-common"), _src.parent / "nazoos-common"):

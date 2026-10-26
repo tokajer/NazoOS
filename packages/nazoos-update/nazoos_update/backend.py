@@ -6,6 +6,7 @@ import os
 import shutil
 import subprocess
 
+from nazoos_common import helper
 from nazoos_common.launcher import COMMON_LAUNCHERS
 from nazoos_common.qt import ActionRunner, CoalescedLoad
 from PySide6.QtCore import (Property, QFileSystemWatcher, QSettings, QTimer,
@@ -14,8 +15,7 @@ from PySide6.QtCore import (Property, QFileSystemWatcher, QSettings, QTimer,
 from . import status
 from .i18n import _
 
-HELPER = os.environ.get("NAZOOS_UPDATE_HELPER",
-                        "/usr/libexec/nazoos-update/nazoos-update-helper")
+HELPER = os.environ.get("NAZOOS_UPDATE_HELPER", helper.UPDATE_HELPER)
 
 ACTION_LABELS = {
     "check": "Checking for updates",
@@ -35,7 +35,7 @@ class Backend(ActionRunner):
 
     def __init__(self):
         super().__init__(HELPER, _, ACTION_LABELS, LAUNCHERS)
-        self._state = status.collect()
+        self._state = {}
         # A failed load keeps the old state (background prints the error).
         # The lambda looks status.collect up per load (tests replace it)
         self._loader = CoalescedLoad(
@@ -56,6 +56,9 @@ class Backend(ActionRunner):
         self._debounce.setInterval(200)
         self._debounce.timeout.connect(self.refresh)
         self._watch.directoryChanged.connect(lambda _p: self._debounce.start())
+        # Not status.collect() here: findmnt may take seconds and the window
+        # must not wait for it
+        self.refresh()
 
     def _get_state(self):
         return self._state

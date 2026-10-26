@@ -18,6 +18,8 @@ import traceback
 from . import errors, zypper
 
 FLATPAK = ["flatpak", "--system"]
+# Root part of nazoos-update; nazoos-welcome runs it for "Update now"
+UPDATE_HELPER = "/usr/libexec/nazoos-update/nazoos-update-helper"
 
 
 class Fail(Exception):

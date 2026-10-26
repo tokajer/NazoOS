@@ -83,7 +83,7 @@ def dup_preview(cmd=("dist-upgrade", "--auto-agree-with-licenses")):
         problems = (prompt_problems(root) or zypper_messages(root)
                     or ["dependency problem"])
     if problems:
-        return None, problems
+        return [], problems
     if r.returncode not in zypper.OK:
         messages = " ".join(zypper_messages(root))
         if messages:
@@ -142,7 +142,7 @@ def check(_args=None):
         raise Fail("the package sources could not be refreshed "
                    "(no internet connection?)")
     pkgs, problems = dup_preview()
-    behind = None if problems else mirrors_behind(pkgs)
+    behind = mirrors_behind(pkgs)
     if problems:
         result["error"] = status.ERROR_CONFLICT
         result["problems"] = problems
@@ -152,8 +152,7 @@ def check(_args=None):
         result["behind"] = list(behind)
         cmd = own_update_cmd()
         if cmd:
-            own, own_problems = dup_preview(cmd)
-            result["packages"] = [] if own_problems else own
+            result["packages"] = dup_preview(cmd)[0]
     else:
         result["packages"] = pkgs
     result["update_needs_reboot"] = any(

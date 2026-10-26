@@ -14,7 +14,7 @@ from pathlib import Path
 
 from nazoos_common import proc, repos
 
-from . import catalog, hw, query, system, units
+from . import hw, query, system, units
 
 # Free space below which the repair page warns (whichever is larger)
 SPACE_MIN_GB = 5
@@ -94,7 +94,7 @@ def mixed_packman(rpm_qa_text):
 def nvidia_module_missing():
     """NVIDIA driver installed, but no module for the running kernel."""
     if not query.rpm_vendors(
-            [pkgs[1] for pkgs in catalog.NVIDIA_DRIVERS.values()]):
+            [d["video"] for d in system.NVIDIA_DRIVERS.values()]):
         return False
     release = platform.release()
     moddir = Path("/usr/lib/modules", release)

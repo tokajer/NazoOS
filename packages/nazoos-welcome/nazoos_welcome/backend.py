@@ -12,7 +12,7 @@ from nazoos_common.qt import ActionRunner, CoalescedLoad
 from PySide6.QtCore import Property, Signal, Slot
 from PySide6.QtGui import QGuiApplication
 
-from . import autostart, catalog, hw, probes, report, user_actions
+from . import autostart, catalog, hw, probes, user_actions
 
 # Cheap probes for the card an action changed: read right after it, the
 # full probes.collect() takes 15-20 s (zypper searches).
@@ -63,7 +63,7 @@ class Backend(ActionRunner):
         self._on_finish = None
         # Never kill the UI over a probe
         self._loader = CoalescedLoad(
-            self, report.collect_state, self._loaded,
+            self, probes.collect, self._loaded,
             lambda e: self._set_state(dict(self._state, error=str(e))))
         # State keys read by _quick_refresh since the last full refresh
         self._quick = set()

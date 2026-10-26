@@ -44,6 +44,23 @@ OSS_CODECS = [
 # The kmp-meta packages pick the module for every installed kernel flavor.
 NVIDIA_REPO_ALIAS = "NVIDIA"
 NVIDIA_REPO_URL = "https://download.nvidia.com/opensuse/tumbleweed"
+# The variants the user picks. "module": the kernel module base (the meta
+# package is "<module>-kmp-meta"); "video": the package that marks the
+# variant as installed
+NVIDIA_DRIVERS = {
+    "open": {"module": "nvidia-open-driver-G07-signed",
+             "video": "nvidia-video-G07",
+             "packages": ["nvidia-open-driver-G07-signed-kmp-meta",
+                          "nvidia-video-G07", "nvidia-video-G07-32bit",
+                          "nvidia-gl-G07", "nvidia-gl-G07-32bit",
+                          "nvidia-compute-utils-G07"]},
+    "legacy": {"module": "nvidia-driver-G06",
+               "video": "nvidia-video-G06",
+               "packages": ["nvidia-driver-G06-kmp-meta",
+                            "nvidia-video-G06", "nvidia-video-G06-32bit",
+                            "nvidia-gl-G06", "nvidia-gl-G06-32bit",
+                            "nvidia-compute-utils-G06"]},
+}
 
 # ROCm: AMD GPU compute (HIP, OpenCL) for Blender, DaVinci Resolve and local
 # AI tools, not needed for games. All from Tumbleweed oss (ADR 0012).

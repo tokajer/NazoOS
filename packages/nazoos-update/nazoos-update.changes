@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Oct 26 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The window opens without waiting for the status to be read.
+- The version shown is the one of the package.
+
+-------------------------------------------------------------------
 Sun Oct 25 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Snapshot naming reports a failed "snapper modify" instead of retrying it.

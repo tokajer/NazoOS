@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """nazoos_welcome.catalog: parsers and the action list."""
 
-from nazoos_welcome import catalog
+from nazoos_welcome import catalog, system
 from nazoos_welcome.root import ACTIONS, apps
 
 
@@ -21,3 +21,9 @@ def test_every_app_setup_step_exists():
     steps = {a["setup"] for a in catalog.APPS if "setup" in a}
     assert "waydroid" in steps
     assert steps <= set(apps.SETUP)
+
+
+def test_every_nvidia_variant_lists_its_meta_and_video_package():
+    for name, d in system.NVIDIA_DRIVERS.items():
+        assert f"{d['module']}-kmp-meta" in d["packages"], name
+        assert d["video"] in d["packages"], name

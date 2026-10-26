@@ -17,6 +17,7 @@ The last output line "@@error {...}" carries a message for the user
 import sys
 from pathlib import Path
 
+# Same block in nazoos-welcome-helper and nazoos-kernel-boot: keep them alike
 # pkexec clears PYTHONPATH: load our modules from the installed location
 # (or from the git checkout)
 _src = Path(__file__).resolve().parent.parent

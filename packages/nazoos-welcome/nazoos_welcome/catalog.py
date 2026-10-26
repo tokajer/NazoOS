@@ -215,19 +215,6 @@ KERNEL_PARAMS = [
 # sched_ext schedulers offered in the UI (ADR 0002), default first
 SCX_SCHEDULERS = ["scx_lavd", "scx_bpfland", "scx_rusty", "scx_flash"]
 
-# NVIDIA driver variants the user picks (repo and details: system.py)
-NVIDIA_DRIVERS = {
-    "open": ["nvidia-open-driver-G07-signed-kmp-meta",
-             "nvidia-video-G07", "nvidia-video-G07-32bit",
-             "nvidia-gl-G07", "nvidia-gl-G07-32bit",
-             "nvidia-compute-utils-G07"],
-    "legacy": ["nvidia-driver-G06-kmp-meta",
-               "nvidia-video-G06", "nvidia-video-G06-32bit",
-               "nvidia-gl-G06", "nvidia-gl-G06-32bit",
-               "nvidia-compute-utils-G06"],
-}
-
-
 # Root actions of the helper, with the text shown while they run
 ACTION_LABELS = {
     "codecs-install": "Installing multimedia codecs",

@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Oct 26 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- API 10: proc.run() gives exit code and output of a probe; the kernel card phase lives next to stage 2; one constant for the path of the update helper.
+
+-------------------------------------------------------------------
 Thu Oct 22 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - API 9: Secure Boot key checks of root actions fail on a broken mokutil/openssl instead of reading as "not enrolled" (strict=True); repo_search() tells "not in the repo" from a failed search.

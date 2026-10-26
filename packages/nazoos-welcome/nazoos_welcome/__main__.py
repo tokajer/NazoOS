@@ -15,6 +15,7 @@ from .backend import Backend
 from .i18n import translator as make_translator
 from .repair_model import RepairModel
 
+# Replaced by the .spec at build time
 VERSION = "0.1.0"
 
 

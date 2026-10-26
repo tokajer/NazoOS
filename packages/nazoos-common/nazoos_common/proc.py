@@ -13,27 +13,28 @@ import sys
 from pathlib import Path
 
 
+def run(cmd, timeout=30):
+    """(exit code, stdout) of CMD: (127, "") if it is missing, (1, "") if
+    it fails to start or hangs."""
+    if shutil.which(cmd[0]) is None:
+        return 127, ""
+    try:
+        r = subprocess.run(cmd, stdin=subprocess.DEVNULL,
+                           capture_output=True, text=True, errors="replace",
+                           timeout=timeout)
+    except (OSError, subprocess.TimeoutExpired):
+        return 1, ""
+    return r.returncode, r.stdout
+
+
 def out(cmd, timeout=30):
     """stdout of CMD, "" if it is missing, fails to start or hangs."""
-    if shutil.which(cmd[0]) is None:
-        return ""
-    try:
-        return subprocess.run(cmd, stdin=subprocess.DEVNULL,
-                              capture_output=True, text=True,
-                              timeout=timeout).stdout
-    except (OSError, subprocess.TimeoutExpired):
-        return ""
+    return run(cmd, timeout)[1]
 
 
 def rc(cmd, timeout=30):
     """Exit code of CMD: 127 if it is missing, 1 on error or timeout."""
-    if shutil.which(cmd[0]) is None:
-        return 127
-    try:
-        return subprocess.run(cmd, stdin=subprocess.DEVNULL,
-                              capture_output=True, timeout=timeout).returncode
-    except (OSError, subprocess.TimeoutExpired):
-        return 1
+    return run(cmd, timeout)[0]
 
 
 def systemctl(user=False):

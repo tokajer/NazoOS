@@ -11,7 +11,7 @@ key: mok, module sync as root: kmp_sync. No Qt imports here.
 
 import os
 
-from . import grub, kernelstate, proc, repos
+from . import grub, kernelstate, mok, proc, repos
 
 # NazoOS kernel (ADR 0007/0008). Opt-in: the repo is added on install.
 # Stage 1 installs kernel-nazoos next to kernel-default, stage 2 removes
@@ -64,6 +64,21 @@ def stage2_state(preferred, boots, default_installed, only):
         return ""
     return (STAGE2_READY if boots >= kernelstate.STABLE_BOOTS
             else STAGE2_WAITING)
+
+
+def phase(k):
+    """What the kernel card says, from the probes.kernel_state() dict K."""
+    if k["blocked"]:
+        return "blocked"
+    if k["running"]:
+        return "running"
+    if not k["installed"]:
+        return ""
+    if k["secureBoot"] and k["mok"] == mok.MISSING:
+        return "key-missing"
+    if k["secureBoot"] and k["mok"] == mok.PENDING:
+        return "key-pending"
+    return "installed" if k["preferred"] else "not-preferred"
 
 
 def stage2_now():

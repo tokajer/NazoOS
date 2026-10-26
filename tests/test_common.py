@@ -9,7 +9,7 @@ import types
 import pytest
 
 from nazoos_common import (files, grub, helper, kernel, kernelstate, mok,
-                           repos, shellconf)
+                           proc, repos, shellconf)
 
 FPR = "SHA1 Fingerprint=AB:CD:EF:01\n"
 
@@ -352,19 +352,37 @@ def test_update_grub_default_holds_the_lock(monkeypatch, tmp_path):
     assert default.read_text() == "A=1\nB=2\n"
 
 
+def test_proc_run_answers_127_for_a_missing_tool(monkeypatch):
+    monkeypatch.setattr(proc.shutil, "which", lambda name: None)
+    assert proc.run(["nonexistent-tool"]) == (127, "")
+    assert proc.rc(["nonexistent-tool"]) == 127
+
+
+def test_proc_run_answers_1_for_a_hang_and_a_failed_start(monkeypatch):
+    monkeypatch.setattr(proc.shutil, "which", lambda name: "/bin/" + name)
+
+    def hang(cmd, **kw):
+        raise subprocess.TimeoutExpired(cmd, kw["timeout"])
+
+    monkeypatch.setattr(proc.subprocess, "run", hang)
+    assert proc.run(["sleep"], timeout=1) == (1, "")
+
+    def broken(cmd, **kw):
+        raise OSError("exec format error")
+
+    monkeypatch.setattr(proc.subprocess, "run", broken)
+    assert proc.run(["tool"]) == (1, "")
+
+
 @pytest.mark.parametrize("rc, stdout, expected", [
     (0, "SecureBoot enabled\n", (True, True, "SecureBoot enabled")),
     (0, "SecureBoot disabled\n", (True, False, "SecureBoot disabled")),
     (1, "", (False, False, "")),
-    (OSError("no mokutil"), "", (False, False, "")),
+    # proc.run answers 127 for a missing mokutil
+    (127, "", (False, False, "")),
 ])
 def test_sb_state(monkeypatch, rc, stdout, expected):
-    def run(cmd, **kw):
-        if isinstance(rc, Exception):
-            raise rc
-        return subprocess.CompletedProcess(cmd, rc, stdout, "")
-
-    monkeypatch.setattr(mok.subprocess, "run", run)
+    monkeypatch.setattr(mok.proc, "run", lambda cmd, **kw: (rc, stdout))
     assert mok.sb_state() == expected
     assert mok.uefi() is expected[0]
 

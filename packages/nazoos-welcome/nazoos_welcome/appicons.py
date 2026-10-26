@@ -26,7 +26,8 @@ ICON_DIRS = [
 
 RETRY_SECONDS = 300
 
-# time.monotonic() before which no new download starts; inf while one runs
+# time.monotonic() before which no new download starts; inf while one runs.
+# Unlocked: CoalescedLoad runs one collect() at a time; _fetch only runs while inf
 _retry_at = 0.0
 
 

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 26 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Repair page: a repair that ends during a running check is followed by a new check, so fixed problems no longer stay listed; fix buttons wait for the check.
+- The version shown is the one of the package.
+- Internal cleanup: NVIDIA driver lists with named fields, state loading in one place.
+
+-------------------------------------------------------------------
 Sun Oct 25 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The window no longer waits for the quick re-read after an action.

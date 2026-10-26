@@ -107,7 +107,7 @@ Kirigami.ScrollablePage {
                 statusType: SettingCard.Neutral
                 QQC2.Button {
                     visible: t.button !== "" && (modelData.fix !== "" || modelData.userFix)
-                    enabled: !backend.busy
+                    enabled: !backend.busy && !repair.checking
                     text: t.button
                     icon.name: "tools-wizard"
                     onClicked: page.doFix(modelData)
@@ -163,7 +163,7 @@ Kirigami.ScrollablePage {
             title: L.tr("Rebuild package database")
             subtitle: L.tr("Helps when installing or updating stops with an \"rpmdb\" error.")
             QQC2.Button {
-                enabled: !backend.busy
+                enabled: !backend.busy && !repair.checking
                 text: L.tr("Rebuild")
                 onClicked: page.app.runAction("repair-rpmdb", [])
             }
@@ -173,7 +173,7 @@ Kirigami.ScrollablePage {
             title: L.tr("Rebuild boot files")
             subtitle: L.tr("Creates the initramfs of every kernel and the boot menu again. Helps when the system hangs at startup or a driver is missing after a kernel update.")
             QQC2.Button {
-                enabled: !backend.busy
+                enabled: !backend.busy && !repair.checking
                 text: L.tr("Rebuild")
                 onClicked: page.app.confirm(
                     L.tr("Rebuild boot files?"),

@@ -133,7 +133,7 @@ def update(args):
                                 flatpaks=check.flatpak_updates()))
         raise Fail("the update needs a decision: {problem}",
                    problem=problems[0])
-    behind = check.mirrors_behind(pkgs or [])
+    behind = check.mirrors_behind(pkgs)
     cmd = ["dist-upgrade", "--auto-agree-with-licenses"]
     if behind:
         say(f"Mirrors have Tumbleweed {behind[1]}, the system has "

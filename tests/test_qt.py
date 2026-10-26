@@ -124,7 +124,7 @@ def test_page_change_refreshes_only_a_stale_state(app, monkeypatch):
         calls.append(1)
         return {"fresh": True}
 
-    monkeypatch.setattr(backend.report, "collect_state", collect)
+    monkeypatch.setattr(backend.probes, "collect", collect)
     b = backend.Backend(i18n.translator())
     b.refresh()
     wait(app, lambda: not b._loader.running)
@@ -149,7 +149,7 @@ def test_page_change_retries_a_failed_load(app, monkeypatch):
             raise RuntimeError("probe broke")
         return {}
 
-    monkeypatch.setattr(backend.report, "collect_state", collect)
+    monkeypatch.setattr(backend.probes, "collect", collect)
     b = backend.Backend(i18n.translator())
     b.refresh()
     wait(app, lambda: not b._loader.running)
@@ -331,12 +331,69 @@ def test_repair_model_rechecks_after_a_repair_action(app, monkeypatch):
     wait(app, lambda: len(calls) == 2 and not model.checking)
 
 
+def test_repair_model_ignores_check_requests_while_checking(app, monkeypatch):
+    import threading
+
+    from nazoos_welcome import backend, i18n, repair_checks, repair_model
+
+    release = threading.Event()
+    calls = []
+
+    def check():
+        calls.append(1)
+        release.wait(10)
+        return []
+
+    monkeypatch.setattr(repair_checks, "check", check)
+    model = repair_model.RepairModel(backend.Backend(i18n.translator()))
+    model.checkSystem()
+    wait(app, lambda: len(calls) == 1)
+    model.checkSystem()
+    release.set()
+    wait(app, lambda: model.checked and not model.checking)
+    assert len(calls) == 1
+
+
+def test_repair_model_checks_again_when_a_repair_ends_during_a_check(
+        app, monkeypatch):
+    import threading
+
+    from nazoos_welcome import backend, i18n, repair_checks, repair_model
+
+    release = threading.Event()
+    calls = []
+
+    def finding(name):
+        return [{"id": name, "items": [], "fix": "", "userFix": False}]
+
+    def check():
+        calls.append(1)
+        if len(calls) == 2:
+            release.wait(10)
+            return finding("stale")
+        return finding("fresh")
+
+    monkeypatch.setattr(repair_checks, "check", check)
+    b = backend.Backend(i18n.translator())
+    model = repair_model.RepairModel(b)
+    model.checkSystem()
+    wait(app, lambda: model.checked)
+    # The second check is running (rpm -Va) when the repair finishes
+    model.checkSystem()
+    wait(app, lambda: len(calls) == 2)
+    b.actionFinished.emit("repair-rpmdb", True, "Done.")
+    release.set()
+    wait(app, lambda: len(calls) == 3 and not model.checking)
+    assert [f["id"] for f in model.findings] == ["fresh"]
+
+
 def test_update_action_finishes_after_the_new_status_is_loaded(app, monkeypatch):
     from nazoos_update import backend, status
 
     conflict = {"error": status.ERROR_CONFLICT, "conflict": True}
     monkeypatch.setattr(status, "collect", lambda: {})
     b = backend.Backend()
+    wait(app, lambda: not b._loader.running)
     monkeypatch.setattr(status, "collect", lambda: conflict)
     seen = []
     b.actionFinished.connect(
@@ -407,6 +464,7 @@ def test_update_refresh_survives_a_broken_collect(app, monkeypatch):
 
     monkeypatch.setattr(status, "collect", lambda: {"a": 1})
     b = backend.Backend()
+    wait(app, lambda: not b._loader.running)
 
     def broken():
         raise OSError("gone")
