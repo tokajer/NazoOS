@@ -46,7 +46,10 @@ def unblacklist_ntfs3():
 
 def mount_options(fstype, uid, gid):
     """(file system type, mount options) for the fstab line."""
-    opts = "nofail,x-systemd.device-timeout=10s,noatime"
+    # nosuid,nodev: setuid programs and device files on the drive get no
+    # rights (a drive prepared on another computer could give root). Not
+    # noexec: games and Proton run from it
+    opts = "nofail,x-systemd.device-timeout=10s,noatime,nosuid,nodev"
     if fstype == "ntfs":
         fstype = "ntfs3"
         opts += f",uid={uid},gid={gid},umask=022,windows_names"

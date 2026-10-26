@@ -64,7 +64,6 @@ def kernel_install(_args):
                       kernel.KERNEL_REPO_URL],
                      lambda: proc.rpm_installed(kernel.KERNEL_PACKAGE)
                      ) as alias:
-        helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
         pkgs = [kernel.KERNEL_PACKAGE] + nazoos_kmps(alias)
         # If the install below fails the queued key stays (harmless:
         # MokManager enrolls it, a later install needs no key step)

@@ -44,13 +44,14 @@ APPS = [
     # Linked from Emulators:Waydroid into our OBS project. Needs Binder,
     # which only kernel-nazoos has built in ("kernel"); nazoos-binder
     # stands in for waydroid's "binder-kmp" requirement. "units" are
-    # enabled after the install, "trusted" interfaces go into firewalld's
-    # trusted zone (Android's network: DHCP and DNS from the host), "setup"
+    # enabled after the install, "firewall" interfaces go into firewalld's
+    # zone system.WAYDROID_ZONE (Android's network: DHCP and DNS from the
+    # host, no other host service), "setup"
     # names the step root/apps.py runs after the install
     {"id": "waydroid", "name": "Waydroid", "category": "gaming",
      "kind": "rpm", "refs": ["waydroid", "nazoos-binder"], "icon": "waydroid",
      "kernel": "nazoos", "units": ["waydroid-container.service"],
-     "trusted": ["waydroid0"], "setup": "waydroid",
+     "firewall": ["waydroid0"], "setup": "waydroid",
      "summary": "Android apps and games in a window. The first start "
                 "downloads Android (about 1 GB)"},
     # Communication

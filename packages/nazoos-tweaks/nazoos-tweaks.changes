@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Oct 26 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Firewall zone nazoos-waydroid and policy nazoos-waydroid-out for Waydroid
+- firewalld is reloaded after the package update
+
+-------------------------------------------------------------------
 Sun Oct 25 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Preset: enable joycond.service

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -I
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Boot counter of the NazoOS kernel opt-in (ADR 0008).
@@ -19,6 +19,8 @@ import time
 from pathlib import Path
 
 # Same block in nazoos-welcome-helper and nazoos-update-helper: keep them alike
+# Package scripts may start us with the caller's environment: -I keeps
+# PYTHONPATH and user site-packages out
 # Our modules from the installed location (or the git checkout)
 _src = Path(__file__).resolve().parent.parent
 for base in (Path("/usr/share/nazoos-common"), _src.parent / "nazoos-common"):

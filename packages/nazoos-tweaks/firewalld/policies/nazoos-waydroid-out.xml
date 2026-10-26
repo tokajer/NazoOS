@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+
+Forwarding out of zone nazoos-waydroid, so Android reaches the internet
+and the local network. Traffic to this computer itself (HOST) is not
+covered by "ANY", there the zone's services apply.
+Doku: https://firewalld.org/documentation/man-pages/firewalld.policies.html
+-->
+<policy target="ACCEPT">
+  <short>NazoOS Waydroid out</short>
+  <description>Forwards connections from the Android container (Waydroid) to the internet and the local network.</description>
+  <ingress-zone name="nazoos-waydroid"/>
+  <egress-zone name="ANY"/>
+</policy>

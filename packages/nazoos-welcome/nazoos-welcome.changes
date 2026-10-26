@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Mon Oct 26 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New repository keys are only trusted when the user adds the Packman,
+  NVIDIA or kernel repository, never on later refreshes
+- Waydroid's network is in its own firewall zone (only DHCP and DNS reach
+  this computer) instead of "trusted"
+- Drives added for automatic mounting get nosuid,nodev
+- The root helpers run Python in isolated mode
+
+-------------------------------------------------------------------
 Mon Oct 26 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Repair page: a repair that ends during a running check is followed by a new check, so fixed problems no longer stay listed; fix buttons wait for the check.

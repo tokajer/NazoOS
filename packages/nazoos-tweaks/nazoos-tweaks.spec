@@ -63,8 +63,12 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/sddm/sddm.conf.d \
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/environment.d \
   environment.d/70-nazoos-shader-cache.conf
 install -Dm0644 sysusers.d/nazoos-i2c.conf %{buildroot}%{_sysusersdir}/nazoos-i2c.conf
-# Firewall zone, made the default zone by kiwi config.sh (ADR 0021)
-install -Dm0644 -t %{buildroot}%{_prefix}/lib/firewalld/zones firewalld/nazoos.xml
+# Firewall zone, made the default zone by kiwi config.sh (ADR 0021), and the
+# zone + policy of Waydroid's bridge
+install -Dm0644 -t %{buildroot}%{_prefix}/lib/firewalld/zones \
+  firewalld/nazoos.xml firewalld/nazoos-waydroid.xml
+install -Dm0644 -t %{buildroot}%{_prefix}/lib/firewalld/policies \
+  firewalld/policies/nazoos-waydroid-out.xml
 # Before openSUSE's 90-default-privs.rules, which would deny fwupd-refresh
 install -Dm0644 -t %{buildroot}%{_datadir}/polkit-1/rules.d \
   polkit/49-nazoos-fwupd-refresh.rules
@@ -91,6 +95,12 @@ if [ -e /run/nazoos-tweaks/regenerate-initrd ]; then
   %regenerate_initrd_post
 fi
 %service_add_post %{units}
+# A running firewalld only reads new zone/policy files after a reload; only
+# then, since a reload drops runtime-only rules
+if %{_bindir}/firewall-cmd --state >/dev/null 2>&1 &&
+   ! %{_bindir}/firewall-cmd --get-zones | grep -qw nazoos-waydroid; then
+  %{_bindir}/firewall-cmd --reload --quiet >/dev/null 2>&1 || :
+fi
 
 %preun
 %service_del_preun %{units}
@@ -132,6 +142,9 @@ fi
 %dir %{_prefix}/lib/firewalld
 %dir %{_prefix}/lib/firewalld/zones
 %{_prefix}/lib/firewalld/zones/nazoos.xml
+%{_prefix}/lib/firewalld/zones/nazoos-waydroid.xml
+%dir %{_prefix}/lib/firewalld/policies
+%{_prefix}/lib/firewalld/policies/nazoos-waydroid-out.xml
 %dir %{_datadir}/polkit-1
 %dir %{_datadir}/polkit-1/rules.d
 %{_datadir}/polkit-1/rules.d/49-nazoos-fwupd-refresh.rules

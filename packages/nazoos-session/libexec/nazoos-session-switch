@@ -4,7 +4,8 @@
 #
 # NazoOS gaming mode: what a user may do without a password (pkexec,
 # org.nazoos.session.policy). Only switches the caller's own session and
-# only while the caller sits at the computer (active session on seat0).
+# only while the caller sits at the computer (a session on seat0; "switch"
+# additionally needs it to be the active one).
 # Usage: nazoos-session-switch switch|started gaming|desktop
 #        nazoos-session-switch failed gaming
 
@@ -39,5 +40,15 @@ for s in $(loginctl show-user "$uid" -p Sessions --value 2>/dev/null); do
   fi
 done
 [ "$local_session" = yes ] || die "only possible at the computer itself (no local session of $user)"
+
+# Switching changes the next login: only for the user whose session is in
+# front on seat0, not one in the background (fast user switching).
+# "started"/"failed" run while a session starts or ends, when it may not be
+# the active one (yet or any more): they keep the seat0 check only
+if [ "$cmd" = switch ]; then
+  active=$(loginctl show-seat seat0 -p ActiveSession --value 2>/dev/null || :)
+  [ -n "$active" ] && [ "$(loginctl show-session "$active" -p User --value 2>/dev/null)" = "$uid" ] \
+    || die "only the user in front of the computer can switch"
+fi
 
 exec "$CTL" "$cmd" "$kind" "$user"

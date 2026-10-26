@@ -26,7 +26,7 @@ def repair_repos(_args):
     for svc in system.REPO_SERVICES:
         if not Path(svc["dir"], "repo", "repoindex.xml").exists():
             # Package removed or damaged; its %posttrans adds the service
-            helper.run(ZYPPER + ["--gpg-auto-import-keys", "--plus-repo",
+            helper.run(ZYPPER + ["--plus-repo",
                                  svc["seed"], "install", "--force",
                                  "--auto-agree-with-licenses", svc["package"]])
         elif not Path("/etc/zypp/services.d",
@@ -47,7 +47,7 @@ def repair_repos(_args):
     if missing:
         raise Fail("still missing after restoring the services: {repos}",
                    repos=", ".join(missing))
-    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    helper.run(ZYPPER + ["refresh"])
 
 
 def repair_rpmdb(_args):
@@ -55,7 +55,7 @@ def repair_rpmdb(_args):
 
 
 def repair_deps(_args):
-    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    helper.run(ZYPPER + ["refresh"])
     # Installs what is missing; never picks a conflict solution on its own
     helper.run(ZYPPER + ["verify", "--no-recommends"])
 
@@ -88,7 +88,7 @@ def repair_nvidia(_args):
                 break
         else:
             raise Fail("no NVIDIA driver is installed")
-    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    helper.run(ZYPPER + ["refresh"])
     helper.run(ZYPPER_IN + ["--force", kmp])
     helper.run(["dracut", "--force", "--kver", release])
     say("Restart the computer to load the NVIDIA driver.")

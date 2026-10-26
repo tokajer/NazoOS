@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -I
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Root part of nazoos-update.
@@ -18,6 +18,8 @@ import sys
 from pathlib import Path
 
 # Same block in nazoos-welcome-helper and nazoos-kernel-boot: keep them alike
+# Package scripts may start us with the caller's environment: -I keeps
+# PYTHONPATH and user site-packages out
 # pkexec clears PYTHONPATH: load our modules from the installed location
 # (or from the git checkout)
 _src = Path(__file__).resolve().parent.parent

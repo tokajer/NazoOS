@@ -46,7 +46,7 @@ def _install_rpm(app):
     helper.run(ZYPPER_IN + app["refs"])
     for unit in app.get("units", []):
         helper.run(["systemctl", "enable", "--now", unit])
-    firewall_trust(app.get("trusted", []), True)
+    firewall_zone(app.get("firewall", []), True)
     if app.get("setup"):
         SETUP[app["setup"]]()
 
@@ -95,7 +95,7 @@ def app_remove(args):
         for unit in app.get("units", []):
             helper.run(["systemctl", "disable", "--now", unit], check=False)
         helper.run(ZYPPER + ["remove", "--clean-deps"] + app["refs"])
-        firewall_trust(app.get("trusted", []), False)
+        firewall_zone(app.get("firewall", []), False)
 
 
 def waydroid_config():
@@ -136,18 +136,17 @@ def waydroid_config():
 SETUP = {"waydroid": waydroid_config}
 
 
-def firewall_trust(ifaces, add):
-    """Put network interfaces of an app into firewalld's trusted zone."""
+def firewall_zone(ifaces, add):
+    """Put network interfaces of an app into its firewalld zone
+    (system.WAYDROID_ZONE), or take them out again."""
     if not ifaces or proc.rc(
             ["systemctl", "is-active", "--quiet", "firewalld"]) != 0:
         return
-    op = "--add" if add else "--remove"
+    # change-interface also moves it out of the zone it had before
+    # ("trusted" until 2026-10)
+    op = "--change" if add else "--remove"
     for iface in ifaces:
-        helper.run(["firewall-cmd", "--permanent", "--zone=trusted",
-                    f"{op}-interface={iface}"], check=False)
-    if add:
-        # Forwarding inside the zone: Android reaches the internet via the
-        # host. Not taken back on removal: other interfaces may need it
-        helper.run(["firewall-cmd", "--permanent", "--zone=trusted",
-                    "--add-forward"], check=False)
+        helper.run(["firewall-cmd", "--permanent",
+                    f"--zone={system.WAYDROID_ZONE}",
+                    f"{op}-interface={iface}"], check=add)
     helper.run(["firewall-cmd", "--reload"], check=False)

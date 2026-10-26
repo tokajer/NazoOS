@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 26 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Update check and update no longer trust new repository keys
+  automatically
+- The helper runs Python in isolated mode
+
+-------------------------------------------------------------------
 Mon Oct 26 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The window opens without waiting for the status to be read.

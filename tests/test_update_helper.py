@@ -327,7 +327,7 @@ def test_update_stops_at_a_conflict(monkeypatch):
     assert e.value.template == "the update needs a decision: {problem}"
     assert e.value.params == {"problem": "x"}
     # Only the refresh ran, no dist-upgrade
-    assert calls == [update.zypper.ZYPPER + ["--gpg-auto-import-keys", "refresh"]]
+    assert calls == [update.zypper.ZYPPER + ["refresh"]]
     assert written == [status_mod.new(error=status_mod.ERROR_CONFLICT, problems=["x"])]
 
 

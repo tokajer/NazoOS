@@ -123,7 +123,7 @@ def update(args):
     if args:
         helper.arg(args, 0, (CLEAN_FLATPAKS,))
     clean_flatpaks = bool(args)
-    run(zypper.ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    run(zypper.ZYPPER + ["refresh"])
     pkgs, problems = check.dup_preview()
     if problems:
         # dup would only fail with exit code 4; show the conflict instead

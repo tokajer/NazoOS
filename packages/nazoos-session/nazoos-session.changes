@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Oct 26 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Switching between gaming mode and desktop without password only works
+  for the user whose session is in front, not for a second user in the
+  background
+
+-------------------------------------------------------------------
 Thu Oct 22 00:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - German messages of the gaming mode use the formal form (Sie) like the apps.

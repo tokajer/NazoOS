@@ -40,7 +40,7 @@ def system_update(_args):
 
 
 def repo_refresh(_args):
-    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", "--force"])
+    helper.run(ZYPPER + ["refresh", "--force"])
 
 
 def cache_clean(_args):
@@ -95,7 +95,7 @@ def channel(args):
         if alias is None:
             raise Fail("the {channel} repository did not appear after "
                        "refreshing the services", channel=target)
-        helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+        helper.run(ZYPPER + ["refresh", alias])
     except Exception:
         if old:
             try:

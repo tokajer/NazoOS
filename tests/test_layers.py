@@ -29,3 +29,15 @@ def test_root_and_probe_code_does_not_import_qt():
     r = subprocess.run([sys.executable, "-c", CODE], capture_output=True,
                        text=True, env=dict(os.environ, PYTHONPATH=path))
     assert r.returncode == 0, r.stderr
+
+
+def test_repo_keys_are_only_trusted_when_a_repo_is_added():
+    # ADR 0017: a key a mirror sends on a later refresh must not be taken
+    found = []
+    for base in (ROOT / "packages", ROOT / "kiwi"):
+        for p in base.rglob("*"):
+            if not p.is_file() or "__pycache__" in p.parts:
+                continue
+            if "--gpg-auto-import-keys" in p.read_text(errors="ignore"):
+                found.append(str(p.relative_to(ROOT)))
+    assert found == ["packages/nazoos-welcome/nazoos_welcome/root/base.py"]

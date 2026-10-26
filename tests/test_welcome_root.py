@@ -36,10 +36,11 @@ def test_mount_options(monkeypatch):
     monkeypatch.setattr(drives, "unblacklist_ntfs3", lambda: None)
     assert drives.mount_options("ntfs", 1000, 100) == (
         "ntfs3", "nofail,x-systemd.device-timeout=10s,noatime,"
-        "uid=1000,gid=100,umask=022,windows_names")
+        "nosuid,nodev,uid=1000,gid=100,umask=022,windows_names")
     assert drives.mount_options("btrfs", 1000, 100)[1].endswith(
         ",compress=zstd:1")
     assert "uid=" not in drives.mount_options("ext4", 1000, 100)[1]
+    assert ",nosuid,nodev" in drives.mount_options("ext4", 1000, 100)[1]
 
 
 def test_sanitize():
@@ -364,7 +365,7 @@ def test_packman_switch_keeps_32bit_when_dup_fails(monkeypatch, tmp_path):
     monkeypatch.setattr(helper, "output", lambda cmd: "libavcodec62-32bit\n")
     base.packman_switch("packman")
     verbs = [c[2] for c in calls]
-    assert verbs == ["--gpg-auto-import-keys", "dist-upgrade", "addlock",
+    assert verbs == ["refresh", "dist-upgrade", "addlock",
                      "dist-upgrade", "removelock"]
     assert calls[2][3:] == ["libavcodec62-32bit"]
 
@@ -444,10 +445,18 @@ def test_codecs_install_order(monkeypatch, fake_root, tmp_path):
     _packman_env(monkeypatch, fake_root, tmp_path)
     drivers.codecs_install([])
     verbs = [c[2] for c in fake_root.calls]
-    assert verbs == ["addrepo", "--gpg-auto-import-keys", "dist-upgrade",
-                     "install", "install"]
-    assert fake_root.calls[3][-len(system.PACKMAN_CODECS):] == (
+    assert verbs == ["addrepo", "--gpg-auto-import-keys", "refresh",
+                     "dist-upgrade", "install", "install"]
+    assert fake_root.calls[4][-len(system.PACKMAN_CODECS):] == (
         system.PACKMAN_CODECS)
+
+
+def test_codecs_install_trusts_no_key_for_an_existing_repo(
+        monkeypatch, fake_root, tmp_path):
+    _packman_env(monkeypatch, fake_root, tmp_path,
+                 existing=("packman", PACKMAN_URL, True))
+    drivers.codecs_install([])
+    assert not any("--gpg-auto-import-keys" in c for c in fake_root.calls)
 
 
 def test_codecs_install_removes_the_repo_it_added_on_failure(
@@ -498,6 +507,18 @@ def test_nvidia_install_keeps_the_repo_when_a_driver_is_in(
     with pytest.raises(base.Fail):
         drivers.nvidia_install(["open"])
     assert not any("removerepo" in c for c in fake_root.calls)
+
+
+def test_repo_in_use_removes_a_new_repo_whose_key_fails(
+        monkeypatch, fake_root):
+    _repos(monkeypatch, [])
+    fake_root.rc = {"--gpg-auto-import-keys": 1}
+    # keep() would say yes, but nothing came from a repo with no key
+    fake_root.installed = {"nvidia-video-G07"}
+    with pytest.raises(base.Fail):
+        drivers.nvidia_install(["open"])
+    assert fake_root.calls[-1][2:] == ["removerepo",
+                                       system.NVIDIA_REPO_ALIAS]
 
 
 def test_nvidia_install_never_removes_a_repo_that_was_there(
@@ -581,6 +602,19 @@ def test_repair_nvidia_without_driver(monkeypatch, fake_root):
         repair_fixes.repair_nvidia([])
 
 
+def test_firewall_zone_moves_the_interface_to_the_waydroid_zone(
+        monkeypatch, fake_root):
+    monkeypatch.setattr(apps.proc, "rc", lambda cmd: 0)
+    apps.firewall_zone(["waydroid0"], True)
+    assert fake_root.calls == [
+        ["firewall-cmd", "--permanent", "--zone=nazoos-waydroid",
+         "--change-interface=waydroid0"],
+        ["firewall-cmd", "--reload"]]
+    fake_root.calls.clear()
+    apps.firewall_zone(["waydroid0"], False)
+    assert fake_root.calls[0][-1] == "--remove-interface=waydroid0"
+
+
 def test_channel_snapshots_before_the_link_changes(monkeypatch, fake_root,
                                                    tmp_path):
     link = tmp_path / "repoindex.xml"
@@ -596,7 +630,7 @@ def test_channel_snapshots_before_the_link_changes(monkeypatch, fake_root,
     maintenance.channel(["stable"])
     verbs = [c[0] if c[0] != "zypper" else c[2] for c in fake_root.calls]
     assert verbs == ["snapper", "refresh-services",
-                     "--gpg-auto-import-keys", "dist-upgrade"]
+                     "refresh", "dist-upgrade"]
     assert link_seen == [False, True, True, True]
     assert link.readlink().name == "nazoos-stable-repoindex.xml"
     assert fake_root.calls[-1][-3:-1] == ["--from", "nazoos:nazoos"]

@@ -32,8 +32,7 @@ def nvidia_install(args):
     with repo_in_use(
             "://download.nvidia.com/", system.NVIDIA_REPO_ALIAS,
             ["--refresh", "--name", "NVIDIA", system.NVIDIA_REPO_URL],
-            lambda: any(proc.rpm_installed(p) for p in drivers)) as alias:
-        helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+            lambda: any(proc.rpm_installed(p) for p in drivers)):
         helper.run(ZYPPER_IN + drivers)
     say("Restart the computer to load the NVIDIA driver.")
 
@@ -50,6 +49,6 @@ def rocm_remove(_args):
 
 
 def deck_install(_args):
-    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh"])
+    helper.run(ZYPPER + ["refresh"])
     helper.run(ZYPPER_IN + ["--type", "pattern", system.DECK_PATTERN])
 

@@ -43,7 +43,17 @@ def repo_in_use(fragment, alias, addrepo_args, keep):
     alias = found or alias
     if not found:
         helper.run(ZYPPER + ["addrepo"] + addrepo_args + [alias])
+        try:
+            # The user just chose this repo: its key is trusted once, here.
+            # Later refreshes reject a changed key (ADR 0017).
+            helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+        except Exception:
+            # Nothing can be installed from a repo whose key was not taken
+            helper.run(ZYPPER + ["removerepo", alias], check=False)
+            raise
     try:
+        if found:
+            helper.run(ZYPPER + ["refresh", alias])
         yield alias
     except Exception:
         # No half state
@@ -58,7 +68,7 @@ def repo_in_use(fragment, alias, addrepo_args, keep):
 def packman_switch(alias):
     """Switch installed multimedia packages to Packman's builds; if that
     fails, retry with the 32-bit libraries held back at openSUSE."""
-    helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+    helper.run(ZYPPER + ["refresh", alias])
     dup = ZYPPER + ["dist-upgrade", "--auto-agree-with-licenses", "--from",
                     alias, "--allow-vendor-change", "--allow-downgrade"]
     rc = helper.run(dup, check=False)

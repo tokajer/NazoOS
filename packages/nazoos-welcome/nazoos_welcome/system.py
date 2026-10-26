@@ -12,6 +12,9 @@ The texts shown to the user are in catalog.py (po/update-pot.sh reads it).
 # systems need nothing, Waydroid skips the nvidia node and falls back to
 # the same values itself (tools/helpers/lxc.py, make_base_props)
 WAYDROID_CONFIG = "/var/lib/waydroid/waydroid.cfg"
+# firewalld zone of nazoos-tweaks for Waydroid's bridge (DHCP/DNS from the
+# host, internet, no other host service)
+WAYDROID_ZONE = "nazoos-waydroid"
 WAYDROID_ROOTFS = "/var/lib/waydroid/rootfs"
 WAYDROID_SOFTWARE = {"ro.hardware.gralloc": "default",
                      "ro.hardware.egl": "swiftshader"}
