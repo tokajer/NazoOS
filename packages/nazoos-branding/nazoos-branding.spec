@@ -58,6 +58,8 @@ background. Replaces openSUSE's default splash.
 %package grub2
 Summary:        NazoOS boot menu (GRUB theme)
 Requires:       grub2
+# flock: activate-theme shares the lock of the Python grub writers
+Requires(post): util-linux
 Provides:       grub2-branding = %{version}
 Conflicts:      grub2-branding-openSUSE
 Supplements:    (grub2 and %{name})

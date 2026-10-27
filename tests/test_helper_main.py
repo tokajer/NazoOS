@@ -110,3 +110,14 @@ def test_arg():
         helper.arg([], 0)
     with pytest.raises(helper.Fail, match="invalid argument: maybe"):
         helper.arg(["maybe"], 0, ("on", "off"))
+
+
+def test_fail_exit_code(root, capsys):
+    class Quiet(helper.Fail):
+        rc = 3
+
+    def action(_args):
+        raise Quiet("recorded")
+
+    assert helper.main({"a": action}, 1, argv=["h", "a"]) == 3
+    assert last_error(capsys)["msg"] == "recorded"

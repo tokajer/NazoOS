@@ -21,6 +21,12 @@ REBOOT_HINT = re.compile(r"^(kernel-|glibc$|systemd$|dbus|mesa|nvidia|"
                          r"libQt6|plasma6-workspace|plasma6-desktop|kwin|sddm)")
 
 
+class Recorded(Fail):
+    # The check worked, its result (offline, key, conflict) is in
+    # status.json; the unit lists this code in SuccessExitStatus
+    rc = 3
+
+
 def zypper_messages(root):
     return [m.text or "" for m in root.iter("message")
             if m.get("type") == "error"]
@@ -147,10 +153,10 @@ def check(_args=None):
         result["detail"] = (r.stderr or r.stdout).strip()[-DETAIL_MAX:]
         status.write(result)
         if keys:
-            raise Fail("the signing key of repository {repo} is unknown "
-                       "or has changed", repo=result["keys"][0]["label"])
-        raise Fail("the package sources could not be refreshed "
-                   "(no internet connection?)")
+            raise Recorded("the signing key of repository {repo} is unknown "
+                           "or has changed", repo=result["keys"][0]["label"])
+        raise Recorded("the package sources could not be refreshed "
+                       "(no internet connection?)")
     pkgs, problems = dup_preview()
     behind = mirrors_behind(pkgs)
     if problems:
@@ -174,8 +180,8 @@ def check(_args=None):
     say(f"{len(result['packages'])} package changes, "
         f"{len(result['flatpaks'])} Flatpak updates")
     if problems:
-        raise Fail("the update needs a decision: {problem}",
-                   problem=problems[0])
+        raise Recorded("the update needs a decision: {problem}",
+                       problem=problems[0])
 
 
 def check_quietly():

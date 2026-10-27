@@ -475,3 +475,11 @@ def test_update_refresh_survives_a_broken_collect(app, monkeypatch):
     b._done("check", True, "Done.")
     wait(app, lambda: seen)
     assert seen == [{"a": 1}]
+
+
+def test_helper_without_input_sees_end_of_input(app, tmp_path):
+    (ok, _msg), log, _p = run_fake(app, tmp_path, """
+        print("stdin:", repr(sys.stdin.readline()))
+    """, 0)
+    assert ok
+    assert "stdin: ''" in log

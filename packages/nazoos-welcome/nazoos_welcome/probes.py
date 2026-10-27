@@ -215,7 +215,7 @@ _GAMING_RPMS = ["scx", system.DECK_PATTERN]
 
 def _gaming(rpms, units):
     scx_enabled, scx_active = units["scx.service"]
-    scheduler = shellconf.get_var(proc.read("/etc/default/scx"),
+    scheduler = shellconf.get_var(proc.read(system.SCX_DEFAULT),
                                   "SCX_SCHEDULER")
     deck_installed = system.DECK_PATTERN in rpms
     return {

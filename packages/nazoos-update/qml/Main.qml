@@ -27,6 +27,13 @@ Kirigami.ApplicationWindow {
     // Date.now() is not a binding dependency: without this the label never ages
     property double now: Date.now()
 
+    // The banner above the pages already explains this failure
+    function bannerExplains(action) {
+        return ((action === "check" || action === "update") && conflict)
+            || (action === "update" && keyFailed)
+            || (action === "check" && (refreshFailed || keyFailed))
+    }
+
     function ago(seconds) {
         if (!seconds) return L.tr("never")
         const min = Math.round((root.now / 1000 - seconds) / 60)
@@ -120,7 +127,7 @@ Kirigami.ApplicationWindow {
                 visible: root.keyFailed
                 type: Kirigami.MessageType.Warning
                 text: L.tr("A package source offers a signing key that is not trusted yet, so it cannot be refreshed:") + "\n"
-                      + root.st.keys.map(k => k.shown).join("\n")
+                      + (root.st.keys || []).map(k => k.shown).join("\n")
                       + "\n" + L.tr("Only trust it if the provider's website shows the same fingerprint. The Repair page of NazoOS Welcome can trust it.")
                 actions: [
                     Kirigami.Action {
@@ -317,12 +324,8 @@ Kirigami.ApplicationWindow {
         function onActionFinished(action, ok, message) {
             if (ok) {
                 root.showPassiveNotification(message)
-            } else if ((action === "check" || action === "update")
-                       && root.conflict
-                       || action === "update" && root.keyFailed
-                       || action === "check"
-                       && (root.refreshFailed || root.keyFailed)) {
-                // The banner above already says it, with its own button
+            } else if (root.bannerExplains(action)) {
+                // The banner has its own button
             } else {
                 errorDialog.subtitle = message
                 errorDialog.open()

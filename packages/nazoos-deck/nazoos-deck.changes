@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Updates no longer switch services back on that you turned off (the
+  default service settings are applied on the first install only)
+
+-------------------------------------------------------------------
 Sat Oct 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Live medium: first-login setup (Gaming Mode desktop shortcut,

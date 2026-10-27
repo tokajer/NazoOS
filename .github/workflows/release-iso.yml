@@ -47,18 +47,21 @@ jobs:
       run:
         shell: bash
     env:
-      OBS_USER: ${{ secrets.OBS_USER }}
-      OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
       FLAG_URL: "https://api.opensuse.org/source/home:Tokajer:nazoos:release?cmd=set_flag&flag=publish&repository=images"
       BUILD_FLAG_URL: "https://api.opensuse.org/source/home:Tokajer:nazoos:release?cmd=set_flag&flag=build&repository=images"
       REBUILD_URL: "https://api.opensuse.org/build/home:Tokajer:nazoos:release?cmd=rebuild&package=nazoos-image:release&repository=images&arch=x86_64"
       RESULT_URL: "https://api.opensuse.org/build/home:Tokajer:nazoos:release/_result?package=nazoos-image:release&repository=images&multibuild=1"
       PUBLISHED: "https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/release/images/iso/NazoOS.x86_64-release.iso.sha256"
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Check the built ISO
         id: check
+        env:
+          OBS_USER: ${{ secrets.OBS_USER }}
+          OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
         run: |
           [ -n "$OBS_USER" ] && [ -n "$OBS_PASSWORD" ] ||
             { echo "::error::secrets OBS_USER / OBS_PASSWORD missing"; exit 1; }
@@ -66,22 +69,27 @@ jobs:
 
       - name: Freeze the finished ISO
         if: steps.check.outputs.build == 'disable'
+        env:
+          OBS_USER: ${{ secrets.OBS_USER }}
+          OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
         run: |
-          curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -X POST "$BUILD_FLAG_URL&status=disable"
+          .github/scripts/obs-curl.sh -sS --fail-with-body -X POST "$BUILD_FLAG_URL&status=disable"
 
       # The rebuilt ISO is frozen by a later run, publishing waits for it
       - name: Rebuild the ISO
         if: steps.check.outputs.build == 'enable'
         env:
+          OBS_USER: ${{ secrets.OBS_USER }}
+          OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
           REASON: ${{ steps.check.outputs.reason }}
         run: |
-          curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -X POST "$BUILD_FLAG_URL&status=enable"
-          curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -X POST "$REBUILD_URL"
+          .github/scripts/obs-curl.sh -sS --fail-with-body -X POST "$BUILD_FLAG_URL&status=enable"
+          .github/scripts/obs-curl.sh -sS --fail-with-body -X POST "$REBUILD_URL"
           # Until the scheduler has taken it, _result still says
           # "succeeded" for the old ISO and the next run would freeze it
           for _ in $(seq 30); do
             sleep 30
-            if ! curl -sSf -u "$OBS_USER:$OBS_PASSWORD" "$RESULT_URL" |
+            if ! .github/scripts/obs-curl.sh -sSf "$RESULT_URL" |
                 grep -Eq 'code="(succeeded|disabled)"'; then
               echo "## Release ISO rebuilding" >> "$GITHUB_STEP_SUMMARY"
               echo "$REASON" >> "$GITHUB_STEP_SUMMARY"
@@ -94,10 +102,12 @@ jobs:
       - name: Publish
         if: steps.check.outputs.publish == 'true'
         env:
+          OBS_USER: ${{ secrets.OBS_USER }}
+          OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
           SHA: ${{ steps.check.outputs.sha }}
           REASON: ${{ steps.check.outputs.reason }}
         run: |
-          curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -X POST "$FLAG_URL&status=enable"
+          .github/scripts/obs-curl.sh -sS --fail-with-body -X POST "$FLAG_URL&status=enable"
           for _ in $(seq 60); do
             sleep 60
             if [ "$(curl -sfL "$PUBLISHED" | awk '{print $1}')" = "$SHA" ]; then
@@ -112,8 +122,11 @@ jobs:
       # Always: a failed or cancelled run must not leave publishing on
       - name: Disable publishing again
         if: always() && steps.check.outputs.publish == 'true'
+        env:
+          OBS_USER: ${{ secrets.OBS_USER }}
+          OBS_PASSWORD: ${{ secrets.OBS_PASSWORD }}
         run: |
-          curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -X POST "$FLAG_URL&status=disable"
+          .github/scripts/obs-curl.sh -sS --fail-with-body -X POST "$FLAG_URL&status=disable"
 
       - name: Summary
         if: steps.check.outputs.publish != 'true' && steps.check.outputs.build != 'enable'

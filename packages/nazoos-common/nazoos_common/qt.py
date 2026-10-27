@@ -127,7 +127,8 @@ class HelperProcess(QObject):
         proc.start(cmd[0], cmd[1:])
         if stdin is not None:
             proc.write((stdin + "\n").encode())
-            proc.closeWriteChannel()
+        # A helper that reads stdin must see EOF, not wait for the GUI
+        proc.closeWriteChannel()
 
     def _read(self, proc):
         text = bytes(proc.readAllStandardOutput()).decode(errors="replace")

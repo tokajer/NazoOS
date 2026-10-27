@@ -7,6 +7,7 @@
 
 Name:           btrfs-assistant
 Version:        2.3.2
+# On a version update also change the sha256 in _service (verify_file)
 Release:        0
 Summary:        GUI management tool for Btrfs file systems and Snapper
 License:        GPL-3.0-only

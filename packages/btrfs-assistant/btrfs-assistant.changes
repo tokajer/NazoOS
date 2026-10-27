@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The downloaded source is checked against a checksum before the build
+
+-------------------------------------------------------------------
 Sat Oct 10 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - First package for NazoOS: version 2.3.2

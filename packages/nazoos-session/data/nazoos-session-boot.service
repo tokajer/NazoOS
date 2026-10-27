@@ -13,6 +13,15 @@ ConditionPathExists=|/etc/nazoos/session-oneshot
 [Service]
 Type=oneshot
 ExecStart=/usr/libexec/nazoos-session/nazoos-session-ctl boot
+# Sandboxing. ProtectSystem=yes keeps /etc writable, the only place the
+# script writes. No NoNewPrivileges: it blocks the SELinux domain
+# transitions on Tumbleweed (needs a VM test first).
+ProtectSystem=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
 
 [Install]
 WantedBy=graphical.target

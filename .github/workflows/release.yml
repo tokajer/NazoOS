@@ -7,8 +7,9 @@
 # passed on the :devel ISO: Actions → Release → Run workflow.
 # :release then builds the release ISO against the new packages;
 # release-iso.yml publishes it (mirror rule, ADR 0025).
-# Package list = the :devel packages in .obs/workflows.yml, without
-# nazoos-image (the ISO has its own package in :release), plus OBS_ONLY:
+# Package list = the :devel packages in .obs/workflows.yml (read by
+# .github/scripts/release-packages.py, without nazoos-image: the ISO has
+# its own package in :release), plus OBS_ONLY:
 # packages that live only in OBS (Waydroid stack). New OBS-only package
 # in :devel → add it there, else :release misses it.
 # OBS allows release tokens only per package, not per project. No
@@ -59,7 +60,9 @@ jobs:
           echo "::error::Run the VM checklist on the :devel ISO first, then tick the box"
           exit 1
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       # Never release a half-rebuilt :devel (e.g. right after a push, which
       # starts services and builds): wait until every package is finished,
@@ -72,7 +75,7 @@ jobs:
           [ -n "$OBS_USER" ] && [ -n "$OBS_PASSWORD" ] ||
             { echo "::error::secrets OBS_USER / OBS_PASSWORD missing"; exit 1; }
           for _ in $(seq 60); do
-            curl -sS --fail-with-body -u "$OBS_USER:$OBS_PASSWORD" -o result.xml \
+            .github/scripts/obs-curl.sh -sS --fail-with-body -o result.xml \
               "https://api.opensuse.org/build/$SOURCE/_result?repository=openSUSE_Tumbleweed"
             state=$(python3 - <<'EOF'
           import xml.etree.ElementTree as ET
@@ -113,10 +116,8 @@ jobs:
           TOKEN: ${{ secrets.OBS_RELEASE_TOKEN }}
         run: |
           [ -n "$TOKEN" ] || { echo "::error::secret OBS_RELEASE_TOKEN missing"; exit 1; }
-          mapfile -t packages < <(
-            awk -v p="project: $SOURCE" '$0 ~ p"$" { getline; sub(/.*package: */, ""); print }' \
-              .obs/workflows.yml | grep -vx nazoos-image
-            printf '%s\n' $OBS_ONLY)
+          own=$(python3 .github/scripts/release-packages.py "$SOURCE")
+          mapfile -t packages < <(printf '%s\n' $own $OBS_ONLY)
           [ "${#packages[@]}" -gt 0 ] || { echo "::error::no packages found"; exit 1; }
           failed=()
           {

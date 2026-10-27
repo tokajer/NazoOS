@@ -10,7 +10,7 @@ from nazoos_common.helper import Fail, say
 from nazoos_common.kernel import running_nazoos
 from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 
-from .base import repo_in_use
+from .base import installed_names, repo_in_use
 from .mok_queue import MOK_RESTART, prepare_mok
 
 # zypper: a lower number wins, the default is 99; 90 beats the default repos
@@ -98,13 +98,12 @@ def kernel_only(_args):
     if stage2 != kernel.STAGE2_READY:
         raise Fail("the openSUSE kernel is already removed or was chosen "
                    "again on the Kernel page")
-    remove = [f"-{p}" for p in
-              [kernel.KERNEL_DEFAULT, "kernel-default-base"]
-              + [kernel.kmp(b, "default") for b in kernel.KMP_BASES]
-              if proc.rpm_installed(p)]
+    names = sorted(set(installed_names(*kernel.DEFAULT_KERNEL_GLOBS)))
+    say("Removing: " + " ".join(names))
     # "-name" removes in the same transaction: zypper never has to pick a
     # conflict solution on its own
-    helper.run(ZYPPER_IN + [kernel.KERNEL_ONLY_PACKAGE] + remove)
+    helper.run(ZYPPER_IN + [kernel.KERNEL_ONLY_PACKAGE]
+               + [f"-{n}" for n in names])
 
 
 def kernel_restore(_args):

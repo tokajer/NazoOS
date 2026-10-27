@@ -5,6 +5,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 Allows nazoos-welcome to start its root helper via pkexec. The helper
 only accepts fixed actions (see nazoos-welcome-helper).
+pkexec picks the action by program path and first argument
+(exec.argv1); "helper" has no argv1 and catches the rest. Own actions
+for the three steps with lasting effects, so the password dialog says
+what really happens and the password is asked every time.
 Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
 -->
 <!DOCTYPE policyconfig PUBLIC
@@ -27,5 +31,47 @@ Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
       <allow_active>auth_admin_keep</allow_active>
     </defaults>
     <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper</annotate>
+  </action>
+
+  <action id="org.nazoos.welcome.repair-key">
+    <description>Trust a repository signing key with NazoOS Welcome</description>
+    <description xml:lang="de">Einem Repository-Signaturschlüssel mit NazoOS Willkommen vertrauen</description>
+    <message>NazoOS Welcome needs administrator rights to trust a repository signing key. Software from that repository is then installed with administrator rights.</message>
+    <message xml:lang="de">NazoOS Willkommen benötigt Administratorrechte, um einem Repository-Signaturschlüssel zu vertrauen. Software aus diesem Repository wird danach mit Administratorrechten installiert.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper</annotate>
+    <annotate key="org.freedesktop.policykit.exec.argv1">repair-key</annotate>
+  </action>
+
+  <action id="org.nazoos.welcome.kernel-install">
+    <description>Install the NazoOS kernel with NazoOS Welcome</description>
+    <description xml:lang="de">Den NazoOS-Kernel mit NazoOS Willkommen installieren</description>
+    <message>NazoOS Welcome needs administrator rights to install the NazoOS kernel.</message>
+    <message xml:lang="de">NazoOS Willkommen benötigt Administratorrechte, um den NazoOS-Kernel zu installieren.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper</annotate>
+    <annotate key="org.freedesktop.policykit.exec.argv1">kernel-install</annotate>
+  </action>
+
+  <action id="org.nazoos.welcome.mok-import">
+    <description>Prepare the Secure Boot key with NazoOS Welcome</description>
+    <description xml:lang="de">Den Secure-Boot-Schlüssel mit NazoOS Willkommen vorbereiten</description>
+    <message>NazoOS Welcome needs administrator rights to prepare the Secure Boot key for the NazoOS kernel.</message>
+    <message xml:lang="de">NazoOS Willkommen benötigt Administratorrechte, um den Secure-Boot-Schlüssel für den NazoOS-Kernel vorzubereiten.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper</annotate>
+    <annotate key="org.freedesktop.policykit.exec.argv1">mok-import</annotate>
   </action>
 </policyconfig>

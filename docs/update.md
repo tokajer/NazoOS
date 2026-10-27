@@ -13,6 +13,7 @@ Other notifications:
 | Updates available | New versions of system packages or Flatpak apps | **Update now** |
 | Restart required | Updates were installed that need a restart (kernel, graphics driver, desktop) | Restart when it suits you |
 | Update needs your decision | Two packages conflict, the update cannot run on its own | **Fix** opens the window; **Open Myrlyn** shows the conflict and offers solutions |
+| Repository key needs your decision | A package source offers a signing key NazoOS does not trust yet, so it gets no updates | **Check key** opens NazoOS Welcome → Repair. Compare the fingerprint shown there with the one on the provider's website, and only then click **Trust key** |
 | Update check does not work | No successful check for several days | Check the internet connection, then **Check now** |
 | Started from a snapshot | The computer runs an older state from the boot menu | See "Going back to a snapshot" below |
 
@@ -22,7 +23,7 @@ Discover's own update notifications are switched off, so you only get one notifi
 
 **Update now** asks for your password and then installs all system updates (`zypper dist-upgrade`) and all Flatpak updates. Keep the computer on until it is done. If a restart is needed, the window shows **Restart now**.
 
-Before every update a **snapshot** of the system is taken automatically. Your files in your home folder are not part of snapshots and are never changed by a rollback.
+Before every update a **snapshot** of the system is taken automatically, and one after it. NazoOS does not take snapshots on a timer: they are made before and after updates and software changes, and when you create one yourself. Your files in your home folder are not part of snapshots and are never changed by a rollback.
 
 ## Going back to a snapshot
 
@@ -30,7 +31,12 @@ If the system does not start or misbehaves after an update:
 
 1. Restart the computer.
 2. In the boot menu choose **Start bootloader from a read-only snapshot**.
-3. Pick the snapshot from before the update. The newest is at the top; the entries are named like **Before update 2026-10-11 22:39**, **After software change …** (programs installed or removed) or **Automatic snapshot …** (taken every hour).
+3. Pick the snapshot from before the update. The newest is at the top; every entry ends with its date and time, for example **Before update 2026-10-11 22:39**. The names mean:
+   - **Before update** / **After update**: around an update with NazoOS Update.
+   - **Before software change** / **After software change**: programs were installed or removed.
+   - **Before channel switch**: taken before you changed between stable and beta.
+   - **Manual snapshot**: you created it in NazoOS Welcome.
+   - **Before rollback** / **After rollback**: around making a snapshot permanent.
 4. The system starts in that older state. It is read-only: nothing can be installed or changed until you make it permanent.
 5. If everything works, NazoOS Update shows a notification **Started from a snapshot**. Click **Make permanent** and confirm. The broken state is kept as a snapshot too, so this can be undone.
 6. Restart.

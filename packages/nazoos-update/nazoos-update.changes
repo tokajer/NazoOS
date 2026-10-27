@@ -1,6 +1,11 @@
 -------------------------------------------------------------------
 Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
+- A check that could not reach the repositories or found a key or
+  dependency problem no longer shows as a failed service; the result is
+  shown in NazoOS Update as before
+- The check and snapshot naming services are sandboxed
+- The key list of a damaged status file no longer breaks the window
 - Window and notification titles in the system language only (no
   English app name appended)
 - "Last check" ages while the window stays open

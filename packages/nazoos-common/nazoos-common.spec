@@ -18,8 +18,10 @@ Requires:       python3
 # 6: launcher.py, shellconf.py, kernel.wanted_kmps, CoalescedLoad;
 # 7: kmp_sync.py, kernel.stage2_state/stage2_now/stage2_due;
 # 8: files.py (write_atomic/locked moved out of helper), proc.systemctl;
-# 11: zypper.offered_keys/group_hex, repos.alias_of)
-Provides:       nazoos-common(api) = 11
+# 9: mok strict checks, zypper.repo_search; 10: proc.run, kernel.phase,
+# helper.UPDATE_HELPER; 11: zypper.offered_keys/group_hex, repos.alias_of;
+# 12: Fail.rc, wanted_kmps also from kmp-nazoos, helper stdin always closed)
+Provides:       nazoos-common(api) = 12
 # nazoos_common.qt only; the root helpers use the other modules
 Recommends:     python3-pyside6
 

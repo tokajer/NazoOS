@@ -2,7 +2,7 @@
 
 NazoOS Welcome opens after the first login. It sets up everything that is not part of the base installation. You never need a terminal for it. Open it again any time from the application menu: **NazoOS Welcome**.
 
-Whenever a step changes the system, a password dialog appears. Enter the password you chose during installation. It is remembered for a few minutes.
+Whenever a step changes the system, a password dialog appears. Enter the password you chose during installation. It is remembered for a few minutes, except for trusting a repository key, installing the NazoOS kernel and preparing the Secure Boot key: those always ask again and say what they do.
 
 ## Pages
 
@@ -15,6 +15,7 @@ Whenever a step changes the system, a password dialog appears. Enter the passwor
 | Apps | Install popular apps with one click (Discord, OBS Studio, Heroic, ProtonUp-Qt, …) |
 | Drives | Mount internal drives automatically, e.g. for a Steam library |
 | System | Updates, update channel (stable/beta), snapshots, services (Bluetooth, LACT, CoolerControl, SSH, profile-sync-daemon), maintenance |
+| Repair | Checks the system for known problems and fixes each with one button: package database, standard repositories, repository keys you have to trust, missing dependencies, mixed codec packages, the NVIDIA module, failed services, low disk space and Flathub. Also refreshes repositories, cleans caches, repairs Flatpak, rebuilds the boot files and saves a bug report (opened from **System**) |
 | Help | Links and system information for bug reports |
 
 ## NVIDIA

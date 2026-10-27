@@ -146,3 +146,40 @@ def test_every_page_other_programs_open_exists():
                 f.read_text(errors="ignore")))
     assert {"kernel", "repair"} <= found
     assert found <= pages
+
+
+def test_the_policy_has_own_actions_for_the_lasting_steps():
+    import xml.etree.ElementTree as ET
+
+    root = ET.parse(WELCOME / "data/org.nazoos.welcome.policy").getroot()
+    actions = {}
+    for act in root.iter("action"):
+        notes = {n.get("key"): n.text for n in act.iter("annotate")}
+        argv1 = notes.get("org.freedesktop.policykit.exec.argv1")
+        if argv1:
+            defaults = {d.tag: d.text for d in act.find("defaults")}
+            actions[argv1] = defaults
+    assert set(actions) == {"repair-key", "kernel-install", "mok-import"}
+    for argv1, defaults in actions.items():
+        assert argv1 in ACTIONS
+        assert defaults == dict.fromkeys(
+            ("allow_any", "allow_inactive", "allow_active"), "auth_admin")
+
+
+def test_the_repair_page_reads_what_the_update_check_writes(monkeypatch,
+                                                            tmp_path):
+    import json
+
+    from nazoos_update import status
+    from nazoos_welcome import repair_checks
+
+    assert repair_checks.UPDATE_STATUS == status.STATUS
+    assert repair_checks.UPDATE_ERROR_KEY == status.ERROR_KEY
+    fpr = "4AFF5EF3C350A53A05D6BA0D1E8EDBE858DDEB32"
+    key = {"repo": "keytest", "label": "Some Name", "fingerprint": fpr,
+           "shown": "Some Name: 4AFF 5EF3"}
+    written = tmp_path / "status.json"
+    written.write_text(json.dumps(
+        status.new(error=status.ERROR_KEY, keys=[key])))
+    monkeypatch.setattr(repair_checks, "UPDATE_STATUS", written)
+    assert repair_checks.untrusted_keys() == [key]

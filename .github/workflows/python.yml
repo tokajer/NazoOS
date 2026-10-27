@@ -4,8 +4,9 @@
 # Lint (ruff) and unit tests (pytest) for the Python code of
 # nazoos-common, nazoos-welcome and nazoos-update (ADR 0030), plus the
 # nazoos-session-ctl script (tests/test_session_ctl.py).
-# Settings: pyproject.toml. Locally: pip install pytest ruff
-# PySide6-Essentials, then "ruff check ." and "pytest".
+# Settings: pyproject.toml. The tools are pinned to the versions of the
+# local test venv (raise them together with it). Locally: pip install
+# pytest ruff PySide6-Essentials, then "ruff check ." and "pytest".
 # Doku: https://docs.astral.sh/ruff/ , https://docs.pytest.org/
 
 name: Python
@@ -18,17 +19,26 @@ on:
       - "packages/nazoos-welcome/**"
       - "packages/nazoos-update/**"
       - "packages/nazoos-session/**"
+      - "packages/nazoos-branding/**"
+      - "packages/nazoos-kernel-only/**"
       - "tests/**"
       - "pyproject.toml"
+      - ".github/scripts/**"
+      - ".obs/workflows.yml"
       - ".github/workflows/python.yml"
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           # Tumbleweed's python3
           python-version: "3.13"
@@ -39,7 +49,7 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q libegl1 libgl1 libxkbcommon0 libfontconfig1
-          pip install pytest ruff PySide6-Essentials
+          pip install pytest==9.1.1 ruff==0.17.1 PySide6-Essentials==6.12.0
       - name: ruff
         run: ruff check --output-format github .
       - name: pytest

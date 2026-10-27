@@ -14,6 +14,7 @@ GRUB_CFG = Path("/boot/grub2/grub.cfg")
 GRUB_DEFAULT_FILE = Path("/etc/default/grub")
 BOOT = Path("/boot")
 GRUB_LOCK = Path("/run/nazoos-grub.lock")
+# Matches: GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
 CMDLINE_RE = re.compile(r'^GRUB_CMDLINE_LINUX_DEFAULT=(["\']?)(.*?)\1[^\S\n]*$',
                         re.M)
 

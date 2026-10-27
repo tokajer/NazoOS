@@ -94,14 +94,8 @@ Kirigami.ScrollablePage {
             delegate: SettingCard {
                 required property var modelData
                 readonly property var sst: (page.st.services || {})[modelData.id] || {}
-                iconName: {
-                    const icons = { bluetooth: "preferences-system-bluetooth",
-                                    lactd: "preferences-desktop-display",
-                                    coolercontrold: "temperature-normal",
-                                    sshd: "network-connect",
-                                    psd: "internet-web-browser" }
-                    return icons[modelData.id] || "system-run"
-                }
+                iconName: modelData.icon
+                fallbackIcon: "system-run"
                 title: L.tr(modelData.name)
                 subtitle: L.tr(modelData.summary)
                 status: !sst.installed ? L.tr("Not installed – switching on installs it")

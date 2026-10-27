@@ -9,6 +9,7 @@
 
 Name:           game-devices-udev
 Version:        1.1
+# On a version update also change the sha256 in _service (verify_file)
 Release:        0
 Summary:        Udev rules for game controllers, wheels and flight sticks
 License:        MIT

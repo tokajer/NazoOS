@@ -22,6 +22,10 @@ KERNEL_REPO_URL = ("https://download.opensuse.org/repositories/"
 KERNEL_REPO_PATH = KERNEL_REPO_URL.split("/repositories/")[1]
 KERNEL_PACKAGE = "kernel-nazoos"
 KERNEL_DEFAULT = "kernel-default"
+# Every package stage 2 removes (kernel-default, -base, -devel, ... and the
+# module packages of any other project); nazoos-kernel-only conflicts with
+# the same names
+DEFAULT_KERNEL_GLOBS = ["kernel-default*", "*-kmp-default"]
 KERNEL_ONLY_PACKAGE = "nazoos-kernel-only"
 # Kernel module packages: <base>-kmp-default from Tumbleweed/NVIDIA,
 # <base>-kmp-nazoos from our kernel project. G06 open has no nazoos build
@@ -46,9 +50,11 @@ def kmp(base, flavor):
 
 
 def wanted_kmps():
-    """<base>-kmp-nazoos for every <base>-kmp-default that is installed."""
+    """<base>-kmp-nazoos for every base whose -kmp-default or -kmp-nazoos
+    is installed (stage 2 has removed the default ones)."""
     return [kmp(b, "nazoos") for b in KMP_BASES
-            if proc.rpm_installed(kmp(b, "default"))]
+            if proc.rpm_installed(kmp(b, "default"))
+            or proc.rpm_installed(kmp(b, "nazoos"))]
 
 
 # stage2_state() answers (KernelPage.qml compares them)

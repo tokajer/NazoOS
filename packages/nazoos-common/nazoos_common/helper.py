@@ -23,7 +23,10 @@ UPDATE_HELPER = "/usr/libexec/nazoos-update/nazoos-update-helper"
 
 
 class Fail(Exception):
-    """An error the user sees: TEMPLATE with {name} fields from PARAMS."""
+    """An error the user sees: TEMPLATE with {name} fields from PARAMS.
+    RC is the exit code of main()."""
+
+    rc = 1
 
     def __init__(self, template, **params):
         super().__init__(errors.fill(template, params))
@@ -114,7 +117,7 @@ def main(actions, lock_timeout, max_args=None, argv=None):
         return e.rc
     except Fail as e:
         say(errors.encode(e.template, e.params))
-        return 1
+        return e.rc
     except OSError as e:
         say(errors.encode("system error: {detail}", {"detail": str(e)}))
         return 1

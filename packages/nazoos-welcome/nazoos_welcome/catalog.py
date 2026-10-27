@@ -160,7 +160,16 @@ APPS = [
      "summary": "Firmware updates for the official Steam Deck dock"},
 ]
 
-APP_CATEGORIES = ["gaming", "social", "media", "office", "hardware"]
+# Order of the sections on the Apps page; "name" is translated by the GUI,
+# "icon" is the fallback icon of the cards
+APP_CATEGORIES = [
+    {"id": "gaming", "name": "Gaming", "icon": "applications-games"},
+    {"id": "social", "name": "Chat", "icon": "internet-chat"},
+    {"id": "media", "name": "Recording, video and graphics",
+     "icon": "applications-multimedia"},
+    {"id": "office", "name": "Office and tools", "icon": "applications-office"},
+    {"id": "hardware", "name": "Hardware", "icon": "input-mouse"},
+]
 # Categories whose apps have their own card elsewhere, not on the Apps page
 # (deckdock: Gaming page, Steam Deck only)
 HIDDEN_CATEGORIES = {"handheld"}
@@ -168,19 +177,24 @@ HIDDEN_CATEGORIES = {"handheld"}
 # systemd services that can be switched on and off.
 # "package" is installed first if it is missing; "user" units run per user.
 SERVICES = [
-    {"id": "bluetooth", "unit": "bluetooth.service", "package": "bluez",
+    {"id": "bluetooth", "icon": "preferences-system-bluetooth",
+     "unit": "bluetooth.service", "package": "bluez",
      "user": False, "name": "Bluetooth",
      "summary": "Wireless controllers, headsets, mice and keyboards"},
-    {"id": "lactd", "unit": "lactd.service", "package": "lact",
+    {"id": "lactd", "icon": "preferences-desktop-display",
+     "unit": "lactd.service", "package": "lact",
      "user": False, "name": "LACT daemon",
      "summary": "Needed by LACT to change GPU clocks, power and fans"},
-    {"id": "coolercontrold", "unit": "coolercontrold.service",
+    {"id": "coolercontrold", "icon": "temperature-normal",
+     "unit": "coolercontrold.service",
      "package": "coolercontrol", "user": False, "name": "CoolerControl",
      "summary": "Fan curves and cooling devices"},
-    {"id": "sshd", "unit": "sshd.service", "package": "openssh-server",
+    {"id": "sshd", "icon": "network-connect",
+     "unit": "sshd.service", "package": "openssh-server",
      "user": False, "name": "SSH server",
      "summary": "Remote login from other computers (advanced)"},
-    {"id": "psd", "unit": "psd.service", "package": "profile-sync-daemon",
+    {"id": "psd", "icon": "internet-web-browser",
+     "unit": "psd.service", "package": "profile-sync-daemon",
      "user": True, "name": "Profile-sync-daemon",
      "summary": "Keeps browser profiles in RAM: faster, less disk wear"},
 ]

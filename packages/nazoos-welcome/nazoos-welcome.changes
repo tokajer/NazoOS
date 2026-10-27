@@ -1,6 +1,15 @@
 -------------------------------------------------------------------
 Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
+- Removing the openSUSE kernel (step 2) also removes its other kernel
+  modules, so it no longer stops on them
+- Trusting a repository key, installing the NazoOS kernel and preparing
+  the Secure Boot key each ask for the administrator password every time
+  and say what happens
+- Keys with an unusual state (invalid, disabled, ...) are no longer
+  accepted by the repository key repair
+- Device and drive names are shown as plain text
+- The kernel boot service is sandboxed
 - Window title in the system language only (no English app name
   appended)
 

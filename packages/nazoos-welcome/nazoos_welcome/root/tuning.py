@@ -12,11 +12,9 @@ from nazoos_common.helper import Fail, arg, say
 from nazoos_common.shellconf import set_var
 from nazoos_common.zypper import ZYPPER_IN
 
-from .. import catalog, hw
+from .. import catalog, hw, system
 from ..pollrate import (INTERVALS, MAXLEN, PARAM, SYSFS, format_overrides,
                         from_cmdline)
-
-SCX_DEFAULT = Path("/etc/default/scx")
 
 
 def scx_enable(args):
@@ -26,9 +24,9 @@ def scx_enable(args):
     if not Path("/usr/bin", sched).exists():
         raise Fail("{scheduler} is not part of the installed scx package",
                    scheduler=sched)
-    text = SCX_DEFAULT.read_text() if SCX_DEFAULT.exists() else ""
-    write_atomic(SCX_DEFAULT, set_var(text, "SCX_SCHEDULER", sched))
-    say(f"{SCX_DEFAULT}: SCX_SCHEDULER={sched}")
+    text = system.SCX_DEFAULT.read_text() if system.SCX_DEFAULT.exists() else ""
+    write_atomic(system.SCX_DEFAULT, set_var(text, "SCX_SCHEDULER", sched))
+    say(f"{system.SCX_DEFAULT}: SCX_SCHEDULER={sched}")
     helper.run(["systemctl", "enable", "scx.service"])
     helper.run(["systemctl", "restart", "scx.service"])
 

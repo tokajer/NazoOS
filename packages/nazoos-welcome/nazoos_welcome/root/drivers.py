@@ -7,7 +7,8 @@ from nazoos_common.helper import arg, say
 from nazoos_common.zypper import ZYPPER, ZYPPER_IN
 
 from .. import system
-from .base import packman_switch, repo_in_use
+from .base import repo_in_use
+from .packman import packman_switch
 
 
 def _packman_installed():

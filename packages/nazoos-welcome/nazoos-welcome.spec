@@ -12,7 +12,7 @@ Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  desktop-file-utils
 BuildRequires:  gettext-tools
 # %check imports the helper's actions
-BuildRequires:  nazoos-common(api) >= 11
+BuildRequires:  nazoos-common(api) >= 12
 BuildRequires:  python3
 BuildRequires:  systemd-rpm-macros
 BuildArch:      noarch
@@ -23,7 +23,7 @@ Requires:       python3
 Requires:       python3-pyside6
 Requires:       qt6-declarative-imports
 # Helper frame, error messages, MOK check, kernel opt-in state (ADR 0030)
-Requires:       nazoos-common(api) >= 11
+Requires:       nazoos-common(api) >= 12
 # Root actions via pkexec + our Polkit policy
 Requires:       polkit
 # repair-key reads the fingerprint of a repo key
@@ -40,7 +40,7 @@ Recommends:     mokutil
 Requires:       cpio
 Requires:       openssl
 Recommends:     nazoos-branding
-# system-update runs its helper; without it a plain dup runs
+# "Update now" runs its helper; without it the action fails (not installed)
 Recommends:     nazoos-update
 Recommends:     snapper
 %{?systemd_ordering}

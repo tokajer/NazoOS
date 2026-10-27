@@ -81,3 +81,6 @@ def test_keep_default(monkeypatch, tmp_path):
 def test_wanted_kmps_follow_the_default_modules(fake_root):
     fake_root.installed = {"xone-kmp-default", "xpadneo-kmp-default"}
     assert kernel.wanted_kmps() == ["xone-kmp-nazoos", "xpadneo-kmp-nazoos"]
+    # stage 2 removed the default ones, the nazoos ones are all that is left
+    fake_root.installed = {"xone-kmp-nazoos"}
+    assert kernel.wanted_kmps() == ["xone-kmp-nazoos"]

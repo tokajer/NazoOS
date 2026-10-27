@@ -15,4 +15,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
   </service>
   <!-- Upstream release tarball: downloaded from the Source0 URL of the spec -->
   <service name="download_files"/>
+  <!-- A git tag can move: the tarball must match this checksum. On a
+       version update change Version in the spec and the checksum here -->
+  <service name="verify_file">
+    <param name="file">_service:download_files:btrfs-assistant-2.3.2.tar.gz</param>
+    <param name="verifier">sha256</param>
+    <param name="checksum">82458451558e28a5f527a973d3008d0b36ecbf77f2a689d7f42b6a20ff21259c</param>
+  </service>
 </services>

@@ -17,3 +17,14 @@ ExecStart=/usr/libexec/nazoos-update/nazoos-update-helper check
 Nice=19
 IOSchedulingClass=idle
 StateDirectory=nazoos-update
+# Exit code of a check whose result (offline, key, conflict) is in status.json
+SuccessExitStatus=3
+# Sandboxing. No ProtectSystem: zypper refresh and the dry run write
+# /var/cache/zypp and /var/lib; snapper works through snapperd (D-Bus).
+# No NoNewPrivileges: it blocks the SELinux domain transitions of
+# zypper/snapper on Tumbleweed (needs a VM test first).
+PrivateTmp=yes
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes

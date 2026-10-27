@@ -30,6 +30,8 @@ from nazoos_welcome import catalog
 texts = []
 for a in catalog.APPS:
     texts.append(a["summary"])
+for c in catalog.APP_CATEGORIES:
+    texts.append(c["name"])
 for s in catalog.SERVICES + catalog.KERNEL_PARAMS:
     texts += [s["name"], s["summary"]]
 for k in catalog.KERNEL_PARAMS:

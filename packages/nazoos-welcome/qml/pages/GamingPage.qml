@@ -128,6 +128,7 @@ Kirigami.ScrollablePage {
                         Layout.fillWidth: true
                         QQC2.Label {
                             text: devRow.modelData.name
+                            textFormat: Text.PlainText
                             elide: Text.ElideRight
                             Layout.fillWidth: true
                         }

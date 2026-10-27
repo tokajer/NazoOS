@@ -17,8 +17,10 @@ BuildArch:      noarch
 Requires:       kernel-nazoos
 Conflicts:      kernel-default
 Conflicts:      kernel-default-base
-# Module packages that exist for both flavors (nazoos_common.kernel.KMP_BASES
-# in nazoos-common); their -kmp-nazoos variants come from our kernel project
+# Module packages that exist for both flavors; their -kmp-nazoos variants
+# come from our kernel project. Stage 2 also removes other -kmp-default
+# packages (nazoos_common.kernel.DEFAULT_KERNEL_GLOBS), a test checks that
+# every name here matches those globs
 Conflicts:      nvidia-open-driver-G07-signed-kmp-default
 Conflicts:      nvidia-open-driver-G06-signed-kmp-default
 Conflicts:      xone-kmp-default

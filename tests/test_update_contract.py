@@ -38,3 +38,11 @@ def test_every_action_and_launcher_id_in_the_qml_exists():
     assert actions and launchers   # the regexes still find something
     assert actions <= set(backend.ACTION_LABELS)
     assert launchers <= set(backend.LAUNCHERS)
+
+
+def test_the_cleanup_argument_the_gui_sends_is_the_one_the_helper_takes():
+    from nazoos_update.root import update
+
+    # Read as text: the GUI backend must not import the root modules
+    source = (UPDATE / "nazoos_update/backend.py").read_text()
+    assert f'"{update.CLEAN_FLATPAKS}"' in source

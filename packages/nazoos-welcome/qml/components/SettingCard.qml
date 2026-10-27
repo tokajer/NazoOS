@@ -46,11 +46,13 @@ Kirigami.AbstractCard {
             Kirigami.Heading {
                 level: 3
                 text: card.title
+                textFormat: Text.PlainText
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
             QQC2.Label {
                 text: card.subtitle
+                textFormat: Text.PlainText
                 visible: text !== ""
                 wrapMode: Text.WordWrap
                 opacity: 0.8
@@ -58,6 +60,7 @@ Kirigami.AbstractCard {
             }
             QQC2.Label {
                 text: card.status
+                textFormat: Text.PlainText
                 visible: text !== ""
                 wrapMode: Text.WordWrap
                 font.bold: true

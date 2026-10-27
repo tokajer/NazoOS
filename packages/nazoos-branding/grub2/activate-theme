@@ -9,10 +9,21 @@
 
 set -eu
 
+# Root of all paths below, set by the tests only (they run as a normal user).
+# As root the variable is ignored, so nobody can redirect root's writes
+ROOT=
+if [ "$(id -u)" -ne 0 ]; then
+  ROOT=${NAZOOS_BRANDING_ROOT-}
+fi
+readonly ROOT
+
 theme=nazoos
-src=/usr/share/grub2/themes/$theme
-dst=/boot/grub2/themes/$theme
-default=/etc/default/grub
+src=$ROOT/usr/share/grub2/themes/$theme
+# Where GRUB finds the theme (written to /etc/default/grub) and where it is
+# copied to
+boot_dir=/boot/grub2/themes/$theme
+dst=$ROOT$boot_dir
+default=$ROOT/etc/default/grub
 
 [ -d "$src" ] || exit 0
 mkdir -p "$(dirname "$dst")"
@@ -21,6 +32,11 @@ cp -r "$src" "$dst"
 rm -f "$dst/activate-theme"
 
 [ -f "$default" ] || exit 0
+# The lock of the Python grub writers (nazoos_common.grub.GRUB_LOCK, flock(2)
+# as well). Without a writable /run go on unlocked, like files.locked does
+if { exec 9>"$ROOT/run/nazoos-grub.lock"; } 2>/dev/null; then
+  flock -w 60 9 || :
+fi
 set_key() {
   if grep -qE "^\s*#?\s*$1=" "$default"; then
     sed -i -E "s|^\s*#?\s*$1=.*|$1=\"$2\"|" "$default"
@@ -28,8 +44,8 @@ set_key() {
     echo "$1=\"$2\"" >> "$default"
   fi
 }
-set_key GRUB_THEME "$dst/theme.txt"
-set_key GRUB_BACKGROUND "$dst/background.jpg"
+set_key GRUB_THEME "$boot_dir/theme.txt"
+set_key GRUB_BACKGROUND "$boot_dir/background.jpg"
 # The menu shows 8 rows: grub2 2.16's UEFI boot option entries
 # (31_efi_bootnext) push "Start bootloader from a read-only snapshot" out
 # of sight. Also set by nazoos-postinstall; here for existing installs

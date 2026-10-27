@@ -56,7 +56,7 @@ jobs:
       - name: Install tools
         run: zypper -n in --no-recommends git curl osc gh tar gzip
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
@@ -120,14 +120,14 @@ jobs:
           perl xz bzip2 python3 perl-Text-Glob osc rsync gh tar gzip
           diffutils patch which
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
       - name: Build OBS package
         run: kernel/make-obs-package.sh /tmp/nazoos-kernel
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: kernel-source-nazoos
           path: /tmp/nazoos-kernel/kernel-source-nazoos
@@ -147,11 +147,11 @@ jobs:
       - name: Install tools
         run: zypper -n in --no-recommends git osc rsync tar gzip
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: kernel-source-nazoos
           path: /tmp/nazoos-kernel/kernel-source-nazoos

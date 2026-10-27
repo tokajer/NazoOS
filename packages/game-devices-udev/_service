@@ -15,4 +15,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
   </service>
   <!-- Upstream release tarball: downloaded from the Source0 URL of the spec -->
   <service name="download_files"/>
+  <!-- A git tag can move: the tarball must match this checksum. On a
+       version update change Version in the spec and the checksum here -->
+  <service name="verify_file">
+    <param name="file">_service:download_files:game-devices-udev-1.1.tar.gz</param>
+    <param name="verifier">sha256</param>
+    <param name="checksum">56527bb4f6f33563c8879f0ba140a9baacf282bf6481b22737b04998dbe7f7af</param>
+  </service>
 </services>

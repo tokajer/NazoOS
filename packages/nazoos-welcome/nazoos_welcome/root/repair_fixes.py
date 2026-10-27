@@ -20,8 +20,8 @@ from nazoos_common.zypper import ZYPPER, ZYPPER_IN, offered_keys
 
 from .. import system, units
 from . import maintenance
-from .base import (enable_repo, flathub_ensure, installed_names,
-                   packman_switch)
+from .base import enable_repo, flathub_ensure, installed_names
+from .packman import packman_switch
 
 
 def repair_repos(_args):
@@ -34,8 +34,7 @@ def repair_repos(_args):
             helper.run(ZYPPER + ["--plus-repo",
                                  svc["seed"], "install", "--force",
                                  "--auto-agree-with-licenses", svc["package"]])
-        elif not Path("/etc/zypp/services.d",
-                      svc["name"] + ".service").exists():
+        elif not (repos.SERVICES_DIR / (svc["name"] + ".service")).exists():
             helper.run(ZYPPER + ["addservice", svc["dir"], svc["name"]])
         else:
             helper.run(ZYPPER + ["modifyservice", "--enable", "--refresh",
@@ -59,17 +58,22 @@ def repair_repos(_args):
 KEY_MAX_BYTES = 1 << 20
 
 
+# gpg --with-colons validity of a key we may import: unknown ("-", what a
+# key shown from a fresh --homedir has), undefined, marginal, full, ultimate
+GPG_USABLE = ("-", "o", "q", "m", "f", "u")
+
+
 def _primary_fingerprints(colons):
     """Fingerprints of the usable primary keys in gpg --with-colons output.
-    A revoked or expired primary key is logged and left out."""
+    A key with another validity is logged and left out."""
     found, primary = [], False
     for line in colons.splitlines():
         fields = line.split(":")
         if fields[0] == "pub":
-            primary = True
-            if len(fields) > 1 and fields[1] in ("r", "e"):
-                say("The key is revoked or expired.")
-                primary = False
+            validity = fields[1] if len(fields) > 1 else ""
+            primary = validity in GPG_USABLE
+            if not primary:
+                say(f"The key is not valid (gpg validity {validity}).")
         elif fields[0] == "fpr" and primary and len(fields) > 9:
             found.append(fields[9])
             primary = False

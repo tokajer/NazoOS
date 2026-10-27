@@ -8,6 +8,7 @@
 
 Name:           dmemcg-booster
 Version:        0.1.3
+# On a version update also change the sha256 in _service (verify_file)
 Release:        0
 Summary:        Keeps VRAM of the foreground game protected via the dmem cgroup
 License:        MIT

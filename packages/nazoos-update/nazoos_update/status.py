@@ -30,9 +30,10 @@ UPDATE_KEYS = ("needs_reboot", "updated")
 
 def read_status():
     try:
-        return json.loads(STATUS.read_text())
+        data = json.loads(STATUS.read_text())
     except (OSError, ValueError):
         return {}
+    return data if isinstance(data, dict) else {}
 
 
 def new(**fields):

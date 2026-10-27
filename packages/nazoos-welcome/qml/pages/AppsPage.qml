@@ -13,16 +13,6 @@ Kirigami.ScrollablePage {
 
     footer: BusyBar { app: page.app }
     readonly property var st: app.st
-    readonly property var categoryNames: ({
-        gaming: L.tr("Gaming"), social: L.tr("Chat"),
-        media: L.tr("Recording, video and graphics"),
-        office: L.tr("Office and tools"), hardware: L.tr("Hardware")
-    })
-    readonly property var categoryIcons: ({
-        gaming: "applications-games", social: "internet-chat",
-        media: "applications-multimedia", office: "applications-office",
-        hardware: "input-mouse"
-    })
     property string filter: ""
     title: L.tr("Apps")
 
@@ -68,14 +58,14 @@ Kirigami.ScrollablePage {
             model: backend.catalog.categories
             delegate: ColumnLayout {
                 id: section
-                required property string modelData
+                required property var modelData
                 readonly property var apps: backend.catalog.apps.filter(
-                    a => a.category === modelData && page.matches(a))
+                    a => a.category === modelData.id && page.matches(a))
                 visible: apps.length > 0
                 Layout.fillWidth: true
                 spacing: Kirigami.Units.largeSpacing
 
-                SectionHeader { text: page.categoryNames[section.modelData] }
+                SectionHeader { text: L.tr(section.modelData.name) }
 
                 Kirigami.CardsLayout {
                     Layout.fillWidth: true
@@ -98,7 +88,7 @@ Kirigami.ScrollablePage {
                                               : page.st.vm === true)
                             // Cached AppStream picture before install (appicons.py, re-read with the state)
                             iconName: (page.st.appIcons || {})[modelData.id] || modelData.icon
-                            fallbackIcon: page.categoryIcons[modelData.category]
+                            fallbackIcon: section.modelData.icon
                             title: modelData.name
                             subtitle: L.tr(modelData.summary)
                             status: needsKernel ? L.tr("Needs the NazoOS kernel (Kernel page)")

@@ -4,6 +4,8 @@
 The texts shown to the user are in catalog.py (po/update-pot.sh reads it).
 """
 
+from pathlib import Path
+
 # Waydroid renders with Mesa on the first render node that is not NVIDIA
 # (gralloc gbm, egl mesa). In a VM that node has no 3D driver (virtio-gpu
 # without virgl, vmwgfx, ...): surfaceflinger crashes in a loop and
@@ -75,6 +77,9 @@ ROCM_PACKAGES = ["rocm-hip", "rocm-opencl", "rocminfo", "amdsmi"]
 
 # Handheld / Steam Deck pattern (separate package, may not exist yet)
 DECK_PATTERN = "nazoos-deck"
+
+# sched_ext: the scx package reads its scheduler from here
+SCX_DEFAULT = Path("/etc/default/scx")
 
 # Steam gaming mode (nazoos-session): tools
 SESSION_CTL = "/usr/libexec/nazoos-session/nazoos-session-ctl"

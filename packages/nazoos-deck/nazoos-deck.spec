@@ -71,13 +71,24 @@ install -Dm0644 session/nazoos-deck-firstlogin.desktop \
 desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/nazoos-deck-firstlogin.desktop
 bash -n session/nazoos-deck-firstlogin
 
+%post
+# Only the first install applies the preset: an update must not enable
+# again what the user switched off
+if [ $1 -eq 1 ]; then
+  mkdir -p %{_localstatedir}/lib/rpm-state || :
+  touch %{_localstatedir}/lib/rpm-state/nazoos-deck-preset || :
+fi
+
 %posttrans
 # The services come from other packages, which may be installed before
 # this preset exists; apply it once everything is in place
-systemctl daemon-reload >/dev/null 2>&1 || :
-systemctl preset jupiter-fan-control.service pipewire-sysconf.service \
-  wireplumber-sysconf.service >/dev/null 2>&1 || :
-systemctl --global preset steamos-powerbuttond.service >/dev/null 2>&1 || :
+if [ -f %{_localstatedir}/lib/rpm-state/nazoos-deck-preset ]; then
+  rm -f %{_localstatedir}/lib/rpm-state/nazoos-deck-preset || :
+  systemctl daemon-reload >/dev/null 2>&1 || :
+  systemctl preset jupiter-fan-control.service pipewire-sysconf.service \
+    wireplumber-sysconf.service >/dev/null 2>&1 || :
+  systemctl --global preset steamos-powerbuttond.service >/dev/null 2>&1 || :
+fi
 
 %files
 %dir %{_unitdir}/jupiter-fan-control.service.d

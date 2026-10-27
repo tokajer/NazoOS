@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The downloaded source is checked against a checksum before the build
+
+-------------------------------------------------------------------
 Wed Oct 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - %pre: %systemd_user_pre for the user service. Without it openSUSE

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- API 12: Fail has an exit code (rc); the modules of the NazoOS kernel
+  also see modules that exist only for it; a helper started without input
+  no longer waits for it
+
+-------------------------------------------------------------------
 Mon Oct 26 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Changing the kernel command line no longer removes the line break

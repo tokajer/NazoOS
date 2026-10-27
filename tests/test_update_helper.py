@@ -3,7 +3,9 @@
 """Root actions of nazoos-update: zypper XML, mirror check, snapshot names."""
 
 import fcntl
+import re
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -427,3 +429,19 @@ def test_check_without_a_network_stays_a_refresh_error(monkeypatch, tmp_path):
     assert "no internet" in e.value.template
     st = status_mod.read_status()
     assert st["error"] == "refresh" and st["keys"] == []
+
+
+def test_check_unit_accepts_the_recorded_exit_code():
+    unit = (Path(__file__).resolve().parent.parent
+            / "packages/nazoos-update/data/nazoos-update-check.service")
+    m = re.search(r"^SuccessExitStatus=(\d+)$", unit.read_text(), re.M)
+    assert m and int(m.group(1)) == check.Recorded.rc
+
+
+def test_read_status_ignores_other_json(monkeypatch, tmp_path):
+    f = tmp_path / "status.json"
+    monkeypatch.setattr(status_mod, "STATUS", f)
+    f.write_text("[1, 2]")
+    assert status_mod.read_status() == {}
+    f.write_text('{"count": 2}')
+    assert status_mod.read_status() == {"count": 2}

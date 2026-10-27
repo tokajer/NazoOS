@@ -11,10 +11,17 @@ def test_every_action_has_a_label_and_the_other_way_round():
 
 
 def test_every_app_category_is_shown_or_hidden_on_purpose():
-    shown = set(catalog.APP_CATEGORIES)
+    shown = {c["id"] for c in catalog.APP_CATEGORIES}
     assert not shown & catalog.HIDDEN_CATEGORIES
     for a in catalog.APPS:
         assert a["category"] in shown | catalog.HIDDEN_CATEGORIES, a["id"]
+
+
+def test_services_and_categories_have_icons():
+    for s in catalog.SERVICES:
+        assert s.get("icon"), s
+    for c in catalog.APP_CATEGORIES:
+        assert c.get("id") and c.get("name") and c.get("icon"), c
 
 
 def test_every_app_setup_step_exists():

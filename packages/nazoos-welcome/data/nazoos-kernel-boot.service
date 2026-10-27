@@ -3,8 +3,9 @@
 #
 # NazoOS kernel opt-in (ADR 0008): keeps the chosen kernel (kernel-nazoos,
 # or kernel-default after "Use openSUSE kernel") as default boot entry and
-# counts clean boots. Enabled by the kernel install, disabled when
-# kernel-nazoos is removed; no condition on kernel-prefer, the way back
+# counts clean boots. Enabled by 90-nazoos-welcome.preset (kernel-install
+# enables it, kernel-remove disables it). Does nothing unless kernel-nazoos
+# is installed or preferred. No condition on kernel-prefer, the way back
 # needs it too. Type=simple, not oneshot: the script waits for the end of
 # the boot, which would never come if the boot waited for it.
 [Unit]
@@ -14,6 +15,14 @@ After=multi-user.target
 [Service]
 Type=simple
 ExecStart=/usr/libexec/nazoos-welcome/nazoos-kernel-boot
+# Sandboxing. No ProtectSystem: grub2-mkconfig writes /boot and
+# /etc/default/grub. No NoNewPrivileges: it blocks the SELinux domain
+# transitions of grub2 on Tumbleweed (needs a VM test first).
+PrivateTmp=yes
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
 
 [Install]
 WantedBy=multi-user.target

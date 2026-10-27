@@ -12,7 +12,7 @@ Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  desktop-file-utils
 BuildRequires:  gettext-tools
 # %check imports the helper
-BuildRequires:  nazoos-common(api) >= 11
+BuildRequires:  nazoos-common(api) >= 12
 BuildRequires:  python3
 BuildRequires:  systemd-rpm-macros
 BuildArch:      noarch
@@ -23,7 +23,7 @@ Requires:       python3
 Requires:       python3-pyside6
 Requires:       qt6-declarative-imports
 # Helper frame, error messages, MOK check, kernel opt-in state (ADR 0030)
-Requires:       nazoos-common(api) >= 11
+Requires:       nazoos-common(api) >= 12
 # Notifications with an "Update now" button
 Requires:       libnotify-tools >= 0.8.9
 Requires:       polkit
