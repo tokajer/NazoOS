@@ -95,7 +95,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
   </users>
 
   <!-- Live session user (autologin). No root password: Calamares runs via
-       sudo (nazoos-calamares-config) and sets the root password on install.
+       sudo (nazoos-calamares-config). Root stays locked on installed systems,
+       wheel members use their own password (ADR 0032).
        The removeuser module deletes this user from the installed system -->
   <users profiles="live">
     <user name="live" password="live" pwdformat="plain" home="/home/live" groups="users"/>

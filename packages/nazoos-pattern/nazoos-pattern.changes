@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Oct 27 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Require sudo-policy-wheel-auth-self: sudo and polkit dialogs ask
+  members of wheel for their own password instead of root's.
+
+-------------------------------------------------------------------
 Sun Oct 25 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend joycond (Joy-Con pairing) and nvtop

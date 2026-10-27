@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Oct 27 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- No root password on new installs (root stays locked); the first
+  user authenticates with their own password (wheel).
+
+-------------------------------------------------------------------
 Thu Oct 22 01:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Desktop installs remove the handheld packages listed by nazoos-deck

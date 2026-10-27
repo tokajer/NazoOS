@@ -26,6 +26,9 @@ Requires:       nazoos-repos
 Requires:       kbd-legacy
 # setfacl: udev rules (e.g. ddcutil i2c) grant device access via ACLs
 Requires:       acl
+# sudo and polkit dialogs ask members of wheel for their own password
+# instead of root's; root stays locked on new installs (ADR 0032)
+Requires:       sudo-policy-wheel-auth-self
 # Apps and extras: installed by default, but users may remove them
 # Gaming
 Recommends:     steam
