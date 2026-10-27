@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Oct 27 22:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Installing apps, drivers, codecs, ROCm, the deck pattern and services
+  refreshes the repositories and tries again once when it fails (a
+  package file that is gone after a new Tumbleweed snapshot gave a 404)
+
+-------------------------------------------------------------------
 Tue Oct 27 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Packman, NVIDIA and NazoOS kernel repositories: only the signing key

@@ -21,8 +21,8 @@ Requires:       python3
 # 9: mok strict checks, zypper.repo_search; 10: proc.run, kernel.phase,
 # helper.UPDATE_HELPER; 11: zypper.offered_keys/group_hex, repos.alias_of;
 # 12: Fail.rc, wanted_kmps also from kmp-nazoos, helper stdin always closed;
-# 13: ActionRunner._start helper=)
-Provides:       nazoos-common(api) = 13
+# 13: ActionRunner._start helper=; 14: helper.install)
+Provides:       nazoos-common(api) = 14
 # nazoos_common.qt only; the root helpers use the other modules
 Recommends:     python3-pyside6
 

@@ -4,7 +4,7 @@
 
 from nazoos_common import helper, proc
 from nazoos_common.helper import arg, say
-from nazoos_common.zypper import ZYPPER, ZYPPER_IN
+from nazoos_common.zypper import ZYPPER
 
 from .. import system
 from .base import repo_in_use
@@ -23,8 +23,8 @@ def codecs_install(_args):
              "--name", "Packman", system.PACKMAN_URL],
             _packman_installed, system.PACKMAN_KEY) as alias:
         packman_switch(alias)
-        helper.run(ZYPPER_IN + ["--from", alias] + system.PACKMAN_CODECS)
-    helper.run(ZYPPER_IN + system.OSS_CODECS)
+        helper.install(["--from", alias] + system.PACKMAN_CODECS)
+    helper.install(system.OSS_CODECS)
 
 
 def nvidia_install(args):
@@ -35,12 +35,12 @@ def nvidia_install(args):
             ["--refresh", "--name", "NVIDIA", system.NVIDIA_REPO_URL],
             lambda: any(proc.rpm_installed(p) for p in drivers),
             system.NVIDIA_KEY):
-        helper.run(ZYPPER_IN + drivers)
+        helper.install(drivers)
     say("Restart the computer to load the NVIDIA driver.")
 
 
 def rocm_install(_args):
-    helper.run(ZYPPER_IN + system.ROCM_PACKAGES)
+    helper.install(system.ROCM_PACKAGES)
     say("Restart programs like Blender so they find the GPU.")
 
 
@@ -52,5 +52,5 @@ def rocm_remove(_args):
 
 def deck_install(_args):
     helper.run(ZYPPER + ["refresh"])
-    helper.run(ZYPPER_IN + ["--type", "pattern", system.DECK_PATTERN])
+    helper.install(["--type", "pattern", system.DECK_PATTERN])
 

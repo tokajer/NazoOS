@@ -7,7 +7,7 @@ from pathlib import Path
 
 from nazoos_common import helper, proc, repos
 from nazoos_common.helper import FLATPAK, Fail, Passthrough, arg
-from nazoos_common.zypper import ZYPPER, ZYPPER_IN
+from nazoos_common.zypper import ZYPPER
 
 from .. import catalog, system
 
@@ -18,7 +18,7 @@ def service(args):
         raise Fail("unknown service")
     enable = arg(args, 1, ("on", "off")) == "on"
     if enable and not proc.rpm_installed(svc["package"]):
-        helper.run(ZYPPER_IN + [svc["package"]])
+        helper.install([svc["package"]])
     if svc["user"]:
         return  # user units are switched by the GUI without root
     helper.run(["systemctl", "enable" if enable else "disable", "--now",

@@ -76,6 +76,17 @@ def run(cmd, check=True, on_line=None):
     return rc
 
 
+def install(args):
+    """zypper install ARGS. A failure is retried once after a forced
+    refresh: after a Tumbleweed snapshot an old package file is gone
+    (download error 404) or a mirror is not synced yet."""
+    if run(zypper.ZYPPER_IN + args, check=False) == 0:
+        return
+    say("Note: installing failed, refreshing the repositories and retrying")
+    run(zypper.ZYPPER + ["refresh", "--force"], check=False)
+    run(zypper.ZYPPER_IN + args)
+
+
 def capture(cmd):
     """For root actions: no timeout, errors are not swallowed. Returns the
     CompletedProcess."""

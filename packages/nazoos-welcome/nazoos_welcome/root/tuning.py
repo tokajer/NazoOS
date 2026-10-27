@@ -10,7 +10,6 @@ from nazoos_common.files import write_atomic
 from nazoos_common.grub import cmdline_set
 from nazoos_common.helper import Fail, arg, say
 from nazoos_common.shellconf import set_var
-from nazoos_common.zypper import ZYPPER_IN
 
 from .. import catalog, hw, system
 from ..pollrate import (INTERVALS, MAXLEN, PARAM, SYSFS, format_overrides,
@@ -20,7 +19,7 @@ from ..pollrate import (INTERVALS, MAXLEN, PARAM, SYSFS, format_overrides,
 def scx_enable(args):
     sched = arg(args, 0, catalog.SCX_SCHEDULERS)
     if not proc.rpm_installed("scx"):
-        helper.run(ZYPPER_IN + ["scx"])
+        helper.install(["scx"])
     if not Path("/usr/bin", sched).exists():
         raise Fail("{scheduler} is not part of the installed scx package",
                    scheduler=sched)

@@ -468,3 +468,40 @@ def test_alias_of_matches_the_name_or_the_alias(monkeypatch, tmp_path):
 def test_offered_keys_without_a_key_prompt():
     assert zypper.offered_keys("Could not resolve host\nSkipping repo\n") == []
     assert zypper.offered_keys("") == []
+
+
+def _fake_zypper(monkeypatch, rcs):
+    """helper.run answers the exit codes RCS in turn (check=True raises)."""
+    calls = []
+
+    def run(cmd, check=True, **kw):
+        calls.append(cmd)
+        rc = rcs.pop(0)
+        if check and rc:
+            raise helper.Fail("failed")
+        return rc
+
+    monkeypatch.setattr(helper, "run", run)
+    monkeypatch.setattr(helper, "say", lambda text: None)
+    return calls
+
+
+def test_install_without_error_does_not_refresh(monkeypatch):
+    calls = _fake_zypper(monkeypatch, [0])
+    helper.install(["gearlever"])
+    assert calls == [zypper.ZYPPER_IN + ["gearlever"]]
+
+
+def test_install_refreshes_and_retries_once(monkeypatch):
+    calls = _fake_zypper(monkeypatch, [8, 0, 0])
+    helper.install(["gearlever"])
+    assert calls == [zypper.ZYPPER_IN + ["gearlever"],
+                     zypper.ZYPPER + ["refresh", "--force"],
+                     zypper.ZYPPER_IN + ["gearlever"]]
+
+
+def test_install_fails_when_the_retry_fails(monkeypatch):
+    calls = _fake_zypper(monkeypatch, [8, 0, 8])
+    with pytest.raises(helper.Fail):
+        helper.install(["gearlever"])
+    assert len(calls) == 3

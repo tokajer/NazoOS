@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Oct 27 22:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- API 14: helper.install retries a failed zypper install once after
+  refreshing the repositories (download error 404 after a new
+  Tumbleweed snapshot, mirror not synced yet)
+
+-------------------------------------------------------------------
 Tue Oct 27 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - API 13: ActionRunner._start takes helper= (another helper for one

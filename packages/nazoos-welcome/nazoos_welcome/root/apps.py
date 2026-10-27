@@ -11,7 +11,7 @@ from nazoos_common import helper, proc
 from nazoos_common.files import write_atomic
 from nazoos_common.helper import FLATPAK, Fail, arg, say
 from nazoos_common.kernel import running_nazoos
-from nazoos_common.zypper import ZYPPER, ZYPPER_IN
+from nazoos_common.zypper import ZYPPER
 
 from .. import catalog, hw, system
 from .base import flathub_ensure
@@ -43,7 +43,7 @@ def pick_branch(found, wanted):
 
 
 def _install_rpm(app):
-    helper.run(ZYPPER_IN + app["refs"])
+    helper.install(app["refs"])
     for unit in app.get("units", []):
         helper.run(["systemctl", "enable", "--now", unit])
     firewall_zone(app.get("firewall", []), True)
