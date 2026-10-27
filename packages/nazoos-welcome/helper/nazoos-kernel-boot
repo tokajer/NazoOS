@@ -18,7 +18,7 @@ import sys
 import time
 from pathlib import Path
 
-# Same block in nazoos-welcome-helper and nazoos-update-helper: keep them alike
+# Same block in nazoos-welcome-helper(-strict) and nazoos-update-helper: keep them alike
 # Package scripts may start us with the caller's environment: -I keeps
 # PYTHONPATH and user site-packages out
 # Our modules from the installed location (or the git checkout)

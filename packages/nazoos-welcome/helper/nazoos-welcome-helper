@@ -11,7 +11,8 @@ last output line "@@error {...}" carries a message for the user
 import sys
 from pathlib import Path
 
-# Same block in nazoos-kernel-boot and nazoos-update-helper: keep them alike
+# Same block in nazoos-welcome-helper-strict, nazoos-kernel-boot and
+# nazoos-update-helper: keep them alike
 # Package scripts may start us with the caller's environment: -I keeps
 # PYTHONPATH and user site-packages out
 # pkexec clears PYTHONPATH: load our modules from the installed location

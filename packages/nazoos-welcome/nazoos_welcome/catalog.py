@@ -230,6 +230,10 @@ KERNEL_PARAMS = [
 # sched_ext schedulers offered in the UI (ADR 0002), default first
 SCX_SCHEDULERS = ["scx_lavd", "scx_bpfland", "scx_rusty", "scx_flash"]
 
+# Lasting steps that ask for the password every time: their own helper path
+# and Polkit actions (data/org.nazoos.welcome.policy)
+STRICT_ACTIONS = ("repair-key", "kernel-install", "mok-import")
+
 # Root actions of the helper, with the text shown while they run
 ACTION_LABELS = {
     "codecs-install": "Installing multimedia codecs",

@@ -3,12 +3,17 @@
 SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 SPDX-License-Identifier: GPL-3.0-or-later
 
-Allows nazoos-welcome to start its root helper via pkexec. The helper
-only accepts fixed actions (see nazoos-welcome-helper).
-pkexec picks the action by program path and first argument
-(exec.argv1); "helper" has no argv1 and catches the rest. Own actions
-for the three steps with lasting effects, so the password dialog says
-what really happens and the password is asked every time.
+Allows nazoos-welcome to start its root helpers via pkexec. The helpers
+only accept fixed actions (see nazoos-welcome-helper).
+pkexec takes the FIRST action in polkit's list whose exec.path matches;
+an action without argv1 matches every call and the list order is not
+defined. So "helper" (no argv1) is the catch-all of the normal helper,
+and the three steps with lasting effects have their own helper
+(nazoos-welcome-helper-strict) and actions: the password dialog says what
+really happens and the password is asked every time. Every action on the
+strict path has an argv1 and there is no catch-all for that path, so the
+order does not matter; an unknown argv1 falls back to polkit's generic
+auth_admin action and the strict helper refuses it anyway.
 Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
 -->
 <!DOCTYPE policyconfig PUBLIC
@@ -43,7 +48,7 @@ Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
       <allow_inactive>auth_admin</allow_inactive>
       <allow_active>auth_admin</allow_active>
     </defaults>
-    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper</annotate>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper-strict</annotate>
     <annotate key="org.freedesktop.policykit.exec.argv1">repair-key</annotate>
   </action>
 
@@ -57,7 +62,7 @@ Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
       <allow_inactive>auth_admin</allow_inactive>
       <allow_active>auth_admin</allow_active>
     </defaults>
-    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper</annotate>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper-strict</annotate>
     <annotate key="org.freedesktop.policykit.exec.argv1">kernel-install</annotate>
   </action>
 
@@ -71,7 +76,7 @@ Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
       <allow_inactive>auth_admin</allow_inactive>
       <allow_active>auth_admin</allow_active>
     </defaults>
-    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper</annotate>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper-strict</annotate>
     <annotate key="org.freedesktop.policykit.exec.argv1">mok-import</annotate>
   </action>
 </policyconfig>

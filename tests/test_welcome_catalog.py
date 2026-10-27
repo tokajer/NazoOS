@@ -3,11 +3,11 @@
 """nazoos_welcome.catalog: parsers and the action list."""
 
 from nazoos_welcome import catalog, system
-from nazoos_welcome.root import ACTIONS, apps
+from nazoos_welcome.root import ACTIONS, STRICT_ACTIONS, apps
 
 
 def test_every_action_has_a_label_and_the_other_way_round():
-    assert set(ACTIONS) == set(catalog.ACTION_LABELS)
+    assert set(ACTIONS) | set(STRICT_ACTIONS) == set(catalog.ACTION_LABELS)
 
 
 def test_every_app_category_is_shown_or_hidden_on_purpose():

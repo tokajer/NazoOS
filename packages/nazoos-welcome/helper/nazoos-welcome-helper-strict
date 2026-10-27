@@ -1,0 +1,29 @@
+#!/usr/bin/python3 -I
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+"""Root part of nazoos-welcome for catalog.STRICT_ACTIONS only.
+
+Why a second helper: see data/org.nazoos.welcome.policy.
+"""
+
+import sys
+from pathlib import Path
+
+# Same block in nazoos-welcome-helper, nazoos-kernel-boot and
+# nazoos-update-helper: keep them alike
+# Package scripts may start us with the caller's environment: -I keeps
+# PYTHONPATH and user site-packages out
+# pkexec clears PYTHONPATH: load our modules from the installed location
+# (or from the git checkout)
+_src = Path(__file__).resolve().parent.parent
+for pkg, bases in (("nazoos_welcome", ("/usr/share/nazoos-welcome", _src)),
+                   ("nazoos_common", ("/usr/share/nazoos-common",
+                                      _src.parent / "nazoos-common"))):
+    base = next((b for b in map(Path, bases) if (b / pkg).is_dir()), None)
+    if base is not None:
+        sys.path.insert(0, str(base))
+from nazoos_common import helper  # noqa: E402
+from nazoos_welcome.root import STRICT_ACTIONS  # noqa: E402
+
+if __name__ == "__main__":
+    sys.exit(helper.main(STRICT_ACTIONS, lock_timeout=120))

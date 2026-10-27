@@ -1,15 +1,17 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Root actions of nazoos-welcome, run by helper/nazoos-welcome-helper.
+"""Root actions of nazoos-welcome, run by helper/nazoos-welcome-helper
+and, for catalog.STRICT_ACTIONS, helper/nazoos-welcome-helper-strict.
 
 Only fixed actions with ids from catalog.py are accepted. Package names,
 paths and commands never come from the caller.
 """
 
+from .. import catalog
 from . import (apps, drivers, drives, kernel_switch, maintenance,
                mok_queue, repair_fixes, session, tuning)
 
-ACTIONS = {
+_ALL = {
     "codecs-install": drivers.codecs_install,
     "nvidia-install": drivers.nvidia_install,
     "rocm-install": drivers.rocm_install,
@@ -48,3 +50,6 @@ ACTIONS = {
     "automount-add": drives.automount_add,
     "automount-remove": drives.automount_remove,
 }
+
+STRICT_ACTIONS = {k: v for k, v in _ALL.items() if k in catalog.STRICT_ACTIONS}
+ACTIONS = {k: v for k, v in _ALL.items() if k not in catalog.STRICT_ACTIONS}

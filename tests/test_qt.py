@@ -483,3 +483,26 @@ def test_helper_without_input_sees_end_of_input(app, tmp_path):
     """, 0)
     assert ok
     assert "stdin: ''" in log
+
+
+def test_strict_steps_start_their_own_helper(app, monkeypatch):
+    from nazoos_welcome import backend, catalog, i18n
+
+    monkeypatch.setattr(backend, "HELPER", "/normal")
+    monkeypatch.setattr(backend, "STRICT_HELPER", "/strict")
+    monkeypatch.setattr(backend.mok, "password_hash", lambda p: "hash")
+    b = backend.Backend(i18n.translator())
+    started = []
+    monkeypatch.setattr(
+        b, "_start", lambda action, args, stdin=None, helper=None:
+        started.append((action, args, stdin, helper)))
+
+    b.run("snapshot", [])
+    b._end_busy()
+    b.run("repair-key", ["repo", "FPR"])
+    b._end_busy()
+    b.runMok("kernel-install", [], "pw")
+    assert "repair-key" in catalog.STRICT_ACTIONS
+    assert started == [("snapshot", [], None, None),
+                       ("repair-key", ["repo", "FPR"], None, "/strict"),
+                       ("kernel-install", [], "hash", "/strict")]

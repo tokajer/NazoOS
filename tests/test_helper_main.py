@@ -35,6 +35,13 @@ def test_unknown_action(root, capsys):
     assert last_error(capsys)["msg"] == "unknown action"
 
 
+def test_the_normal_welcome_helper_refuses_the_strict_steps(root, capsys):
+    from nazoos_welcome.root import ACTIONS
+
+    assert helper.main(ACTIONS, 1, argv=["x", "repair-key", "a", "b"]) == 2
+    assert last_error(capsys)["msg"] == "unknown action"
+
+
 def test_too_many_arguments(root, capsys):
     assert helper.main({"a": print}, 1, max_args=0,
                        argv=["h", "a", "x"]) == 2

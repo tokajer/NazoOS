@@ -43,6 +43,9 @@ STALE_SECONDS = 30
 
 HELPER = os.environ.get("NAZOOS_WELCOME_HELPER",
                         "/usr/libexec/nazoos-welcome/nazoos-welcome-helper")
+STRICT_HELPER = os.environ.get(
+    "NAZOOS_WELCOME_HELPER_STRICT",
+    "/usr/libexec/nazoos-welcome/nazoos-welcome-helper-strict")
 
 
 class Backend(ActionRunner):
@@ -212,7 +215,9 @@ class Backend(ActionRunner):
         self._set_retry((action, list(args), stdin is not None)
                         if retry else None)
         self._on_finish = on_finish
-        self._start(action, args, stdin)
+        self._start(action, args, stdin,
+                    helper=STRICT_HELPER if action in catalog.STRICT_ACTIONS
+                    else None)
 
     @Slot()
     def retry(self):

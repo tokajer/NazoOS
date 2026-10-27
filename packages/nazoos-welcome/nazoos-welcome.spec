@@ -12,7 +12,7 @@ Source0:        %{name}-%{version}.tar.xz
 BuildRequires:  desktop-file-utils
 BuildRequires:  gettext-tools
 # %check imports the helper's actions
-BuildRequires:  nazoos-common(api) >= 12
+BuildRequires:  nazoos-common(api) >= 13
 BuildRequires:  python3
 BuildRequires:  systemd-rpm-macros
 BuildArch:      noarch
@@ -23,7 +23,7 @@ Requires:       python3
 Requires:       python3-pyside6
 Requires:       qt6-declarative-imports
 # Helper frame, error messages, MOK check, kernel opt-in state (ADR 0030)
-Requires:       nazoos-common(api) >= 12
+Requires:       nazoos-common(api) >= 13
 # Root actions via pkexec + our Polkit policy
 Requires:       polkit
 # repair-key reads the fingerprint of a repo key
@@ -67,6 +67,8 @@ done
 install -Dm0755 nazoos-welcome %{buildroot}%{_bindir}/nazoos-welcome
 install -Dm0755 helper/nazoos-welcome-helper \
   %{buildroot}%{_libexecdir}/nazoos-welcome/nazoos-welcome-helper
+install -Dm0755 helper/nazoos-welcome-helper-strict \
+  %{buildroot}%{_libexecdir}/nazoos-welcome/nazoos-welcome-helper-strict
 install -Dm0755 helper/nazoos-kernel-boot \
   %{buildroot}%{_libexecdir}/nazoos-welcome/nazoos-kernel-boot
 install -Dm0755 data/grub.d/15_nazoos_fallback \
@@ -111,7 +113,9 @@ python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" helper/nazoos-
 python3 -B - <<'PY'
 import runpy
 from nazoos_welcome import catalog
-actions = set(runpy.run_path("helper/nazoos-welcome-helper")["ACTIONS"])
+normal = runpy.run_path("helper/nazoos-welcome-helper")["ACTIONS"]
+strict = runpy.run_path("helper/nazoos-welcome-helper-strict")["STRICT_ACTIONS"]
+actions = set(normal) | set(strict)
 known = set(catalog.ACTION_LABELS)
 missing, extra = known - actions, actions - known
 if missing or extra:
@@ -146,6 +150,7 @@ PY
 %{_bindir}/nazoos-welcome
 %dir %{_libexecdir}/nazoos-welcome
 %{_libexecdir}/nazoos-welcome/nazoos-welcome-helper
+%{_libexecdir}/nazoos-welcome/nazoos-welcome-helper-strict
 %{_libexecdir}/nazoos-welcome/nazoos-kernel-boot
 %{_unitdir}/nazoos-kernel-boot.service
 # Owned by grub2 too; a fallback to kernel-default while kernel-nazoos

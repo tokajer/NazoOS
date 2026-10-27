@@ -10,7 +10,7 @@ import pytest
 
 from nazoos_common import kernel, proc
 from nazoos_welcome import appicons, probes
-from nazoos_welcome.root import ACTIONS
+from nazoos_welcome.root import ACTIONS, STRICT_ACTIONS
 
 WELCOME = Path(__file__).resolve().parent.parent / "packages/nazoos-welcome"
 STATE_KEY = re.compile(r"\b(?:st|app\.st|page\.st|root\.st)\.([A-Za-z_]+)")
@@ -56,7 +56,7 @@ def test_every_repair_fix_is_a_root_action():
     text = (WELCOME / "nazoos_welcome/repair_checks.py").read_text()
     fixes = set(re.findall(r'"(repair-[a-z]+)"', text))
     assert fixes
-    assert fixes <= set(ACTIONS)
+    assert fixes <= set(ACTIONS) | set(STRICT_ACTIONS)
 
 
 def test_every_repair_finding_has_a_text():
@@ -95,7 +95,7 @@ def _ids(text, fn):
 def test_every_action_id_in_the_qml_is_a_root_action():
     ids = _ids(_qml_text(), "runAction") | _ids(_qml_text(), "askMok")
     assert len(ids) > 5   # the regex still finds something
-    assert ids <= set(ACTIONS)
+    assert ids <= set(ACTIONS) | set(STRICT_ACTIONS)
 
 
 def test_every_launcher_id_in_the_qml_exists():
@@ -151,19 +151,27 @@ def test_every_page_other_programs_open_exists():
 def test_the_policy_has_own_actions_for_the_lasting_steps():
     import xml.etree.ElementTree as ET
 
-    root = ET.parse(WELCOME / "data/org.nazoos.welcome.policy").getroot()
-    actions = {}
-    for act in root.iter("action"):
+    from nazoos_welcome import catalog
+    from nazoos_welcome import root as root_actions
+
+    strict_path = "/usr/libexec/nazoos-welcome/nazoos-welcome-helper-strict"
+    tree = ET.parse(WELCOME / "data/org.nazoos.welcome.policy").getroot()
+    strict, normal = {}, []
+    for act in tree.iter("action"):
         notes = {n.get("key"): n.text for n in act.iter("annotate")}
         argv1 = notes.get("org.freedesktop.policykit.exec.argv1")
-        if argv1:
-            defaults = {d.tag: d.text for d in act.find("defaults")}
-            actions[argv1] = defaults
-    assert set(actions) == {"repair-key", "kernel-install", "mok-import"}
-    for argv1, defaults in actions.items():
-        assert argv1 in ACTIONS
+        if notes["org.freedesktop.policykit.exec.path"] == strict_path:
+            assert argv1
+            strict[argv1] = {d.tag: d.text for d in act.find("defaults")}
+        else:
+            normal.append(argv1)
+    assert set(strict) == set(catalog.STRICT_ACTIONS) \
+        == set(root_actions.STRICT_ACTIONS)
+    for defaults in strict.values():
         assert defaults == dict.fromkeys(
             ("allow_any", "allow_inactive", "allow_active"), "auth_admin")
+    # Only the catch-all is left on the normal path
+    assert normal == [None]
 
 
 def test_the_repair_page_reads_what_the_update_check_writes(monkeypatch,

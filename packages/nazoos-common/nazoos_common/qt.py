@@ -247,8 +247,8 @@ class ActionRunner(QObject):
         self._task = ""
         self.busyChanged.emit()
 
-    def _start(self, action, args, stdin=None):
-        proc = HelperProcess(self._helper, self._gettext, self)
+    def _start(self, action, args, stdin=None, helper=None):
+        proc = HelperProcess(helper or self._helper, self._gettext, self)
         proc.output.connect(self._append)
 
         def finished(ok, message):
