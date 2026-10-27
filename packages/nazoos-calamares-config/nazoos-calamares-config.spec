@@ -75,7 +75,6 @@ install -Dm0644 live/50-nazoos-live.conf \
 %{_datadir}/applications/nazoos-installer.desktop
 %dir %{_sysconfdir}/xdg/autostart
 %config %{_sysconfdir}/xdg/autostart/nazoos-installer.desktop
-%dir %{_sysconfdir}/sudoers.d
 %config %{_sysconfdir}/sudoers.d/nazoos-live
 %dir %{_prefix}/lib/sddm
 %dir %{_prefix}/lib/sddm/sddm.conf.d

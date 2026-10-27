@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Oct 27 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Do not own /etc/sudoers.d (sudo does): removing this package after
+  the install took the directory along.
+
+-------------------------------------------------------------------
 Tue Oct 27 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - No root password on new installs (root stays locked); the first

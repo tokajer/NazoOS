@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Oct 27 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recreate /etc/sudoers.d on systems installed from older images,
+  where it went missing.
+
+-------------------------------------------------------------------
 Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - NVIDIA: memory the driver allocates is zeroed again (driver default):
