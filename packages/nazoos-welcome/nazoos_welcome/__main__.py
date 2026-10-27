@@ -44,12 +44,15 @@ def main():
             instance.send(args.page)
         return 0
 
+    translator = make_translator()
+
+    # Translated: Qt appends the display name to every window title that
+    # does not end with it
     # Kept alive: the application dies with its last reference
-    _app = application("nazoos-welcome", "NazoOS Welcome",
+    _app = application("nazoos-welcome", translator.gettext("NazoOS Welcome"),
                        "org.nazoos.welcome",
                        ("nazoos-logo", "start-here"), VERSION, qt_args)
 
-    translator = make_translator()
     backend = Backend(translator)
     repair = RepairModel(backend)
 

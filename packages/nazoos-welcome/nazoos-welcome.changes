@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Window title in the system language only (no English app name
+  appended)
+
+-------------------------------------------------------------------
 Mon Oct 26 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Repair: trust an unknown or changed repository key after checking its

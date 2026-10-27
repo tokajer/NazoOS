@@ -36,7 +36,7 @@ def main():
     from PySide6.QtCore import QCoreApplication
 
     from .backend import Backend
-    from .i18n import qml_translator
+    from .i18n import _, qml_translator
 
     # Already open (KRunner, menu or a notification button started it
     # again): show the page there instead of a second window
@@ -47,8 +47,11 @@ def main():
         instance.send(args.page)
         return 0
 
+    # Translated: Qt appends the display name to every window title that
+    # does not end with it
     # Kept alive: the application dies with its last reference
-    _app = application("nazoos-update", "NazoOS Update", "org.nazoos.update",
+    _app = application("nazoos-update", _("NazoOS Update"),
+                       "org.nazoos.update",
                        ("system-software-update",), VERSION, qt_args)
 
     translator = qml_translator()

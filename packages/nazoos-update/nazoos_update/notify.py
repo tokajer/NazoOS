@@ -71,7 +71,7 @@ def _show(n):
     with os.fdopen(rd) as tokens:
         try:
             r = subprocess.run(
-                ["notify-send", "--app-name=NazoOS Update",
+                ["notify-send", f"--app-name={_('NazoOS Update')}",
                  f"--icon={n['icon']}", f"--urgency={n['urgency']}",
                  f"--action=open={n['action']}", f"--activation-token-fd={wr}",
                  "--hint=string:desktop-entry:org.nazoos.update",

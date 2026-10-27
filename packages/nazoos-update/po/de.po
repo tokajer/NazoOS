@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 23:23+0100\n"
+"POT-Creation-Date: 2026-10-27 09:31+0100\n"
 "PO-Revision-Date: 2026-10-10 15:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -74,7 +74,7 @@ msgstr "Etwas ist schiefgelaufen."
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
-#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:13 qml/Main.qml:50
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:13 qml/Main.qml:52
 msgid "Details"
 msgstr "Details"
 
@@ -86,7 +86,7 @@ msgstr "Kopieren"
 msgid "Copied to the clipboard."
 msgstr "In die Zwischenablage kopiert."
 
-#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:360
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:369
 msgid "Close"
 msgstr "Schließen"
 
@@ -246,7 +246,7 @@ msgstr "Automatischer Snapshot"
 
 #: nazoos_update/root/snapshots.py:70
 msgid "Before rollback"
-msgstr "Vor dem Zurücksetzen"
+msgstr "Vor dem Rollback"
 
 #: nazoos_update/root/snapshots.py:72
 msgid "After rollback"
@@ -286,74 +286,74 @@ msgstr ""
 msgid "NazoOS Update"
 msgstr "NazoOS Aktualisierung"
 
-#: qml/Main.qml:29
+#: qml/Main.qml:31
 msgid "never"
 msgstr "nie"
 
-#: qml/Main.qml:31
+#: qml/Main.qml:33
 msgid "just now"
 msgstr "gerade eben"
 
-#: qml/Main.qml:32
+#: qml/Main.qml:34
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
 msgstr[0] "vor %1 Minute"
 msgstr[1] "vor %1 Minuten"
 
-#: qml/Main.qml:34
+#: qml/Main.qml:36
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
 msgstr[0] "vor %1 Stunde"
 msgstr[1] "vor %1 Stunden"
 
-#: qml/Main.qml:35
+#: qml/Main.qml:37
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
 msgstr[0] "vor %1 Tag"
 msgstr[1] "vor %1 Tagen"
 
-#: qml/Main.qml:40
+#: qml/Main.qml:42
 msgid "Updates"
 msgstr "Updates"
 
-#: qml/Main.qml:44
+#: qml/Main.qml:46
 msgid "Check now"
 msgstr "Jetzt prüfen"
 
-#: qml/Main.qml:61 qml/Main.qml:355
+#: qml/Main.qml:63 qml/Main.qml:364
 msgid "Show details"
 msgstr "Details anzeigen"
 
-#: qml/Main.qml:74
+#: qml/Main.qml:76
 msgid ""
 "The system was started from snapshot %1. It is read-only: nothing can be "
 "installed or changed. If everything works now, make this state permanent."
 msgstr ""
-"Das System wurde aus Snapshot %1 gestartet. Er ist schreibgeschützt: es kann "
+"Das System wurde aus Snapshot %1 gestartet. Er ist schreibgeschützt: Es kann "
 "nichts installiert oder geändert werden. Wenn jetzt alles funktioniert, "
-"übernimm diesen Stand dauerhaft."
+"übernehmen Sie diesen Stand dauerhaft."
 
-#: qml/Main.qml:77 qml/Main.qml:331
+#: qml/Main.qml:79 qml/Main.qml:340
 msgid "Make permanent"
 msgstr "Dauerhaft übernehmen"
 
-#: qml/Main.qml:91
+#: qml/Main.qml:93
 msgid "The snapshot was made permanent. Restart the computer to start from it."
 msgstr ""
 "Der Snapshot wurde dauerhaft übernommen. Starten Sie den Computer neu, um "
 "ihn zu verwenden."
 
-#: qml/Main.qml:92
+#: qml/Main.qml:94
 msgid "Updates were installed. Restart the computer to use them."
 msgstr ""
 "Updates wurden installiert. Starten Sie den Computer neu, um sie zu "
 "verwenden."
 
-#: qml/Main.qml:95
+#: qml/Main.qml:97
 msgid "Restart now"
 msgstr "Jetzt neu starten"
 
-#: qml/Main.qml:107
+#: qml/Main.qml:109
 msgid ""
 "The package sources could not be reached. Check the internet connection and "
 "try again."
@@ -361,11 +361,11 @@ msgstr ""
 "Die Paketquellen sind nicht erreichbar. Prüfen Sie die Internetverbindung "
 "und versuchen Sie es erneut."
 
-#: qml/Main.qml:110
+#: qml/Main.qml:112
 msgid "Try again"
 msgstr "Erneut versuchen"
 
-#: qml/Main.qml:120
+#: qml/Main.qml:122
 msgid ""
 "A package source offers a signing key that is not trusted yet, so it cannot "
 "be refreshed:"
@@ -373,7 +373,7 @@ msgstr ""
 "Eine Paketquelle bietet einen Signaturschlüssel an, dem noch nicht vertraut "
 "wird. Sie kann daher nicht aktualisiert werden:"
 
-#: qml/Main.qml:122
+#: qml/Main.qml:124
 msgid ""
 "Only trust it if the provider's website shows the same fingerprint. The "
 "Repair page of NazoOS Welcome can trust it."
@@ -382,17 +382,17 @@ msgstr ""
 "Fingerabdruck zeigt. Die Seite „Reparieren“ von NazoOS Welcome kann ihm "
 "vertrauen."
 
-#: qml/Main.qml:125
+#: qml/Main.qml:127
 msgid "Open Repair"
 msgstr "Reparieren öffnen"
 
-#: qml/Main.qml:135
+#: qml/Main.qml:137
 msgid "The update needs a decision that cannot be made automatically:"
 msgstr ""
 "Das Update braucht eine Entscheidung, die nicht automatisch getroffen werden "
 "kann:"
 
-#: qml/Main.qml:137
+#: qml/Main.qml:139
 msgid ""
 "In Myrlyn, Updates → Dist-Upgrade shows the conflict and the solutions to "
 "choose from."
@@ -400,11 +400,11 @@ msgstr ""
 "In Myrlyn zeigt Updates → Dist-Upgrade den Konflikt und die Lösungen zur "
 "Auswahl an."
 
-#: qml/Main.qml:140
+#: qml/Main.qml:142
 msgid "Open Myrlyn"
 msgstr "Myrlyn öffnen"
 
-#: qml/Main.qml:151
+#: qml/Main.qml:153
 msgid ""
 "The download servers do not have the newest Tumbleweed version yet (system: "
 "%1, servers: %2). Tumbleweed updates will appear as soon as they have it, "
@@ -415,37 +415,37 @@ msgstr ""
 "meist innerhalb eines Tages. Die eigenen NazoOS-Pakete lassen sich schon "
 "jetzt aktualisieren."
 
-#: qml/Main.qml:175
+#: qml/Main.qml:177
 msgid "Update on hold"
 msgstr "Update angehalten"
 
-#: qml/Main.qml:176
+#: qml/Main.qml:178
 msgid "Updates could not be checked"
 msgstr "Updates konnten nicht geprüft werden"
 
-#: qml/Main.qml:178
+#: qml/Main.qml:180
 msgid "%1 update available"
 msgid_plural "%1 updates available"
 msgstr[0] "%1 Update verfügbar"
 msgstr[1] "%1 Updates verfügbar"
 
-#: qml/Main.qml:179
+#: qml/Main.qml:181
 msgid "Not checked yet"
 msgstr "Noch nicht geprüft"
 
-#: qml/Main.qml:179
+#: qml/Main.qml:181
 msgid "The system is up to date"
 msgstr "Das System ist aktuell"
 
-#: qml/Main.qml:185
+#: qml/Main.qml:187
 msgid "Last check: %1"
 msgstr "Letzte Prüfung: %1"
 
-#: qml/Main.qml:186
+#: qml/Main.qml:188
 msgid "A restart will be needed afterwards."
 msgstr "Danach ist ein Neustart nötig."
 
-#: qml/Main.qml:192
+#: qml/Main.qml:194
 msgid ""
 "Before the update a snapshot is taken automatically. If something breaks, "
 "pick it in the boot menu under \"Start bootloader from a read-only "
@@ -455,43 +455,43 @@ msgstr ""
 "kaputtgeht, wählen Sie ihn im Bootmenü unter „Start bootloader from a read-"
 "only snapshot“."
 
-#: qml/Main.qml:196
+#: qml/Main.qml:198
 msgid "Also remove Flatpak runtimes no app needs anymore"
 msgstr "Auch Flatpak-Laufzeiten entfernen, die keine App mehr braucht"
 
-#: qml/Main.qml:203
+#: qml/Main.qml:205
 msgid "Update now"
 msgstr "Jetzt aktualisieren"
 
-#: qml/Main.qml:216
+#: qml/Main.qml:218
 msgid "System packages"
 msgstr "Systempakete"
 
-#: qml/Main.qml:241
+#: qml/Main.qml:243
 msgid "new"
 msgstr "neu"
 
-#: qml/Main.qml:242
+#: qml/Main.qml:244
 msgid "removed"
 msgstr "entfernt"
 
-#: qml/Main.qml:252
+#: qml/Main.qml:254
 msgid "Flatpak apps and runtimes"
 msgstr "Flatpak-Apps und -Laufzeiten"
 
-#: qml/Main.qml:268
+#: qml/Main.qml:270
 msgid "Snapshots (Btrfs Assistant)"
 msgstr "Snapshots (Btrfs Assistant)"
 
-#: qml/Main.qml:273
+#: qml/Main.qml:275
 msgid "Packages (Myrlyn)"
 msgstr "Pakete (Myrlyn)"
 
-#: qml/Main.qml:326
+#: qml/Main.qml:335
 msgid "Make this state permanent?"
 msgstr "Diesen Stand dauerhaft übernehmen?"
 
-#: qml/Main.qml:327
+#: qml/Main.qml:336
 msgid ""
 "The system goes back to snapshot %1 for good. The current, broken state is "
 "kept as a snapshot, so this can be undone. Afterwards the computer has to "
@@ -501,15 +501,15 @@ msgstr ""
 "Stand bleibt als Snapshot erhalten, das lässt sich also rückgängig machen. "
 "Danach muss der Computer neu starten."
 
-#: qml/Main.qml:336
+#: qml/Main.qml:345
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: qml/Main.qml:345
+#: qml/Main.qml:354
 msgid "That did not work"
 msgstr "Das hat nicht geklappt"
 
-#: qml/Main.qml:349
+#: qml/Main.qml:358
 msgid "Repair"
 msgstr "Reparieren"
 

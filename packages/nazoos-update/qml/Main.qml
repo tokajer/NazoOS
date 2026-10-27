@@ -24,10 +24,12 @@ Kirigami.ApplicationWindow {
     readonly property bool conflict: st.conflict === true
     readonly property bool refreshFailed: st.refresh_failed === true
     readonly property bool keyFailed: st.key_failed === true
+    // Date.now() is not a binding dependency: without this the label never ages
+    property double now: Date.now()
 
     function ago(seconds) {
         if (!seconds) return L.tr("never")
-        const min = Math.round((Date.now() / 1000 - seconds) / 60)
+        const min = Math.round((root.now / 1000 - seconds) / 60)
         if (min < 2) return L.tr("just now")
         if (min < 120) return L.trn("%1 minute ago", "%1 minutes ago", min)
         const h = Math.round(min / 60)
@@ -276,6 +278,13 @@ Kirigami.ApplicationWindow {
                 }
             }
         }
+    }
+
+    Timer {
+        interval: 60000
+        running: root.visible
+        repeat: true
+        onTriggered: root.now = Date.now()
     }
 
     // Opened from the "Make permanent" notification: ask right away, but
