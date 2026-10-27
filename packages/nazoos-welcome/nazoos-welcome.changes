@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Oct 27 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Packman, NVIDIA and NazoOS kernel repositories: only the signing key
+  shipped with NazoOS is trusted, no longer the key the server sends
+  when the repository is added (ADR 0031)
+- Removing the openSUSE kernel and removing the NazoOS kernel ask for
+  the administrator password every time, with their own text
+-------------------------------------------------------------------
 Tue Oct 27 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Trusting a repository key, installing the NazoOS kernel and preparing

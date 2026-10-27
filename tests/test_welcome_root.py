@@ -439,19 +439,23 @@ def _packman_env(monkeypatch, fake_root, tmp_path, existing=None):
 def test_codecs_install_order(monkeypatch, fake_root, tmp_path):
     _packman_env(monkeypatch, fake_root, tmp_path)
     drivers.codecs_install([])
-    verbs = [c[2] for c in fake_root.calls]
-    assert verbs == ["addrepo", "--gpg-auto-import-keys", "refresh",
-                     "dist-upgrade", "install", "install"]
-    assert fake_root.calls[4][-len(system.PACKMAN_CODECS):] == (
+    assert fake_root.calls[0] == ["rpm", "--import",
+                                  str(system.PACKMAN_KEY)]
+    verbs = [c[2] for c in fake_root.calls[1:]]
+    # The second refresh is packman_switch()'s
+    assert verbs == ["addrepo", "refresh", "refresh", "dist-upgrade",
+                     "install", "install"]
+    assert fake_root.calls[5][-len(system.PACKMAN_CODECS):] == (
         system.PACKMAN_CODECS)
 
 
-def test_codecs_install_trusts_no_key_for_an_existing_repo(
+def test_codecs_install_imports_the_pinned_key_for_an_existing_repo(
         monkeypatch, fake_root, tmp_path):
     _packman_env(monkeypatch, fake_root, tmp_path,
                  existing=("packman", PACKMAN_URL, True))
     drivers.codecs_install([])
-    assert not any("--gpg-auto-import-keys" in c for c in fake_root.calls)
+    assert fake_root.calls[0] == ["rpm", "--import",
+                                  str(system.PACKMAN_KEY)]
 
 
 def test_codecs_install_removes_the_repo_it_added_on_failure(
@@ -507,13 +511,43 @@ def test_nvidia_install_keeps_the_repo_when_a_driver_is_in(
 def test_repo_in_use_removes_a_new_repo_whose_key_fails(
         monkeypatch, fake_root):
     _repos(monkeypatch, [])
-    fake_root.rc = {"--gpg-auto-import-keys": 1}
+    fake_root.rc = {"refresh": 1}
     # keep() would say yes, but nothing came from a repo with no key
     fake_root.installed = {"nvidia-video-G07"}
     with pytest.raises(base.Fail):
         drivers.nvidia_install(["open"])
     assert fake_root.calls[-1][2:] == ["removerepo",
                                        system.NVIDIA_REPO_ALIAS]
+
+
+def test_repo_in_use_adds_no_repo_when_the_pinned_key_fails(
+        monkeypatch, fake_root):
+    _repos(monkeypatch, [])
+    fake_root.rc = {"--import": 1}
+    with pytest.raises(base.Fail):
+        drivers.nvidia_install(["open"])
+    assert fake_root.calls == [["rpm", "--import", str(system.NVIDIA_KEY)]]
+
+
+def test_the_pinned_repo_keys_are_shipped():
+    # rpm --import of a missing file would end every opt-in with an error
+    root = Path(__file__).resolve().parent.parent / "packages"
+    welcome = root / "nazoos-welcome"
+    spec = (welcome / "nazoos-welcome.spec").read_text()
+    for key in (system.PACKMAN_KEY, system.NVIDIA_KEY):
+        assert key.parent == system.REPO_KEYS
+        assert (welcome / "repo-keys" / key.name).is_file()
+        assert f"repo-keys/{key.name}" in spec
+    tweaks = (root / "nazoos-tweaks/nazoos-tweaks.spec").read_text()
+    name = Path(kernel_switch.KERNEL_REPO_KEY).name
+    assert (root / "nazoos-tweaks/rpm-keys" / name).is_file()
+    assert kernel_switch.KERNEL_REPO_KEY.replace("/usr", "%{_prefix}") \
+        in tweaks
+    workflow = (root.parent / ".github/workflows/rpm-key.yml").read_text()
+    for path in ("nazoos-welcome/repo-keys/packman.asc",
+                 "nazoos-welcome/repo-keys/nvidia.asc",
+                 f"nazoos-tweaks/rpm-keys/{name}"):
+        assert f"key: packages/{path}" in workflow
 
 
 def test_nvidia_install_never_removes_a_repo_that_was_there(
@@ -530,7 +564,7 @@ def test_codecs_install_enables_a_disabled_repo(
     _packman_env(monkeypatch, fake_root, tmp_path,
                  existing=("packman", PACKMAN_URL, False))
     drivers.codecs_install([])
-    assert fake_root.calls[0][2:] == ["modifyrepo", "--enable", "packman"]
+    assert fake_root.calls[1][2:] == ["modifyrepo", "--enable", "packman"]
     assert not any("addrepo" in c for c in fake_root.calls)
 
 
@@ -569,7 +603,7 @@ def test_nvidia_install_disables_the_repo_it_enabled_on_failure(
     fake_root.rc = {"install": 107}
     with pytest.raises(base.Fail):
         drivers.nvidia_install(["open"])
-    assert fake_root.calls[0][2:] == ["modifyrepo", "--enable", "nvidia"]
+    assert fake_root.calls[1][2:] == ["modifyrepo", "--enable", "nvidia"]
     assert fake_root.calls[-1][2:] == ["modifyrepo", "--disable", "nvidia"]
 
 

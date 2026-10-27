@@ -8,7 +8,7 @@ only accept fixed actions (see nazoos-welcome-helper).
 pkexec takes the FIRST action in polkit's list whose exec.path matches;
 an action without argv1 matches every call and the list order is not
 defined. So "helper" (no argv1) is the catch-all of the normal helper,
-and the three steps with lasting effects have their own helper
+and the steps with lasting effects have their own helper
 (nazoos-welcome-helper-strict) and actions: the password dialog says what
 really happens and the password is asked every time. Every action on the
 strict path has an argv1 and there is no catch-all for that path, so the
@@ -64,6 +64,34 @@ Docs: https://www.freedesktop.org/software/polkit/docs/latest/polkit.8.html
     </defaults>
     <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper-strict</annotate>
     <annotate key="org.freedesktop.policykit.exec.argv1">kernel-install</annotate>
+  </action>
+
+  <action id="org.nazoos.welcome.kernel-only">
+    <description>Remove the openSUSE kernel with NazoOS Welcome</description>
+    <description xml:lang="de">Den openSUSE-Kernel mit NazoOS Willkommen entfernen</description>
+    <message>NazoOS Welcome needs administrator rights to remove the openSUSE kernel. Afterwards only the NazoOS kernel starts the computer.</message>
+    <message xml:lang="de">NazoOS Willkommen benötigt Administratorrechte, um den openSUSE-Kernel zu entfernen. Danach startet nur noch der NazoOS-Kernel den Computer.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper-strict</annotate>
+    <annotate key="org.freedesktop.policykit.exec.argv1">kernel-only</annotate>
+  </action>
+
+  <action id="org.nazoos.welcome.kernel-remove">
+    <description>Remove the NazoOS kernel with NazoOS Welcome</description>
+    <description xml:lang="de">Den NazoOS-Kernel mit NazoOS Willkommen entfernen</description>
+    <message>NazoOS Welcome needs administrator rights to remove the NazoOS kernel and the programs that need it.</message>
+    <message xml:lang="de">NazoOS Willkommen benötigt Administratorrechte, um den NazoOS-Kernel und die Programme zu entfernen, die ihn brauchen.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/nazoos-welcome/nazoos-welcome-helper-strict</annotate>
+    <annotate key="org.freedesktop.policykit.exec.argv1">kernel-remove</annotate>
   </action>
 
   <action id="org.nazoos.welcome.mok-import">

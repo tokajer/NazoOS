@@ -31,8 +31,8 @@ def test_root_and_probe_code_does_not_import_qt():
     assert r.returncode == 0, r.stderr
 
 
-def test_repo_keys_are_only_trusted_when_a_repo_is_added():
-    # ADR 0017: a key a mirror sends on a later refresh must not be taken
+def test_no_repo_key_is_taken_from_the_server():
+    # ADR 0017 + 0031: only shipped (pinned) keys are trusted
     found = []
     for base in (ROOT / "packages", ROOT / "kiwi"):
         for p in base.rglob("*"):
@@ -40,7 +40,7 @@ def test_repo_keys_are_only_trusted_when_a_repo_is_added():
                 continue
             if "--gpg-auto-import-keys" in p.read_text(errors="ignore"):
                 found.append(str(p.relative_to(ROOT)))
-    assert found == ["packages/nazoos-welcome/nazoos_welcome/root/base.py"]
+    assert found == []
 
 
 def test_firewalld_names_fit():

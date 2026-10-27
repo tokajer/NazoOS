@@ -29,21 +29,24 @@ def enable_repo(fragment):
 
 
 @contextlib.contextmanager
-def repo_in_use(fragment, alias, addrepo_args, keep):
+def repo_in_use(fragment, alias, addrepo_args, keep, key):
     """Alias of the repo whose URL contains FRAGMENT; added as ALIAS with
-    ADDREPO_ARGS (options and URL) if there is none. If the block raises,
-    a repo this call switched on is switched off again and one it added
-    is removed, unless KEEP() says packages from it are installed."""
+    ADDREPO_ARGS (options and URL) if there is none. KEY is the shipped
+    signing key file of that repo. If the block raises, a repo this call
+    switched on is switched off again and one it added is removed, unless
+    KEEP() says packages from it are installed."""
+    # Only the pinned key is trusted, never what the server sends
+    # (ADR 0031). Importing a key rpm already has changes nothing; a key
+    # left behind when the steps below fail is still the right one.
+    helper.run(["rpm", "--import", str(key)])
     found, enabled = enable_repo(fragment)
     alias = found or alias
     if not found:
         helper.run(ZYPPER + ["addrepo"] + addrepo_args + [alias])
         try:
-            # The user just chose this repo: its key is trusted once, here.
-            # Later refreshes reject a changed key (ADR 0017).
-            helper.run(ZYPPER + ["--gpg-auto-import-keys", "refresh", alias])
+            helper.run(ZYPPER + ["refresh", alias])
         except Exception:
-            # Nothing can be installed from a repo whose key was not taken
+            # Nothing can be installed from a repo whose key does not match
             helper.run(ZYPPER + ["removerepo", alias], check=False)
             raise
     try:

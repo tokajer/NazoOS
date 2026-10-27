@@ -34,6 +34,12 @@ WAYDROID_SOFTWARE = {"ro.hardware.gralloc": "default",
 PACKMAN_ALIAS = "packman"
 PACKMAN_URL = "https://ftp.fau.de/packman/suse/openSUSE_Tumbleweed/"
 PACKMAN_PRIORITY = "70"
+# Signing keys of the opt-in repos, shipped in repo-keys/ and pinned by
+# .github/workflows/rpm-key.yml (ADR 0031). Not in /usr/lib/rpm/gnupg/keys:
+# the image imports every key there, these only count once the user
+# adds the repo.
+REPO_KEYS = Path("/usr/share/nazoos-welcome/repo-keys")
+PACKMAN_KEY = REPO_KEYS / "packman.asc"
 PACKMAN_CODECS = [
     "vlc-codecs", "gstreamer-plugins-bad-codecs",
     "gstreamer-plugins-ugly-codecs", "libfdk-aac2",
@@ -52,6 +58,7 @@ OSS_CODECS = [
 # The kmp-meta packages pick the module for every installed kernel flavor.
 NVIDIA_REPO_ALIAS = "NVIDIA"
 NVIDIA_REPO_URL = "https://download.nvidia.com/opensuse/tumbleweed"
+NVIDIA_KEY = REPO_KEYS / "nvidia.asc"
 # The variants the user picks. "module": the kernel module base (the meta
 # package is "<module>-kmp-meta"); "video": the package that marks the
 # variant as installed

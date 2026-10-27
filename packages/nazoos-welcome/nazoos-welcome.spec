@@ -94,6 +94,10 @@ install -Dm0644 data/org.nazoos.welcome.desktop \
   %{buildroot}%{_datadir}/applications/org.nazoos.welcome.desktop
 install -Dm0644 data/nazoos-welcome-autostart.desktop \
   %{buildroot}%{_sysconfdir}/xdg/autostart/nazoos-welcome.desktop
+# Signing keys of the opt-in repos (ADR 0031), imported only when the
+# user adds the repo
+install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-welcome/repo-keys \
+  repo-keys/packman.asc repo-keys/nvidia.asc
 install -Dm0644 data/org.nazoos.welcome.policy \
   %{buildroot}%{_datadir}/polkit-1/actions/org.nazoos.welcome.policy
 cp -a locale %{buildroot}%{_datadir}/

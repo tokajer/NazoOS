@@ -21,7 +21,7 @@ def codecs_install(_args):
             "/packman/", system.PACKMAN_ALIAS,
             ["--refresh", "--priority", system.PACKMAN_PRIORITY,
              "--name", "Packman", system.PACKMAN_URL],
-            _packman_installed) as alias:
+            _packman_installed, system.PACKMAN_KEY) as alias:
         packman_switch(alias)
         helper.run(ZYPPER_IN + ["--from", alias] + system.PACKMAN_CODECS)
     helper.run(ZYPPER_IN + system.OSS_CODECS)
@@ -33,7 +33,8 @@ def nvidia_install(args):
     with repo_in_use(
             "://download.nvidia.com/", system.NVIDIA_REPO_ALIAS,
             ["--refresh", "--name", "NVIDIA", system.NVIDIA_REPO_URL],
-            lambda: any(proc.rpm_installed(p) for p in drivers)):
+            lambda: any(proc.rpm_installed(p) for p in drivers),
+            system.NVIDIA_KEY):
         helper.run(ZYPPER_IN + drivers)
     say("Restart the computer to load the NVIDIA driver.")
 

@@ -5,9 +5,14 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 Allows nazoos-update to start its root helper via pkexec. The helper
 only knows the actions check, update and rollback.
-pkexec picks the action by program path and first argument
-(exec.argv1); "update" has no argv1 and catches the rest. Own actions
-so the password dialog says what really happens.
+Own actions so the password dialog says what really happens.
+pkexec takes the FIRST action in polkit's list whose exec.path matches,
+and "update" (no argv1) matches every call; the list order is not
+defined. So "check" and "rollback" only get their own action when
+polkit happens to list them first, else they fall back to "update".
+Accepted (ADR 0031): all three steps are offered to the user anyway, the
+worst case is one password dialog for "check" with the update text.
+nazoos-welcome needs more (its lasting steps have their own helper path).
 "check" needs no password at the computer itself: it only refreshes the
 repos and does a dry run, the same as nazoos-update-check.timer does
 as root every few hours.

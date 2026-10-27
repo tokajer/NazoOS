@@ -1,15 +1,19 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# Watches the signing key of our OBS repositories (home:Tokajer:nazoos:*).
-# nazoos-tweaks ships it in /usr/lib/rpm/gnupg/keys and the image imports
-# it; an expired key makes `zypper --non-interactive` refuse our repo.
-# - OBS repo has the same key with a later expiry (after
+# Watches the signing keys NazoOS ships (pinning, ADR 0017 + 0031):
+# - obs: our OBS repositories (home:Tokajer:nazoos:*). nazoos-tweaks ships
+#   it in /usr/lib/rpm/gnupg/keys and the image imports it; an expired key
+#   makes `zypper --non-interactive` refuse our repo.
+# - packman, nvidia: the opt-in repos of nazoos-welcome. Shipped in
+#   nazoos-welcome/repo-keys, imported when the user adds the repo.
+# For each key:
+# - repo has the same key with a later expiry (for obs after
 #   `osc signkey --extend home:Tokajer`) → pull request with the new file
 # - less than 90 days left and not extended → issue
-# - OBS repo has a different key (fingerprint) → issue, no update: we
-#   never take a key just because the server sends it (pinning)
-# Extending itself stays manual: it needs the maintainer's OBS login.
+# - repo has a different key (fingerprint) → issue, no update: we
+#   never take a key just because the server sends it
+# Extending our key stays manual: it needs the maintainer's OBS login.
 # Needs: Settings → Actions → General → "Allow GitHub Actions to create
 # and approve pull requests". Pull requests opened by GITHUB_TOKEN do not
 # start other workflows (reuse.yml): run `reuse lint` before merging.
@@ -32,15 +36,33 @@ permissions:
   issues: write
 
 env:
-  KEY: packages/nazoos-tweaks/rpm-keys/gpg-pubkey-a686e7d6-6ac40415.asc
-  FPR: 8E0FEEE8D51E8476708B732FB75EA6B0A686E7D6
-  URL: https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/repodata/repomd.xml.key
   WARN_DAYS: 90
-  BRANCH: rpm-key-update
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: obs
+            name: OBS
+            key: packages/nazoos-tweaks/rpm-keys/gpg-pubkey-a686e7d6-6ac40415.asc
+            fpr: 8E0FEEE8D51E8476708B732FB75EA6B0A686E7D6
+            url: https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/repodata/repomd.xml.key
+            package: nazoos-tweaks
+          - id: packman
+            name: Packman
+            key: packages/nazoos-welcome/repo-keys/packman.asc
+            fpr: F8875B880D518B6B8C530D1345A1D0671ABD1AFB
+            url: https://ftp.fau.de/packman/suse/openSUSE_Tumbleweed/repodata/repomd.xml.key
+            package: nazoos-welcome
+          - id: nvidia
+            name: NVIDIA
+            key: packages/nazoos-welcome/repo-keys/nvidia.asc
+            fpr: 2FB03195DECD49492BD1C17AB1D0D788DB27FD5A
+            url: https://download.nvidia.com/opensuse/tumbleweed/repodata/repomd.xml.key
+            package: nazoos-welcome
     defaults:
       run:
         shell: bash
@@ -48,6 +70,13 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       GH_REPO: ${{ github.repository }}
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      KEY: ${{ matrix.key }}
+      FPR: ${{ matrix.fpr }}
+      URL: ${{ matrix.url }}
+      ID: ${{ matrix.id }}
+      NAME: ${{ matrix.name }}
+      PACKAGE: ${{ matrix.package }}
+      BRANCH: rpm-key-update-${{ matrix.id }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
@@ -76,42 +105,48 @@ jobs:
             { echo "::error::$URL does not contain exactly one key"; exit 1; }
 
           if [ "$(fpr download.asc)" != "$FPR" ]; then
-            issue "OBS repository signing key changed" "The OBS repository now signs with key \`$(fpr download.asc)\`, nazoos-tweaks ships \`$FPR\`. Installed systems will refuse the repo.
+            if [ "$ID" = obs ]; then
+              todo="Check in OBS whether the key was replaced on purpose (\`osc signkey home:Tokajer\`). If yes: new file in packages/nazoos-tweaks/rpm-keys/ (name: \`gpg-pubkey-<last 8 of key id>-<creation time hex>.asc\`), update key and fpr in .github/workflows/rpm-key.yml, the %files list in nazoos-tweaks.spec and KERNEL_REPO_KEY in nazoos-welcome (root/kernel_switch.py)."
+            else
+              todo="Check on the $NAME website whether the key was replaced on purpose. If yes: replace $KEY and update fpr in .github/workflows/rpm-key.yml (ADR 0031). Until then adding the $NAME repository in NazoOS Welcome fails."
+            fi
+            issue "$NAME repository signing key changed" "The $NAME repository now signs with key \`$(fpr download.asc)\`, $PACKAGE ships \`$FPR\`. Installed systems will refuse the repo.
 
-          Not updated automatically. Check in OBS whether the key was replaced on purpose (\`osc signkey home:Tokajer\`). If yes: new file in packages/nazoos-tweaks/rpm-keys/ (name: \`gpg-pubkey-<last 8 of key id>-<creation time hex>.asc\`), update KEY and FPR in .github/workflows/rpm-key.yml and the %files list in nazoos-tweaks.spec."
+          Not updated automatically. $todo"
             exit 0
           fi
 
           # Only the pinned key as gpg parsed it goes into the PR: config.sh
-          # imports every key in the file, appended keys would reach every install
+          # and rpm --import take every key in the file, appended keys
+          # would be trusted too
           gpg --batch --quiet --import download.asc
           gpg --batch --armor --export-options export-minimal --export "$FPR" > remote.asc
 
           local_exp=$(expiry "$KEY")
           remote_exp=$(expiry remote.asc)
-          echo "ships: $(date -ud "@$local_exp" +%F), OBS: $(date -ud "@$remote_exp" +%F)" >> "$GITHUB_STEP_SUMMARY"
+          echo "$NAME ships: $(date -ud "@$local_exp" +%F), repo: $(date -ud "@$remote_exp" +%F)" >> "$GITHUB_STEP_SUMMARY"
 
           if [ "$remote_exp" -gt "$local_exp" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git switch -C "$BRANCH"
             cp remote.asc "$KEY"
-            changes=packages/nazoos-tweaks/nazoos-tweaks.changes
+            changes=packages/$PACKAGE/$PACKAGE.changes
             {
               echo "-------------------------------------------------------------------"
               echo "$(LC_ALL=C date -u '+%a %b %e %H:%M:%S UTC %Y') - $(git config user.name) <$(git config user.email)>"
               echo
-              echo "- Repository signing key extended until $(date -ud "@$remote_exp" +%F)"
+              echo "- $NAME repository signing key extended until $(date -ud "@$remote_exp" +%F)"
               echo
               cat "$changes"
             } > changes.new
             mv changes.new "$changes"
-            git commit -am "nazoos-tweaks: signing key extended until $(date -ud "@$remote_exp" +%F)"
+            git commit -am "$PACKAGE: $NAME signing key extended until $(date -ud "@$remote_exp" +%F)"
             git push -f origin "$BRANCH"
             if [ "$(gh pr list --head "$BRANCH" --state open --json number --jq length)" = 0 ]; then
-              gh pr create --head "$BRANCH" --title "nazoos-tweaks: update repository signing key" --body "The OBS repository key (same fingerprint \`$FPR\`) now expires on $(date -ud "@$remote_exp" +%F), the shipped file on $(date -ud "@$local_exp" +%F).
+              gh pr create --head "$BRANCH" --title "$PACKAGE: update $NAME repository signing key" --body "The $NAME repository key (same fingerprint \`$FPR\`) now expires on $(date -ud "@$remote_exp" +%F), the shipped file on $(date -ud "@$local_exp" +%F).
 
-          Before merging: \`reuse lint\` (this PR does not start other workflows). After the merge OBS rebuilds nazoos-tweaks and installed systems get the new key with the next update.
+          Before merging: \`reuse lint\` (this PR does not start other workflows). After the merge OBS rebuilds $PACKAGE and installed systems get the new key with the next update.
 
           Found by: $RUN_URL"
             fi
@@ -120,18 +155,24 @@ jobs:
 
           days_left=$(( (local_exp - $(date +%s)) / 86400 ))
           if [ "$days_left" -lt "$WARN_DAYS" ]; then
-            issue "Extend the OBS signing key" "The signing key of our OBS repositories expires on $(date -ud "@$local_exp" +%F) ($days_left days). After that installed systems refuse the NazoOS repo.
+            if [ "$ID" = obs ]; then
+              issue "Extend the OBS signing key" "The signing key of our OBS repositories expires on $(date -ud "@$local_exp" +%F) ($days_left days). After that installed systems refuse the NazoOS repo.
 
           Run in the distrobox \`tw\`: \`osc signkey --extend home:Tokajer\`. The next run of this workflow (weekly, or Actions → RPM signing key → Run workflow) opens a pull request with the extended key."
+            else
+              issue "$NAME signing key expires soon" "The $NAME repository key expires on $(date -ud "@$local_exp" +%F) ($days_left days) and the repository still sends that version. $NAME usually extends it shortly before; this workflow then opens a pull request by itself.
+
+          If it expires without an extension, adding the $NAME repository in NazoOS Welcome fails until $NAME publishes a new key. Nothing to do in NazoOS before that."
+            fi
           fi
 
       - name: Report failure
         if: failure()
         run: |
-          title="RPM signing key check failed"
+          title="RPM signing key check failed ($NAME)"
           issue=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number // empty')
           if [ -n "$issue" ]; then
             gh issue comment "$issue" --body "Failed again: $RUN_URL"
           else
-            gh issue create --title "$title" --body "The weekly check of the repository signing key failed: $RUN_URL"
+            gh issue create --title "$title" --body "The weekly check of the $NAME repository signing key failed: $RUN_URL"
           fi

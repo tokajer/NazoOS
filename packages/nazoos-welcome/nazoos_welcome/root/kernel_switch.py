@@ -15,6 +15,9 @@ from .mok_queue import MOK_RESTART, prepare_mok
 
 # zypper: a lower number wins, the default is 99; 90 beats the default repos
 KERNEL_REPO_PRIORITY = "90"
+# :kernel is signed with the key of all our OBS repos, shipped by
+# nazoos-tweaks (ADR 0017); file name kept by `osc signkey --extend`
+KERNEL_REPO_KEY = "/usr/lib/rpm/gnupg/keys/gpg-pubkey-a686e7d6-6ac40415.asc"
 EFIVARS = "/sys/firmware/efi/efivars"
 
 
@@ -62,8 +65,8 @@ def kernel_install(_args):
                      kernel.KERNEL_REPO_ALIAS,
                      ["--refresh", "--priority", KERNEL_REPO_PRIORITY,
                       kernel.KERNEL_REPO_URL],
-                     lambda: proc.rpm_installed(kernel.KERNEL_PACKAGE)
-                     ) as alias:
+                     lambda: proc.rpm_installed(kernel.KERNEL_PACKAGE),
+                     KERNEL_REPO_KEY) as alias:
         pkgs = [kernel.KERNEL_PACKAGE] + nazoos_kmps(alias)
         # If the install below fails the queued key stays (harmless:
         # MokManager enrolls it, a later install needs no key step)
