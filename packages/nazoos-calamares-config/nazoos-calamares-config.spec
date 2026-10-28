@@ -26,6 +26,8 @@ Requires:       snapper
 Requires:       util-linux
 # Live session: installer starter runs Calamares via sudo
 Requires:       sudo
+# Owns /etc/sudoers.d in the build root (50-check-filelist)
+BuildRequires:  sudo
 # Device page: handheld detection, gaming mode for handheld installs
 Requires:       nazoos-session
 # Handheld installs keep it, desktop installs remove it

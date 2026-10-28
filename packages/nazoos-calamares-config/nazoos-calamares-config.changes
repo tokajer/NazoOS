@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Oct 28 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- BuildRequires sudo: without the %dir line the build's filelist
+  check needs the owner of /etc/sudoers.d in the build root.
+
+-------------------------------------------------------------------
 Tue Oct 27 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Do not own /etc/sudoers.d (sudo does): removing this package after
