@@ -142,9 +142,11 @@ def update(args):
     key_missing = run_dup(cmd) if cmd else False
     after_update_extras(bool(cmd), clean_flatpaks)
     reboot = capture(["zypper", "needs-rebooting"]).returncode == zypper.NEEDS_REBOOT
+    # Flatpak updates may have failed (not an update error): ask again
+    # instead of reporting "up to date" until the next check
     status.write(status.new(
         behind=list(behind) if behind else None, needs_reboot=reboot,
-        updated=int(time.time())))
+        updated=int(time.time()), flatpaks=check.flatpak_updates()))
     if reboot:
         helper.reboot()
     if key_missing:

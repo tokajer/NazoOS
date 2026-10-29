@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 29 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Closing the window during an action no longer stops it half-way
+  (nazoos-common API 15)
+
+-------------------------------------------------------------------
 Tue Oct 27 22:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Installing apps, drivers, codecs, ROCm, the deck pattern and services

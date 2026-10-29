@@ -67,6 +67,19 @@ def test_boot_mode_gaming_returns_after_a_desktop_session(root):
     assert session(root) == GAMING
 
 
+def test_boot_mode_desktop_brings_back_the_admins_autologin(root):
+    dm = root / "etc/sysconfig/displaymanager"
+    dm.write_text('DISPLAYMANAGER_AUTOLOGIN="kiosk"\n')
+    # A pending one-time switch must not count as the admin's value
+    assert ctl(root, "switch", "gaming", USER).returncode == 0
+    assert ctl(root, "boot-mode", "gaming", USER).returncode == 0
+    # Choosing gaming mode again (other user) keeps the saved value
+    assert ctl(root, "boot-mode", "gaming", USER).returncode == 0
+    assert autologin(root) == USER
+    assert ctl(root, "boot-mode", "desktop").returncode == 0
+    assert autologin(root) == "kiosk" and session(root) is None
+
+
 def test_one_time_switch_does_not_survive_a_boot(root):
     oneshot = root / "etc/nazoos/session-oneshot"
     assert ctl(root, "switch", "gaming", USER).returncode == 0

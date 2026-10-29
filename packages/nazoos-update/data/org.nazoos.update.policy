@@ -3,8 +3,10 @@
 SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 SPDX-License-Identifier: GPL-3.0-or-later
 
-Allows nazoos-update to start its root helper via pkexec. The helper
-only knows the actions check, update and rollback.
+Allows nazoos-update to start its root helper via pkexec. The GUI uses
+the actions check, update and rollback. "label" is run as root by
+nazoos-update-label.service, without pkexec; started via pkexec it would
+fall under "update" like any other argument.
 Own actions so the password dialog says what really happens.
 pkexec takes the FIRST action in polkit's list whose exec.path matches,
 and "update" (no argv1) matches every call; the list order is not

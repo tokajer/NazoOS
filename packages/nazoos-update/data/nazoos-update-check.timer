@@ -5,9 +5,9 @@ Description=NazoOS: check for updates regularly
 
 [Timer]
 OnBootSec=10min
+# OnBootSec also covers a check missed while the computer was off
+# (Persistent= would only work with OnCalendar=)
 OnUnitActiveSec=6h
-# Catch up a missed check after the computer was off
-Persistent=true
 RandomizedDelaySec=15min
 
 [Install]

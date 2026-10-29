@@ -138,7 +138,7 @@ jobs:
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
 
           The release ISO builds in :release now; the "Release ISO" workflow
-          (every 3 hours, or Actions → Release ISO → Run workflow) publishes
+          (hourly, or Actions → Release ISO → Run workflow) publishes
           it once it is built and the mirrors have its Tumbleweed snapshot.
           EOF
           [ "${#failed[@]}" -eq 0 ] || exit 1

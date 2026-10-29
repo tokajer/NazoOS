@@ -43,8 +43,33 @@ class Passthrough(Exception):
         self.rc = rc
 
 
-def say(text):
-    print(text, flush=True)
+def _drop_output():
+    """The reader of our output is gone (window closed, session ended).
+    Point stdout and stderr (one pipe for the GUI) at /dev/null so the
+    action runs to its end instead of dying on the next write. The GUI
+    cannot stop us anyway (we run as root); stopping half-way is what
+    breaks a system, e.g. a "zypper dup" in the middle of its rpm
+    transaction."""
+    null = os.open(os.devnull, os.O_WRONLY)
+    os.dup2(null, 1)
+    os.dup2(null, 2)
+    os.close(null)
+
+
+def _write(raw):
+    try:
+        # Text from print() (e.g. log=print in nazoos-kernel-boot) first
+        sys.stdout.flush()
+        sys.stdout.buffer.write(raw)
+        sys.stdout.flush()
+    except BrokenPipeError:
+        _drop_output()
+
+
+def say(text, end="\n"):
+    """All output of a root action goes through here or run()."""
+    # Like print: a file name that is not UTF-8 must not end the helper
+    _write(f"{text}{end}".encode(errors="surrogateescape"))
 
 
 def reboot():
@@ -55,19 +80,18 @@ def reboot():
 def run(cmd, check=True, on_line=None):
     """Run CMD with its output in the log. zypper's INFO codes
     count as success (a note is logged). ON_LINE(text), if given, also
-    sees every output line."""
+    sees every output line.
+    The output always goes through us, never straight to the GUI's pipe:
+    if the GUI goes away, the command must not get SIGPIPE (_drop_output)."""
     say("$ " + " ".join(cmd))
-    if on_line is None:
-        rc = subprocess.run(cmd, stdin=subprocess.DEVNULL).returncode
-    else:
-        with subprocess.Popen(cmd, stdin=subprocess.DEVNULL,
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.STDOUT) as proc:
-            for raw in proc.stdout:
-                sys.stdout.buffer.write(raw)
-                sys.stdout.flush()
+    with subprocess.Popen(cmd, stdin=subprocess.DEVNULL,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.STDOUT) as proc:
+        for raw in proc.stdout:
+            _write(raw)
+            if on_line is not None:
                 on_line(raw.decode(errors="replace"))
-        rc = proc.returncode
+    rc = proc.returncode
     if cmd[0] == "zypper" and rc in zypper.INFO:
         say(f"Note: {zypper.INFO[rc]}")
         return 0
@@ -133,7 +157,7 @@ def main(actions, lock_timeout, max_args=None, argv=None):
         say(errors.encode("system error: {detail}", {"detail": str(e)}))
         return 1
     except Exception as e:  # a bug must still reach the user as a message
-        traceback.print_exc(file=sys.stdout)
+        say(traceback.format_exc(), end="")
         say(errors.encode("program error: {detail}",
                           {"detail": f"{type(e).__name__}: {e}"}))
         return 1

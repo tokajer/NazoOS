@@ -2,8 +2,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Frame of the root helpers: exit codes and the last output line."""
 
+import io
 import json
 import subprocess
+import sys
+from pathlib import Path
 
 import pytest
 
@@ -94,21 +97,84 @@ def test_fail_text_is_filled():
     assert str(helper.Fail("x {n}", n=2)) == "x 2"
 
 
+class FakeProc:
+    """subprocess.Popen stand-in for helper.run: exit code RC, output OUT."""
+
+    def __init__(self, rc, out=b""):
+        self.returncode = rc
+        self.stdout = io.BytesIO(out)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+
+def fake_popen(monkeypatch, rc, out=b""):
+    monkeypatch.setattr(helper.subprocess, "Popen",
+                        lambda *a, **k: FakeProc(rc, out))
+
+
 @pytest.mark.parametrize("rc, expected", [(0, 0), (102, 0), (106, 0)])
 def test_run_zypper_notes_count_as_success(monkeypatch, capsys, rc,
                                            expected):
-    monkeypatch.setattr(helper.subprocess, "run",
-                        lambda *a, **k: subprocess.CompletedProcess(a, rc))
+    fake_popen(monkeypatch, rc)
     assert helper.run(["zypper", "refresh"]) == expected
 
 
 def test_run_failure(monkeypatch):
-    monkeypatch.setattr(helper.subprocess, "run",
-                        lambda *a, **k: subprocess.CompletedProcess(a, 4))
+    fake_popen(monkeypatch, 4)
     with pytest.raises(helper.Fail) as e:
         helper.run(["zypper", "install", "x"])
     assert e.value.params == {"cmd": "zypper", "rc": 4}
     assert helper.run(["false"], check=False) == 4
+
+
+def test_run_passes_the_output_on(monkeypatch, capsys):
+    fake_popen(monkeypatch, 0, b"one\ntwo\n")
+    seen = []
+    helper.run(["zypper", "dup"], on_line=seen.append)
+    assert seen == ["one\n", "two\n"]
+    assert capsys.readouterr().out == "$ zypper dup\none\ntwo\n"
+
+
+def test_say_takes_file_names_that_are_not_utf8(capsysbinary):
+    # str(OSError) of such a name has lone surrogates; print() wrote them
+    helper.say("/mnt/caf\udce9")
+    assert capsysbinary.readouterr().out == b"/mnt/caf\xe9\n"
+
+
+# A helper whose window is closed: its stdout pipe has no reader any more
+GONE_READER = """
+import sys
+sys.path.insert(0, {common!r})
+from nazoos_common import helper
+helper.os.geteuid = lambda: 0
+
+def act(_args):
+    helper.run([sys.executable, "-c",
+                "for i in range(200000): print('progress', i)"])
+    helper.say("done")
+    open({marker!r}, "w").write("finished")
+
+sys.exit(helper.main({{"go": act}}, 1, argv=["helper", "go"]))
+"""
+
+
+def test_action_finishes_when_the_gui_goes_away(tmp_path):
+    marker = tmp_path / "finished"
+    common = Path(helper.__file__).resolve().parent.parent
+    script = GONE_READER.format(common=str(common), marker=str(marker))
+    with subprocess.Popen([sys.executable, "-c", script],
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.STDOUT) as proc:
+        assert proc.stdout.readline().startswith(b"$ ")
+        proc.stdout.close()     # the GUI is gone
+        rc = proc.wait(timeout=60)
+    # Before: the command died of SIGPIPE half-way and the action failed
+    assert rc == 0
+    assert marker.read_text() == "finished"
 
 
 def test_arg():

@@ -117,7 +117,7 @@ def repair_key(args):
     if not re.fullmatch(r"[0-9A-F]{40}", fpr):
         raise Fail("invalid argument: {arg}", arg=fpr)
     r = helper.capture(ZYPPER + ["refresh", alias])
-    print(r.stdout + r.stderr, end="", flush=True)
+    say(r.stdout + r.stderr, end="")
     offered = [k for k in offered_keys(r.stdout + r.stderr)
                if repos.alias_of(k["label"]) == alias]
     if not offered:

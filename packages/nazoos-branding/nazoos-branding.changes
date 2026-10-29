@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 29 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- grub2: removing the package also removes GRUB_THEME/GRUB_BACKGROUND
+  lines that point at the NazoOS theme
+
+-------------------------------------------------------------------
 Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The boot menu theme and the other boot menu changes wait for each other

@@ -352,6 +352,23 @@ def test_unused_flatpaks_go_only_when_chosen(monkeypatch, clean):
     assert update.FLATPAK + ["update", "--noninteractive", "-y"] in calls
 
 
+def test_update_keeps_flatpaks_that_failed_to_update(monkeypatch):
+    written = []
+    monkeypatch.setattr(update, "run", lambda *a, **k: 0)
+    monkeypatch.setattr(check, "dup_preview", lambda *a: ([], []))
+    monkeypatch.setattr(check, "mirrors_behind", lambda _pkgs: None)
+    monkeypatch.setattr(update, "run_dup", lambda _cmd: False)
+    monkeypatch.setattr(update, "after_update_extras", lambda *a: None)
+    monkeypatch.setattr(update, "capture",
+                        lambda cmd: subprocess.CompletedProcess(cmd, 0))
+    # flatpak update failed (check=False): the app is still pending
+    monkeypatch.setattr(check, "flatpak_updates", lambda: ["org.x.App//stable"])
+    monkeypatch.setattr(update.status, "write", written.append)
+    update.update([])
+    assert written[-1]["flatpaks"] == ["org.x.App//stable"]
+    assert written[-1]["packages"] == [] and written[-1]["error"] == ""
+
+
 def test_update_rejects_unknown_arguments():
     with pytest.raises(Fail):
         update.update(["--unused"])

@@ -54,6 +54,16 @@ def test_the_real_workflow_lists_the_packages():
     assert "acpi_call" not in found
 
 
+def test_every_package_dir_is_built_in_obs():
+    # A package missing from .obs/workflows.yml is never rebuilt on push and
+    # never released (ADR 0025, 0030)
+    text = (ROOT / ".obs/workflows.yml").read_text()
+    built = set(rp.packages(text, DEVEL)) | set(
+        rp.packages(text, "home:Tokajer:nazoos:kernel"))
+    dirs = {d.name for d in (ROOT / "packages").iterdir() if d.is_dir()}
+    assert dirs - built == set()
+
+
 def test_no_package_exits_with_a_message():
     with pytest.raises(SystemExit) as e:
         rp.main(["release-packages.py", "home:Nobody:nothing"])

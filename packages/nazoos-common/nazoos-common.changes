@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Oct 29 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- API 15: a root action runs to its end when the window that started
+  it is closed: commands always write through the helper, which
+  switches to /dev/null when the reader is gone (before, zypper got
+  SIGPIPE in the middle of its rpm transaction); say() takes end=
+
+-------------------------------------------------------------------
 Tue Oct 27 22:45:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - API 14: helper.install retries a failed zypper install once after

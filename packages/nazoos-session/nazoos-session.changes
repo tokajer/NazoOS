@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 29 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Boot mode gaming keeps the autologin from before; boot mode desktop
+  brings it back instead of clearing it
+
+-------------------------------------------------------------------
 Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The gaming mode boot service is sandboxed

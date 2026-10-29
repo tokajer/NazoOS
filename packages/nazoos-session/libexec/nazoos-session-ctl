@@ -111,12 +111,15 @@ clear_autologin() {
   set_dm_autologin "${1-}"
 }
 
+# PREVIOUS: DISPLAYMANAGER_AUTOLOGIN before boot mode gaming, back with
+# boot mode desktop
 write_conf() {
   mkdir -p "$(dirname "$CONF")"
   cat > "$CONF.tmp" <<EOF
 # NazoOS gaming mode (nazoos-session-ctl). BOOT_MODE: gaming | desktop
 BOOT_MODE="$1"
 USER="$2"
+PREVIOUS="${3-}"
 EOF
   mv -f "$CONF.tmp" "$CONF"
 }
@@ -141,14 +144,23 @@ case $cmd in
       gaming)
         user=${2-}
         valid_user "$user" || die "invalid user: $user"
+        # The autologin from before gaming mode (not the one-time switch's
+        # or our own), for "boot-mode desktop"
+        if [ "$boot_mode" = gaming ]; then
+          previous=$(conf_get "$CONF" PREVIOUS)
+        elif [ -f "$ONESHOT" ]; then
+          previous=$(conf_get "$ONESHOT" PREVIOUS)
+        else
+          previous=$(dm_autologin)
+        fi
         rm -f "$ONESHOT"
-        write_conf gaming "$user"
+        write_conf gaming "$user" "$previous"
         set_autologin "$user" gaming
         ;;
       desktop)
         restore_oneshot
         if [ "$boot_mode" = gaming ]; then
-          clear_autologin ""
+          clear_autologin "$(conf_get "$CONF" PREVIOUS)"
         fi
         write_conf desktop ""
         ;;

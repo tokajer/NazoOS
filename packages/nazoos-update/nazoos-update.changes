@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Thu Oct 29 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- After an update the status asks Flatpak again: a failed Flatpak update
+  no longer shows as "up to date" until the next check
+- Closing the window during an update no longer stops zypper half-way
+  (nazoos-common API 15)
+- Check timer: drop Persistent= (only works with OnCalendar=); policy
+  comment names the label action
+
+-------------------------------------------------------------------
 Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - A check that could not reach the repositories or found a key or

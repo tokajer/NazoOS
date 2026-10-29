@@ -36,7 +36,7 @@ CONFIG_SCHED_CLASS_EXT=y
 CONFIG_LRU_GEN=y
 CONFIG_LRU_GEN_ENABLED=y
 
-# dmem cgroup controller (VRAM protection, 0015-0020 patches, ADR 0013).
+# dmem cgroup controller (VRAM protection, ADR 0013; upstream since 7.3).
 # Already on in openSUSE's default config, listed as a guard
 CONFIG_CGROUP_DMEM=y
 

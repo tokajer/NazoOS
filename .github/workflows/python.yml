@@ -3,7 +3,9 @@
 #
 # Lint (ruff) and unit tests (pytest) for the Python code of
 # nazoos-common, nazoos-welcome and nazoos-update (ADR 0030), plus the
-# nazoos-session-ctl script (tests/test_session_ctl.py).
+# nazoos-session-ctl script (tests/test_session_ctl.py). All of packages/
+# and kiwi/: the contract tests read files of every package
+# (test_layers.py, test_image.py, test_release_packages.py).
 # Settings: pyproject.toml. The tools are pinned to the versions of the
 # local test venv (raise them together with it). Locally: pip install
 # pytest ruff PySide6-Essentials, then "ruff check ." and "pytest".
@@ -15,12 +17,8 @@ on:
   push:
     branches: [main]
     paths:
-      - "packages/nazoos-common/**"
-      - "packages/nazoos-welcome/**"
-      - "packages/nazoos-update/**"
-      - "packages/nazoos-session/**"
-      - "packages/nazoos-branding/**"
-      - "packages/nazoos-kernel-only/**"
+      - "packages/**"
+      - "kiwi/**"
       - "tests/**"
       - "pyproject.toml"
       - ".github/scripts/**"

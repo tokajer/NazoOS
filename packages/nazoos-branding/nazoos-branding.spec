@@ -144,6 +144,14 @@ mkdir -p /run/update-bootloader && touch /run/update-bootloader/refresh || :
 %postun grub2
 if [ $1 -eq 0 ]; then
   rm -rf /boot/grub2/themes/nazoos
+  # Only lines that still point at our theme: a replacing branding package
+  # (grub2-branding-openSUSE) has already set its own in its %%post
+  if [ -f /etc/default/grub ]; then
+    # Same lock as activate-theme and the Python grub writers
+    flock -w 60 /run/nazoos-grub.lock \
+      sed -i -E '/^GRUB_(THEME|BACKGROUND)=.*\/themes\/nazoos\//d' /etc/default/grub || :
+    [ -x /sbin/update-bootloader ] && /sbin/update-bootloader --refresh || :
+  fi
 fi
 
 %posttrans grub2

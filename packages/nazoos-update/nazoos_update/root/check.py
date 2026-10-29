@@ -140,7 +140,7 @@ def flatpak_updates():
 def check(_args=None):
     result = status.new()
     r = capture(zypper.ZYPPER + ["refresh"])
-    print(r.stdout + r.stderr, end="", flush=True)
+    say(r.stdout + r.stderr, end="")
     if r.returncode != 0:
         keys = zypper.offered_keys(r.stdout + r.stderr)
         result["error"] = status.ERROR_KEY if keys else status.ERROR_REFRESH
