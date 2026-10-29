@@ -3,6 +3,9 @@
 #
 # OBS SCM/CI integration: push to main → refetch sources in :devel and rebuild.
 # Doku: https://openbuildservice.org/help/manuals/obs-user-guide/cha-obs-scm-ci-workflow-integration
+# The order is the release order (release.yml stops at the first failure):
+# every package after the ones it Requires, checked by
+# tests/test_release_packages.py
 
 devel_build:
   steps:
@@ -11,16 +14,13 @@ devel_build:
         package: nazoos-tweaks
     - trigger_services:
         project: home:Tokajer:nazoos:devel
-        package: nazoos-pattern
-    - trigger_services:
-        project: home:Tokajer:nazoos:devel
         package: nazoos-repos
     - trigger_services:
         project: home:Tokajer:nazoos:devel
         package: nazoos-branding
     - trigger_services:
         project: home:Tokajer:nazoos:devel
-        package: nazoos-calamares-config
+        package: nazoos-pattern
     - trigger_services:
         project: home:Tokajer:nazoos:devel
         package: nazoos-common
@@ -51,6 +51,9 @@ devel_build:
     - trigger_services:
         project: home:Tokajer:nazoos:devel
         package: nazoos-session
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: nazoos-calamares-config
     - trigger_services:
         project: home:Tokajer:nazoos:devel
         package: nazoos-deck

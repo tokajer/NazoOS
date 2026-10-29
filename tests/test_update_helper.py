@@ -5,6 +5,7 @@
 import fcntl
 import re
 import subprocess
+import threading
 from pathlib import Path
 
 import pytest
@@ -299,6 +300,61 @@ def test_label_holds_the_lock_while_naming(monkeypatch, tmp_path):
     monkeypatch.setattr(snapshots, "name_snapshots", name_snapshots)
     assert snapshots.label_snapshots(update_after=3) == 2
     assert seen == [3]
+
+
+def test_update_waits_for_a_running_check(monkeypatch, tmp_path, capfd):
+    from nazoos_update import root
+
+    lock = tmp_path / "action.lock"
+    monkeypatch.setattr(root, "ACTION_LOCK", str(lock))
+    ran = []
+    monkeypatch.setattr(root.update, "update", ran.append)
+    with open(lock, "w") as running:
+        # A timer check is still asking Flathub: the update waits for it
+        fcntl.flock(running, fcntl.LOCK_EX)
+        t = threading.Thread(target=root.ACTIONS["update"], args=(["x"],))
+        t.start()
+        t.join(0.5)
+        assert t.is_alive() and ran == []
+    t.join(5)
+    assert ran == [["x"]]
+    assert "Waiting for the running update check" in capfd.readouterr().out
+
+
+def test_update_goes_on_after_waiting_too_long(monkeypatch, tmp_path, capfd):
+    from nazoos_update import root
+
+    lock = tmp_path / "action.lock"
+    monkeypatch.setattr(root, "ACTION_LOCK", str(lock))
+    monkeypatch.setattr(root, "UPDATE_WAIT", 0)
+    ran = []
+    monkeypatch.setattr(root.update, "update", ran.append)
+    with open(lock, "w") as hanging:
+        fcntl.flock(hanging, fcntl.LOCK_EX)
+        root.ACTIONS["update"](["x"])
+    assert ran == [["x"]]
+    assert "updating anyway" in capfd.readouterr().out
+
+
+def test_check_never_waits(monkeypatch, tmp_path, capfd):
+    # A waiting check could deadlock against an update that restarts the
+    # check service from its package scripts
+    from nazoos_update import root
+
+    lock = tmp_path / "action.lock"
+    monkeypatch.setattr(root, "ACTION_LOCK", str(lock))
+    ran = []
+    monkeypatch.setattr(root.check, "check", ran.append)
+    with open(lock, "w") as updating:
+        fcntl.flock(updating, fcntl.LOCK_EX)
+        root.ACTIONS["check"]([])
+    assert ran == []
+    assert "nothing to do" in capfd.readouterr().out
+    root.ACTIONS["check"]([])
+    assert ran == [[]]
+    # rollback and label write no status and never wait
+    assert root.ACTIONS["rollback"] is snapshots.rollback
+    assert root.ACTIONS["label"] is snapshots.label
 
 
 def test_check_keeps_the_restart_hint_of_the_update(monkeypatch, tmp_path):

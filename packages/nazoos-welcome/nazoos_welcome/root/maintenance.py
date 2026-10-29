@@ -55,13 +55,19 @@ def flatpak_repair(_args):
     helper.run(FLATPAK + ["repair"])
 
 
+# nazoos-update names these snapshots in the boot menu by their description
+# (root/snapshots.py, tests/test_welcome_contract.py)
+MANUAL_SNAPSHOT = "nazoos-welcome: manual snapshot"
+CHANNEL_SNAPSHOT = "nazoos-welcome: before switching to {target}"
+
+
 def create_snapshot(description):
     helper.run(["snapper", "-c", "root", "create", "--type", "single",
                 "--cleanup-algorithm", "number", "--description", description])
 
 
 def snapshot(_args):
-    create_snapshot("nazoos-welcome: manual snapshot")
+    create_snapshot(MANUAL_SNAPSHOT)
 
 
 def _point(link, target):
@@ -86,7 +92,7 @@ def channel(args):
         raise Fail("nazoos-repos is not installed")
     # Before the link changes: the zypper snapshot alone would already
     # contain the new channel
-    create_snapshot(f"nazoos-welcome: before switching to {target}")
+    create_snapshot(CHANNEL_SNAPSHOT.format(target=target))
     old = os.readlink(link) if link.is_symlink() else None
     _point(link, f"nazoos-{target}-repoindex.xml")
     try:

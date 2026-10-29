@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 29 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Snapshot descriptions as constants, checked against the boot menu
+  names of nazoos-update
+
+-------------------------------------------------------------------
 Thu Oct 29 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Closing the window during an action no longer stops it half-way

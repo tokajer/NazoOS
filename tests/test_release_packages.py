@@ -3,6 +3,7 @@
 """The package list of .github/scripts/release-packages.py (release.yml)."""
 
 import importlib.util
+import re
 from pathlib import Path
 
 import pytest
@@ -68,3 +69,20 @@ def test_no_package_exits_with_a_message():
     with pytest.raises(SystemExit) as e:
         rp.main(["release-packages.py", "home:Nobody:nothing"])
     assert "no package found" in str(e.value)
+
+
+def test_every_package_comes_after_what_it_requires():
+    # release.yml stops at the first failed package: everything released
+    # before it must be installable without the rest
+    text = (ROOT / ".obs/workflows.yml").read_text()
+    order = rp.packages(text, DEVEL)
+    dep = re.compile(r"^Requires:\s+([\w.+-]+)", re.M)
+    checked = set()
+    for pkg in order:
+        spec = (ROOT / "packages" / pkg / f"{pkg}.spec").read_text()
+        for name in dep.findall(spec):
+            if name in order:
+                assert order.index(name) < order.index(pkg), (pkg, name)
+                checked.add((pkg, name))
+    # The parser still finds the dependency the order exists for
+    assert ("nazoos-welcome", "nazoos-common") in checked

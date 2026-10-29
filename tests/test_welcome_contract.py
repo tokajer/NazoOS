@@ -191,3 +191,19 @@ def test_the_repair_page_reads_what_the_update_check_writes(monkeypatch,
         status.new(error=status.ERROR_KEY, keys=[key])))
     monkeypatch.setattr(repair_checks, "UPDATE_STATUS", written)
     assert repair_checks.untrusted_keys() == [key]
+
+
+def test_update_names_the_snapshots_welcome_takes():
+    from nazoos_update.root import snapshots
+    from nazoos_welcome import system
+    from nazoos_welcome.root import maintenance
+
+    def label(description):
+        return snapshots.snapshot_label(
+            {"number": 7, "type": "single", "description": description},
+            set(), False, lambda s: s)
+
+    assert label(maintenance.MANUAL_SNAPSHOT) == "Manual snapshot"
+    for target in system.CHANNEL_REPO_PATHS:
+        assert label(maintenance.CHANNEL_SNAPSHOT.format(target=target)
+                     ) == "Before channel switch"

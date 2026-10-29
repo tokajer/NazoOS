@@ -70,6 +70,7 @@ def snapshot_label(s, zypp_pre, is_update, _):
                 return _("Before rollback")
             if Path(path).is_dir():
                 return _("After rollback")
+        # Written by nazoos-welcome (root/maintenance.py *_SNAPSHOT)
         elif d == "nazoos-welcome: manual snapshot":
             return _("Manual snapshot")
         elif d.startswith("nazoos-welcome: before switching to "):

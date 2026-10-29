@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 29 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Check and update run one at a time: a timer check that ended after
+  an update no longer brings back the old package list. A check skips
+  while an update runs; an update waits up to 10 minutes for a check
+
+-------------------------------------------------------------------
 Thu Oct 29 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - A failed Flatpak query (Flathub unreachable) no longer shows as

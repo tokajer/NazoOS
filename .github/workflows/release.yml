@@ -119,11 +119,15 @@ jobs:
           own=$(python3 .github/scripts/release-packages.py "$SOURCE")
           mapfile -t packages < <(printf '%s\n' $own $OBS_ONLY)
           [ "${#packages[@]}" -gt 0 ] || { echo "::error::no packages found"; exit 1; }
-          failed=()
           {
             echo "## Release $(date -u +%F) from ${GITHUB_SHA::7}"
             echo
           } >> "$GITHUB_STEP_SUMMARY"
+          # Stop at the first failure: the list puts every package after
+          # the ones it Requires (tests/test_release_packages.py), so what
+          # is released stays installable (new nazoos-common with old
+          # Welcome is fine, the other way round zypper dup conflicts on
+          # every stable system). Running the workflow again is safe
           for pkg in "${packages[@]}"; do
             if out=$(curl -sS --fail-with-body -X POST \
                 -H "Authorization: Token $TOKEN" \
@@ -131,8 +135,8 @@ jobs:
               echo "- $pkg ✓" >> "$GITHUB_STEP_SUMMARY"
             else
               echo "::error::$pkg: $out"
-              echo "- $pkg ✗" >> "$GITHUB_STEP_SUMMARY"
-              failed+=("$pkg")
+              echo "- $pkg ✗ (stopped here, run the workflow again)" >> "$GITHUB_STEP_SUMMARY"
+              exit 1
             fi
           done
           cat >> "$GITHUB_STEP_SUMMARY" <<'EOF'
@@ -141,4 +145,3 @@ jobs:
           (hourly, or Actions → Release ISO → Run workflow) publishes
           it once it is built and the mirrors have its Tumbleweed snapshot.
           EOF
-          [ "${#failed[@]}" -eq 0 ] || exit 1
