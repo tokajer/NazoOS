@@ -75,6 +75,29 @@ def own_update_cmd():
     return cmd
 
 
+def skipped_repos(text):
+    """Labels of the repos zypper skipped in a refresh, from its plain
+    text output."""
+    # SHORTCUT: scrapes the English refresh text (the helpers set
+    # LC_ALL=C.UTF-8); if zypper rewords it nothing is found and the
+    # check reports a plain refresh error.
+    labels = re.findall(r"Skipping repository '(.+?)' because of the "
+                        r"above error\.", text)
+    return list(dict.fromkeys(labels))
+
+
+def partial_refresh(rc, text):
+    """Labels of the sources that failed to refresh while others worked
+    (no key offered), else None. Only decides the message: zypper refuses
+    "dup" then (orphaned packages), so the user waits or switches the
+    source off."""
+    if rc == 0 or zypper.offered_keys(text):
+        return None
+    skipped = skipped_repos(text)
+    enabled = [a for a, _url, on in repos.repos() if on]
+    return skipped if 0 < len(skipped) < len(enabled) else None
+
+
 def dup_preview(cmd=("dist-upgrade", "--auto-agree-with-licenses")):
     """Packages a "zypper dup" (or cmd) would change, from its XML output."""
     r = capture(zypper.ZYPPER + ["--xmlout"] + list(cmd) + ["--dry-run"])
@@ -152,6 +175,7 @@ def check(_args=None):
     result = status.new()
     r = capture(zypper.ZYPPER + ["refresh"])
     say(r.stdout + r.stderr, end="")
+    skipped = partial_refresh(r.returncode, r.stdout + r.stderr)
     if r.returncode != 0:
         keys = zypper.offered_keys(r.stdout + r.stderr)
         result["error"] = status.ERROR_KEY if keys else status.ERROR_REFRESH
@@ -161,11 +185,17 @@ def check(_args=None):
              "label": k["label"], "fingerprint": k["fingerprint"],
              "shown": f"{k['label']}: {zypper.group_hex(k['fingerprint'])}"}
             for k in keys]
+        result["refresh_skipped"] = skipped or []
         result["detail"] = (r.stderr or r.stdout).strip()[-DETAIL_MAX:]
         status.write(result)
         if keys:
             raise Recorded("the signing key of repository {repo} is unknown "
                            "or has changed", repo=result["keys"][0]["label"])
+        if skipped:
+            raise Recorded("the package source {repo} does not respond; "
+                           "updates wait until it works again or it is "
+                           "switched off",
+                           repo=", ".join(skipped))
         raise Recorded("the package sources could not be refreshed "
                        "(no internet connection?)")
     pkgs, problems = dup_preview()

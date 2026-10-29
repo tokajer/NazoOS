@@ -41,7 +41,8 @@ def new(**fields):
     on top. UPDATE_KEYS stay out unless given: write() keeps the old ones."""
     data = {"error": "", "detail": "", "problems": [], "packages": [],
             "flatpaks": [], "flatpak_failed": False, "keys": [],
-            "update_needs_reboot": False, "behind": None}
+            "update_needs_reboot": False, "behind": None,
+            "refresh_skipped": []}
     data.update(fields)
     return data
 
@@ -109,4 +110,5 @@ def collect():
     st["refresh_failed"] = st.get("error") == ERROR_REFRESH
     st["key_failed"] = st.get("error") == ERROR_KEY
     st["keys"] = st.get("keys") or []
+    st["refresh_skipped"] = st.get("refresh_skipped") or []
     return st

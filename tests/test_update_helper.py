@@ -530,3 +530,103 @@ def test_failed_flatpak_query_is_not_up_to_date(monkeypatch, rc, expected):
         cmd, rc, "org.x.App\tstable\n" if rc == 0 else "", "error"))
     st = check.flatpak_status()
     assert (st["flatpaks"], st["flatpak_failed"]) == expected
+
+
+
+SKIP_OUTPUT = (
+    "Retrieving repository 'Packman' metadata [error]\n"
+    "Repository 'Packman' is invalid.\n"
+    "Skipping repository 'Packman' because of the above error.\n"
+    "Some of the repositories have not been refreshed because of an error.\n")
+SKIP_TEMPLATE = ("the package source {repo} does not respond; updates wait "
+                 "until it works again or it is switched off")
+
+
+def _repos(monkeypatch, aliases):
+    monkeypatch.setattr(check.repos, "repos",
+                        lambda: [(a, "http://x", True) for a in aliases])
+
+
+def test_skipped_repos_are_read_from_the_refresh_text():
+    text = (SKIP_OUTPUT + "Skipping repository 'NVIDIA (x)' because of the "
+            "above error.\nSkipping repository 'Packman' because of the "
+            "above error.\n")
+    assert check.skipped_repos(text) == ["Packman", "NVIDIA (x)"]
+    # stderr text may follow a partial stdout line on the shared pipe
+    assert check.skipped_repos(
+        "Retrieving [Skipping repository 'A b' because of the above "
+        "error.\n") == ["A b"]
+    assert check.skipped_repos("Could not resolve host\n") == []
+
+
+def test_partial_refresh_needs_some_repo_to_work(monkeypatch):
+    from conftest import KEY_OUTPUT
+    _repos(monkeypatch, ["oss", "packman"])
+    assert check.partial_refresh(4, SKIP_OUTPUT) == ["Packman"]
+    assert check.partial_refresh(0, SKIP_OUTPUT) is None
+    assert check.partial_refresh(4, "offline\n") is None
+    assert check.partial_refresh(4, KEY_OUTPUT + SKIP_OUTPUT) is None
+    _repos(monkeypatch, ["packman"])
+    assert check.partial_refresh(4, SKIP_OUTPUT) is None
+
+
+def _no_preview(monkeypatch):
+    def preview(*_a):
+        raise AssertionError("dup_preview must not run")
+    monkeypatch.setattr(check, "dup_preview", preview)
+
+
+def test_check_names_the_source_that_does_not_respond(monkeypatch, tmp_path):
+    _refresh_fails(monkeypatch, tmp_path, SKIP_OUTPUT)
+    _repos(monkeypatch, ["oss", "packman"])
+    _no_preview(monkeypatch)
+    with pytest.raises(check.Recorded) as e:
+        check.check()
+    assert e.value.template == SKIP_TEMPLATE
+    assert e.value.params == {"repo": "Packman"}
+    st = status_mod.read_status()
+    assert st["error"] == "refresh" and st["refresh_skipped"] == ["Packman"]
+    assert st["last_ok"] == 0
+
+
+def test_check_with_every_repo_skipped_is_a_plain_refresh_error(monkeypatch, tmp_path):
+    _refresh_fails(monkeypatch, tmp_path, SKIP_OUTPUT)
+    _repos(monkeypatch, ["packman"])
+    _no_preview(monkeypatch)
+    with pytest.raises(check.Recorded) as e:
+        check.check()
+    assert "no internet" in e.value.template
+    st = status_mod.read_status()
+    assert st["error"] == "refresh" and st["refresh_skipped"] == []
+
+
+def _update_env(monkeypatch, rc, out):
+    calls = []
+
+    def run(cmd, check=True, on_line=None):
+        calls.append(cmd)
+        if on_line:
+            on_line(out)
+        return rc
+    monkeypatch.setattr(update, "run", run)
+    _no_preview(monkeypatch)
+    return calls
+
+
+def test_update_names_the_source_that_does_not_respond(monkeypatch):
+    _repos(monkeypatch, ["oss", "packman"])
+    calls = _update_env(monkeypatch, 4, SKIP_OUTPUT)
+    with pytest.raises(Fail) as e:
+        update.update([])
+    assert e.value.template == SKIP_TEMPLATE
+    assert e.value.params == {"repo": "Packman"}
+    assert calls == [update.zypper.ZYPPER + ["refresh"]]
+
+
+def test_update_fails_like_before_when_every_source_fails(monkeypatch):
+    _repos(monkeypatch, ["packman"])
+    _update_env(monkeypatch, 4, SKIP_OUTPUT)
+    with pytest.raises(Fail) as e:
+        update.update([])
+    assert e.value.template == "'{cmd}' failed (exit code {rc})"
+    assert e.value.params == {"cmd": "zypper", "rc": 4}

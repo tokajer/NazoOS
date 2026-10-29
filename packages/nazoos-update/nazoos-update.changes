@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Thu Oct 29 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- A package source that does not respond (mirror down, repository
+  still publishing) is now named in the window instead of "no internet
+  connection?". The update waits, because zypper refuses a system
+  update with a missing source; the window offers to open Myrlyn to
+  switch the source off, and after several days a notification says so
+
+-------------------------------------------------------------------
 Thu Oct 29 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Check and update run one at a time: a timer check that ended after

@@ -175,3 +175,16 @@ def test_key_error_notifies_at_once_and_opens_repair():
     item = notify.pending(st, NOW, False, True)[0]
     assert item["command"] == ["nazoos-welcome", "--page", "repair"]
     assert notify.pending(st, NOW, False, False)[0]["page"] == "update"
+
+
+def test_failed_source_gets_its_own_error_text():
+    late = NOW - notify.CHECK_GRACE - 1
+    plain = notify.pending(state(error="refresh", last_ok=late),
+                           NOW, False, False)[0]
+    named = notify.pending(state(error="refresh", last_ok=late,
+                                 refresh_skipped=["Packman"]),
+                           NOW, False, False)[0]
+    assert plain["title"] == "Update check does not work"
+    assert named["title"] == "A package source does not respond"
+    assert "Packman" in named["body"]
+    assert named["key"] == plain["key"]

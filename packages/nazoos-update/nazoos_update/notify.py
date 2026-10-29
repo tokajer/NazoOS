@@ -176,11 +176,17 @@ def pending(st, now, stage2_ready, has_welcome):
                            command=["nazoos-welcome", "--page", "repair"]
                            if has_welcome else None))
     elif err and now - st.get("last_ok", now) > CHECK_GRACE:
-        items.append(_item(f"error-{now // REMIND}",
-                           _("Update check does not work"),
-                           _("NazoOS could not check for updates for "
-                             "several days. Is the computer connected to "
-                             "the internet?"),
+        if st.get("refresh_skipped"):
+            title = _("A package source does not respond")
+            body = _("The package source %s has not responded for several "
+                     "days, so updates are on hold. If you no longer need "
+                     "it, switch it off in Myrlyn (Repositories).") % \
+                ", ".join(st["refresh_skipped"])
+        else:
+            title = _("Update check does not work")
+            body = _("NazoOS could not check for updates for several "
+                     "days. Is the computer connected to the internet?")
+        items.append(_item(f"error-{now // REMIND}", title, body,
                            _("Fix"), "update", icon="dialog-warning"))
 
     if st["count"] and err != status.ERROR_CONFLICT:

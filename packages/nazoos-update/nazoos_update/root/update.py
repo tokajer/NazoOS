@@ -123,7 +123,16 @@ def update(args):
     if args:
         helper.arg(args, 0, (CLEAN_FLATPAKS,))
     clean_flatpaks = bool(args)
-    run(zypper.ZYPPER + ["refresh"])
+    lines = []
+    rc = run(zypper.ZYPPER + ["refresh"], check=False, on_line=lines.append)
+    if rc != 0:
+        skipped = check.partial_refresh(rc, "".join(lines))
+        if skipped:
+            raise Fail("the package source {repo} does not respond; "
+                       "updates wait until it works again or it is "
+                       "switched off",
+                       repo=", ".join(skipped))
+        raise Fail("'{cmd}' failed (exit code {rc})", cmd="zypper", rc=rc)
     pkgs, problems = check.dup_preview()
     if problems:
         # dup would only fail with exit code 4; show the conflict instead

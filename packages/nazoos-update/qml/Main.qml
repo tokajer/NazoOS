@@ -114,12 +114,20 @@ Kirigami.ApplicationWindow {
                 Layout.fillWidth: true
                 visible: root.refreshFailed
                 type: Kirigami.MessageType.Error
-                text: L.tr("The package sources could not be reached. Check the internet connection and try again.")
+                text: (root.st.refresh_skipped || []).length > 0
+                      ? L.tr("These package sources do not respond: %1. The update waits until they work again, because a system update with a missing source can damage the system. A source you no longer need can be switched off in Myrlyn (Repositories).")
+                        .replace("%1", root.st.refresh_skipped.join(", "))
+                      : L.tr("The package sources could not be reached. Check the internet connection and try again.")
                 actions: [
                     Kirigami.Action {
                         text: L.tr("Try again"); icon.name: "view-refresh"
                         enabled: !backend.busy
                         onTriggered: backend.run("check")
+                    },
+                    Kirigami.Action {
+                        text: L.tr("Open Myrlyn"); icon.name: "system-software-install"
+                        visible: (root.st.refresh_skipped || []).length > 0
+                        onTriggered: backend.launch("myrlyn")
                     }
                 ]
             }
