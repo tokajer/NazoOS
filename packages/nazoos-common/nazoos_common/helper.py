@@ -20,6 +20,7 @@ from . import errors, zypper
 FLATPAK = ["flatpak", "--system"]
 # Root part of nazoos-update; nazoos-welcome runs it for "Update now"
 UPDATE_HELPER = "/usr/libexec/nazoos-update/nazoos-update-helper"
+_KEEP_BYTES = "surrogateescape"
 
 
 class Fail(Exception):
@@ -68,8 +69,9 @@ def _write(raw):
 
 def say(text, end="\n"):
     """All output of a root action goes through here or run()."""
-    # Like print: a file name that is not UTF-8 must not end the helper
-    _write(f"{text}{end}".encode(errors="surrogateescape"))
+    # Like print: a file name that is not UTF-8 must not end the helper.
+    # A name, not a literal: xgettext --keyword=encode collects literals
+    _write(f"{text}{end}".encode(errors=_KEEP_BYTES))
 
 
 def reboot():

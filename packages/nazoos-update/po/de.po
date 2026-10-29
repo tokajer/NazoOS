@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-27 09:31+0100\n"
+"POT-Creation-Date: 2026-10-29 21:16+0100\n"
 "PO-Revision-Date: 2026-10-10 15:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -16,65 +16,65 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../nazoos-common/nazoos_common/grub.py:115
+#: ../nazoos-common/nazoos_common/grub.py:116
 #, python-brace-format
 msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr "GRUB_CMDLINE_LINUX_DEFAULT nicht in {file} gefunden"
 
-#: ../nazoos-common/nazoos_common/helper.py:72
+#: ../nazoos-common/nazoos_common/helper.py:101
 #: ../nazoos-common/nazoos_common/mok.py:37
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr "„{cmd}“ ist fehlgeschlagen (Exit-Code {rc})"
 
-#: ../nazoos-common/nazoos_common/helper.py:91
+#: ../nazoos-common/nazoos_common/helper.py:131
 msgid "missing argument"
 msgstr "Angabe fehlt"
 
-#: ../nazoos-common/nazoos_common/helper.py:93
+#: ../nazoos-common/nazoos_common/helper.py:133
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr "ungültige Angabe: {arg}"
 
-#: ../nazoos-common/nazoos_common/helper.py:102
+#: ../nazoos-common/nazoos_common/helper.py:142
 msgid "must run as root (via pkexec)"
 msgstr "muss mit Administratorrechten laufen (über pkexec)"
 
-#: ../nazoos-common/nazoos_common/helper.py:106
+#: ../nazoos-common/nazoos_common/helper.py:146
 msgid "unknown action"
 msgstr "unbekannte Aktion"
 
-#: ../nazoos-common/nazoos_common/helper.py:119
+#: ../nazoos-common/nazoos_common/helper.py:159
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr "Systemfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/helper.py:123
+#: ../nazoos-common/nazoos_common/helper.py:163
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr "Programmfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/qt.py:151
+#: ../nazoos-common/nazoos_common/qt.py:152
 msgid "pkexec could not be started."
 msgstr "pkexec konnte nicht gestartet werden."
 
-#: ../nazoos-common/nazoos_common/qt.py:159
+#: ../nazoos-common/nazoos_common/qt.py:160
 msgid "Done."
 msgstr "Fertig."
 
-#: ../nazoos-common/nazoos_common/qt.py:163
+#: ../nazoos-common/nazoos_common/qt.py:164
 msgid "Cancelled: no administrator password was given."
 msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
 
-#: ../nazoos-common/nazoos_common/qt.py:165
+#: ../nazoos-common/nazoos_common/qt.py:166
 msgid "Something went wrong."
 msgstr "Etwas ist schiefgelaufen."
 
-#: ../nazoos-common/nazoos_common/qt.py:276
+#: ../nazoos-common/nazoos_common/qt.py:277
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
-#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:13 qml/Main.qml:52
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:13 qml/Main.qml:60
 msgid "Details"
 msgstr "Details"
 
@@ -86,7 +86,7 @@ msgstr "Kopieren"
 msgid "Copied to the clipboard."
 msgstr "In die Zwischenablage kopiert."
 
-#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:369
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:376
 msgid "Close"
 msgstr "Schließen"
 
@@ -192,34 +192,34 @@ msgstr[1] "%d Updates sind bereit zur Installation."
 msgid "Updates available"
 msgstr "Updates verfügbar"
 
-#: nazoos_update/root/check.py:78
+#: nazoos_update/root/check.py:84
 msgid "zypper returned no readable answer"
 msgstr "zypper hat keine lesbare Antwort geliefert"
 
-#: nazoos_update/root/check.py:90
+#: nazoos_update/root/check.py:96
 #, python-brace-format
 msgid "zypper reported: {detail}"
 msgstr "zypper meldet: {detail}"
 
-#: nazoos_update/root/check.py:91
+#: nazoos_update/root/check.py:97
 #, python-brace-format
 msgid "zypper failed (exit code {rc})"
 msgstr "zypper ist fehlgeschlagen (Exit-Code {rc})"
 
-#: nazoos_update/root/check.py:150
+#: nazoos_update/root/check.py:167
 #, python-brace-format
 msgid "the signing key of repository {repo} is unknown or has changed"
 msgstr ""
 "der Signaturschlüssel der Paketquelle {repo} ist unbekannt oder hat sich "
 "geändert"
 
-#: nazoos_update/root/check.py:152
+#: nazoos_update/root/check.py:169
 msgid "the package sources could not be refreshed (no internet connection?)"
 msgstr ""
 "die Paketquellen konnten nicht aktualisiert werden (keine "
 "Internetverbindung?)"
 
-#: nazoos_update/root/check.py:177 nazoos_update/root/update.py:134
+#: nazoos_update/root/check.py:194 nazoos_update/root/update.py:134
 #, python-brace-format
 msgid "the update needs a decision: {problem}"
 msgstr "das Update braucht eine Entscheidung: {problem}"
@@ -274,7 +274,7 @@ msgstr "das System wurde nicht von einem Snapshot gestartet"
 msgid "the system update failed (zypper exit code {rc})"
 msgstr "das Systemupdate ist fehlgeschlagen (zypper-Exit-Code {rc})"
 
-#: nazoos_update/root/update.py:151
+#: nazoos_update/root/update.py:153
 msgid ""
 "the update is installed, but the NazoOS kernel key is not enrolled: open "
 "NazoOS Welcome, page Kernel, \"Enroll key\""
@@ -286,45 +286,45 @@ msgstr ""
 msgid "NazoOS Update"
 msgstr "NazoOS Aktualisierung"
 
-#: qml/Main.qml:31
+#: qml/Main.qml:39
 msgid "never"
 msgstr "nie"
 
-#: qml/Main.qml:33
+#: qml/Main.qml:41
 msgid "just now"
 msgstr "gerade eben"
 
-#: qml/Main.qml:34
+#: qml/Main.qml:42
 msgid "%1 minute ago"
 msgid_plural "%1 minutes ago"
 msgstr[0] "vor %1 Minute"
 msgstr[1] "vor %1 Minuten"
 
-#: qml/Main.qml:36
+#: qml/Main.qml:44
 msgid "%1 hour ago"
 msgid_plural "%1 hours ago"
 msgstr[0] "vor %1 Stunde"
 msgstr[1] "vor %1 Stunden"
 
-#: qml/Main.qml:37
+#: qml/Main.qml:45
 msgid "%1 day ago"
 msgid_plural "%1 days ago"
 msgstr[0] "vor %1 Tag"
 msgstr[1] "vor %1 Tagen"
 
-#: qml/Main.qml:42
+#: qml/Main.qml:50
 msgid "Updates"
 msgstr "Updates"
 
-#: qml/Main.qml:46
+#: qml/Main.qml:54
 msgid "Check now"
 msgstr "Jetzt prüfen"
 
-#: qml/Main.qml:63 qml/Main.qml:364
+#: qml/Main.qml:71 qml/Main.qml:371
 msgid "Show details"
 msgstr "Details anzeigen"
 
-#: qml/Main.qml:76
+#: qml/Main.qml:84
 msgid ""
 "The system was started from snapshot %1. It is read-only: nothing can be "
 "installed or changed. If everything works now, make this state permanent."
@@ -333,27 +333,27 @@ msgstr ""
 "nichts installiert oder geändert werden. Wenn jetzt alles funktioniert, "
 "übernehmen Sie diesen Stand dauerhaft."
 
-#: qml/Main.qml:79 qml/Main.qml:340
+#: qml/Main.qml:87 qml/Main.qml:347
 msgid "Make permanent"
 msgstr "Dauerhaft übernehmen"
 
-#: qml/Main.qml:93
+#: qml/Main.qml:101
 msgid "The snapshot was made permanent. Restart the computer to start from it."
 msgstr ""
 "Der Snapshot wurde dauerhaft übernommen. Starten Sie den Computer neu, um "
 "ihn zu verwenden."
 
-#: qml/Main.qml:94
+#: qml/Main.qml:102
 msgid "Updates were installed. Restart the computer to use them."
 msgstr ""
 "Updates wurden installiert. Starten Sie den Computer neu, um sie zu "
 "verwenden."
 
-#: qml/Main.qml:97
+#: qml/Main.qml:105
 msgid "Restart now"
 msgstr "Jetzt neu starten"
 
-#: qml/Main.qml:109
+#: qml/Main.qml:117
 msgid ""
 "The package sources could not be reached. Check the internet connection and "
 "try again."
@@ -361,11 +361,11 @@ msgstr ""
 "Die Paketquellen sind nicht erreichbar. Prüfen Sie die Internetverbindung "
 "und versuchen Sie es erneut."
 
-#: qml/Main.qml:112
+#: qml/Main.qml:120
 msgid "Try again"
 msgstr "Erneut versuchen"
 
-#: qml/Main.qml:122
+#: qml/Main.qml:130
 msgid ""
 "A package source offers a signing key that is not trusted yet, so it cannot "
 "be refreshed:"
@@ -373,7 +373,7 @@ msgstr ""
 "Eine Paketquelle bietet einen Signaturschlüssel an, dem noch nicht vertraut "
 "wird. Sie kann daher nicht aktualisiert werden:"
 
-#: qml/Main.qml:124
+#: qml/Main.qml:132
 msgid ""
 "Only trust it if the provider's website shows the same fingerprint. The "
 "Repair page of NazoOS Welcome can trust it."
@@ -382,17 +382,17 @@ msgstr ""
 "Fingerabdruck zeigt. Die Seite „Reparieren“ von NazoOS Welcome kann ihm "
 "vertrauen."
 
-#: qml/Main.qml:127
+#: qml/Main.qml:135
 msgid "Open Repair"
 msgstr "Reparieren öffnen"
 
-#: qml/Main.qml:137
+#: qml/Main.qml:145
 msgid "The update needs a decision that cannot be made automatically:"
 msgstr ""
 "Das Update braucht eine Entscheidung, die nicht automatisch getroffen werden "
 "kann:"
 
-#: qml/Main.qml:139
+#: qml/Main.qml:147
 msgid ""
 "In Myrlyn, Updates → Dist-Upgrade shows the conflict and the solutions to "
 "choose from."
@@ -400,11 +400,11 @@ msgstr ""
 "In Myrlyn zeigt Updates → Dist-Upgrade den Konflikt und die Lösungen zur "
 "Auswahl an."
 
-#: qml/Main.qml:142
+#: qml/Main.qml:150
 msgid "Open Myrlyn"
 msgstr "Myrlyn öffnen"
 
-#: qml/Main.qml:153
+#: qml/Main.qml:161
 msgid ""
 "The download servers do not have the newest Tumbleweed version yet (system: "
 "%1, servers: %2). Tumbleweed updates will appear as soon as they have it, "
@@ -415,37 +415,46 @@ msgstr ""
 "meist innerhalb eines Tages. Die eigenen NazoOS-Pakete lassen sich schon "
 "jetzt aktualisieren."
 
-#: qml/Main.qml:177
+#: qml/Main.qml:185
 msgid "Update on hold"
 msgstr "Update angehalten"
 
-#: qml/Main.qml:178
+#: qml/Main.qml:186
 msgid "Updates could not be checked"
 msgstr "Updates konnten nicht geprüft werden"
 
-#: qml/Main.qml:180
+#: qml/Main.qml:188
 msgid "%1 update available"
 msgid_plural "%1 updates available"
 msgstr[0] "%1 Update verfügbar"
 msgstr[1] "%1 Updates verfügbar"
 
-#: qml/Main.qml:181
+#: qml/Main.qml:189
+msgid "Flatpak updates could not be checked"
+msgstr "Flatpak-Updates konnten nicht geprüft werden"
+
+#: qml/Main.qml:190
 msgid "Not checked yet"
 msgstr "Noch nicht geprüft"
 
-#: qml/Main.qml:181
+#: qml/Main.qml:190
 msgid "The system is up to date"
 msgstr "Das System ist aktuell"
 
-#: qml/Main.qml:187
+#: qml/Main.qml:196
 msgid "Last check: %1"
 msgstr "Letzte Prüfung: %1"
 
-#: qml/Main.qml:188
+#: qml/Main.qml:197
 msgid "A restart will be needed afterwards."
 msgstr "Danach ist ein Neustart nötig."
 
-#: qml/Main.qml:194
+#: qml/Main.qml:199
+msgid "Flatpak updates could not be checked (no connection to Flathub?)."
+msgstr ""
+"Flatpak-Updates konnten nicht geprüft werden (keine Verbindung zu Flathub?)."
+
+#: qml/Main.qml:205
 msgid ""
 "Before the update a snapshot is taken automatically. If something breaks, "
 "pick it in the boot menu under \"Start bootloader from a read-only "
@@ -455,43 +464,43 @@ msgstr ""
 "kaputtgeht, wählen Sie ihn im Bootmenü unter „Start bootloader from a read-"
 "only snapshot“."
 
-#: qml/Main.qml:198
+#: qml/Main.qml:209
 msgid "Also remove Flatpak runtimes no app needs anymore"
 msgstr "Auch Flatpak-Laufzeiten entfernen, die keine App mehr braucht"
 
-#: qml/Main.qml:205
+#: qml/Main.qml:216
 msgid "Update now"
 msgstr "Jetzt aktualisieren"
 
-#: qml/Main.qml:218
+#: qml/Main.qml:229
 msgid "System packages"
 msgstr "Systempakete"
 
-#: qml/Main.qml:243
+#: qml/Main.qml:254
 msgid "new"
 msgstr "neu"
 
-#: qml/Main.qml:244
+#: qml/Main.qml:255
 msgid "removed"
 msgstr "entfernt"
 
-#: qml/Main.qml:254
+#: qml/Main.qml:265
 msgid "Flatpak apps and runtimes"
 msgstr "Flatpak-Apps und -Laufzeiten"
 
-#: qml/Main.qml:270
+#: qml/Main.qml:281
 msgid "Snapshots (Btrfs Assistant)"
 msgstr "Snapshots (Btrfs Assistant)"
 
-#: qml/Main.qml:275
+#: qml/Main.qml:286
 msgid "Packages (Myrlyn)"
 msgstr "Pakete (Myrlyn)"
 
-#: qml/Main.qml:335
+#: qml/Main.qml:342
 msgid "Make this state permanent?"
 msgstr "Diesen Stand dauerhaft übernehmen?"
 
-#: qml/Main.qml:336
+#: qml/Main.qml:343
 msgid ""
 "The system goes back to snapshot %1 for good. The current, broken state is "
 "kept as a snapshot, so this can be undone. Afterwards the computer has to "
@@ -501,15 +510,15 @@ msgstr ""
 "Stand bleibt als Snapshot erhalten, das lässt sich also rückgängig machen. "
 "Danach muss der Computer neu starten."
 
-#: qml/Main.qml:345
+#: qml/Main.qml:352
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: qml/Main.qml:354
+#: qml/Main.qml:361
 msgid "That did not work"
 msgstr "Das hat nicht geklappt"
 
-#: qml/Main.qml:358
+#: qml/Main.qml:365
 msgid "Repair"
 msgstr "Reparieren"
 

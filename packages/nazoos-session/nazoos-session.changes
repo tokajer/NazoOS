@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Oct 29 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- nazoos-session-ctl runs one caller at a time (flock): a login's
+  "started" can no longer interleave with a boot mode change
+
+-------------------------------------------------------------------
 Thu Oct 29 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Boot mode gaming keeps the autologin from before; boot mode desktop

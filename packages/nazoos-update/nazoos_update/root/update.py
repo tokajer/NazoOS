@@ -130,7 +130,7 @@ def update(args):
         # Not check_quietly(): it would repeat refresh, dry-run and labels
         status.write(status.new(error=status.ERROR_CONFLICT,
                                 problems=problems,
-                                flatpaks=check.flatpak_updates()))
+                                **check.flatpak_status()))
         raise Fail("the update needs a decision: {problem}",
                    problem=problems[0])
     behind = check.mirrors_behind(pkgs)
@@ -146,7 +146,7 @@ def update(args):
     # instead of reporting "up to date" until the next check
     status.write(status.new(
         behind=list(behind) if behind else None, needs_reboot=reboot,
-        updated=int(time.time()), flatpaks=check.flatpak_updates()))
+        updated=int(time.time()), **check.flatpak_status()))
     if reboot:
         helper.reboot()
     if key_missing:

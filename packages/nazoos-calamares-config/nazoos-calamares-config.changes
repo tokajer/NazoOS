@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 29 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The live user's passwordless sudo rule never reaches the installed
+  system: excluded when copying, removed first in nazoos-postinstall
+  (also after a failed step), "live" is no longer allowed as user name
+
+-------------------------------------------------------------------
 Wed Oct 28 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - BuildRequires sudo: without the %dir line the build's filelist

@@ -2,11 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """nazoos-session-ctl against a fake root (NAZOOS_SESSION_ROOT)."""
 
+import fcntl
 import getpass
 import os
 import re
 import shutil
 import subprocess
+import time
 from pathlib import Path
 
 import pytest
@@ -111,3 +113,18 @@ def test_unknown_user_writes_nothing(root):
     assert r.returncode == 1
     assert not any((root / "etc/nazoos").iterdir())
     assert session(root) is None and autologin(root) == ""
+
+
+def test_waits_for_another_caller(root):
+    # A login's "started" must not interleave with a Welcome click: the
+    # state is spread over several files
+    (root / "run").mkdir()
+    with open(root / "run/nazoos-session.lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        p = subprocess.Popen(
+            ["bash", str(SCRIPT), "boot-mode", "gaming", USER],
+            env={**os.environ, "NAZOOS_SESSION_ROOT": str(root)})
+        time.sleep(0.5)
+        assert p.poll() is None and session(root) is None
+    assert p.wait(timeout=10) == 0
+    assert session(root) == GAMING

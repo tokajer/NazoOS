@@ -125,16 +125,27 @@ def mirrors_behind(pkgs):
 
 
 def flatpak_updates():
+    """Pending Flatpak updates, None if Flathub could not be asked."""
     if not proc.has("flatpak"):
         return []
     r = capture(FLATPAK + ["remote-ls", "--updates",
                            "--columns=application,branch"])
+    if r.returncode != 0:
+        say(f"Note: Flatpak updates could not be checked: {r.stderr.strip()}")
+        return None
     apps = []
     for line in r.stdout.splitlines():
         parts = line.split("\t")
         if parts and parts[0]:
             apps.append(parts[0] + ("//" + parts[1] if len(parts) > 1 else ""))
     return apps
+
+
+def flatpak_status():
+    """Status fields for status.new(): an empty list after a failed query
+    must not read as "no Flatpak updates" (flatpak_failed)."""
+    apps = flatpak_updates()
+    return {"flatpaks": apps or [], "flatpak_failed": apps is None}
 
 
 def check(_args=None):
@@ -174,7 +185,7 @@ def check(_args=None):
     result["update_needs_reboot"] = any(
         REBOOT_HINT.match(p["name"] or "") for p in result["packages"]
         if p["type"] == "package")
-    result["flatpaks"] = flatpak_updates()
+    result.update(flatpak_status())
     status.write(result)
     snapshots.label_snapshots()
     say(f"{len(result['packages'])} package changes, "

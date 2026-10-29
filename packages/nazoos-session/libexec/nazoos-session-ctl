@@ -131,6 +131,13 @@ restore_oneshot() {
   rm -f "$ONESHOT"
 }
 
+# One caller at a time: the state is three files plus the sysconfig line,
+# and a login's "started" may meet a Welcome click or the boot service.
+# Without a writable /run go on unlocked, like activate-theme
+if { exec 9>"$ROOT/run/nazoos-session.lock"; } 2>/dev/null; then
+  flock -w 30 9 || :
+fi
+
 boot_mode=$(conf_get "$CONF" BOOT_MODE)
 boot_user=$(conf_get "$CONF" USER)
 

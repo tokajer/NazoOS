@@ -18,10 +18,10 @@ xgettext --from-code=UTF-8 --language=JavaScript --keyword=tr \
   ../nazoos-common/qml/org/nazoos/common/*.qml
 # Python: _("...") and ngettext("...", "...", n); ACTION_LABELS via a list.
 # The helper too: boot menu names of snapshots in the system language,
-# and its error templates Fail("...")/encode("...") that the GUIs
+# and its error templates Fail/Recorded("...")/encode("...") that the GUIs
 # translate (ADR 0030), also those of nazoos-common
 xgettext --from-code=UTF-8 --language=Python --keyword=_ --keyword=_gettext \
-  --keyword=ngettext:1,2 --keyword=Fail --keyword=encode \
+  --keyword=ngettext:1,2 --keyword=Fail --keyword=Recorded --keyword=encode \
   --output="$tmp/py.pot" nazoos_update/*.py nazoos_update/root/*.py \
   ../nazoos-common/nazoos_common/*.py
 python3 - "$tmp/labels.pot" <<'PY'

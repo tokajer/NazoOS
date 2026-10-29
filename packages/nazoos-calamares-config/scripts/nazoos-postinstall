@@ -12,6 +12,10 @@ set -euxo pipefail
 device=${1:-desktop}
 user=${2:-}
 
+# First, before any step can fail: the live user's passwordless sudo
+# (excluded in unpackfs.conf too) must not survive a failed install
+rm -f /etc/sudoers.d/nazoos-live
+
 # The live medium's base image has no /etc/mtab (systemd creates it at
 # boot); snapper and other tools need it inside the installer chroot
 [ -e /etc/mtab ] || ln -s ../proc/self/mounts /etc/mtab

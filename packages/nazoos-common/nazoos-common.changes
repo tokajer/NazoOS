@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Oct 29 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- No "surrogateescape" entry in the apps' translation templates
+
+-------------------------------------------------------------------
 Thu Oct 29 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - API 15: a root action runs to its end when the window that started

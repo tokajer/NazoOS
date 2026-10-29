@@ -462,3 +462,15 @@ def test_read_status_ignores_other_json(monkeypatch, tmp_path):
     assert status_mod.read_status() == {}
     f.write_text('{"count": 2}')
     assert status_mod.read_status() == {"count": 2}
+
+
+@pytest.mark.parametrize("rc, expected", [(0, (["org.x.App//stable"], False)),
+                                          (1, ([], True))])
+def test_failed_flatpak_query_is_not_up_to_date(monkeypatch, rc, expected):
+    # Flathub unreachable: no list, and the GUI must not say "up to date"
+    monkeypatch.setattr(check.proc, "has", lambda _name: True)
+    monkeypatch.setattr(check, "say", lambda *a, **k: None)
+    monkeypatch.setattr(check, "capture", lambda cmd: subprocess.CompletedProcess(
+        cmd, rc, "org.x.App\tstable\n" if rc == 0 else "", "error"))
+    st = check.flatpak_status()
+    assert (st["flatpaks"], st["flatpak_failed"]) == expected

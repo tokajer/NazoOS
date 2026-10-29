@@ -24,6 +24,7 @@ Kirigami.ApplicationWindow {
     readonly property bool conflict: st.conflict === true
     readonly property bool refreshFailed: st.refresh_failed === true
     readonly property bool keyFailed: st.key_failed === true
+    readonly property bool flatpakFailed: st.flatpak_failed === true
     // Date.now() is not a binding dependency: without this the label never ages
     property double now: Date.now()
 
@@ -170,6 +171,7 @@ Kirigami.ApplicationWindow {
                     Kirigami.Icon {
                         source: root.error ? "dialog-warning"
                               : root.count > 0 ? "system-software-update"
+                              : root.flatpakFailed ? "dialog-warning"
                               : (root.st.checked ? "checkmark" : "view-refresh")
                         Layout.preferredWidth: Kirigami.Units.iconSizes.huge
                         Layout.preferredHeight: Kirigami.Units.iconSizes.huge
@@ -185,6 +187,7 @@ Kirigami.ApplicationWindow {
                                   : root.error ? L.tr("Updates could not be checked")
                                   : root.count > 0
                                   ? L.trn("%1 update available", "%1 updates available", root.count)
+                                  : root.flatpakFailed ? L.tr("Flatpak updates could not be checked")
                                   : (root.st.checked ? L.tr("The system is up to date") : L.tr("Not checked yet"))
                         }
                         QQC2.Label {
@@ -193,6 +196,8 @@ Kirigami.ApplicationWindow {
                             opacity: 0.8
                             text: L.tr("Last check: %1").replace("%1", root.ago(root.st.checked))
                                   + (root.st.update_needs_reboot ? "\n" + L.tr("A restart will be needed afterwards.") : "")
+                                  + (root.flatpakFailed && root.count > 0
+                                     ? "\n" + L.tr("Flatpak updates could not be checked (no connection to Flathub?).") : "")
                         }
                         QQC2.Label {
                             Layout.fillWidth: true

@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Oct 29 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- A failed Flatpak query (Flathub unreachable) no longer shows as
+  "up to date": the window says the Flatpak updates could not be checked
+- po/update-pot.sh also collects Recorded(...) error templates, so
+  regenerating the pot keeps their translations
+
+-------------------------------------------------------------------
 Thu Oct 29 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - After an update the status asks Flatpak again: a failed Flatpak update
