@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Starship prompt in Konsole. Here and not in /etc/profile.d: Konsole starts
+# non-login shells, which only read /etc/bash.bashrc and, through it, this
+# file. Only in Konsole because other terminals and SSH clients may lack the
+# icon font. Remove the file's content to get the plain openSUSE prompt back
+if [ -n "${KONSOLE_VERSION:-}" ] && command -v starship >/dev/null; then
+  [ -e "${XDG_CONFIG_HOME:-$HOME/.config}/starship.toml" ] || \
+    export STARSHIP_CONFIG=/usr/share/nazoos/starship.toml
+  eval "$(starship init bash)"
+fi

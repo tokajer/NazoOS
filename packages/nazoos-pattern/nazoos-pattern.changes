@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 31 16:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend starship, ibm-plex-mono-fonts and
+  nerdfonts-symbolsonly-fonts for the NazoOS Konsole profile
+
+-------------------------------------------------------------------
 Sat Oct 31 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend ucode-intel, ucode-amd and wireless-regdb: nothing pulled

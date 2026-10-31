@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: default terminal profile. A profile picked in Konsole goes to
+# ~/.config/konsolerc and wins over this file.
+[Desktop Entry]
+DefaultProfile=NazoOS.profile

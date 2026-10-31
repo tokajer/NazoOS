@@ -1,0 +1,116 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS prompt: two lines, path and git on the left, result and duration
+# on the right, in the logo's colors. A ~/.config/starship.toml replaces
+# this file. Icons are written as \u escapes because they sit in the
+# private use area of Nerd Fonts: most editors show them as empty boxes.
+# Reference: https://starship.rs/config/
+palette = "nazoos"
+
+format = """
+[░▒▓](crust)\
+[  ](fg:green bg:crust)\
+[](fg:crust bg:block)\
+$directory\
+[ ](fg:block bg:surface)\
+$git_branch\
+$git_status\
+[ ](fg:surface bg:crust)\
+[▓▒░](crust)\
+[ ◦•](subtle)\
+$fill\
+[•◦ ](subtle)\
+[░▒▓](crust)\
+[ ](fg:surface bg:crust)\
+$status\
+$cmd_duration\
+[ ](fg:crust bg:surface)\
+$battery\
+[▓▒░](crust)
+[·](surface)\
+[·](subtle)\
+[•](block)\
+[  ](green)\
+"""
+
+[fill]
+symbol = "·"
+style = "surface"
+
+[directory]
+style = "fg:text bg:block"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+# English and German names: the folders follow the system language
+[directory.substitutions]
+"~" = "  "
+"Desktop" = "  "
+"Schreibtisch" = "  "
+"Documents" = "  "
+"Dokumente" = "  "
+"Downloads" = "  "
+"GitHub" = "  "
+"Music" = "  "
+"Musik" = "  "
+"Pictures" = "  "
+"Bilder" = "  "
+"Videos" = "  "
+
+[git_branch]
+symbol = ""
+style = "fg:green bg:surface"
+format = "[ $symbol $branch ]($style)"
+
+[git_status]
+style = "fg:green bg:surface"
+format = "[($all_status$ahead_behind )]($style)"
+
+[cmd_duration]
+min_time = 0
+show_milliseconds = true
+style = "fg:text bg:surface"
+format = "[$duration]($style)"
+
+[status]
+disabled = false
+map_symbol = true
+symbol = "  "
+success_symbol = "  "
+not_executable_symbol = "  "
+not_found_symbol = "  "
+style = "fg:text bg:surface"
+format = "[$symbol]($style)"
+
+[battery]
+full_symbol = ""
+charging_symbol = ""
+discharging_symbol = ""
+unknown_symbol = ""
+empty_symbol = ""
+format = "[ $symbol $percentage ]($style)"
+
+[[battery.display]]
+threshold = 25
+style = "fg:yellow bg:crust"
+
+[[battery.display]]
+threshold = 10
+style = "fg:orange bg:crust"
+
+[[battery.display]]
+threshold = 5
+style = "bold fg:red bg:crust"
+
+[palettes.nazoos]
+crust = "#0d1214"
+surface = "#1e2b27"
+green = "#2fa34f"
+block = "#1f7a3a"
+text = "#e8f5ec"
+subtle = "#8fa39a"
+yellow = "#f6be50"
+orange = "#f08a3c"
+red = "#f05454"

@@ -170,6 +170,10 @@ Recommends:     7zip
 Recommends:     plocate
 Recommends:     ethtool
 Recommends:     openssh-clients
+# Konsole profile and prompt from nazoos-branding
+Recommends:     starship
+Recommends:     ibm-plex-mono-fonts
+Recommends:     nerdfonts-symbolsonly-fonts
 # Translations of the desktop (subpackage below)
 Recommends:     nazoos-translations
 
