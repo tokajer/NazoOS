@@ -3,7 +3,11 @@
 """zypper command lines and exit codes shared by the GUIs' root helpers
 and the kernel code (no Qt here)."""
 
+import errno
+import fcntl
+import os
 import re
+import time
 
 from . import proc
 
@@ -27,6 +31,30 @@ OK = (0, 100, 101, *INFO)
 REPO_HAS_TIMEOUT = 360
 # zypper search: no matching package
 NOT_FOUND = 104
+
+
+def wait_for_lock(timeout=None, path="/run/zypp.pid"):
+    """True once nobody holds the zypp lock, False after TIMEOUT seconds
+    (default: the helper's ZYPP_LOCK_TIMEOUT)."""
+    # zypper ignores ZYPP_LOCK_TIMEOUT for modifyrepo and refresh: with the
+    # lock held they block until it is free, even past SIGTERM (seen
+    # 2026-10-31). Read-only: opening for write would truncate zypp's pid
+    if timeout is None:
+        timeout = int(os.environ.get("ZYPP_LOCK_TIMEOUT", 120))
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            with open(path) as f:
+                fcntl.lockf(f, fcntl.LOCK_SH | fcntl.LOCK_NB)
+            return True
+        except FileNotFoundError:
+            return True
+        except OSError as e:
+            if e.errno not in (errno.EACCES, errno.EAGAIN):
+                raise
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(1)
 
 
 def repo_search(alias, name):

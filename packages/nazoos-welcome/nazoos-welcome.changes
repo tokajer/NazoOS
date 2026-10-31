@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Sat Oct 31 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Switch to Tumbleweed: wait for a held zypp lock and stop with a clear
+  message, take the snapshot before the NazoOS repositories are turned
+  off, reset the boot splash theme
+- Apps: ArtCraft Launcher also under Office
+
+-------------------------------------------------------------------
 Sat Oct 31 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - System: "Switch to Tumbleweed" turns the installation into plain

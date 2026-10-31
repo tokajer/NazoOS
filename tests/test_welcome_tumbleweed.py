@@ -48,6 +48,7 @@ def switch(fake_root, monkeypatch, tmp_path):
     monkeypatch.setattr(zypper, "repo_search", lambda alias, name:
                         0 if name == "xone" else zypper.NOT_FOUND)
     monkeypatch.setattr(proc, "rc", lambda cmd, timeout=30: 0)
+    monkeypatch.setattr(tumbleweed, "wait_for_lock", lambda: True)
     monkeypatch.setattr(proc, "has", lambda tool: True)
     ctl = tmp_path / "session-ctl"
     ctl.touch()
@@ -93,8 +94,9 @@ def test_stage_b_order(switch):
     tumbleweed.tumbleweed_switch([])
     fake = switch
     tx = fake.calls.index(transaction(fake))
-    assert position(fake, "--disable", "nazoos") < position(fake, "snapper")
-    assert position(fake, "snapper") < position(fake, "refresh", "openSUSE:repo-oss")
+    assert position(fake, "snapper") < position(fake, "--disable", "nazoos")
+    assert position(fake, "--disable", "nazoos") < position(
+        fake, "refresh", "openSUSE:repo-oss")
     assert position(fake, "refresh") < fake.calls.index(dry_run(fake))
     dry = fake.calls.index(dry_run(fake))
     for step in (position(fake, "boot-mode", "desktop"),
@@ -144,6 +146,27 @@ def test_a_failed_package_search_stops_before_any_change(switch, monkeypatch):
     assert repo_calls(switch, "--enable") == ["nazoos", "nazoos-kernel"]
 
 
+def test_the_snapshot_is_taken_before_any_repo_is_disabled(switch):
+    tumbleweed.tumbleweed_switch([])
+    assert position(switch, "snapper") < position(switch, "modifyrepo")
+    assert position(switch, "snapper") == 0
+
+
+def test_a_held_zypp_lock_stops_before_any_change(switch, monkeypatch):
+    monkeypatch.setattr(tumbleweed, "wait_for_lock", lambda: False)
+    with pytest.raises(helper.Fail, match="changing software"):
+        tumbleweed.tumbleweed_switch([])
+    assert switch.calls == []
+
+
+def test_a_held_zypp_lock_also_stops_stage_a(switch, monkeypatch):
+    monkeypatch.setattr(kernel, "running_nazoos", lambda: True)
+    monkeypatch.setattr(tumbleweed, "wait_for_lock", lambda: False)
+    with pytest.raises(helper.Fail, match="changing software"):
+        tumbleweed.tumbleweed_switch([])
+    assert switch.calls == []
+
+
 def test_dead_repos_are_off_before_zypper_installs(switch):
     tumbleweed.tumbleweed_switch([])
     assert repo_calls(switch, "--disable") == ["nazoos", "nazoos-kernel"]
@@ -187,8 +210,7 @@ def test_no_repo_oss_fails_clearly(switch, monkeypatch):
     monkeypatch.setattr(repos, "with_path", lambda path: None)
     with pytest.raises(helper.Fail, match="Tumbleweed repository is missing"):
         tumbleweed.tumbleweed_switch([])
-    assert not any("snapper" in c for c in switch.calls)
-    assert repo_calls(switch, "--enable") == ["nazoos", "nazoos-kernel"]
+    assert switch.calls == []
 
 
 def transaction_ends_with(code):
@@ -292,8 +314,9 @@ def test_clean_up_failure_does_not_fail_the_action(switch, monkeypatch, capsys):
     monkeypatch.setattr(tumbleweed, "say", said.append)
     tumbleweed.tumbleweed_switch([])
     notes = [s for s in said if s.startswith("Note: ")]
-    # Forced install, lock, boot default, boot menu, three repos, key
-    assert len(notes) == 8
+    # Forced install, splash theme, lock, boot default, boot menu, three
+    # repos, key
+    assert len(notes) == 9
     assert "@@reboot" in capsys.readouterr().out
 
 
@@ -303,6 +326,9 @@ def test_clean_up_removes_our_repos_lock_and_key(switch, capsys):
     assert removed == ["nazoos", "nazoos-kernel", "nazoos-old"]
     assert not any("packman" in c and "removerepo" in c for c in switch.calls)
     assert switch.calls[position(switch, "removelock")][-1] == "plasma6-session-x11"
+    assert ["plymouth-set-default-theme", "bgrt"] in switch.calls
+    assert switch.calls.index(transaction(switch)) < index(
+        switch, ["plymouth-set-default-theme", "bgrt"])
     assert ["rpm", "-e", "--allmatches", "gpg-pubkey-a686e7d6"] in switch.calls
     assert "@@reboot" in capsys.readouterr().out
 

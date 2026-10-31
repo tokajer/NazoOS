@@ -70,6 +70,9 @@ def script_failure(rc, failed):
 CLEAN_FLATPAKS = "clean-flatpaks"
 
 
+PACKAGEKIT_BACKEND = "discover6-backend-packagekit"
+
+
 def after_update_extras(dup_ran, clean_flatpaks=False):
     """What follows the update: kernel modules (only after a dup),
     Flatpaks (unused runtimes removed only if CLEAN_FLATPAKS), the boot
@@ -82,6 +85,11 @@ def after_update_extras(dup_ran, clean_flatpaks=False):
             kmp_sync.sync_modules()
         except (Fail, OSError) as e:
             say(f"Note: {e}")
+    # Installs from before nazoos-tweaks masked packagekit.service: without
+    # the daemon this backend makes Discover open with an error dialog.
+    # Here, as an Obsoletes in the pattern stops `zypper dup` (other vendor)
+    if proc.rpm_installed(PACKAGEKIT_BACKEND):
+        run(zypper.ZYPPER + ["remove", PACKAGEKIT_BACKEND], check=False)
     if proc.has("flatpak"):
         run(FLATPAK + ["update", "--noninteractive", "-y"], check=False)
     if clean_flatpaks and proc.has("flatpak"):

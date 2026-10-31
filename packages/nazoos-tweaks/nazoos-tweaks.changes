@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 31 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Mask packagekit.service: system updates stay with NazoOS Update
+  and Myrlyn, PackageKit would hold the zypp lock
+
+-------------------------------------------------------------------
 Sat Oct 31 19:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - BIOS and other UEFI firmware updates work with Secure Boot: fwupd

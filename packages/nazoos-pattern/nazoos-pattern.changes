@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 31 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Drop the Obsoletes of discover6-backend-packagekit: it made
+  zypper dup ask for a decision on systems that have the package
+
+-------------------------------------------------------------------
 Sat Oct 31 19:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Discover no longer handles system packages: its PackageKit backend

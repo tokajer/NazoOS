@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 31 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- After an update, remove Discover's PackageKit backend from older
+  installs: PackageKit is masked now and it would show an error
+  dialog when Discover opens
+
+-------------------------------------------------------------------
 Thu Oct 29 23:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - A package source that does not respond (mirror down, repository

@@ -12,7 +12,7 @@ from pathlib import Path
 from nazoos_common import grub, helper, kernel, proc, repos, shellconf
 from nazoos_common.files import write_atomic
 from nazoos_common.helper import Fail, say
-from nazoos_common.zypper import ZYPPER, ZYPPER_IN
+from nazoos_common.zypper import ZYPPER, ZYPPER_IN, wait_for_lock
 
 from .. import catalog, system
 from . import apps, kernel_switch, maintenance
@@ -56,16 +56,19 @@ def own_packages():
                    if vendor == OWN_VENDOR})
 
 
-def _plan():
-    """Everything up to the dry run; the system only gains a snapshot.
-    Returns (alias of repo-oss, packages Tumbleweed has too, the arguments
-    of the transaction)."""
+def _oss():
+    """Alias of repo-oss; checked before the snapshot so a missing repo
+    leaves nothing behind."""
     oss = repos.with_path(OSS_PATH)
     if oss is None:
         raise Fail("the openSUSE Tumbleweed repository is missing; add it "
                    "with the Repair page first")
-    maintenance.create_snapshot(
-        maintenance.CHANNEL_SNAPSHOT.format(target="Tumbleweed"))
+    return oss
+
+
+def _plan(oss):
+    """Everything up to the dry run, with the repos off. Returns (packages
+    Tumbleweed has too, the arguments of the transaction)."""
     helper.run(ZYPPER + ["refresh", oss])
     names = own_packages()
     shared = [n for n in names if kernel_switch.in_repo(oss, n)]
@@ -78,7 +81,7 @@ def _plan():
         raise Fail("the switch to Tumbleweed is not possible right now "
                    "(zypper exit code {rc}, details in the log); nothing "
                    "was changed", rc=rc)
-    return oss, shared, args
+    return shared, args
 
 
 def _set_default_zone():
@@ -136,6 +139,9 @@ def _clean_up(oss, shared):
         # kernel purge takes it; revisit if that blocks a kernel update.
         _try(ZYPPER_IN + ["--oldpackage", "--force", "--from", oss] + shared,
              "some packages still are the NazoOS build: " + " ".join(shared))
+    # The theme file stays after leaving and names the removed nazoos theme
+    _try(["plymouth-set-default-theme", "bgrt"],
+         "the boot splash theme is still nazoos")
     _try(ZYPPER + ["removelock", "plasma6-session-x11"],
          "the lock on plasma6-session-x11 is still there")
     _clear_top_level()
@@ -166,6 +172,16 @@ def tumbleweed_switch(_args):
     off = []
     openSUSE_kernel = (not kernel.running_nazoos()
                        and proc.rpm_installed(kernel.KERNEL_DEFAULT))
+    # Before anything: modifyrepo and refresh would hang on a held lock
+    if not wait_for_lock():
+        raise Fail("another program is changing software right now; close "
+                   "it and try again")
+    if openSUSE_kernel:
+        # Before the repos go off: a rollback to this snapshot must still
+        # get updates
+        oss = _oss()
+        maintenance.create_snapshot(
+            maintenance.CHANNEL_SNAPSHOT.format(target="Tumbleweed"))
     try:
         # A deleted OBS repo must not stop anything below. Packman stays:
         # it is the user's and has nothing to do with the end of NazoOS
@@ -174,7 +190,7 @@ def tumbleweed_switch(_args):
                 helper.run(ZYPPER + ["modifyrepo", "--disable", alias])
                 off.append(alias)
         if openSUSE_kernel:
-            oss, shared, args = _plan()
+            shared, args = _plan(oss)
             _undo_settings()
         else:
             kernel_switch.kernel_restore([])

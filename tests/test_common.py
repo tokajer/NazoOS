@@ -4,6 +4,7 @@
 
 import fcntl
 import subprocess
+import sys
 import types
 
 import pytest
@@ -505,3 +506,39 @@ def test_install_fails_when_the_retry_fails(monkeypatch):
     with pytest.raises(helper.Fail):
         helper.install(["gearlever"])
     assert len(calls) == 3
+
+
+@pytest.fixture
+def lock_holder(tmp_path):
+    """A second process holding the lock zypper reports as "System
+    management is locked"; a lock of this process would not conflict."""
+    path = tmp_path / "zypp.pid"
+    path.write_text("1234\n")
+    proc_ = subprocess.Popen(
+        [sys.executable, "-c",
+         "import fcntl, sys, time\n"
+         "f = open(sys.argv[1], 'r+')\n"
+         "fcntl.lockf(f, fcntl.LOCK_EX)\n"
+         "print('locked', flush=True)\n"
+         "time.sleep(60)", str(path)],
+        stdout=subprocess.PIPE, text=True)
+    assert proc_.stdout.readline() == "locked\n"
+    yield path
+    proc_.kill()
+    proc_.wait()
+
+
+def test_wait_for_lock_free_file(tmp_path):
+    path = tmp_path / "zypp.pid"
+    path.write_text("1234\n")
+    assert zypper.wait_for_lock(timeout=1, path=path) is True
+    assert path.read_text() == "1234\n"
+
+
+def test_wait_for_lock_missing_file(tmp_path):
+    assert zypper.wait_for_lock(timeout=1, path=tmp_path / "none") is True
+
+
+def test_wait_for_lock_held_by_another_process(lock_holder):
+    assert zypper.wait_for_lock(timeout=1, path=lock_holder) is False
+    assert lock_holder.read_text() == "1234\n"

@@ -15,6 +15,7 @@ def test_every_app_category_is_shown_or_hidden_on_purpose():
     assert not shown & catalog.HIDDEN_CATEGORIES
     for a in catalog.APPS:
         assert a["category"] in shown | catalog.HIDDEN_CATEGORIES, a["id"]
+        assert set(a.get("also", [])) <= shown, a["id"]
 
 
 def test_services_and_categories_have_icons():

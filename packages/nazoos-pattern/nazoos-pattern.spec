@@ -113,10 +113,6 @@ Recommends:     partitionmanager
 Recommends:     discover6
 Recommends:     discover6-backend-flatpak
 Recommends:     discover6-backend-fwupd
-# Comes with discover6's Recommends. RPM updates belong to nazoos-update
-# (zypper dup) and Myrlyn; in Discover they bypass that and fail while
-# zypper holds its lock (ADR 0010, 0029)
-Obsoletes:      discover6-backend-packagekit
 Recommends:     flatpak
 Recommends:     flatpak-remote-flathub
 Recommends:     myrlyn

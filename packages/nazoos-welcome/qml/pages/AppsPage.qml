@@ -60,7 +60,9 @@ Kirigami.ScrollablePage {
                 id: section
                 required property var modelData
                 readonly property var apps: backend.catalog.apps.filter(
-                    a => a.category === modelData.id && page.matches(a))
+                    a => (a.category === modelData.id
+                          || (a.also || []).includes(modelData.id))
+                         && page.matches(a))
                 visible: apps.length > 0
                 Layout.fillWidth: true
                 spacing: Kirigami.Units.largeSpacing

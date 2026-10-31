@@ -163,6 +163,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <package name="nazoos-session"/>
     <!-- No X11 session (CLAUDE.md: Wayland only) -->
     <ignore name="plasma6-session-x11"/>
+    <!-- No PackageKit backend in Discover: RPM updates belong to
+         nazoos-update and Myrlyn (ADR 0010, 0029); discover6 only
+         recommends it -->
+    <ignore name="discover6-backend-packagekit"/>
     <!-- No YaST: yast2-samba-server "Supplements: samba" (samba comes
          with Dolphin sharing) and pulls in YaST with Qt5/KF5 and Ruby,
          about 150 packages. Myrlyn, nazoos-update, nazoos-welcome and

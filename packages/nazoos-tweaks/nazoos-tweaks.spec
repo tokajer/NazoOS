@@ -56,6 +56,11 @@ install -Dm0644 -t %{buildroot}%{_datadir}/pipewire/pipewire.conf.d \
   pipewire/pipewire.conf.d/10-nazoos-latency.conf
 install -Dm0644 -t %{buildroot}%{_unitdir}/display-manager-legacy.service.d \
   systemd/display-manager-legacy.service.d/10-nazoos-tty1.conf
+# RPM updates belong to nazoos-update and Myrlyn (ADR 0010, 0029): packagekitd
+# would hold the zypp lock and run a second update check. Goes away with this
+# package when leaving NazoOS
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/system
+ln -s /dev/null %{buildroot}%{_sysconfdir}/systemd/system/packagekit.service
 install -Dm0644 systemd/90-nazoos.preset %{buildroot}%{_presetdir}/90-nazoos.preset
 install -Dm0644 -t %{buildroot}%{_unitdir} \
   systemd/nazoos-xone-firmware.service systemd/nazoos-xone-firmware.timer \
@@ -120,6 +125,7 @@ fi
 %service_del_postun %{units}
 
 %files
+%{_sysconfdir}/systemd/system/packagekit.service
 %{_sysctldir}/70-nazoos.conf
 %dir %{_prefix}/lib/systemd/zram-generator.conf.d
 %{_prefix}/lib/systemd/zram-generator.conf.d/70-nazoos.conf

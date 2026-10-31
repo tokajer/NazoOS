@@ -401,11 +401,24 @@ def test_unused_flatpaks_go_only_when_chosen(monkeypatch, clean):
     calls = []
     monkeypatch.setattr(update, "run", lambda *a, **k: calls.append(a[0]) or 0)
     monkeypatch.setattr(update.proc, "has", lambda _name: True)
+    monkeypatch.setattr(update.proc, "rpm_installed", lambda _name: False)
     monkeypatch.setattr(update.kernel, "keep_default", lambda _say: None)
     update.after_update_extras(False, clean)
     unused = update.FLATPAK + ["uninstall", "--unused", "--noninteractive", "-y"]
     assert (unused in calls) is clean
     assert update.FLATPAK + ["update", "--noninteractive", "-y"] in calls
+
+
+@pytest.mark.parametrize("installed", [True, False])
+def test_packagekit_backend_goes_after_the_update(monkeypatch, installed):
+    calls = []
+    monkeypatch.setattr(update, "run", lambda cmd, **_k: calls.append(cmd))
+    monkeypatch.setattr(update.proc, "has", lambda _name: False)
+    monkeypatch.setattr(update.proc, "rpm_installed", lambda _name: installed)
+    monkeypatch.setattr(update.kernel, "keep_default", lambda _say: None)
+    update.after_update_extras(False)
+    removed = [c for c in calls if update.PACKAGEKIT_BACKEND in c]
+    assert bool(removed) == installed
 
 
 def test_update_keeps_flatpaks_that_failed_to_update(monkeypatch):
