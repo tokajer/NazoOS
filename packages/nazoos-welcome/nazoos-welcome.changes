@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 31 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- System: "Switch to Tumbleweed" turns the installation into plain
+  openSUSE Tumbleweed, also after the NazoOS repositories are gone
+
+-------------------------------------------------------------------
 Sat Oct 31 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Apps: ArtCraft Launcher (opt-in) in "Recording, video and graphics"

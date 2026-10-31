@@ -245,6 +245,17 @@ class Backend(ActionRunner):
         self._run(action, args, mok_hash)
 
     def _helper_finished(self, action, helper_proc, ok, message):
+        if ok and action == "tumbleweed-switch":
+            # Its log line is easy to miss, and Main.qml keeps this one on
+            # screen. Stage B deleted our own code, stage A did not; the
+            # running kernel cannot tell: stage A also runs without
+            # kernel-default, on a kernel that is not kernel-nazoos
+            message = (self._gettext(
+                "The openSUSE kernel is ready. Restart the computer, then "
+                "click \"Switch to Tumbleweed\" again to finish.")
+                if os.path.exists(__file__) else self._gettext(
+                    "NazoOS is removed. Restart the computer to start "
+                    "openSUSE Tumbleweed."))
         on_finish, self._on_finish = self._on_finish, None
         if on_finish:
             on_finish(ok, message)

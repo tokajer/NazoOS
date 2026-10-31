@@ -9,7 +9,7 @@ paths and commands never come from the caller.
 
 from .. import catalog
 from . import (apps, drivers, drives, kernel_switch, maintenance,
-               mok_queue, repair_fixes, session, tuning)
+               mok_queue, repair_fixes, session, tumbleweed, tuning)
 
 _ALL = {
     "codecs-install": drivers.codecs_install,
@@ -26,6 +26,7 @@ _ALL = {
     "kernel-only": kernel_switch.kernel_only,
     "kernel-restore": kernel_switch.kernel_restore,
     "kernel-remove": kernel_switch.kernel_remove,
+    "tumbleweed-switch": tumbleweed.tumbleweed_switch,
     "mok-import": mok_queue.mok_import,
     "app-install": apps.app_install,
     "app-remove": apps.app_remove,

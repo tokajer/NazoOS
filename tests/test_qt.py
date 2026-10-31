@@ -506,3 +506,26 @@ def test_strict_steps_start_their_own_helper(app, monkeypatch):
     assert started == [("snapshot", [], None, None),
                        ("repair-key", ["repo", "FPR"], None, "/strict"),
                        ("kernel-install", [], "hash", "/strict")]
+
+
+@pytest.mark.parametrize("code_left,text", [(True, "again"),
+                                            (False, "NazoOS is removed")])
+def test_tumbleweed_switch_says_what_comes_next(app, monkeypatch, tmp_path,
+                                                code_left, text):
+    from nazoos_welcome import backend, i18n
+
+    own_file = tmp_path / "backend.py"
+    if code_left:
+        own_file.touch()
+    monkeypatch.setattr(backend, "__file__", str(own_file))
+    b = backend.Backend(i18n.translator())
+    # The helper removed our files: the refresh after it has to survive that
+    b.refresh = lambda: None
+    b._begin("tumbleweed-switch")
+    seen = []
+    b.actionFinished.connect(lambda *a: seen.append(a))
+    b._helper_finished("tumbleweed-switch", None, True, "Done.")
+    assert seen and text in seen[0][2]
+    b._begin("tumbleweed-switch")
+    b._helper_finished("tumbleweed-switch", None, False, "Broken.")
+    assert seen[1] == ("tumbleweed-switch", False, "Broken.")

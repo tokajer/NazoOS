@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-27 10:31+0100\n"
+"POT-Creation-Date: 2026-10-31 18:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,7 +62,7 @@ msgid "pkexec could not be started."
 msgstr ""
 
 #: ../nazoos-common/nazoos_common/qt.py:160 nazoos_welcome/backend.py:177
-#: nazoos_welcome/backend.py:284
+#: nazoos_welcome/backend.py:295
 msgid "Done."
 msgstr ""
 
@@ -91,7 +91,7 @@ msgstr ""
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:245
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:249
 msgid "Close"
 msgstr ""
 
@@ -109,7 +109,17 @@ msgid ""
 "missing)."
 msgstr ""
 
-#: nazoos_welcome/backend.py:304
+#: nazoos_welcome/backend.py:254
+msgid ""
+"The openSUSE kernel is ready. Restart the computer, then click \"Switch to "
+"Tumbleweed\" again to finish."
+msgstr ""
+
+#: nazoos_welcome/backend.py:257
+msgid "NazoOS is removed. Restart the computer to start openSUSE Tumbleweed."
+msgstr ""
+
+#: nazoos_welcome/backend.py:315
 msgid "The autostart setting could not be changed: %1"
 msgstr ""
 
@@ -467,6 +477,10 @@ msgid "Switching the update channel"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
+msgid "Switching to openSUSE Tumbleweed"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
 msgid ""
 "This removes protection against Spectre, Meltdown and similar CPU attacks. "
 "Malicious websites or programs could read data from other programs. Only do "
@@ -666,6 +680,33 @@ msgstr ""
 msgid "gaming mode is not installed (nazoos-session)"
 msgstr ""
 
+#: nazoos_welcome/root/tumbleweed.py:65
+msgid ""
+"the openSUSE Tumbleweed repository is missing; add it with the Repair page "
+"first"
+msgstr ""
+
+#: nazoos_welcome/root/tumbleweed.py:78
+#, python-brace-format
+msgid ""
+"the switch to Tumbleweed is not possible right now (zypper exit code {rc}, "
+"details in the log); nothing was changed"
+msgstr ""
+
+#: nazoos_welcome/root/tumbleweed.py:198
+#, python-brace-format
+msgid ""
+"the switch to Tumbleweed did not start (zypper exit code {rc}, details in "
+"the log); the NazoOS packages were not changed, try again later"
+msgstr ""
+
+#: nazoos_welcome/root/tumbleweed.py:203
+#, python-brace-format
+msgid ""
+"the switch to Tumbleweed stopped half-way (zypper exit code {rc}, details in "
+"the log); restart and go back to the snapshot in the boot menu"
+msgstr ""
+
 #: nazoos_welcome/root/tuning.py:24
 #, python-brace-format
 msgid "{scheduler} is not part of the installed scx package"
@@ -734,43 +775,51 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: qml/Main.qml:146 qml/Main.qml:203
+#: qml/Main.qml:128
+msgid "OK"
+msgstr ""
+
+#: qml/Main.qml:128
+msgid "Restart the computer"
+msgstr ""
+
+#: qml/Main.qml:150 qml/Main.qml:207
 msgid "Continue"
 msgstr ""
 
-#: qml/Main.qml:154 qml/Main.qml:214
+#: qml/Main.qml:158 qml/Main.qml:218
 msgid "Cancel"
 msgstr ""
 
-#: qml/Main.qml:179
+#: qml/Main.qml:183
 msgid "Password for the NazoOS key"
 msgstr ""
 
-#: qml/Main.qml:180
+#: qml/Main.qml:184
 msgid ""
 "After the restart a blue screen (MokManager) asks once for this password to "
 "enroll the NazoOS key. Suggested: \"nazoos\". 4 to 16 letters or digits."
 msgstr ""
 
-#: qml/Main.qml:187
+#: qml/Main.qml:191
 msgid "Password (4 to 16 letters or digits)"
 msgstr ""
 
-#: qml/Main.qml:196
+#: qml/Main.qml:200
 msgid ""
 "Z and Y are swapped in the blue screen on a German keyboard: type \"%1\" "
 "there."
 msgstr ""
 
-#: qml/Main.qml:227
+#: qml/Main.qml:231
 msgid "That did not work"
 msgstr ""
 
-#: qml/Main.qml:231
+#: qml/Main.qml:235
 msgid "Try again"
 msgstr ""
 
-#: qml/Main.qml:240 qml/components/BusyBar.qml:31
+#: qml/Main.qml:244 qml/components/BusyBar.qml:31
 msgid "Show details"
 msgstr ""
 
@@ -1808,7 +1857,7 @@ msgid ""
 "snapshot is taken first."
 msgstr ""
 
-#: qml/pages/SystemPage.qml:65
+#: qml/pages/SystemPage.qml:65 qml/pages/SystemPage.qml:150
 msgid "Switch"
 msgstr ""
 
@@ -1861,6 +1910,36 @@ msgstr ""
 #: qml/pages/SystemPage.qml:131
 msgid ""
 "Displays, sound, network, appearance and everything else of the desktop."
+msgstr ""
+
+#: qml/pages/SystemPage.qml:138
+msgid "Leave NazoOS"
+msgstr ""
+
+#: qml/pages/SystemPage.qml:142
+msgid "Switch to openSUSE Tumbleweed"
+msgstr ""
+
+#: qml/pages/SystemPage.qml:143
+msgid ""
+"Turns this computer into plain openSUSE Tumbleweed without reinstalling. "
+"Your files, apps and settings stay."
+msgstr ""
+
+#: qml/pages/SystemPage.qml:146
+msgid "Switch to Tumbleweed"
+msgstr ""
+
+#: qml/pages/SystemPage.qml:148
+msgid "Switch to openSUSE Tumbleweed?"
+msgstr ""
+
+#: qml/pages/SystemPage.qml:149
+msgid ""
+"A snapshot is taken first, so you can go back. NazoOS apps and Waydroid are "
+"removed, NazoOS Welcome and NazoOS Update disappear. Your other apps and "
+"your kernel options stay. If the NazoOS kernel is running, this first moves "
+"to the openSUSE kernel: restart and click this button again."
 msgstr ""
 
 #: qml/pages/WelcomePage.qml:35

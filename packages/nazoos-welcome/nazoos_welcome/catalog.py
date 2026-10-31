@@ -240,7 +240,7 @@ SCX_SCHEDULERS = ["scx_lavd", "scx_bpfland", "scx_rusty", "scx_flash"]
 # Lasting steps that ask for the password every time: their own helper path
 # and Polkit actions (data/org.nazoos.welcome.policy)
 STRICT_ACTIONS = ("repair-key", "kernel-install", "kernel-only",
-                  "kernel-remove", "mok-import")
+                  "kernel-remove", "mok-import", "tumbleweed-switch")
 
 # Root actions of the helper, with the text shown while they run
 ACTION_LABELS = {
@@ -258,6 +258,7 @@ ACTION_LABELS = {
     "kernel-only": "Removing the openSUSE kernel",
     "kernel-restore": "Switching back to the openSUSE kernel",
     "kernel-remove": "Removing the NazoOS kernel",
+    "tumbleweed-switch": "Switching to openSUSE Tumbleweed",
     "mok-import": "Preparing the Secure Boot key",
     "app-install": "Installing",
     "app-remove": "Removing",

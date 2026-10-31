@@ -134,5 +134,22 @@ Kirigami.ScrollablePage {
                 onClicked: backend.launch("systemsettings")
             }
         }
+
+        SectionHeader { text: L.tr("Leave NazoOS") }
+
+        SettingCard {
+            iconName: "edit-undo"
+            title: L.tr("Switch to openSUSE Tumbleweed")
+            subtitle: L.tr("Turns this computer into plain openSUSE Tumbleweed without reinstalling. Your files, apps and settings stay.")
+            QQC2.Button {
+                enabled: !backend.busy
+                text: L.tr("Switch to Tumbleweed")
+                onClicked: page.app.confirm(
+                    L.tr("Switch to openSUSE Tumbleweed?"),
+                    L.tr("A snapshot is taken first, so you can go back. NazoOS apps and Waydroid are removed, NazoOS Welcome and NazoOS Update disappear. Your other apps and your kernel options stay. If the NazoOS kernel is running, this first moves to the openSUSE kernel: restart and click this button again."),
+                    L.tr("Switch"),
+                    () => page.app.runAction("tumbleweed-switch", []))
+            }
+        }
     }
 }
