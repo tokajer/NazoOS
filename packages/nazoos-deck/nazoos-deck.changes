@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 31 15:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- On-screen keyboard works at the first login, not only after the next
+  one: KWin gets notified of the input method
+
+-------------------------------------------------------------------
 Tue Oct 27 10:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Updates no longer switch services back on that you turned off (the

@@ -1,0 +1,14 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+[Desktop Entry]
+Type=Application
+Name=NazoOS on-screen keyboard setup
+Name[de]=NazoOS-Einrichtung der Bildschirmtastatur
+Comment=Turns on the on-screen keyboard on 2-in-1 devices (once per user)
+Comment[de]=Schaltet die Bildschirmtastatur auf 2-in-1-Geräten ein (einmal pro Nutzer)
+Exec=/usr/libexec/nazoos-session/nazoos-osk-setup
+Icon=input-keyboard-virtual
+Terminal=false
+NoDisplay=true
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2

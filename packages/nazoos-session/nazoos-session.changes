@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 31 15:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- 2-in-1 devices and tablets get Maliit as on-screen keyboard at the
+  first login; it was only set up by nazoos-deck
+
+-------------------------------------------------------------------
 Thu Oct 29 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - nazoos-session-ctl runs one caller at a time (flock): a login's

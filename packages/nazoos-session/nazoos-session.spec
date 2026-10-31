@@ -51,7 +51,9 @@ and the desktop is used for one session only.
 install -Dm0755 bin/nazoos-session-select %{buildroot}%{_bindir}/nazoos-session-select
 install -Dm0755 -t %{buildroot}%{_libexecdir}/nazoos-session \
   libexec/nazoos-session-ctl libexec/nazoos-session-switch \
-  libexec/nazoos-detect-handheld
+  libexec/nazoos-detect-handheld libexec/nazoos-osk-setup
+install -Dm0644 data/nazoos-osk-setup.desktop \
+  %{buildroot}%{_sysconfdir}/xdg/autostart/nazoos-osk-setup.desktop
 # Hook path fixed by gamescope-session-steam-generic
 install -Dm0755 libexec/os-session-select %{buildroot}%{_prefix}/lib/os-session-select
 install -Dm0644 -t %{buildroot}%{_datadir}/nazoos-session/wayland-sessions \
@@ -79,6 +81,7 @@ install -d %{buildroot}%{_sysconfdir}/sddm.conf.d
 
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/org.nazoos.session.gaming.desktop
+desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/nazoos-osk-setup.desktop
 for f in bin/nazoos-session-select libexec/*; do bash -n "$f"; done
 
 %pre
@@ -113,6 +116,9 @@ fi
 %dir %{_datadir}/polkit-1/actions
 %{_datadir}/polkit-1/actions/org.nazoos.session.policy
 %{_datadir}/applications/org.nazoos.session.gaming.desktop
+%dir %{_sysconfdir}/xdg
+%dir %{_sysconfdir}/xdg/autostart
+%config %{_sysconfdir}/xdg/autostart/nazoos-osk-setup.desktop
 %{_unitdir}/nazoos-session-boot.service
 %{_userunitdir}/nazoos-session-gaming.service
 %{_userunitdir}/nazoos-session-desktop.service

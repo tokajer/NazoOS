@@ -37,8 +37,8 @@ fi
 maliit=/usr/share/applications/com.github.maliit.keyboard.desktop
 if [ -f "$maliit" ] && command -v kwriteconfig6 >/dev/null \
     && [ -z "$(kreadconfig6 --file kwinrc --group Wayland --key InputMethod 2>/dev/null)" ]; then
-  kwriteconfig6 --file kwinrc --group Wayland --key InputMethod "$maliit"
-  dbus-send --session --type=signal /KWin org.kde.KWin.reloadConfig 2>/dev/null || :
+  # --notify: KWin only starts the input method on a change notification
+  kwriteconfig6 --file kwinrc --group Wayland --key InputMethod --notify "$maliit"
 fi
 
 mkdir -p "$state"

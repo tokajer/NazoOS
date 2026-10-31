@@ -1,0 +1,31 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Once per user, at the first Plasma login on a device that can lose its
+# keyboard (2-in-1, tablet): Maliit as on-screen keyboard (KWin input
+# method) unless one is set. Not on other PCs: KWin would keep Maliit
+# running there for nothing
+
+set -u
+
+state=${XDG_STATE_HOME:-$HOME/.local/state}/nazoos-session
+marker=$state/osk-setup-done
+[ -e "$marker" ] && exit 0
+
+# SMBIOS chassis type: 30 tablet, 31 convertible, 32 detachable
+case "$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)" in
+  30|31|32) ;;
+  *) exit 0 ;;
+esac
+
+maliit=/usr/share/applications/com.github.maliit.keyboard.desktop
+[ -f "$maliit" ] || exit 0
+
+if [ -z "$(kreadconfig6 --file kwinrc --group Wayland --key InputMethod 2>/dev/null)" ]; then
+  # --notify: KWin only starts the input method on a change notification
+  kwriteconfig6 --file kwinrc --group Wayland --key InputMethod --notify "$maliit"
+fi
+
+mkdir -p "$state"
+touch "$marker"
