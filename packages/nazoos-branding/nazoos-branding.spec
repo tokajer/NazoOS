@@ -86,8 +86,11 @@ done
 install -Dm0644 -t %{buildroot}%{_sysconfdir}/xdg \
   xdg/kdeglobals xdg/kcminputrc xdg/kcm-about-distrorc xdg/kscreenlockerrc \
   xdg/kwinrc xdg/baloofilerc xdg/konsolerc
-install -Dm0644 -t %{buildroot}%{_datadir}/konsole \
-  konsole/NazoOS.profile konsole/NazoOS.colorscheme
+install -Dm0644 -t %{buildroot}%{_datadir}/konsole konsole/NazoOS.colorscheme
+# Konsole cannot edit a profile outside the home, and a copy there would
+# only sit next to one in /usr/share as a second "NazoOS" entry
+install -Dm0644 -t %{buildroot}%{_sysconfdir}/skel/.local/share/konsole \
+  konsole/NazoOS.profile
 install -Dm0644 starship/starship.toml %{buildroot}%{_datadir}/nazoos/starship.toml
 install -Dm0644 starship/bash.bashrc.local %{buildroot}%{_sysconfdir}/bash.bashrc.local
 install -Dm0644 -t %{buildroot}%{_datadir}/wallpapers/NazoOS wallpaper/NazoOS/metadata.json
@@ -179,8 +182,11 @@ fi
 %config(noreplace) %{_sysconfdir}/bash.bashrc.local
 # konsole is not in the build root
 %dir %{_datadir}/konsole
-%{_datadir}/konsole/NazoOS.profile
 %{_datadir}/konsole/NazoOS.colorscheme
+%dir %{_sysconfdir}/skel/.local
+%dir %{_sysconfdir}/skel/.local/share
+%dir %{_sysconfdir}/skel/.local/share/konsole
+%config(noreplace) %{_sysconfdir}/skel/.local/share/konsole/NazoOS.profile
 %dir %{_datadir}/nazoos
 %{_datadir}/nazoos/starship.toml
 %dir %{_datadir}/wallpapers

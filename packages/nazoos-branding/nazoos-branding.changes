@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Sat Oct 31 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Konsole: ship the NazoOS profile through /etc/skel so users can edit
+  it, a profile in /usr/share is read-only. Font size 10 instead of 11
+- Konsole: English messages in the NazoOS profile, the German zypper
+  prompt does not take "y"
+
+-------------------------------------------------------------------
 Sat Oct 31 17:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Ship a hicolor "wine" icon: Protontricks and the Wine loader had
