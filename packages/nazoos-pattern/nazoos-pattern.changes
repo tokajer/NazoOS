@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 31 19:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Discover no longer handles system packages: its PackageKit backend
+  is removed, system updates stay with NazoOS Update
+
+-------------------------------------------------------------------
 Sat Oct 31 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Close the gaps to the Nobara package list: fingerprint login, more

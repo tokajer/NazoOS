@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Oct 31 19:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- BIOS and other UEFI firmware updates work with Secure Boot: fwupd
+  now finds shim
+
+-------------------------------------------------------------------
 Tue Oct 27 23:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recreate /etc/sudoers.d on systems installed from older images,

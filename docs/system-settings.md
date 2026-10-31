@@ -6,6 +6,7 @@ NazoOS has no YaST. Everything YaST does on openSUSE is done by these apps:
 |---|---|
 | Install and remove software | **Discover** (apps, Flatpak), **Myrlyn** (all packages, repositories) |
 | Updates | **NazoOS Update** (system tray) |
+| Firmware (BIOS, SSD, dock) | **Discover → Updates**, connect the power supply and restart when asked |
 | Drivers, codecs, optional apps, services | **NazoOS Welcome** |
 | Kernel options, NazoOS kernel | **NazoOS Welcome → Kernel / Gaming** |
 | Snapshots, going back | **Btrfs Assistant**, boot menu ([NazoOS Update](update.md)) |

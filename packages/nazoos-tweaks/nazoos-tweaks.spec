@@ -9,6 +9,8 @@ Summary:        System tweaks for gaming performance on NazoOS
 License:        GPL-3.0-or-later
 URL:            https://github.com/tokajer/NazoOS
 Source0:        %{name}-%{version}.tar.xz
+# Target of fwupd's shim link, the build fails on a dangling symlink
+BuildRequires:  shim
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  sysuser-tools
 BuildArch:      noarch
@@ -72,6 +74,12 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/firewalld/policies \
 # Before openSUSE's 90-default-privs.rules, which would deny fwupd-refresh
 install -Dm0644 -t %{buildroot}%{_datadir}/polkit-1/rules.d \
   polkit/49-nazoos-fwupd-refresh.rules
+# UEFI firmware updates with Secure Boot: fwupd looks for shimx64.efi under
+# EFI/<os-release ID>, but our shim is EFI/nazoos/shim.efi. fwupd copies this
+# one to the ESP itself and keeps it current
+install -d %{buildroot}%{_libexecdir}/fwupd/efi
+ln -s %{_datadir}/efi/x86_64/shim-opensuse.efi \
+  %{buildroot}%{_libexecdir}/fwupd/efi/shimx64.efi.signed
 install -Dm0644 gamemode/gamemode.ini %{buildroot}%{_sysconfdir}/gamemode.ini
 # Signing key of the OBS projects home:Tokajer:nazoos:* (osc signkey
 # home:Tokajer). Same place as openSUSE-build-key; the image imports all
@@ -148,6 +156,9 @@ fi
 %dir %{_datadir}/polkit-1
 %dir %{_datadir}/polkit-1/rules.d
 %{_datadir}/polkit-1/rules.d/49-nazoos-fwupd-refresh.rules
+%dir %{_libexecdir}/fwupd
+%dir %{_libexecdir}/fwupd/efi
+%{_libexecdir}/fwupd/efi/shimx64.efi.signed
 %config(noreplace) %{_sysconfdir}/gamemode.ini
 %dir %{_prefix}/lib/rpm/gnupg
 %dir %{_prefix}/lib/rpm/gnupg/keys
