@@ -11,6 +11,8 @@ URL:            https://github.com/tokajer/NazoOS
 Source0:        %{name}-%{version}.tar.xz
 # Target of fwupd's shim link, the build fails on a dangling symlink
 BuildRequires:  shim
+# Owns /etc/systemd/system for OBS's filelist check (packagekit.service mask)
+BuildRequires:  systemd
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  sysuser-tools
 BuildArch:      noarch
