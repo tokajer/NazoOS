@@ -49,6 +49,13 @@ Recommends:     winetricks
 Recommends:     goverlay
 # Voice chat (non-oss like steam)
 Recommends:     discord
+# Both CPU vendors, the image is built without knowing the hardware. The
+# patterns we install do not pull microcode, and without it the CPU runs
+# whatever the BIOS shipped
+Recommends:     ucode-intel
+Recommends:     ucode-amd
+# Without it cfg80211 stays on the world regulatory domain
+Recommends:     wireless-regdb
 # Graphics: all Mesa drivers regardless of hardware. Tumbleweed only pulls
 # the Vulkan drivers via modalias supplements, which do not match in an
 # image built without a GPU (KIWI/OBS) and are bound to kernel-default.
@@ -57,6 +64,8 @@ Recommends:     Mesa-dri
 Recommends:     Mesa-dri-32bit
 Recommends:     Mesa-libGL1-32bit
 Recommends:     Mesa-libva
+# VA-API on Intel: Mesa-libva only covers AMD and Nouveau
+Recommends:     intel-media-driver
 Recommends:     Mesa-vulkan-device-select
 Recommends:     Mesa-vulkan-device-select-32bit
 Recommends:     libvulkan_radeon

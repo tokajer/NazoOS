@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 31 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend ucode-intel, ucode-amd and wireless-regdb: nothing pulled
+  CPU microcode or the WiFi regulatory database into the image
+- Recommend intel-media-driver for VA-API on Intel GPUs
+
+-------------------------------------------------------------------
 Tue Oct 27 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Require sudo-policy-wheel-auth-self: sudo and polkit dialogs ask
