@@ -101,6 +101,13 @@ APPS = [
     {"id": "vlc", "name": "VLC", "category": "media",
      "kind": "flatpak", "refs": ["org.videolan.VLC"], "icon": "vlc",
      "summary": "Media player with built-in codecs"},
+    # Our build of the launcher (ADR 0033): not on Flathub, in no repo. The
+    # apps themselves come from GitHub, outside our repos
+    {"id": "artcraft", "name": "ArtCraft Launcher", "category": "media",
+     "kind": "rpm", "refs": ["artcraft-launcher"],
+     "icon": "ai.storyteller.artcraft-launcher",
+     "summary": "Craft apps for image, video, audio and office (early alpha). "
+                "Downloads them from GitHub, not from NazoOS"},
     {"id": "spotify", "name": "Spotify", "category": "media",
      "kind": "flatpak", "refs": ["com.spotify.Client"],
      "icon": "com.spotify.Client", "summary": "Music streaming"},

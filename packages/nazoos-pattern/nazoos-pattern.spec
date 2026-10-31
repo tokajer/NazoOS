@@ -146,6 +146,17 @@ Recommends:     kjournald
 # Edit system files in Dolphin (admin://) instead of a root terminal
 Recommends:     kio-admin
 Recommends:     pavucontrol-qt
+# Fingerprint login on laptops (no effect without a sensor)
+Recommends:     fprintd
+Recommends:     fprintd-pam
+# Drivers for many Epson and Canon printers (HP: HPLIP in nazoos-welcome)
+Recommends:     gutenprint
+# Remote desktop page in System Settings
+Recommends:     krdp6
+# Audio CDs in Dolphin
+Recommends:     kio_audiocd
+# Monitor colour profiles in System Settings
+Recommends:     colord-kde
 # CJK glyphs in game titles and launchers
 Recommends:     google-noto-sans-cjk-fonts
 Recommends:     noto-coloremoji-fonts
@@ -170,6 +181,19 @@ Recommends:     7zip
 Recommends:     plocate
 Recommends:     ethtool
 Recommends:     openssh-clients
+# Asked for in nearly every support thread, not in patterns-base-base
+Recommends:     man
+Recommends:     man-pages
+Recommends:     usbutils
+Recommends:     lsof
+Recommends:     zip
+Recommends:     bc
+Recommends:     whois
+Recommends:     traceroute
+# Debugging RGB and DDC/CI devices (group i2c: nazoos-tweaks)
+Recommends:     i2c-tools
+# Real size of compressed btrfs files
+Recommends:     compsize
 # Konsole profile and prompt from nazoos-branding
 Recommends:     starship
 Recommends:     ibm-plex-mono-fonts
@@ -205,6 +229,7 @@ Recommends:     baloo-widgets-lang
 Recommends:     bash-lang
 Recommends:     bluedevil6-lang
 Recommends:     breeze6-style-lang
+Recommends:     colord-kde-lang
 Recommends:     coreutils-lang
 Recommends:     cpio-lang
 Recommends:     cryptsetup-lang
@@ -221,6 +246,7 @@ Recommends:     findutils-lang
 Recommends:     firewalld-lang
 Recommends:     flatpak-kcm6-lang
 Recommends:     fontconfig-lang
+Recommends:     fprintd-lang
 Recommends:     fwupd-lang
 Recommends:     gcab-lang
 Recommends:     glib-networking-lang
@@ -272,12 +298,14 @@ Recommends:     kinit-lang
 Recommends:     kio-admin-lang
 Recommends:     kio-extras-lang
 Recommends:     kio-lang
+Recommends:     kio_audiocd-lang
 Recommends:     kirigami-addons6-lang
 Recommends:     kirigami2-lang
 Recommends:     kjournald-lang
 Recommends:     kmenuedit6-lang
 Recommends:     konsole-part-lang
 Recommends:     kpmcore-lang
+Recommends:     krdp6-lang
 Recommends:     kscreen6-lang
 Recommends:     kscreenlocker6-lang
 Recommends:     kservice-lang

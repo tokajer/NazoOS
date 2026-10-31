@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 21:38+0100\n"
+"POT-Creation-Date: 2026-10-27 10:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,64 +17,64 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../nazoos-common/nazoos_common/grub.py:115
+#: ../nazoos-common/nazoos_common/grub.py:116
 #, python-brace-format
 msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:72
-#: ../nazoos-common/nazoos_common/mok.py:37 nazoos_welcome/root/base.py:155
-#: nazoos_welcome/root/kernel_switch.py:26
+#: ../nazoos-common/nazoos_common/helper.py:101
+#: ../nazoos-common/nazoos_common/mok.py:37
+#: nazoos_welcome/root/kernel_switch.py:29 nazoos_welcome/root/packman.py:112
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:91
+#: ../nazoos-common/nazoos_common/helper.py:131
 msgid "missing argument"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:93
-#: nazoos_welcome/root/repair_fixes.py:114
+#: ../nazoos-common/nazoos_common/helper.py:133
+#: nazoos_welcome/root/repair_fixes.py:118
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:102
+#: ../nazoos-common/nazoos_common/helper.py:142
 msgid "must run as root (via pkexec)"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:106
+#: ../nazoos-common/nazoos_common/helper.py:146
 msgid "unknown action"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:119
+#: ../nazoos-common/nazoos_common/helper.py:159
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:123
+#: ../nazoos-common/nazoos_common/helper.py:163
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:151
+#: ../nazoos-common/nazoos_common/qt.py:152
 msgid "pkexec could not be started."
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:159 nazoos_welcome/backend.py:174
-#: nazoos_welcome/backend.py:279
+#: ../nazoos-common/nazoos_common/qt.py:160 nazoos_welcome/backend.py:177
+#: nazoos_welcome/backend.py:284
 msgid "Done."
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:163
+#: ../nazoos-common/nazoos_common/qt.py:164
 msgid "Cancelled: no administrator password was given."
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:165
+#: ../nazoos-common/nazoos_common/qt.py:166
 msgid "Something went wrong."
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:276
+#: ../nazoos-common/nazoos_common/qt.py:277
 msgid "This program is not installed."
 msgstr ""
 
@@ -99,17 +99,17 @@ msgstr ""
 msgid "Nothing has run yet."
 msgstr ""
 
-#: nazoos_welcome/backend.py:181
+#: nazoos_welcome/backend.py:184
 msgid "These services still fail after a restart: %1"
 msgstr ""
 
-#: nazoos_welcome/backend.py:237
+#: nazoos_welcome/backend.py:242
 msgid ""
 "The password for the Secure Boot key could not be prepared (openssl is "
 "missing)."
 msgstr ""
 
-#: nazoos_welcome/backend.py:299
+#: nazoos_welcome/backend.py:304
 msgid "The autostart setting could not be changed: %1"
 msgstr ""
 
@@ -170,6 +170,10 @@ msgid "Changing the start mode"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
+msgid "Chat"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
 msgid "Cleaning the package cache"
 msgstr ""
 
@@ -183,6 +187,12 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "CoolerControl"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid ""
+"Craft apps for image, video, audio and office (early alpha). Downloads them "
+"from GitHub, not from NazoOS"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -243,6 +253,14 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "Freeing disk space"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Gaming"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Hardware"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -328,6 +346,10 @@ msgid "Needed by LACT to change GPU clocks, power and fans"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
+msgid "Office and tools"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
 msgid "Office suite (about 600 MB)"
 msgstr ""
 
@@ -354,6 +376,10 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "Rebuilding the package database"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Recording, video and graphics"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -492,13 +518,7 @@ msgstr ""
 msgid "{app} needs the NazoOS kernel (Kernel page)"
 msgstr ""
 
-#: nazoos_welcome/root/base.py:152
-#, python-brace-format
-msgid ""
-"Packman is rebuilding some packages ({packages}); try again in a few days"
-msgstr ""
-
-#: nazoos_welcome/root/base.py:180
+#: nazoos_welcome/root/base.py:83
 msgid "unknown user"
 msgstr ""
 
@@ -522,44 +542,44 @@ msgid ""
 "{rc})"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:41
+#: nazoos_welcome/root/kernel_switch.py:44
 #, python-brace-format
 msgid ""
 "the NazoOS kernel has no build of your NVIDIA driver ({packages}); switch to "
 "the open NVIDIA driver on the Drivers page first"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:59
+#: nazoos_welcome/root/kernel_switch.py:62
 msgid ""
 "the closed NVIDIA driver (G06) only exists for the openSUSE kernel; switch "
 "to the open driver first"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:92
+#: nazoos_welcome/root/kernel_switch.py:95
 msgid "start the NazoOS kernel first"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:95
+#: nazoos_welcome/root/kernel_switch.py:98
 #, python-brace-format
 msgid ""
 "the openSUSE kernel can be removed after {count} clean starts of the NazoOS "
 "kernel"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:99
+#: nazoos_welcome/root/kernel_switch.py:102
 msgid ""
 "the openSUSE kernel is already removed or was chosen again on the Kernel page"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:123
+#: nazoos_welcome/root/kernel_switch.py:125
 msgid "the openSUSE kernel is not in /boot"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:130
+#: nazoos_welcome/root/kernel_switch.py:132
 msgid "start the openSUSE kernel first (boot menu)"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:132
+#: nazoos_welcome/root/kernel_switch.py:134
 msgid "the openSUSE kernel is not installed"
 msgstr ""
 
@@ -571,11 +591,11 @@ msgstr ""
 msgid "nazoos-update is not installed"
 msgstr ""
 
-#: nazoos_welcome/root/maintenance.py:86
+#: nazoos_welcome/root/maintenance.py:92
 msgid "nazoos-repos is not installed"
 msgstr ""
 
-#: nazoos_welcome/root/maintenance.py:96
+#: nazoos_welcome/root/maintenance.py:102
 #, python-brace-format
 msgid "the {channel} repository did not appear after refreshing the services"
 msgstr ""
@@ -601,37 +621,43 @@ msgstr ""
 msgid "kernel-nazoos has no signing certificate"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:53
+#: nazoos_welcome/root/packman.py:109
+#, python-brace-format
+msgid ""
+"Packman is rebuilding some packages ({packages}); try again in a few days"
+msgstr ""
+
+#: nazoos_welcome/root/repair_fixes.py:52
 #, python-brace-format
 msgid "still missing after restoring the services: {repos}"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:121
+#: nazoos_welcome/root/repair_fixes.py:125
 #, python-brace-format
 msgid "the package source {repo} could not be refreshed"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:126
+#: nazoos_welcome/root/repair_fixes.py:130
 #, python-brace-format
 msgid ""
 "the package source {repo} now offers a different key ({fingerprint}); check "
 "again"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:132
+#: nazoos_welcome/root/repair_fixes.py:136
 #, python-brace-format
 msgid "the key file of {repo} does not match the fingerprint"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:153
+#: nazoos_welcome/root/repair_fixes.py:157
 msgid "Packman is not set up; install the codecs first"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:177
+#: nazoos_welcome/root/repair_fixes.py:181
 msgid "no NVIDIA driver is installed"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:188
+#: nazoos_welcome/root/repair_fixes.py:192
 #, python-brace-format
 msgid "still failing: {units}"
 msgstr ""
@@ -640,28 +666,28 @@ msgstr ""
 msgid "gaming mode is not installed (nazoos-session)"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:27
+#: nazoos_welcome/root/tuning.py:24
 #, python-brace-format
 msgid "{scheduler} is not part of the installed scx package"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:43
+#: nazoos_welcome/root/tuning.py:40
 msgid "unknown kernel option"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:54
+#: nazoos_welcome/root/tuning.py:51
 msgid "needs the NazoOS kernel"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:57
+#: nazoos_welcome/root/tuning.py:54
 msgid "invalid device id"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:70
+#: nazoos_welcome/root/tuning.py:67
 msgid "this device is not connected"
 msgstr ""
 
-#: nazoos_welcome/root/tuning.py:73
+#: nazoos_welcome/root/tuning.py:70
 msgid ""
 "too many devices with their own polling rate; reset one of them to the "
 "device default first"
@@ -687,7 +713,7 @@ msgstr ""
 msgid "Kernel"
 msgstr ""
 
-#: qml/Main.qml:32 qml/pages/AppsPage.qml:27
+#: qml/Main.qml:32 qml/pages/AppsPage.qml:17
 msgid "Apps"
 msgstr ""
 
@@ -700,7 +726,7 @@ msgid "System"
 msgstr ""
 
 #: qml/Main.qml:35 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:38
-#: qml/pages/RepairPage.qml:166 qml/pages/SystemPage.qml:127
+#: qml/pages/RepairPage.qml:166 qml/pages/SystemPage.qml:121
 msgid "Repair"
 msgstr ""
 
@@ -748,66 +774,46 @@ msgstr ""
 msgid "Show details"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:17
-msgid "Chat"
-msgstr ""
-
-#: qml/pages/AppsPage.qml:17
-msgid "Gaming"
-msgstr ""
-
-#: qml/pages/AppsPage.qml:18
-msgid "Recording, video and graphics"
-msgstr ""
-
-#: qml/pages/AppsPage.qml:19
-msgid "Hardware"
-msgstr ""
-
-#: qml/pages/AppsPage.qml:19
-msgid "Office and tools"
-msgstr ""
-
-#: qml/pages/AppsPage.qml:61
+#: qml/pages/AppsPage.qml:51
 msgid ""
 "A selection of popular apps. Flatpaks come from Flathub and run in a "
 "sandbox; everything else is in Discover."
 msgstr ""
 
-#: qml/pages/AppsPage.qml:104
+#: qml/pages/AppsPage.qml:94
 msgid "Needs the NazoOS kernel (Kernel page)"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:106 qml/pages/DriversPage.qml:86
-#: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:219
-#: qml/pages/GamingPage.qml:242
+#: qml/pages/AppsPage.qml:96 qml/pages/DriversPage.qml:86
+#: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:220
+#: qml/pages/GamingPage.qml:243
 msgid "Installed"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:107
+#: qml/pages/AppsPage.qml:97
 msgid "Software rendering (slower)"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:111 qml/pages/DriversPage.qml:55
+#: qml/pages/AppsPage.qml:101 qml/pages/DriversPage.qml:55
 #: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
-#: qml/pages/DriversPage.qml:121 qml/pages/GamingPage.qml:227
-#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:49
+#: qml/pages/DriversPage.qml:121 qml/pages/GamingPage.qml:228
+#: qml/pages/GamingPage.qml:247 qml/pages/KernelPage.qml:49
 #: qml/pages/KernelPage.qml:55 qml/pages/WelcomePage.qml:103
 msgid "Install"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:111 qml/pages/AppsPage.qml:119
+#: qml/pages/AppsPage.qml:101 qml/pages/AppsPage.qml:109
 #: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
-#: qml/pages/GamingPage.qml:246 qml/pages/KernelPage.qml:73
+#: qml/pages/GamingPage.qml:247 qml/pages/KernelPage.qml:73
 #: qml/pages/KernelPage.qml:78 qml/pages/KernelPage.qml:102
 msgid "Remove"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:117
+#: qml/pages/AppsPage.qml:107
 msgid "Remove %1?"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:118
+#: qml/pages/AppsPage.qml:108
 msgid "Your settings and files in your home folder are kept."
 msgstr ""
 
@@ -1003,8 +1009,8 @@ msgstr ""
 
 #: qml/pages/DrivesPage.qml:56 qml/pages/HelpPage.qml:31
 #: qml/pages/HelpPage.qml:40 qml/pages/HelpPage.qml:49
-#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:130
-#: qml/pages/SystemPage.qml:139 qml/pages/WelcomePage.qml:128
+#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:124
+#: qml/pages/SystemPage.qml:133 qml/pages/WelcomePage.qml:128
 #: qml/pages/WelcomePage.qml:137 qml/pages/WelcomePage.qml:146
 #: qml/pages/WelcomePage.qml:155
 msgid "Open"
@@ -1049,7 +1055,7 @@ msgstr ""
 msgid "Active: %1"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:31 qml/pages/SystemPage.qml:109
+#: qml/pages/GamingPage.qml:31 qml/pages/SystemPage.qml:103
 msgid "Enabled, but not running"
 msgstr ""
 
@@ -1101,124 +1107,124 @@ msgstr ""
 msgid "After a change: unplug the device and plug it in again."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:136
+#: qml/pages/GamingPage.qml:137
 msgid "not connected"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:138
+#: qml/pages/GamingPage.qml:139
 msgid "now %1 Hz"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:145
+#: qml/pages/GamingPage.qml:146
 msgid "Device default"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:166
+#: qml/pages/GamingPage.qml:167
 msgid "Gaming mode"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:173
+#: qml/pages/GamingPage.qml:174
 msgid "Steam gaming mode"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:174
+#: qml/pages/GamingPage.qml:175
 msgid ""
 "Steam's console interface in Gamescope, like on the Steam Deck. Back to the "
 "desktop: Steam menu → Power → Switch to Desktop. Also available as a session "
 "on the login screen."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:175
+#: qml/pages/GamingPage.qml:176
 msgid "Install Steam first (Apps page)"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:176
+#: qml/pages/GamingPage.qml:177
 msgid "Starts in gaming mode (user %1)"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:185
+#: qml/pages/GamingPage.qml:186
 msgid "Start in gaming mode"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:194
+#: qml/pages/GamingPage.qml:195
 msgid ""
 "Logs you in automatically and starts Steam, like a console. The desktop is "
 "then used for one session only."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:203
+#: qml/pages/GamingPage.qml:204
 msgid "Switch now"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:206
+#: qml/pages/GamingPage.qml:207
 msgid "Switch to gaming mode?"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:207
+#: qml/pages/GamingPage.qml:208
 msgid ""
 "This ends the desktop session. Save your work first. Steam starts in gaming "
 "mode; \"Switch to Desktop\" in Steam's power menu brings you back."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:208
+#: qml/pages/GamingPage.qml:209
 msgid "Switch to gaming mode"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:213
+#: qml/pages/GamingPage.qml:214
 msgid "Handheld"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:217
+#: qml/pages/GamingPage.qml:218
 msgid "Steam Deck and handheld support"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:218
+#: qml/pages/GamingPage.qml:219
 msgid ""
 "Gamescope session with Steam's gaming mode, controller and fan support for "
 "Steam Deck, Legion Go, ROG Ally and similar devices."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:220
+#: qml/pages/GamingPage.qml:221
 msgid "Not available yet"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:221
+#: qml/pages/GamingPage.qml:222
 msgid "Recommended: %1 detected"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:240
+#: qml/pages/GamingPage.qml:241
 msgid "Steam Deck dock firmware"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:241
+#: qml/pages/GamingPage.qml:242
 msgid ""
 "Lets Steam update the firmware of the official Steam Deck dock. Downloads "
 "Valve's updater (proprietary) during installation."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:253 qml/pages/RepairPage.qml:133
+#: qml/pages/GamingPage.qml:254 qml/pages/RepairPage.qml:133
 msgid "Tools"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:257
+#: qml/pages/GamingPage.qml:258
 msgid "GPU and cooling"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:258
+#: qml/pages/GamingPage.qml:259
 msgid ""
 "LACT: GPU clocks, power limit and fan curve. CoolerControl: fans and pumps "
 "of the whole system."
 msgstr ""
 
-#: qml/pages/GamingPage.qml:273
+#: qml/pages/GamingPage.qml:274
 msgid "Steam launch options"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:274
+#: qml/pages/GamingPage.qml:275
 msgid "In Steam, right-click a game → Properties → Launch options:"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:283
+#: qml/pages/GamingPage.qml:284
 msgid ""
 "GameMode raises the game's priority while it runs; MangoHud shows FPS and "
 "frame times (toggle with Shift+F12)."
@@ -1830,29 +1836,29 @@ msgstr ""
 msgid "Services"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:107
+#: qml/pages/SystemPage.qml:101
 msgid "Not installed – switching on installs it"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:108
+#: qml/pages/SystemPage.qml:102
 msgid "Running"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:123
+#: qml/pages/SystemPage.qml:117
 msgid "Maintenance"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:128
+#: qml/pages/SystemPage.qml:122
 msgid ""
 "Checks the system for common problems and fixes them. Also: refresh "
 "repositories, clean caches, repair Flatpak, bug report."
 msgstr ""
 
-#: qml/pages/SystemPage.qml:136
+#: qml/pages/SystemPage.qml:130
 msgid "System settings"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:137
+#: qml/pages/SystemPage.qml:131
 msgid ""
 "Displays, sound, network, appearance and everything else of the desktop."
 msgstr ""

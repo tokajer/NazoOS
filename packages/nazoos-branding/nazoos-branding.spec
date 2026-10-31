@@ -6,7 +6,7 @@ Name:           nazoos-branding
 Version:        0
 Release:        0
 Summary:        NazoOS desktop branding and defaults
-License:        GPL-3.0-or-later
+License:        GPL-3.0-or-later AND LGPL-2.1-or-later
 URL:            https://github.com/tokajer/NazoOS
 Source0:        %{name}-%{version}.tar.xz
 BuildArch:      noarch
@@ -101,6 +101,10 @@ install -Dm0644 sddm/theme.conf.user \
   %{buildroot}%{_datadir}/sddm/themes/breeze-openSUSE/theme.conf.user
 install -Dm0644 logo/nazoos-logo.svg \
   %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/nazoos-logo.svg
+# wine.desktop and protontricks*.desktop say Icon=wine, but no openSUSE
+# package ships that icon (Breeze only has wine-symbolic). Winetricks' glass
+install -Dm0644 icons/wine.svg \
+  %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/wine.svg
 install -Dm0644 icons/index.theme %{buildroot}%{_datadir}/icons/default/index.theme
 install -Dm0755 os-release/nazoos-os-release \
   %{buildroot}%{_libexecdir}/nazoos-branding/nazoos-os-release
@@ -189,6 +193,7 @@ fi
 %dir %{_datadir}/sddm/themes/breeze-openSUSE
 %{_datadir}/sddm/themes/breeze-openSUSE/theme.conf.user
 %{_datadir}/icons/hicolor/scalable/apps/nazoos-logo.svg
+%{_datadir}/icons/hicolor/scalable/apps/wine.svg
 %dir %{_datadir}/icons/default
 %{_datadir}/icons/default/index.theme
 %{_libexecdir}/nazoos-branding

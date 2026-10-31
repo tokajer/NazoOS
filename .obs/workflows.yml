@@ -44,6 +44,9 @@ devel_build:
         package: plasma-foreground-booster
     - trigger_services:
         project: home:Tokajer:nazoos:devel
+        package: artcraft-launcher
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
         package: game-devices-udev
     - trigger_services:
         project: home:Tokajer:nazoos:devel

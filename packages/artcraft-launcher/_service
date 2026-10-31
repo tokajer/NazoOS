@@ -1,0 +1,36 @@
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<services>
+  <!-- Take .spec, .changes and the patch from our GitHub repo -->
+  <service name="obs_scm">
+    <param name="url">https://github.com/tokajer/NazoOS.git</param>
+    <param name="scm">git</param>
+    <param name="revision">main</param>
+    <param name="subdir">packages/artcraft-launcher</param>
+    <param name="filename">artcraft-launcher-packaging</param>
+    <param name="extract">artcraft-launcher.spec</param>
+    <param name="extract">artcraft-launcher.changes</param>
+    <param name="extract">no-self-update.patch</param>
+  </service>
+  <!-- Upstream release tarball: downloaded from the Source0 URL of the spec -->
+  <service name="download_files"/>
+  <!-- A git tag can move: the tarball must match this checksum. On a
+       version update change Version in the spec and the checksum here -->
+  <service name="verify_file">
+    <param name="file">_service:download_files:artcraft-launcher-0.11.1.tar.gz</param>
+    <param name="verifier">sha256</param>
+    <param name="checksum">38eda28e93f1495ddf67f1963655224f10ec0ba61133118b20105df588b0913d</param>
+  </service>
+  <!-- Rust crates for the offline build (OBS has no network while building):
+       vendor.tar.zst. update=false keeps the versions of Cargo.lock.
+       mode="manual": build.opensuse.org does not run cargo_vendor on the
+       server. Run it locally on every version update and commit
+       vendor.tar.zst with osc (see NazoOS-dev notes/vram.md) -->
+  <service name="cargo_vendor" mode="manual">
+    <param name="src">artcraft-launcher-0.11.1.tar.gz</param>
+    <param name="compression">zst</param>
+    <param name="update">false</param>
+  </service>
+</services>

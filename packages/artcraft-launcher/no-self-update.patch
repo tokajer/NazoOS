@@ -1,0 +1,12 @@
+--- a/crates/native/src/self_update.rs
++++ b/crates/native/src/self_update.rs
+@@ -21,7 +21,8 @@
+ 
+ /// How this copy is installed, if it's one the launcher knows how to replace.
+ pub fn current() -> Option<Install> {
+-    craft_update::self_update::current(&craft_update::suite::LAUNCHER)
++    // NazoOS: the RPM comes from the signed repo, zypper updates it
++    None
+ }
+ 
+ fn to_update_paths(paths: &Paths) -> craft_update::Paths {

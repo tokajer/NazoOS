@@ -1,0 +1,7 @@
+-------------------------------------------------------------------
+Sat Oct 31 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New package: ArtCraft Launcher 0.11.1, opt-in in NazoOS Welcome
+- no-self-update.patch: the launcher does not replace this RPM with
+  upstream's unsigned one
+

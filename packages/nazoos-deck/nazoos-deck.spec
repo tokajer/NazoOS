@@ -35,6 +35,10 @@ Recommends:     jupiter-fan-control
 Recommends:     steamdeck-dsp
 Recommends:     galileo-mura
 Recommends:     steamos-powerbuttond
+# Gyro of the Steam Deck for emulators (Cemu, Yuzu forks: DSU protocol)
+Recommends:     sdgyrodsu
+# TDP limits on AMD handhelds
+Recommends:     ryzenadj
 # Desktop mode on a touch screen: on-screen keyboard, auto-rotation
 Recommends:     maliit-keyboard
 Recommends:     iio-sensor-proxy

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Oct 31 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Close the gaps to the Nobara package list: fingerprint login, more
+  printer drivers, remote desktop, audio CDs, monitor colour profiles
+  and common command line tools (man, lsusb, lsof, zip, ...)
+
+-------------------------------------------------------------------
 Sat Oct 31 16:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend starship, ibm-plex-mono-fonts and
