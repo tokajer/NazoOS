@@ -172,7 +172,8 @@ SPDX-License-Identifier: GPL-3.0-or-later
     <!-- No YaST: yast2-samba-server "Supplements: samba" (samba comes
          with Dolphin sharing) and pulls in YaST with Qt5/KF5 and Ruby,
          about 150 packages. Myrlyn, nazoos-update, nazoos-welcome and
-         System Settings cover its tasks. config.sh lifts the lock -->
+         System Settings cover its tasks. The lock stays in the installed
+         system, nazoos-welcome lifts it on request -->
     <ignore name="yast2"/>
   </packages>
 

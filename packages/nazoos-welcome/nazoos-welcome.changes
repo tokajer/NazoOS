@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sun Nov  1 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Apps: YaST as an optional install, it lifts the yast2 lock; removing
+  it takes all YaST packages away and locks it again
+- Switch to Tumbleweed: lift the yast2 lock as well
+
+-------------------------------------------------------------------
 Sun Nov  1 19:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Apps: ArtCraft Launcher is now a link to the maker's website, the

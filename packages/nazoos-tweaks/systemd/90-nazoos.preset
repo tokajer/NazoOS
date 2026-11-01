@@ -11,5 +11,7 @@ enable nazoos-xone-firmware.timer
 # TCP BBR, bbr3 on kernel-nazoos (each unit checks the kernel itself)
 enable nazoos-tcp-bbr.service
 enable nazoos-tcp-bbr3.service
+# Runs once: no YaST by default (ADR 0021)
+enable nazoos-yast-cleanup.service
 # Firmware metadata for fwupd/Discover (off in openSUSE's presets)
 enable fwupd-refresh.timer

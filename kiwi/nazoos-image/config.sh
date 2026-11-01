@@ -96,10 +96,11 @@ fi
 # every repo. Key files: openSUSE-build-key and nazoos-tweaks (NazoOS)
 rpm --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-*.asc
 
-# <ignore> in config.kiwi is a zypper lock that would stay in the
-# installed system: keep only the X11 one. YaST may be installed later,
-# if somebody wants it; leaving NazoOS installs the PackageKit backend
-zypper --non-interactive removelock yast2 discover6-backend-packagekit
+# <ignore> in config.kiwi is a zypper lock that stays in the installed
+# system. Keep the X11 one and yast2: without it "zypper dup" brings YaST
+# back (nazoos-welcome lifts it on request). Leaving NazoOS installs the
+# PackageKit backend
+zypper --non-interactive removelock discover6-backend-packagekit
 
 # Online repos come from packages (openSUSE-repos-Tumbleweed, nazoos-repos),
 # so installed systems get URL changes with updates. Test/live keep the

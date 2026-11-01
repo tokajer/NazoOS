@@ -325,7 +325,8 @@ def test_clean_up_removes_our_repos_lock_and_key(switch, capsys):
     removed = [c[-1] for c in switch.calls if "removerepo" in c]
     assert removed == ["nazoos", "nazoos-kernel", "nazoos-old"]
     assert not any("packman" in c and "removerepo" in c for c in switch.calls)
-    assert switch.calls[position(switch, "removelock")][-1] == "plasma6-session-x11"
+    assert switch.calls[position(switch, "removelock")][-2:] == [
+        "plasma6-session-x11", "yast2"]
     assert ["plymouth-set-default-theme", "bgrt"] in switch.calls
     assert switch.calls.index(transaction(switch)) < index(
         switch, ["plymouth-set-default-theme", "bgrt"])

@@ -62,4 +62,4 @@ sudo firewall-cmd --reload
 
 ### YaST
 
-YaST can be installed if you want it: install `yast2-control-center-qt` and the modules you need (for example `yast2-bootloader`) in Myrlyn. NazoOS does not test its tools together with YaST.
+NazoOS comes without YaST and removes it from systems that got it through an update. If you want it anyway, install **YaST** in **NazoOS Welcome → Apps**, then add the modules you need (for example `yast2-bootloader`) in Myrlyn. Removing it there takes all YaST packages away again. NazoOS does not test its tools together with YaST.

@@ -22,7 +22,7 @@ Requires:       zram-generator
 %sysusers_requires
 %{?systemd_ordering}
 # One line: the %service_* macros do not take line continuations
-%define units nazoos-xone-firmware.service nazoos-xone-firmware.timer nazoos-tcp-bbr.service nazoos-tcp-bbr3.service
+%define units nazoos-xone-firmware.service nazoos-xone-firmware.timer nazoos-tcp-bbr.service nazoos-tcp-bbr3.service nazoos-yast-cleanup.service
 
 %description
 Default kernel parameters (sysctl), zram swap configuration,
@@ -66,7 +66,9 @@ ln -s /dev/null %{buildroot}%{_sysconfdir}/systemd/system/packagekit.service
 install -Dm0644 systemd/90-nazoos.preset %{buildroot}%{_presetdir}/90-nazoos.preset
 install -Dm0644 -t %{buildroot}%{_unitdir} \
   systemd/nazoos-xone-firmware.service systemd/nazoos-xone-firmware.timer \
-  systemd/nazoos-tcp-bbr.service systemd/nazoos-tcp-bbr3.service
+  systemd/nazoos-tcp-bbr.service systemd/nazoos-tcp-bbr3.service \
+  systemd/nazoos-yast-cleanup.service
+install -Dm0755 -t %{buildroot}%{_libexecdir} systemd/nazoos-yast-cleanup
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/sddm/sddm.conf.d \
   sddm/10-nazoos-wayland.conf
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/environment.d \
@@ -149,6 +151,8 @@ fi
 %{_unitdir}/nazoos-xone-firmware.timer
 %{_unitdir}/nazoos-tcp-bbr.service
 %{_unitdir}/nazoos-tcp-bbr3.service
+%{_unitdir}/nazoos-yast-cleanup.service
+%{_libexecdir}/nazoos-yast-cleanup
 %dir %{_prefix}/lib/sddm
 %dir %{_prefix}/lib/sddm/sddm.conf.d
 %{_prefix}/lib/sddm/sddm.conf.d/10-nazoos-wayland.conf

@@ -1000,3 +1000,48 @@ def test_kernel_only_conflicts_match_the_removal_globs():
     for name in names:
         assert any(fnmatch.fnmatchcase(name, g)
                    for g in kernel.DEFAULT_KERNEL_GLOBS), name
+
+
+def _yast_app():
+    return apps.catalog.by_id(apps.catalog.APPS, "yast")
+
+
+def _fake_zypper(monkeypatch, tmp_path, install_fails=False):
+    calls = []
+    def install(refs):
+        calls.append(["install"] + refs)
+        if install_fails:
+            raise helper.Fail("no")
+    monkeypatch.setattr(apps.helper, "install", install)
+    monkeypatch.setattr(apps.helper, "run",
+                        lambda cmd, check=True: calls.append(cmd) or 0)
+    monkeypatch.setattr(apps, "YAST_CLEANUP_DONE", tmp_path / "x" / "done")
+    return calls
+
+
+def test_yast_install_lifts_lock_and_stops_cleanup(monkeypatch, tmp_path):
+    calls = _fake_zypper(monkeypatch, tmp_path)
+    apps._install_rpm(_yast_app())
+    assert calls[0][-2:] == ["removelock", "yast2"]
+    assert calls[1] == ["install", "yast2-control-center-qt"]
+    assert apps.YAST_CLEANUP_DONE.exists()
+
+
+def test_yast_failed_install_locks_again(monkeypatch, tmp_path):
+    calls = _fake_zypper(monkeypatch, tmp_path, install_fails=True)
+    with pytest.raises(helper.Fail):
+        apps._install_rpm(_yast_app())
+    assert calls[-1][-2:] == ["addlock", "yast2"]
+
+
+def test_yast_remove_runs_cleanup(monkeypatch, tmp_path):
+    calls = _fake_zypper(monkeypatch, tmp_path)
+    apps.app_remove(["yast"])
+    assert calls == [[apps.YAST_CLEANUP]]
+
+
+def test_yast_remove_failure_is_reported(monkeypatch, tmp_path):
+    _fake_zypper(monkeypatch, tmp_path)
+    monkeypatch.setattr(apps.helper, "run", lambda cmd, check=True: 75)
+    with pytest.raises(helper.Fail):
+        apps.app_remove(["yast"])

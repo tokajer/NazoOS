@@ -1,0 +1,30 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS has no YaST by default (ADR 0021): remove it and lock yast2. Without
+# the lock "zypper dup" brings it back through yast2-samba-server, which
+# supplements samba. The service runs this once, nazoos-welcome when a user
+# removes YaST again. Installing it in nazoos-welcome lifts the lock.
+# In /etc, not /var: a snapper rollback brings back YaST and the lock state,
+# so it has to bring back this marker too
+done=/etc/nazoos-tweaks/yast-cleanup-done
+zypper="zypper --non-interactive"
+
+yast_packages() {
+  rpm -qa --qf '%{NAME}\n' | grep -E '^(autoyast2|libyui|yast2)' | sort -u
+}
+
+packages=$(yast_packages)
+if [ -n "$packages" ]; then
+  # zypper does not remove a locked package; a missing lock is no error
+  $zypper removelock yast2
+  # No --clean-deps: it would also take packages NazoOS needs (ADR 0034)
+  # shellcheck disable=SC2086
+  $zypper remove $packages
+  # Not its exit code: 107 (RPM script failed) still removed the packages
+  [ -z "$(yast_packages)" ] || exit 75
+fi
+$zypper addlock yast2 || exit 75
+mkdir -p "${done%/*}"
+touch "$done"

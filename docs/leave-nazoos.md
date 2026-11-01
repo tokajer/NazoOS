@@ -69,7 +69,7 @@ sudo zypper install plasma6-branding-openSUSE plymouth-branding-openSUSE \
 sudo zypper install --oldpackage --force --from openSUSE:repo-oss xone xpadneo
 
 # Clean up
-sudo zypper removelock plasma6-session-x11
+sudo zypper removelock plasma6-session-x11 yast2
 sudo zypper removerepo nazoos-kernel
 # The same for any other repository under home:/Tokajer
 for f in $(grep -l 'home:/Tokajer' /etc/zypp/repos.d/*.repo); do

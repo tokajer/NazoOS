@@ -143,6 +143,13 @@ APPS = [
      "icon": "network-vpn",
      "summary": "OpenVPN connections in the network settings "
                 "(WireGuard works without it)"},
+    # Not part of NazoOS (ADR 0021): "lock" is a zypper lock lifted for the
+    # install; removing runs nazoos-yast-cleanup, which sets it again
+    {"id": "yast", "name": "YaST", "category": "office",
+     "kind": "rpm", "refs": ["yast2-control-center-qt"], "lock": "yast2",
+     "icon": "preferences-system",
+     "summary": "openSUSE's system tools. Not needed on NazoOS and not "
+                "tested together with its tools"},
     # Hardware
     {"id": "piper", "name": "Piper", "category": "hardware",
      "kind": "rpm", "refs": ["piper"], "icon": "org.freedesktop.Piper",

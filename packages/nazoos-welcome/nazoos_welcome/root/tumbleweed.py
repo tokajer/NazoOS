@@ -142,8 +142,8 @@ def _clean_up(oss, shared):
     # The theme file stays after leaving and names the removed nazoos theme
     _try(["plymouth-set-default-theme", "bgrt"],
          "the boot splash theme is still nazoos")
-    _try(ZYPPER + ["removelock", "plasma6-session-x11"],
-         "the lock on plasma6-session-x11 is still there")
+    _try(ZYPPER + ["removelock", "plasma6-session-x11", "yast2"],
+         "the locks on plasma6-session-x11 and yast2 are still there")
     _clear_top_level()
     # The menu may still name kernel-nazoos: its scripts ran next to ours
     _try(["grub2-mkconfig", "-o", str(grub.GRUB_CFG)],

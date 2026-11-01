@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Once per system: also cleans systems that got YaST from an update, and the
+# update that brings this service. After that YaST is the user's choice.
+[Unit]
+Description=Remove YaST and keep it out by default
+ConditionPathExists=!/etc/nazoos-tweaks/yast-cleanup-done
+# Not in the live session and the installer
+ConditionPathExists=!/usr/share/calamares/settings.conf
+# Booted from a read-only snapshot: wait for the next normal boot
+ConditionPathIsReadWrite=/
+
+[Service]
+Type=oneshot
+# zypper is busy: no failed unit, the next boot tries again
+Environment=ZYPP_LOCK_TIMEOUT=120
+SuccessExitStatus=75
+ExecStart=/usr/libexec/nazoos-yast-cleanup
+
+[Install]
+WantedBy=multi-user.target

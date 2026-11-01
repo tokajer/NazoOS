@@ -17,6 +17,10 @@ from .. import catalog, hw, system
 from .base import flathub_ensure
 
 
+YAST_CLEANUP = "/usr/libexec/nazoos-yast-cleanup"
+YAST_CLEANUP_DONE = Path("/etc/nazoos-tweaks/yast-cleanup-done")
+
+
 def flatpak_branches():
     listing = helper.output(FLATPAK + ["remote-ls", "flathub",
                                        "--columns=application,branch"])
@@ -43,7 +47,18 @@ def pick_branch(found, wanted):
 
 
 def _install_rpm(app):
-    helper.install(app["refs"])
+    lock = app.get("lock")
+    try:
+        if lock:
+            helper.run(ZYPPER + ["removelock", lock])
+            # The one-time cleanup must not take away what the user chose
+            YAST_CLEANUP_DONE.parent.mkdir(parents=True, exist_ok=True)
+            YAST_CLEANUP_DONE.touch()
+        helper.install(app["refs"])
+    except Exception:
+        if lock:
+            helper.run(ZYPPER + ["addlock", lock], check=False)
+        raise
     for unit in app.get("units", []):
         helper.run(["systemctl", "enable", "--now", unit])
     firewall_zone(app.get("firewall", []), True)
@@ -91,6 +106,11 @@ def app_remove(args):
                                                  "--columns=application"]).split()
             if ref in installed:
                 helper.run(FLATPAK + ["uninstall", "--noninteractive", "-y", ref])
+    elif app.get("lock"):
+        # All modules and the lock, not just the package of the app card
+        if helper.run([YAST_CLEANUP], check=False):
+            raise Fail("{app} could not be removed. Another program may be "
+                       "changing software, try again later", app=app["name"])
     else:
         for unit in app.get("units", []):
             helper.run(["systemctl", "disable", "--now", unit], check=False)
