@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sun Nov  1 19:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Apps: ArtCraft Launcher is now a link to the maker's website, the
+  package is no longer maintained
+
+-------------------------------------------------------------------
 Sat Oct 31 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Switch to Tumbleweed: wait for a held zypp lock and stop with a clear

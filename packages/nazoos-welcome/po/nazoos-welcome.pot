@@ -201,8 +201,8 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid ""
-"Craft apps for image, video, audio and office (early alpha). Downloads them "
-"from GitHub, not from NazoOS"
+"Craft apps for image, video, audio and office (early alpha). Download from "
+"the maker's website, not from NazoOS"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -2059,4 +2059,12 @@ msgstr ""
 
 #: qml/pages/WelcomePage.qml:174
 msgid "Show this window at login"
+msgstr ""
+
+#: qml/pages/AppsPage.qml
+msgid "Open website"
+msgstr ""
+
+#: qml/pages/AppsPage.qml
+msgid "Website"
 msgstr ""

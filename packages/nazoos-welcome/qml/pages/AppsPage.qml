@@ -94,11 +94,19 @@ Kirigami.ScrollablePage {
                             title: modelData.name
                             subtitle: L.tr(modelData.summary)
                             status: needsKernel ? L.tr("Needs the NazoOS kernel (Kernel page)")
-                                    : (modelData.kind === "flatpak" ? "Flatpak" : "RPM")
+                                    : (modelData.kind === "link" ? L.tr("Website")
+                                       : modelData.kind === "flatpak" ? "Flatpak" : "RPM")
                                     + (installed ? " · " + L.tr("Installed") : "")
                                     + (software ? " · " + L.tr("Software rendering (slower)") : "")
                             statusType: needsKernel ? SettingCard.Neutral : installed ? SettingCard.Positive : SettingCard.Normal
                             QQC2.Button {
+                                visible: modelData.kind === "link"
+                                text: L.tr("Open website")
+                                icon.name: "internet-services"
+                                onClicked: page.app.openUrl(modelData.url)
+                            }
+                            QQC2.Button {
+                                visible: modelData.kind !== "link"
                                 enabled: !backend.busy && !needsKernel
                                 text: installed ? L.tr("Remove") : L.tr("Install")
                                 icon.name: installed ? "edit-delete" : "download"

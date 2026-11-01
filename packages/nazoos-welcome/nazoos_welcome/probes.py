@@ -241,7 +241,7 @@ def _apps(rpms, flatpaks):
     for a in catalog.APPS:
         if a["kind"] == "flatpak":
             apps[a["id"]] = a["refs"][0] in flatpaks
-        else:
+        elif a["kind"] == "rpm":
             apps[a["id"]] = all(r in rpms for r in a["refs"])
     return {
         "apps": apps,

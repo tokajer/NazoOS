@@ -210,11 +210,11 @@ msgstr "CoolerControl"
 
 #: nazoos_welcome/catalog.py
 msgid ""
-"Craft apps for image, video, audio and office (early alpha). Downloads them "
-"from GitHub, not from NazoOS"
+"Craft apps for image, video, audio and office (early alpha). Download from "
+"the maker's website, not from NazoOS"
 msgstr ""
-"Craft-Apps für Bild, Video, Audio und Büro (frühe Alpha). Lädt sie von "
-"GitHub, nicht von NazoOS"
+"Craft-Apps für Bild, Video, Audio und Büro (frühe Alpha). Download von der "
+"Website des Anbieters, nicht von NazoOS"
 
 #: nazoos_welcome/catalog.py
 msgid "Creating a snapshot"
@@ -2344,3 +2344,11 @@ msgstr "Dieses Fenster bei der Anmeldung anzeigen"
 #, python-brace-format
 #~ msgid "this drive is already used by the system ({mountpoint})"
 #~ msgstr "dieses Laufwerk wird schon vom System benutzt ({mountpoint})"
+
+#: qml/pages/AppsPage.qml
+msgid "Open website"
+msgstr "Website öffnen"
+
+#: qml/pages/AppsPage.qml
+msgid "Website"
+msgstr "Website"

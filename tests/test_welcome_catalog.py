@@ -35,3 +35,10 @@ def test_every_nvidia_variant_lists_its_meta_and_video_package():
     for name, d in system.NVIDIA_DRIVERS.items():
         assert f"{d['module']}-kmp-meta" in d["packages"], name
         assert d["video"] in d["packages"], name
+
+
+def test_link_apps_have_a_url_and_install_nothing():
+    links = [a for a in catalog.APPS if a["kind"] == "link"]
+    assert links
+    for a in links:
+        assert a["url"].startswith("https://") and not a["refs"], a["id"]

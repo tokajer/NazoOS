@@ -69,7 +69,7 @@ def _install_flatpak(app):
 
 def app_install(args):
     app = catalog.by_id(catalog.APPS, arg(args, 0))
-    if app is None:
+    if app is None or app["kind"] == "link":
         raise Fail("unknown app")
     if app.get("kernel") == "nazoos" and not running_nazoos():
         raise Fail("{app} needs the NazoOS kernel (Kernel page)",
@@ -82,7 +82,7 @@ def app_install(args):
 
 def app_remove(args):
     app = catalog.by_id(catalog.APPS, arg(args, 0))
-    if app is None:
+    if app is None or app["kind"] == "link":
         raise Fail("unknown app")
     if app["kind"] == "flatpak":
         # One by one: removing the app also removes its own extensions
