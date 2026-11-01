@@ -170,7 +170,7 @@ cat > /etc/default/grub <<GRUB
 GRUB_DISTRIBUTOR="NazoOS"
 GRUB_DEFAULT=saved
 GRUB_TIMEOUT=5
-GRUB_CMDLINE_LINUX_DEFAULT="quiet splash preempt=full"
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash preempt=full fbcon=nodefer"
 GRUB_CMDLINE_LINUX=""
 GRUB_TERMINAL_OUTPUT="gfxterm"
 GRUB_GFXMODE="auto"

@@ -44,7 +44,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
   <preferences profiles="test">
     <!-- Disk image, btrfs root as snapshot 1 so Snapper rollback works.
          No quota groups: they stall the system when Snapper deletes
-         snapshots. preempt=full: full preemption via PREEMPT_DYNAMIC -->
+         snapshots. preempt=full: full preemption via PREEMPT_DYNAMIC.
+         fbcon=nodefer: clears GRUB's picture from the framebuffer i915
+         inherits, it would flash between login and Plasma -->
     <type image="oem"
           format="qcow2"
           filesystem="btrfs"
@@ -54,7 +56,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
           fsmountoptions="noatime,compress=zstd:1"
           bootpartition="false"
           devicepersistency="by-uuid"
-          kernelcmdline="quiet splash preempt=full">
+          kernelcmdline="quiet splash preempt=full fbcon=nodefer">
       <bootloader name="grub2" timeout="5"/>
       <oemconfig>
         <oem-resize>true</oem-resize>
@@ -83,7 +85,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
           firmware="uefi"
           volid="NAZOOS_LIVE"
           mediacheck="false"
-          kernelcmdline="quiet splash preempt=full">
+          kernelcmdline="quiet splash preempt=full fbcon=nodefer">
       <bootloader name="grub2" timeout="5"/>
     </type>
   </preferences>

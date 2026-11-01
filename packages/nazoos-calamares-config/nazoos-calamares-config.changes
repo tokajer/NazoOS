@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sun Nov  1 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- fbcon=nodefer on the kernel command line: on i915 GRUB's picture
+  stayed in the inherited framebuffer and flashed between login and
+  Plasma
+
+-------------------------------------------------------------------
 Thu Oct 29 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The live user's passwordless sudo rule never reaches the installed
