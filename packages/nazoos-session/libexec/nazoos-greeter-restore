@@ -21,12 +21,15 @@ fi
 readonly ROOT
 readonly ACTIVE_VT=$ROOT/sys/class/tty/tty0/active
 
-# True when a session on seat0 matches (property, value pattern)
+# True when a session on seat0 matches (property, value pattern). Closing
+# sessions do not count: ksecretd --pam-login outlives a logout and keeps
+# its session in State=closing for as long as the system runs
 seat0_session_has() {
   local prop=$1 pattern=$2 id
   while read -r id _; do
     [ -n "$id" ] || continue
     [ "$(loginctl show-session "$id" -p Seat --value 2>/dev/null)" = seat0 ] || continue
+    [ "$(loginctl show-session "$id" -p State --value 2>/dev/null)" != closing ] || continue
     # shellcheck disable=SC2254
     case $(loginctl show-session "$id" -p "$prop" --value 2>/dev/null) in
       $pattern) return 0 ;;
@@ -41,7 +44,7 @@ seat0_occupied() {
     || seat0_session_has Class greeter
 }
 
-# True when the user sits on a text console: SwitchToGreeter would pull
+# True when the user sits on a text console: the new greeter would pull
 # them away from it
 vt_in_use() {
   local vt
@@ -64,10 +67,10 @@ case ${1-} in
       vt_in_use || break
       sleep 2
     done
-    # Starts a fresh greeter on a free VT and leaves other sessions alone
-    exec busctl --system call org.freedesktop.DisplayManager \
-      /org/freedesktop/DisplayManager/Seat0 \
-      org.freedesktop.DisplayManager.Seat SwitchToGreeter
+    # The seat is free, so a restart hits nobody. Not SwitchToGreeter: SDDM
+    # keeps the dead display next to the new one, removes the new one at the
+    # next logout and starts no greeter
+    exec systemctl restart display-manager.service
     ;;
   *)
     echo "usage: nazoos-greeter-restore trigger <uid>|wait" >&2

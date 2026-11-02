@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""nazoos-greeter-restore against fake loginctl, systemctl, busctl, sleep."""
+"""nazoos-greeter-restore against fake loginctl, systemctl, sleep."""
 
 import os
 import subprocess
@@ -11,15 +11,17 @@ import pytest
 SCRIPT = (Path(__file__).parent.parent
           / "packages/nazoos-session/libexec/nazoos-greeter-restore")
 
-# FAKE_SESSIONS: file of "id:seat:Type:Class:VTNr" entries; the seat can be empty
+# FAKE_SESSIONS: file of "id:seat:Type:Class:VTNr[:State]" entries; the seat
+# can be empty
 LOGINCTL = """#!/bin/bash
 if [ "$1" = list-sessions ]; then
   for e in $(cat "$FAKE_SESSIONS"); do echo "  ${e%%:*} 1000 user"; done
   exit 0
 fi
-IFS=: read -r id seat type cls vt <<< "$(grep "^$2:" "$FAKE_SESSIONS")"
+IFS=: read -r id seat type cls vt state <<< "$(grep "^$2:" "$FAKE_SESSIONS")"
 case $4 in
   Seat) echo "$seat" ;; Type) echo "$type" ;; Class) echo "$cls" ;; VTNr) echo "$vt" ;;
+  State) echo "${state:-active}" ;;
 esac
 """
 SYSTEMCTL = """#!/bin/bash
@@ -53,7 +55,6 @@ def restore(tmp_path):
     (tty / "active").write_text("tty1\n")
     stubs = {
         "loginctl": LOGINCTL, "systemctl": SYSTEMCTL, "sleep": SLEEP,
-        "busctl": '#!/bin/bash\necho "busctl $*" >> "$FAKE_LOG"\n',
         "id": '#!/bin/bash\n[ "$2" = sddm ] && echo 462 && exit 0\n'
               'exec /usr/bin/id "$@"\n',
     }
@@ -77,8 +78,8 @@ def restore(tmp_path):
     return run
 
 
-def busctl_calls(r):
-    return [c for c in r.calls if c.startswith("busctl")]
+def restarts(r):
+    return [c for c in r.calls if c.startswith("systemctl restart")]
 
 
 def test_trigger_ignores_other_users(restore):
@@ -100,47 +101,51 @@ def test_trigger_starts_the_unit_for_sddm(restore):
 def test_wait_leaves_a_occupied_seat_alone(restore, sessions):
     r = restore("wait", sessions=sessions)
     assert r.returncode == 0
-    assert busctl_calls(r) == []
+    assert restarts(r) == []
 
 
 def test_wait_ends_when_display_manager_is_stopped(restore):
     r = restore("wait", dm="no")
     assert r.returncode == 0
-    assert busctl_calls(r) == []
+    assert restarts(r) == []
 
 
 def test_wait_ignores_wayland_session_on_another_seat(restore):
     r = restore("wait", sessions="c1:seat1:wayland:user:")
-    assert len(busctl_calls(r)) == 1
+    assert len(restarts(r)) == 1
+
+
+def test_wait_ignores_a_closing_session(restore):
+    # After a logout, ksecretd keeps the old session in State=closing
+    r = restore("wait", sessions="c1:seat0:wayland:user:1:closing")
+    assert len(restarts(r)) == 1
+    assert "sleep" not in r.calls
 
 
 def test_wait_keeps_waiting_while_a_text_console_is_in_use(restore):
     r = restore("wait", getty_busy="tty1")
     assert "sleep" in r.calls
     # The call comes only after the VT was freed
-    assert r.calls.index("sleep") < r.calls.index(busctl_calls(r)[0])
-    assert len(busctl_calls(r)) == 1
+    assert r.calls.index("sleep") < r.calls.index(restarts(r)[0])
+    assert len(restarts(r)) == 1
 
 
 def test_wait_keeps_waiting_while_a_session_owns_the_vt(restore):
     # A tty session without getty unit state, but on the active VT
     r = restore("wait", sessions="t1:seat0:tty:user:1")
     assert "sleep" in r.calls
-    assert len(busctl_calls(r)) == 1
+    assert len(restarts(r)) == 1
 
 
-def test_wait_calls_switch_to_greeter(restore):
+def test_wait_restarts_the_display_manager(restore):
     r = restore("wait", sessions="t1::tty:user:")
-    assert busctl_calls(r) == [
-        "busctl --system call org.freedesktop.DisplayManager "
-        "/org/freedesktop/DisplayManager/Seat0 "
-        "org.freedesktop.DisplayManager.Seat SwitchToGreeter"]
+    assert restarts(r) == ["systemctl restart display-manager.service"]
     assert "sleep" not in r.calls
 
 
 def test_a_tty_session_elsewhere_does_not_block(restore):
     r = restore("wait", sessions="t2:seat0:tty:user:3")
-    assert len(busctl_calls(r)) == 1
+    assert len(restarts(r)) == 1
     assert "sleep" not in r.calls
 
 
