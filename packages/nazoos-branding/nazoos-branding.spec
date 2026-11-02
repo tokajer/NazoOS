@@ -86,6 +86,7 @@ done
 install -Dm0644 -t %{buildroot}%{_sysconfdir}/xdg \
   xdg/kdeglobals xdg/kcminputrc xdg/kcm-about-distrorc xdg/kscreenlockerrc \
   xdg/kwinrc xdg/baloofilerc xdg/konsolerc
+install -Dm0644 systemd/kde-baloo.service %{buildroot}%{_sysconfdir}/systemd/user/kde-baloo.service
 install -Dm0644 -t %{buildroot}%{_datadir}/konsole konsole/NazoOS.colorscheme
 # Konsole cannot edit a profile outside the home, and a copy there would
 # only sit next to one in /usr/share as a second "NazoOS" entry
@@ -180,6 +181,9 @@ fi
 %config(noreplace) %{_sysconfdir}/xdg/baloofilerc
 %config(noreplace) %{_sysconfdir}/xdg/konsolerc
 %config(noreplace) %{_sysconfdir}/bash.bashrc.local
+%dir %{_sysconfdir}/systemd
+%dir %{_sysconfdir}/systemd/user
+%{_sysconfdir}/systemd/user/kde-baloo.service
 # konsole is not in the build root
 %dir %{_datadir}/konsole
 %{_datadir}/konsole/NazoOS.colorscheme

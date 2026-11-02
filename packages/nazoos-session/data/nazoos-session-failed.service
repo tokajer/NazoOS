@@ -6,10 +6,11 @@
 [Unit]
 Description=NazoOS gaming mode: report a failed start
 After=plasma-workspace.target
+PartOf=graphical-session.target
 ConditionPathExists=%S/nazoos-session/gaming-failed
 
 [Service]
-Type=oneshot
+Type=exec
 ExecStart=/usr/bin/nazoos-session-select --report-failed
 
 [Install]

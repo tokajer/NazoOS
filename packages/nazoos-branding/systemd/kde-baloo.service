@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: KDE Community
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# NazoOS: copy of kf6-baloo-file 6.31 with one line changed, a drop-in
+# cannot remove After=. Plasma's target wants this unit and is ordered
+# before graphical-session.target, the original orders after it: a cycle.
+# systemd drops baloo at login (no file index), and if baloo did start,
+# the cycle stops every logout.
+# SHORTCUT: full copy, it misses upstream changes to this unit; delete it
+# once kf6-baloo-file no longer has After=graphical-session.target.
+[Unit]
+Description=Baloo File Indexer Daemon
+PartOf=graphical-session.target
+# We need the compositor to be running since we fork QGuiApplications.
+After=plasma-core.target
+
+[Service]
+ExecStart=/usr/libexec/kf6/baloo_file
+BusName=org.kde.baloo
+Slice=background.slice
+ExecCondition=/usr/bin/kde-systemd-start-condition --condition "baloofilerc:Basic Settings:Indexing-Enabled:true"
+# We'll basically only want to consume resources if they aren't needed anywhere else, hence weights are way low.
+CPUWeight=1
+IOWeight=1
+# Used memory includes any generated data, notably any transient allocation done
+# by the extractors. A too low limit will cause significant slowdown, causing the
+# extractor to hold onto the memory instead of releasing it in a timely manner
+# after a transaction has finished.
+MemoryHigh=25%
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Nov  2 19:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- File indexing works again: own kde-baloo.service without the ordering
+  cycle against Plasma's target, which also could block logging out
+
+-------------------------------------------------------------------
 Sat Oct 31 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Konsole: ship the NazoOS profile through /etc/skel so users can edit
