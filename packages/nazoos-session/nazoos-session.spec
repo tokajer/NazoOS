@@ -51,7 +51,8 @@ and the desktop is used for one session only.
 install -Dm0755 bin/nazoos-session-select %{buildroot}%{_bindir}/nazoos-session-select
 install -Dm0755 -t %{buildroot}%{_libexecdir}/nazoos-session \
   libexec/nazoos-session-ctl libexec/nazoos-session-switch \
-  libexec/nazoos-detect-handheld libexec/nazoos-osk-setup
+  libexec/nazoos-detect-handheld libexec/nazoos-osk-setup \
+  libexec/nazoos-greeter-restore
 install -Dm0644 data/nazoos-osk-setup.desktop \
   %{buildroot}%{_sysconfdir}/xdg/autostart/nazoos-osk-setup.desktop
 # Hook path fixed by gamescope-session-steam-generic
@@ -68,6 +69,11 @@ install -Dm0644 data/nazoos-session-boot.service \
   %{buildroot}%{_unitdir}/nazoos-session-boot.service
 install -Dm0644 data/nazoos-session-snapshot.service \
   %{buildroot}%{_unitdir}/nazoos-session-snapshot.service
+install -Dm0644 data/nazoos-greeter-restore.service \
+  %{buildroot}%{_unitdir}/nazoos-greeter-restore.service
+# Login screen comes back after a VT switch (SDDM does not restart the greeter)
+install -Dm0644 data/50-nazoos-greeter-restore.conf \
+  %{buildroot}%{_unitdir}/user@.service.d/50-nazoos-greeter-restore.conf
 install -Dm0644 -t %{buildroot}%{_userunitdir} \
   data/nazoos-session-gaming.service data/nazoos-session-desktop.service \
   data/nazoos-session-failed.service
@@ -123,6 +129,9 @@ fi
 %dir %{_sysconfdir}/xdg
 %dir %{_sysconfdir}/xdg/autostart
 %config %{_sysconfdir}/xdg/autostart/nazoos-osk-setup.desktop
+%{_unitdir}/nazoos-greeter-restore.service
+%dir %{_unitdir}/user@.service.d
+%{_unitdir}/user@.service.d/50-nazoos-greeter-restore.conf
 %{_unitdir}/nazoos-session-boot.service
 %{_unitdir}/nazoos-session-snapshot.service
 %{_userunitdir}/nazoos-session-gaming.service

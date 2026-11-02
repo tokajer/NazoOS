@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Started by user@.service of the sddm user (50-nazoos-greeter-restore.conf)
+# when the greeter session ended; no [Install], never enabled.
+[Unit]
+Description=NazoOS: restore the login screen after a VT switch
+
+[Service]
+Type=exec
+ExecStart=/usr/libexec/nazoos-session/nazoos-greeter-restore wait

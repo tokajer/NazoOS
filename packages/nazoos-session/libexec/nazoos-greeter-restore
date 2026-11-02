@@ -1,0 +1,76 @@
+#!/bin/bash
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS: bring the SDDM login screen back after a VT switch away from it.
+# The Wayland greeter (KWin) exits with code 0 then, SDDM counts that as
+# success and does not restart it (HELPER_SUCCESS in
+# https://github.com/sddm/sddm/blob/develop/src/daemon/Greeter.cpp), so the
+# way back to that VT is a black screen. Users have no console to fix it.
+# Usage: nazoos-greeter-restore trigger <uid>   (user@.service ExecStopPost)
+#        nazoos-greeter-restore wait            (nazoos-greeter-restore.service)
+
+set -uo pipefail
+
+# Test-only: NAZOOS_SESSION_ROOT moves the sysfs path. As root the variable
+# is ignored, so nobody can redirect the real check
+ROOT=
+if [ "$(id -u)" -ne 0 ]; then
+  ROOT=${NAZOOS_SESSION_ROOT-}
+fi
+readonly ROOT
+readonly ACTIVE_VT=$ROOT/sys/class/tty/tty0/active
+
+# True when a session on seat0 matches (property, value pattern)
+seat0_session_has() {
+  local prop=$1 pattern=$2 id
+  while read -r id _; do
+    [ -n "$id" ] || continue
+    [ "$(loginctl show-session "$id" -p Seat --value 2>/dev/null)" = seat0 ] || continue
+    # shellcheck disable=SC2254
+    case $(loginctl show-session "$id" -p "$prop" --value 2>/dev/null) in
+      $pattern) return 0 ;;
+    esac
+  done < <(loginctl list-sessions --no-legend 2>/dev/null)
+  return 1
+}
+
+# True when a person is logged in or a greeter is back
+seat0_occupied() {
+  seat0_session_has Type wayland || seat0_session_has Type x11 \
+    || seat0_session_has Class greeter
+}
+
+# True when the user sits on a text console: SwitchToGreeter would pull
+# them away from it
+vt_in_use() {
+  local vt
+  vt=$(cat "$ACTIVE_VT" 2>/dev/null) || return 1
+  [[ $vt =~ ^tty[0-9]+$ ]] || return 1
+  systemctl is-active --quiet "getty@$vt.service" && return 0
+  seat0_session_has VTNr "${vt#tty}"
+}
+
+case ${1-} in
+  trigger)
+    uid=${2-}
+    [ -n "$uid" ] && [ "$uid" = "$(id -u sddm 2>/dev/null)" ] || exit 0
+    exec systemctl --no-block start nazoos-greeter-restore.service
+    ;;
+  wait)
+    while :; do
+      systemctl is-active --quiet display-manager.service || exit 0
+      seat0_occupied && exit 0
+      vt_in_use || break
+      sleep 2
+    done
+    # Starts a fresh greeter on a free VT and leaves other sessions alone
+    exec busctl --system call org.freedesktop.DisplayManager \
+      /org/freedesktop/DisplayManager/Seat0 \
+      org.freedesktop.DisplayManager.Seat SwitchToGreeter
+    ;;
+  *)
+    echo "usage: nazoos-greeter-restore trigger <uid>|wait" >&2
+    exit 2
+    ;;
+esac
