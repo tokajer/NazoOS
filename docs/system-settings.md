@@ -63,3 +63,7 @@ sudo firewall-cmd --reload
 ### YaST
 
 NazoOS comes without YaST and removes it from systems that got it through an update. If you want it anyway, install **YaST** in **NazoOS Welcome → Apps**, then add the modules you need (for example `yast2-bootloader`) in Myrlyn. Removing it there takes all YaST packages away again. NazoOS does not test its tools together with YaST.
+
+## Sleep
+
+NazoOS offers **Sleep** (standby), not hibernate. With Secure Boot on, Linux blocks hibernate: the saved memory image on the disk is not protected, so it could be used to get around Secure Boot. NazoOS also keeps swap in memory (zram), not on the disk. This may change once Linux can protect that image.
