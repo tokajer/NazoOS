@@ -62,6 +62,10 @@ for u in jupiter-fan-control pipewire-sysconf wireplumber-sysconf; do
   install -Dm0644 systemd/50-nazoos-steam-deck-only.conf \
     %{buildroot}%{_unitdir}/$u.service.d/50-nazoos-steam-deck-only.conf
 done
+for u in pipewire-sysconf wireplumber-sysconf; do
+  install -Dm0644 systemd/50-nazoos-skip-read-only.conf \
+    %{buildroot}%{_unitdir}/$u.service.d/50-nazoos-skip-read-only.conf
+done
 install -Dm0644 systemd/90-nazoos-deck.preset \
   %{buildroot}%{_presetdir}/90-nazoos-deck.preset
 install -Dm0644 systemd/90-nazoos-deck-user.preset \
@@ -99,6 +103,7 @@ fi
 %dir %{_unitdir}/pipewire-sysconf.service.d
 %dir %{_unitdir}/wireplumber-sysconf.service.d
 %{_unitdir}/*.service.d/50-nazoos-steam-deck-only.conf
+%{_unitdir}/*.service.d/50-nazoos-skip-read-only.conf
 %{_presetdir}/90-nazoos-deck.preset
 %dir %{_userpresetdir}
 %{_userpresetdir}/90-nazoos-deck.preset

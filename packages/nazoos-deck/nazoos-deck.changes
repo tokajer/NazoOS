@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Nov  2 16:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- pipewire-sysconf and wireplumber-sysconf are skipped on a read-only
+  snapshot instead of failing
+
+-------------------------------------------------------------------
 Sat Oct 31 18:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend sdgyrodsu (Steam Deck gyro in emulators) and ryzenadj (TDP
