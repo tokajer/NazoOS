@@ -20,6 +20,14 @@ from . import apps, kernel_switch, maintenance
 OWN_VENDOR = "obs://build.opensuse.org/home:Tokajer"
 OWN_REPO = "home:/Tokajer"
 OSS_PATH = "/tumbleweed/repo/oss/"
+# zypper's list of packages it installed as dependencies (one name per
+# line, # comments)
+AUTO_INSTALLED = Path("/var/lib/zypp/AutoInstalled")
+# kernel-install pulls these in for kernel-nazoos (it carries
+# kmod(v4l2loopback.ko)); without the kernel they only make the solver
+# fetch v4l2loopback-kmp-default, built for an older kernel, which fails
+# at every boot
+V4L2_AUTO = ["v4l2loopback-autoload", "v4l2loopback-utils"]
 # zypper: installed, but an RPM script failed (man zypper, EXIT CODES). Done
 # for us; not in zypper.INFO, nazoos-update reads this code differently
 RPM_SCRIPT_FAILED = 107
@@ -56,6 +64,20 @@ def own_packages():
                    if vendor == OWN_VENDOR})
 
 
+def _auto_installed():
+    """V4L2_AUTO packages that are installed as dependencies. One the user
+    installed on purpose is not listed there and stays, like all of them
+    next to a module package that already serves kernel-default."""
+    if proc.rpm_installed("v4l2loopback-kmp-default"):
+        return []
+    try:
+        lines = AUTO_INSTALLED.read_text().splitlines()
+    except OSError:
+        return []
+    listed = {line.strip() for line in lines}
+    return [n for n in V4L2_AUTO if n in listed and proc.rpm_installed(n)]
+
+
 def _oss():
     """Alias of repo-oss; checked before the snapshot so a missing repo
     leaves nothing behind."""
@@ -76,6 +98,7 @@ def _plan(oss):
     # sudo-policy-wheel-auth-self. xone-kmp-default needs xone: what
     # Tumbleweed has too stays and changes to its build afterwards
     args = KEEP + [f"-{n}" for n in names if n not in shared]
+    args += [f"-{n}" for n in _auto_installed()]
     rc = helper.run(ZYPPER_IN + ["--dry-run"] + args, check=False)
     if rc:
         raise Fail("the switch to Tumbleweed is not possible right now "
@@ -132,13 +155,34 @@ def _clear_top_level():
         say(f"Note: the boot menu default could not be reset: {e}")
 
 
+def _doubled_builds():
+    """name-version-release of our builds with a build of someone else
+    next to them. Others are never listed: if the forced install failed,
+    removing them would leave nothing."""
+    try:
+        lines = helper.output(["rpm", "-qa", "--qf", "%{NAME}\t%{VERSION}-"
+                               "%{RELEASE}\t%{VENDOR}\n"]).splitlines()
+    except (Fail, OSError) as e:
+        say(f"Note: the installed kernel files could not be listed: {e}")
+        return []
+    found = [f.split("\t") for f in lines]
+    found = [f for f in found if len(f) == 3]
+    foreign = {name for name, _, vendor in found if vendor != OWN_VENDOR}
+    return [f"{name}-{ver}" for name, ver, vendor in found
+            if vendor == OWN_VENDOR and name in foreign]
+
+
 def _clean_up(oss, shared):
     if shared:
-        # SHORTCUT: kernel-devel & co are multiversion, the openSUSE build
-        # lands next to ours instead of replacing it. Ours stays until the
-        # kernel purge takes it; revisit if that blocks a kernel update.
         _try(ZYPPER_IN + ["--oldpackage", "--force", "--from", oss] + shared,
              "some packages still are the NazoOS build: " + " ".join(shared))
+        # kernel-devel & co are multiversion: the openSUSE build lands next
+        # to ours, and zypper dup stops at ours ("not in a distupgrade
+        # repository"). No --nodeps: a dependent makes it fail into a note
+        doubled = _doubled_builds()
+        if doubled:
+            _try(["rpm", "-e", *doubled], "some kernel files still are the "
+                 "NazoOS build: " + " ".join(doubled))
     # The theme file stays after leaving and names the removed nazoos theme
     _try(["plymouth-set-default-theme", "bgrt"],
          "the boot splash theme is still nazoos")

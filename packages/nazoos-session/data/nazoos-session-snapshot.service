@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# NazoOS gaming mode: on a read-only snapshot, log into the desktop. Pulled
+# in by nazoos-session-boot.service. No sandboxing: any namespacing option
+# gives the unit a private mount namespace, also for a "+" command, and the
+# bind mount of this unit has to reach SDDM.
+[Unit]
+Description=NazoOS gaming mode: desktop login on a read-only snapshot
+Before=display-manager.service display-manager-legacy.service sddm.service
+ConditionPathExists=/etc/sddm.conf.d/zz-nazoos-session.conf
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/nazoos-session/nazoos-session-ctl snapshot

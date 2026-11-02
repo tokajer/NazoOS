@@ -35,10 +35,10 @@ def root(tmp_path):
     return tmp_path
 
 
-def ctl(root, *args):
+def ctl(root, *args, env=None):
     return subprocess.run(
         ["bash", str(SCRIPT), *args], capture_output=True, text=True,
-        env={**os.environ, "NAZOOS_SESSION_ROOT": str(root)})
+        env={**os.environ, "NAZOOS_SESSION_ROOT": str(root), **(env or {})})
 
 
 def session(root):
@@ -128,3 +128,94 @@ def test_waits_for_another_caller(root):
         assert p.poll() is None and session(root) is None
     assert p.wait(timeout=10) == 0
     assert session(root) == GAMING
+
+
+def etc_dirs(root):
+    etc = root / "etc"
+    return [etc, *(d for d in etc.rglob("*") if d.is_dir())]
+
+
+def read_only(root):
+    for d in etc_dirs(root):
+        d.chmod(0o555)
+
+
+@pytest.fixture
+def snapshot_env(root, tmp_path_factory):
+    """Gaming mode set up, then /etc read-only; a stub mount logs its args."""
+    assert ctl(root, "boot-mode", "gaming", USER).returncode == 0
+    (root / "run").mkdir(exist_ok=True)
+    stubs = tmp_path_factory.mktemp("stubs")
+    log = stubs / "mount.log"
+    mount = stubs / "mount"
+    mount.write_text(f'#!/bin/sh\necho "$@" >> {log}\n')
+    mount.chmod(0o755)
+    env = {"PATH": f"{stubs}:{os.environ['PATH']}"}
+    yield env, log
+    for d in etc_dirs(root):
+        d.chmod(0o755)
+
+
+def tree(root):
+    return {p: p.read_text() for p in root.rglob("*") if p.is_file()
+            and "run" not in p.relative_to(root).parts[:1]}
+
+
+def test_snapshot_binds_a_desktop_config_over_sddms(root, snapshot_env):
+    env, log = snapshot_env
+    read_only(root)
+    assert ctl(root, "snapshot", env=env).returncode == 0
+    conf = root / "run/nazoos-session/zz-nazoos-session.conf"
+    assert f"Session={DESKTOP}" in conf.read_text()
+    assert log.read_text().split() == [
+        "--bind", str(conf), str(root / "etc/sddm.conf.d/zz-nazoos-session.conf")]
+
+
+def test_snapshot_does_nothing_on_a_writable_etc(root, snapshot_env):
+    env, log = snapshot_env
+    assert ctl(root, "snapshot", env=env).returncode == 0
+    assert not log.exists() and not (root / "run/nazoos-session").exists()
+
+
+def test_snapshot_does_nothing_without_our_autologin(root, snapshot_env):
+    env, log = snapshot_env
+    assert ctl(root, "boot-mode", "desktop").returncode == 0
+    read_only(root)
+    assert ctl(root, "snapshot", env=env).returncode == 0
+    assert not log.exists() and not (root / "run/nazoos-session").exists()
+
+
+def test_snapshot_also_covers_a_pending_one_time_switch(root, snapshot_env):
+    env, log = snapshot_env
+    assert ctl(root, "boot-mode", "desktop").returncode == 0
+    assert ctl(root, "switch", "gaming", USER).returncode == 0
+    read_only(root)
+    assert ctl(root, "snapshot", env=env).returncode == 0
+    conf = root / "run/nazoos-session/zz-nazoos-session.conf"
+    assert f"Session={DESKTOP}" in conf.read_text() and log.exists()
+
+
+@pytest.mark.parametrize("args", [("started", "desktop"), ("failed", "gaming"),
+                                  ("boot",), ("switch", "desktop")])
+def test_read_only_etc_leaves_the_state_alone(root, snapshot_env, args):
+    env, _ = snapshot_env
+    read_only(root)
+    before = tree(root)
+    assert ctl(root, *args, USER, env=env).returncode == 0
+    assert tree(root) == before
+
+
+@pytest.mark.parametrize("args", [("switch", "gaming", USER),
+                                  ("boot-mode", "desktop")])
+def test_read_only_etc_refuses_what_needs_to_write(root, snapshot_env, args):
+    env, _ = snapshot_env
+    read_only(root)
+    r = ctl(root, *args, env=env)
+    assert r.returncode == 1 and "read-only snapshot" in r.stderr
+
+
+def test_status_works_on_a_read_only_etc(root, snapshot_env):
+    env, _ = snapshot_env
+    read_only(root)
+    r = ctl(root, "status", env=env)
+    assert r.returncode == 0 and "BOOT_MODE=gaming" in r.stdout

@@ -45,6 +45,8 @@ def switch(fake_root, monkeypatch, tmp_path):
     fake_root.installed = {kernel.KERNEL_DEFAULT, "waydroid"}
     fake_root.out = lambda cmd: "".join(f"{n}\t{v}\n"
                                         for n, v in VENDORS.items())
+    monkeypatch.setattr(tumbleweed, "AUTO_INSTALLED",
+                        tmp_path / "AutoInstalled")
     monkeypatch.setattr(zypper, "repo_search", lambda alias, name:
                         0 if name == "xone" else zypper.NOT_FOUND)
     monkeypatch.setattr(proc, "rc", lambda cmd, timeout=30: 0)
@@ -84,6 +86,114 @@ def position(fake, *words):
 
 def repo_calls(fake, verb):
     return [c[-1] for c in fake.calls if "modifyrepo" in c and verb in c]
+
+
+def removals(call):
+    return [a[1:] for a in call if a.startswith("-") and not a.startswith("--")]
+
+
+def test_auto_installed_v4l2_packages_leave_with_the_kernel(switch, tmp_path):
+    (tmp_path / "AutoInstalled").write_text(
+        "# comment\nv4l2loopback-autoload\nv4l2loopback-utils\nsudo\n")
+    switch.installed |= {"v4l2loopback-autoload", "v4l2loopback-utils"}
+    tumbleweed.tumbleweed_switch([])
+    for call in (transaction(switch), dry_run(switch)):
+        assert {"v4l2loopback-autoload", "v4l2loopback-utils"} <= set(
+            removals(call))
+
+
+def test_v4l2_packages_the_user_chose_stay(switch, tmp_path):
+    (tmp_path / "AutoInstalled").write_text("v4l2loopback-autoload\n")
+    switch.installed |= {"v4l2loopback-autoload", "v4l2loopback-utils"}
+    tumbleweed.tumbleweed_switch([])
+    r = removals(transaction(switch))
+    assert "v4l2loopback-autoload" in r and "v4l2loopback-utils" not in r
+
+
+def test_v4l2_packages_that_are_not_installed_stay_out(switch, tmp_path):
+    (tmp_path / "AutoInstalled").write_text(
+        "v4l2loopback-autoload\nv4l2loopback-utils\n")
+    tumbleweed.tumbleweed_switch([])
+    assert not any("v4l2loopback" in a for a in transaction(switch))
+
+
+def test_v4l2_packages_stay_next_to_a_module_package(switch, tmp_path):
+    (tmp_path / "AutoInstalled").write_text("v4l2loopback-autoload\n")
+    switch.installed |= {"v4l2loopback-autoload", "v4l2loopback-kmp-default"}
+    tumbleweed.tumbleweed_switch([])
+    assert not any("v4l2loopback" in a for a in transaction(switch))
+
+
+def test_a_missing_auto_installed_file_is_no_problem(switch):
+    switch.installed |= {"v4l2loopback-autoload"}
+    tumbleweed.tumbleweed_switch([])
+    assert not any("v4l2loopback" in a for a in transaction(switch))
+
+
+def versions(*rows):
+    """A fake rpm -qa for the versions query; every other query keeps the
+    two-column answer."""
+    two = switch_out()
+    return lambda cmd: "".join("\t".join(r) + "\n" for r in rows) \
+        if "%{NAME}\t%{VERSION}-%{RELEASE}\t%{VENDOR}\n" in cmd else two(cmd)
+
+
+def switch_out():
+    return lambda cmd: "".join(f"{n}\t{v}\n" for n, v in VENDORS.items())
+
+
+MINE = tumbleweed.OWN_VENDOR
+
+
+def test_our_second_version_is_removed_by_exact_nvr(switch):
+    switch.out = versions(
+        ("kernel-devel", "6.17-1.1", MINE), ("kernel-devel", "6.17-2.1", "openSUSE"),
+        ("kernel-source", "6.17-1.1", MINE),
+        ("kernel-source", "6.17-1.1", MINE), ("other", "1-1", "openSUSE"))
+    tumbleweed.tumbleweed_switch([])
+    assert ["rpm", "-e", "kernel-devel-6.17-1.1"] in switch.calls
+    assert position(switch, "--oldpackage") < position(switch, "rpm", "-e",
+                                                       "kernel-devel-6.17-1.1")
+
+
+def test_a_single_version_of_ours_is_never_removed(switch):
+    switch.out = versions(("kernel-devel", "6.17-1.1", MINE),
+                          ("kernel-source", "6.17-1.1", MINE))
+    tumbleweed.tumbleweed_switch([])
+    assert not any(c[:2] == ["rpm", "-e"] and "--allmatches" not in c
+                   for c in switch.calls)
+
+
+def test_two_versions_of_ours_alone_stay(switch):
+    switch.out = versions(("kernel-devel", "6.17-1.1", MINE),
+                          ("kernel-devel", "6.17-2.1", MINE))
+    tumbleweed.tumbleweed_switch([])
+    assert not any(c[:2] == ["rpm", "-e"] and "--allmatches" not in c
+                   for c in switch.calls)
+
+
+def test_a_failed_removal_of_the_double_is_only_a_note(switch, monkeypatch):
+    switch.out = versions(("kernel-devel", "6.17-1.1", MINE),
+                          ("kernel-devel", "6.17-2.1", "openSUSE"))
+    switch.rc = lambda cmd: 1 if cmd[:2] == ["rpm", "-e"] \
+        and "--allmatches" not in cmd else 0
+    said = []
+    monkeypatch.setattr(tumbleweed, "say", said.append)
+    tumbleweed.tumbleweed_switch([])
+    assert any(s.startswith("Note: some kernel files") for s in said)
+
+
+def test_a_failing_package_list_is_only_a_note(switch, monkeypatch):
+    def out(cmd):
+        if "%{NAME}\t%{VERSION}-%{RELEASE}\t%{VENDOR}\n" in cmd:
+            raise helper.Fail("rpm broke")
+        return switch_out()(cmd)
+
+    switch.out = out
+    said = []
+    monkeypatch.setattr(tumbleweed, "say", said.append)
+    tumbleweed.tumbleweed_switch([])
+    assert any("could not be listed" in s for s in said)
 
 
 def test_the_oss_path_is_the_one_repos_reads():

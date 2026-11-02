@@ -7,6 +7,7 @@
 Description=NazoOS gaming mode: session at boot
 # display-manager.service is an alias on openSUSE; name the real units too
 Before=display-manager.service display-manager-legacy.service sddm.service
+Wants=nazoos-session-snapshot.service
 ConditionPathExists=|/etc/nazoos/session.conf
 ConditionPathExists=|/etc/nazoos/session-oneshot
 

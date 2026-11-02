@@ -66,6 +66,8 @@ install -Dm0644 data/org.nazoos.session.gaming.desktop \
   %{buildroot}%{_datadir}/applications/org.nazoos.session.gaming.desktop
 install -Dm0644 data/nazoos-session-boot.service \
   %{buildroot}%{_unitdir}/nazoos-session-boot.service
+install -Dm0644 data/nazoos-session-snapshot.service \
+  %{buildroot}%{_unitdir}/nazoos-session-snapshot.service
 install -Dm0644 -t %{buildroot}%{_userunitdir} \
   data/nazoos-session-gaming.service data/nazoos-session-desktop.service \
   data/nazoos-session-failed.service
@@ -120,6 +122,7 @@ fi
 %dir %{_sysconfdir}/xdg/autostart
 %config %{_sysconfdir}/xdg/autostart/nazoos-osk-setup.desktop
 %{_unitdir}/nazoos-session-boot.service
+%{_unitdir}/nazoos-session-snapshot.service
 %{_userunitdir}/nazoos-session-gaming.service
 %{_userunitdir}/nazoos-session-desktop.service
 %{_userunitdir}/nazoos-session-failed.service

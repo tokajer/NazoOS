@@ -7,6 +7,7 @@
 #   - nazoos-session-switch (pkexec, the user switches modes)
 #   - nazoos-welcome-helper (boot mode on/off)
 #   - nazoos-session-boot.service (at boot)
+#   - nazoos-session-snapshot.service (at boot, read-only snapshot)
 #   - gamescope-session-plus@.service (ExecStopPost: gaming mode failed)
 #   - the installer (handheld install starts in gaming mode)
 #
@@ -89,20 +90,31 @@ set_dm_autologin() {
   fi
 }
 
+# SDDM config with the autologin into session file $2, written to $1
+write_sddm_conf() {
+  cat > "$1" <<EOF
+# Written by nazoos-session-ctl (NazoOS gaming mode), do not edit.
+# Change it in NazoOS Welcome → Gaming → Gaming mode.
+[Autologin]
+Session=$2
+Relogin=true
+EOF
+}
+
 # Next login (boot or logout) goes to user $1, session $2 (gaming|desktop)
 set_autologin() {
   local user=$1 session
   session=$(session_file "$2")
   mkdir -p "$(dirname "$SDDM_CONF")"
-  cat > "$SDDM_CONF.tmp" <<EOF
-# Written by nazoos-session-ctl (NazoOS gaming mode), do not edit.
-# Change it in NazoOS Welcome → Gaming → Gaming mode.
-[Autologin]
-Session=$session
-Relogin=true
-EOF
+  write_sddm_conf "$SDDM_CONF.tmp" "$session"
   mv -f "$SDDM_CONF.tmp" "$SDDM_CONF"
   set_dm_autologin "$user"
+}
+
+# Not findmnt: a btrfs read-only snapshot still shows rw there, access(2)
+# gets EROFS
+etc_read_only() {
+  [ ! -w "$ROOT/etc" ]
 }
 
 # Remove our autologin; an autologin the admin had before comes back
@@ -143,6 +155,20 @@ boot_user=$(conf_get "$CONF" USER)
 
 cmd=${1-}
 [ $# -gt 0 ] && shift
+
+# A read-only snapshot: nothing can be written. The bind mount of
+# "snapshot" already logs into the desktop, so the commands that only keep
+# state have nothing to do
+if etc_read_only; then
+  case $cmd in
+    boot | started | failed) exit 0 ;;
+    switch)
+      [ "${1-}" = desktop ] && exit 0
+      die "the system runs from a read-only snapshot"
+      ;;
+    boot-mode) die "the system runs from a read-only snapshot" ;;
+  esac
+fi
 
 case $cmd in
   boot-mode)
@@ -234,12 +260,26 @@ case $cmd in
     fi
     ;;
 
+  snapshot)
+    # Booted from a read-only snapshot with our autologin (gaming mode or a
+    # pending one-time switch): log into the desktop (a handheld has no
+    # keyboard for a login screen), so the rollback notification can be
+    # reached. SDDM has no /run config dir, hence a bind mount over our
+    # file; the user stays the one in sysconfig
+    if etc_read_only && [ -f "$SDDM_CONF" ]; then
+      mkdir -p "$ROOT/run/nazoos-session"
+      write_sddm_conf "$ROOT/run/nazoos-session/zz-nazoos-session.conf" \
+        "$(desktop_session)"
+      mount --bind "$ROOT/run/nazoos-session/zz-nazoos-session.conf" "$SDDM_CONF"
+    fi
+    ;;
+
   status)
     echo "BOOT_MODE=${boot_mode:-desktop}"
     echo "USER=$boot_user"
     ;;
 
   *)
-    die "usage: nazoos-session-ctl boot-mode|switch|started|failed|boot|status ..."
+    die "usage: nazoos-session-ctl boot-mode|switch|started|failed|boot|snapshot|status ..."
     ;;
 esac
