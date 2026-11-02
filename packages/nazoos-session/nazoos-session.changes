@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Nov  2 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Leaving gaming mode ends mangoapp before gamescope, no crash report
+  at every exit
+
+-------------------------------------------------------------------
 Mon Nov  2 19:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Leaving gaming mode stops graphical-session.target: left active,

@@ -71,6 +71,8 @@ install -Dm0644 data/nazoos-session-snapshot.service \
 install -Dm0644 -t %{buildroot}%{_userunitdir} \
   data/nazoos-session-gaming.service data/nazoos-session-desktop.service \
   data/nazoos-session-failed.service
+install -Dm0644 data/steam.sessions.d \
+  %{buildroot}%{_sysconfdir}/gamescope-session-plus/sessions.d/steam
 # Fallback to the desktop when gamescope does not start
 install -Dm0644 data/50-nazoos-session-fallback.conf \
   %{buildroot}%{_userunitdir}/gamescope-session-plus@.service.d/50-nazoos-session-fallback.conf
@@ -126,6 +128,9 @@ fi
 %{_userunitdir}/nazoos-session-gaming.service
 %{_userunitdir}/nazoos-session-desktop.service
 %{_userunitdir}/nazoos-session-failed.service
+%dir %{_sysconfdir}/gamescope-session-plus
+%dir %{_sysconfdir}/gamescope-session-plus/sessions.d
+%{_sysconfdir}/gamescope-session-plus/sessions.d/steam
 %dir %{_userunitdir}/gamescope-session-plus@.service.d
 %{_userunitdir}/gamescope-session-plus@.service.d/50-nazoos-session-fallback.conf
 %{_presetdir}/90-nazoos-session.preset
