@@ -38,7 +38,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
-          # Tumbleweed's python3
+          # Slowroll's python3 (python313)
           python-version: "3.13"
       - name: Install tools
         # PySide6 only for tests/test_qt.py (QCoreApplication, no display).
@@ -47,7 +47,9 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q libegl1 libgl1 libxkbcommon0 libfontconfig1
-          pip install pytest==9.1.1 ruff==0.17.1 PySide6-Essentials==6.12.0
+          # PySide6 = Slowroll's batch (python313-pyside6 6.11.2, 2026-10):
+          # test what users run, raise with the next Slowroll batch
+          pip install pytest==9.1.1 ruff==0.17.1 PySide6-Essentials==6.11.2
       - name: ruff
         run: ruff check --output-format github .
       - name: pytest
