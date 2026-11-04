@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Leave NazoOS: back to plain openSUSE without reinstalling, also when
-our OBS repos no longer exist (docs/leave-nazoos.md). The target is the
-base NazoOS runs on (repos.base()): Tumbleweed or Slowroll. Action id and
-module name date from the time NazoOS only ran on Tumbleweed.
+our OBS repos no longer exist (docs/leave-nazoos.md). The target is
+openSUSE Slowroll, the base of NazoOS. Action id and module name date from
+the time NazoOS ran on Tumbleweed.
 
 The transaction removes this code under the running helper: everything
 used after it has to be imported here at the top, never inside a function.
@@ -79,10 +79,10 @@ def _auto_installed():
     return [n for n in V4L2_AUTO if n in listed and proc.rpm_installed(n)]
 
 
-def _oss(base):
-    """Alias of repo-oss of BASE; checked before the snapshot so a missing
-    repo leaves nothing behind."""
-    oss = repos.with_path(repos.url_path(system.oss_url(base)))
+def _oss():
+    """Alias of repo-oss; checked before the snapshot so a missing repo
+    leaves nothing behind."""
+    oss = repos.with_path(repos.url_path(system.oss_url()))
     if oss is None:
         raise Fail("the openSUSE repository is missing; add it with the "
                    "Repair page first")
@@ -224,10 +224,9 @@ def tumbleweed_switch(_args):
     if openSUSE_kernel:
         # Before the repos go off: a rollback to this snapshot must still
         # get updates
-        base = repos.base()
-        oss = _oss(base)
+        oss = _oss()
         maintenance.create_snapshot(maintenance.CHANNEL_SNAPSHOT.format(
-            target=system.base_name(base)))
+            target="Slowroll"))
     try:
         # A deleted OBS repo must not stop anything below. Packman stays:
         # it is the user's and has nothing to do with the end of NazoOS

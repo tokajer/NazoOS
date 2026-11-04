@@ -34,7 +34,6 @@ WAYDROID_SOFTWARE = {"ro.hardware.gralloc": "default",
 # providers from ffmpeg-3 on.
 # No pipewire-aptx: openSUSE's pipewire-spa-plugins has aptX itself
 # since 2026-10 (libfreeaptx) and obsoletes the Packman package.
-# The URL per base: BASES.
 PACKMAN_ALIAS = "packman"
 PACKMAN_PRIORITY = "70"
 # Signing keys of the opt-in repos, shipped in repo-keys/ and pinned by
@@ -97,54 +96,31 @@ SCX_DEFAULT = Path("/etc/default/scx")
 SESSION_CTL = "/usr/libexec/nazoos-session/nazoos-session-ctl"
 SESSION_DETECT = "/usr/libexec/nazoos-session/nazoos-detect-handheld"
 
-# Per base (repos.base()). "repos": those of openSUSE-repos-<Base> (zypp
-# service "openSUSE", aliases openSUSE:repo-oss ...) for the Repair page.
-# Matched by URL path, so cdn./download. hosts and the old plain repo files
-# both count; the aliases name the finding and are only added by hand when
-# no service provides them
-BASES = {
-    "tumbleweed": {
-        "name": "Tumbleweed",
-        "repos": [
-            {"alias": "repo-oss",
-             "url": "https://download.opensuse.org/tumbleweed/repo/oss/"},
-            {"alias": "repo-non-oss",
-             "url": "https://download.opensuse.org/tumbleweed/repo/non-oss/"},
-            {"alias": "repo-update",
-             "url": "https://download.opensuse.org/update/tumbleweed/"},
-        ],
-        "packman": "https://ftp.fau.de/packman/suse/openSUSE_Tumbleweed/",
-    },
-    "slowroll": {
-        "name": "Slowroll",
-        "repos": [
-            {"alias": "repo-oss",
-             "url": "https://download.opensuse.org/slowroll/repo/oss/"},
-            {"alias": "repo-non-oss",
-             "url": "https://download.opensuse.org/slowroll/repo/non-oss/"},
-            {"alias": "repo-update",
-             "url": "https://download.opensuse.org/update/slowroll/repo/oss/"},
-        ],
-        "packman": "https://ftp.fau.de/packman/suse/openSUSE_Slowroll/",
-    },
-}
+# The repos of openSUSE-repos-Slowroll (zypp service "openSUSE", aliases
+# openSUSE:repo-oss ...) for the Repair page. Matched by URL path, so
+# cdn./download. hosts and the old plain repo files both count; the aliases
+# name the finding and are only added by hand when no service provides them
+STANDARD_REPOS = [
+    {"alias": "repo-oss",
+     "url": "https://download.opensuse.org/slowroll/repo/oss/"},
+    {"alias": "repo-non-oss",
+     "url": "https://download.opensuse.org/slowroll/repo/non-oss/"},
+    {"alias": "repo-update",
+     "url": "https://download.opensuse.org/update/slowroll/repo/oss/"},
+]
+PACKMAN_URL = "https://ftp.fau.de/packman/suse/openSUSE_Slowroll/"
 
 
-def base_name(base=None):
-    """"Tumbleweed" or "Slowroll" (user texts, snapshot descriptions)."""
-    return BASES[base or repos.base()]["name"]
+def standard_repos():
+    return STANDARD_REPOS
 
 
-def standard_repos(base=None):
-    return BASES[base or repos.base()]["repos"]
+def oss_url():
+    return STANDARD_REPOS[0]["url"]
 
 
-def oss_url(base=None):
-    return standard_repos(base)[0]["url"]
-
-
-def packman_url(base=None):
-    return BASES[base or repos.base()]["packman"]
+def packman_url():
+    return PACKMAN_URL
 
 
 # Update channel (ADR 0025/0028) and its OBS project. The symlink
@@ -166,32 +142,31 @@ def current_channel():
     return ""
 
 
-def channel_repo_paths(base=None):
+def channel_repo_paths():
     """{channel: URL path of its NazoOS repo} (service "nazoos", ADR 0028)."""
-    obs = repos.OBS_REPOS[base or repos.base()]
-    return {channel: f"/repositories/home:/Tokajer:/nazoos:/{project}/{obs}/"
+    return {channel: (f"/repositories/home:/Tokajer:/nazoos:/{project}/"
+                      f"{repos.OBS_REPO}/")
             for channel, project in CHANNEL_PROJECTS.items()}
 
 
-def nazoos_repo_paths(base=None):
+def nazoos_repo_paths():
     """The NazoOS repo of either channel."""
-    return list(channel_repo_paths(base).values())
+    return list(channel_repo_paths().values())
 
 
-def repo_services(base=None):
+def repo_services():
     """zypp services (ADR 0028) that own the repos: a plain addrepo would
     be moved away or duplicated by the next package update. "seed" is a
     repo the package can be installed from when the service and its repos
     are gone."""
-    base = base or repos.base()
     return [
-        {"name": "openSUSE", "package": repos.BASE_PACKAGES[base],
+        {"name": "openSUSE", "package": repos.BASE_PACKAGE,
          "dir": "/usr/share/zypp/local/service/openSUSE",
-         "seed": oss_url(base)},
+         "seed": oss_url()},
         {"name": "nazoos", "package": "nazoos-repos",
          "dir": "/usr/share/zypp/local/service/nazoos",
          "seed": ("https://download.opensuse.org"
-                  + channel_repo_paths(base)["beta"])},
+                  + channel_repo_paths()["beta"])},
     ]
 
 

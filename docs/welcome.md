@@ -14,7 +14,7 @@ Whenever a step changes the system, a password dialog appears. Enter the passwor
 | Kernel | Optional NazoOS kernel with gaming patches, Secure Boot key, way back to the openSUSE kernel ([details](kernel.md)) |
 | Apps | Install popular apps with one click (Discord, OBS Studio, Heroic, ProtonUp-Qt, …) |
 | Drives | Mount internal drives automatically, e.g. for a Steam library |
-| System | Updates, update channel (stable/beta), the switch from Tumbleweed to Slowroll ([details](update.md#switching-to-slowroll)), snapshots, services (Bluetooth, LACT, CoolerControl, SSH, profile-sync-daemon), maintenance, leaving NazoOS |
+| System | Updates, update channel (stable/beta), snapshots, services (Bluetooth, LACT, CoolerControl, SSH, profile-sync-daemon), maintenance, leaving NazoOS |
 | Repair | Checks the system for known problems and fixes each with one button: package database, standard repositories, repository keys you have to trust, missing dependencies, mixed codec packages, the NVIDIA module, failed services, low disk space and Flathub. Also refreshes repositories, cleans caches, repairs Flatpak, rebuilds the boot files and saves a bug report (opened from **System**) |
 | Help | Links and system information for bug reports |
 

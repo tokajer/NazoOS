@@ -256,9 +256,6 @@ class Backend(ActionRunner):
                 if os.path.exists(__file__) else self._gettext(
                     "NazoOS is removed. Restart the computer to start "
                     "plain openSUSE."))
-        elif ok and action == "slowroll-switch":
-            message = self._gettext("NazoOS now runs on openSUSE Slowroll. "
-                                    "Restart the computer to finish.")
         on_finish, self._on_finish = self._on_finish, None
         if on_finish:
             on_finish(ok, message)

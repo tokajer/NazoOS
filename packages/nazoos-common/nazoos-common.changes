@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Nov  4 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Drop repos.base(): NazoOS only runs on openSUSE Slowroll (no
+  Tumbleweed install left, Tumbleweed builds removed from OBS).
+  repos.OBS_REPO and repos.BASE_PACKAGE name its OBS repository and
+  service package; the kernel repo URL has no base parameter
+
+-------------------------------------------------------------------
 Wed Nov  4 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - repos.base(): tells a Slowroll system from a Tumbleweed one by the

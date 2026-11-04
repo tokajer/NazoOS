@@ -28,9 +28,8 @@ def repair_repos(_args):
     # The repos belong to zypp services (ADR 0028): restore the service,
     # refresh-services adds its removed repos again but keeps disabled ones
     # disabled, so those are switched on afterwards
-    base = repos.base()
-    standard = system.standard_repos(base)
-    for svc in system.repo_services(base):
+    standard = system.standard_repos()
+    for svc in system.repo_services():
         if not Path(svc["dir"], "repo", "repoindex.xml").exists():
             # Package removed or damaged; its %posttrans adds the service
             helper.run(ZYPPER + ["--plus-repo",
@@ -43,7 +42,7 @@ def repair_repos(_args):
                                  svc["name"]])
     helper.run(ZYPPER + ["refresh-services"])
     paths = [repos.url_path(r["url"]) for r in standard]
-    for path in paths + system.nazoos_repo_paths(base):
+    for path in paths + system.nazoos_repo_paths():
         alias = repos.with_path(path)
         if alias is not None:
             helper.run(ZYPPER + ["modifyrepo", "--enable", "--refresh",

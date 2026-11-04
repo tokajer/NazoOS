@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Nov  4 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Drop the "Switch to openSUSE Slowroll" action and the base
+  detection: NazoOS only runs on openSUSE Slowroll (no Tumbleweed
+  install left, Tumbleweed builds removed from OBS). Repair, kernel
+  install and "Switch to plain openSUSE" always use the Slowroll repos
+
+-------------------------------------------------------------------
 Wed Nov  4 13:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - "Switch to openSUSE Slowroll" removes VLC (vlc*, libvlc*,

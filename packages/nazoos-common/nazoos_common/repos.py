@@ -11,28 +11,10 @@ from . import proc
 REPOS_DIR = Path("/etc/zypp/repos.d")
 SERVICES_DIR = Path("/etc/zypp/services.d")
 
-# The openSUSE bases NazoOS is built for: their OBS repository name and the
-# package that owns the zypp service "openSUSE" (repo-oss, non-oss, update)
-OBS_REPOS = {"tumbleweed": "openSUSE_Tumbleweed",
-             "slowroll": "openSUSE_Slowroll"}
-BASE_PACKAGES = {"tumbleweed": "openSUSE-repos-Tumbleweed",
-                 "slowroll": "openSUSE-repos-Slowroll"}
-# Shipped by both builds of nazoos-repos; its URLs name the base
-NAZOOS_BETA_INDEX = Path(
-    "/usr/share/zypp/local/service/nazoos/repo/nazoos-beta-repoindex.xml")
-
-
-def base():
-    """"tumbleweed" or "slowroll". Slowroll has Tumbleweed's os-release
-    (ID=opensuse-tumbleweed); the service package tells them apart."""
-    for name, package in BASE_PACKAGES.items():
-        if proc.rpm_installed(package):
-            return name
-    # Service package gone (the Repair page reinstalls it): a Tumbleweed
-    # system read as Slowroll would be migrated by that repair
-    if OBS_REPOS["tumbleweed"] in proc.read(NAZOOS_BETA_INDEX):
-        return "tumbleweed"
-    return "slowroll"
+# NazoOS's OBS repository name (ADR 0036)
+OBS_REPO = "openSUSE_Slowroll"
+# Owns the zypp service "openSUSE" (repo-oss, non-oss, update)
+BASE_PACKAGE = "openSUSE-repos-Slowroll"
 
 
 def _sections(directory, pattern):

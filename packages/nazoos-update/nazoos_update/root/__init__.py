@@ -57,7 +57,7 @@ def _check(args):
         if not got:
             say("An update or another check is running: nothing to do")
             return
-        # Another program installs packages (Welcome's base switch, Myrlyn):
+        # Another program installs packages (Welcome, Myrlyn):
         # zypper refresh would fail on the lock and the window would show
         # "sources not reachable". The next timer run checks again
         if not zypper.wait_for_lock(0):

@@ -204,9 +204,8 @@ def test_update_names_the_snapshots_welcome_takes():
             set(), False, lambda s: s)
 
     assert label(maintenance.MANUAL_SNAPSHOT) == "Manual snapshot"
-    # Channel switch, switch to Slowroll, leaving NazoOS
-    targets = [*system.CHANNEL_PROJECTS,
-               *(system.base_name(b) for b in system.BASES)]
+    # Channel switch, leaving NazoOS
+    targets = [*system.CHANNEL_PROJECTS, "Slowroll"]
     for target in targets:
         assert label(maintenance.CHANNEL_SNAPSHOT.format(target=target)
                      ) == "Before channel switch"

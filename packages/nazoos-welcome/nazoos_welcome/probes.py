@@ -7,8 +7,8 @@ import re
 import traceback
 from pathlib import Path
 
-from nazoos_common import (grub, kernel, kernelstate, mok, proc, repos,
-                           shellconf, zypper)
+from nazoos_common import (grub, kernel, kernelstate, mok, proc, shellconf,
+                           zypper)
 
 from . import (appicons, autostart, catalog, hw, pollrate, query, report,
                system)
@@ -309,7 +309,6 @@ def collect():
         "drives": _part([], hw.drives),
         "kernel": _part({}, kernel_state),
         "channel": _part("", update_channel),
-        "base": _part("", repos.base),
         "appIcons": _part({}, lambda: appicons.collect(catalog.APPS)),
         **drivers,
         **_part({}, lambda: _gaming(rpms, system_units)),

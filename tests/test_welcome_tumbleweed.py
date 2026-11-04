@@ -12,15 +12,15 @@ from nazoos_welcome import catalog, system
 from nazoos_welcome.root import apps, kernel_switch, tumbleweed
 
 ROOT = Path(__file__).resolve().parent.parent
-OSS = ("openSUSE:repo-oss", "http://cdn.opensuse.org/tumbleweed/repo/oss/", True)
+OSS = ("openSUSE:repo-oss", "http://cdn.opensuse.org/slowroll/repo/oss/", True)
 OWN_CHANNEL = ("nazoos", "https://download.opensuse.org/repositories/home:/"
-               "Tokajer:/nazoos:/release/openSUSE_Tumbleweed/", True)
+               "Tokajer:/nazoos:/release/openSUSE_Slowroll/", True)
 OWN_KERNEL = ("nazoos-kernel", "https://download.opensuse.org/repositories/"
-              "home:/Tokajer:/nazoos:/kernel/openSUSE_Tumbleweed/", True)
+              "home:/Tokajer:/nazoos:/kernel/openSUSE_Slowroll/", True)
 OWN_OFF = ("nazoos-old", "https://download.opensuse.org/repositories/home:/"
-           "Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/", False)
-PACKMAN = ("packman", system.packman_url("tumbleweed"), True)
-TW_OSS_PATH = "/tumbleweed/repo/oss/"
+           "Tokajer:/nazoos:/devel/openSUSE_Slowroll/", False)
+PACKMAN = ("packman", system.packman_url(), True)
+OSS_PATH = "/slowroll/repo/oss/"
 VENDORS = {
     "nazoos-welcome": tumbleweed.OWN_VENDOR,
     "nazoos-tweaks": tumbleweed.OWN_VENDOR,
@@ -35,14 +35,13 @@ VENDORS = {
 
 @pytest.fixture
 def switch(fake_root, monkeypatch, tmp_path):
-    """A NazoOS on Tumbleweed and the openSUSE kernel; every test sees the
+    """A NazoOS with the openSUSE kernel; every test sees the
     calls in order, with writes of the admin files as ["write", path]."""
     listed = [OSS, OWN_CHANNEL, OWN_KERNEL, OWN_OFF, PACKMAN]
     fake_root.listed = listed
     monkeypatch.setattr(repos, "repos", lambda: fake_root.listed)
-    monkeypatch.setattr(repos, "base", lambda: "tumbleweed")
     monkeypatch.setattr(repos, "with_path", lambda path: "openSUSE:repo-oss"
-                        if path == TW_OSS_PATH else None)
+                        if path == OSS_PATH else None)
     monkeypatch.setattr(kernel, "running_nazoos", lambda: False)
     fake_root.installed = {kernel.KERNEL_DEFAULT, "waydroid"}
     fake_root.out = lambda cmd: "".join(f"{n}\t{v}\n"
@@ -199,12 +198,11 @@ def test_a_failing_package_list_is_only_a_note(switch, monkeypatch):
 
 
 def test_the_oss_path_is_the_one_repos_reads():
-    assert repos.url_path(system.oss_url("tumbleweed")) == TW_OSS_PATH
+    assert repos.url_path(system.oss_url()) == OSS_PATH
 
 
-def test_on_slowroll_the_target_is_plain_slowroll(switch, monkeypatch):
+def test_the_target_is_plain_slowroll(switch, monkeypatch):
     seen = []
-    monkeypatch.setattr(repos, "base", lambda: "slowroll")
     monkeypatch.setattr(repos, "with_path", lambda path: seen.append(path)
                         or "openSUSE:repo-oss")
     tumbleweed.tumbleweed_switch([])
@@ -234,7 +232,7 @@ def test_stage_b_order(switch):
 
 def test_the_snapshot_can_be_named_by_nazoos_update(switch):
     tumbleweed.tumbleweed_switch([])
-    assert "nazoos-welcome: before switching to Tumbleweed" in \
+    assert "nazoos-welcome: before switching to Slowroll" in \
         switch.calls[position(switch, "snapper")]
 
 

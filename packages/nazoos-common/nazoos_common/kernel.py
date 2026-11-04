@@ -17,7 +17,7 @@ from . import grub, kernelstate, mok, proc, repos
 # Stage 1 installs kernel-nazoos next to kernel-default, stage 2 removes
 # kernel-default with the conflict package nazoos-kernel-only.
 KERNEL_REPO_ALIAS = "nazoos-kernel"
-# The kernel project's repo of either base (repos.OBS_REPOS)
+# The kernel project (its repo: kernel_repo_url())
 KERNEL_PROJECT_PATH = "home:/Tokajer:/nazoos:/kernel/"
 KERNEL_PACKAGE = "kernel-nazoos"
 KERNEL_DEFAULT = "kernel-default"
@@ -118,17 +118,16 @@ def keep_default(log=print):
     return flavor
 
 
-def kernel_repo_url(base=None):
-    """URL of the kernel repo for BASE, default the running system's."""
+def kernel_repo_url():
+    """URL of the kernel repo."""
     return ("https://download.opensuse.org/repositories/"
-            f"{KERNEL_PROJECT_PATH}{repos.OBS_REPOS[base or repos.base()]}/")
+            f"{KERNEL_PROJECT_PATH}{repos.OBS_REPO}/")
 
 
-def kernel_repo_path(base=None):
-    return kernel_repo_url(base).split("/repositories/")[1]
+def kernel_repo_path():
+    return kernel_repo_url().split("/repositories/")[1]
 
 
 def kernel_repo():
-    """Alias of the NazoOS kernel repository of either base (the switch to
-    Slowroll moves its URL), None if not configured."""
+    """Alias of the NazoOS kernel repository, None if not configured."""
     return repos.with_url(KERNEL_PROJECT_PATH)

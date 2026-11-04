@@ -68,24 +68,6 @@ Kirigami.ScrollablePage {
             }
         }
 
-        SettingCard {
-            // NazoOS on Tumbleweed (installed before the move to Slowroll)
-            visible: !page.st.live && page.st.base === "tumbleweed"
-            iconName: "system-upgrade"
-            fallbackIcon: "system-software-update"
-            title: L.tr("Switch to openSUSE Slowroll")
-            subtitle: L.tr("NazoOS is now based on openSUSE Slowroll: fewer updates, bundled and tested longer. This computer still runs on Tumbleweed. Your files, apps and settings stay.")
-            QQC2.Button {
-                enabled: !backend.busy
-                text: L.tr("Switch to Slowroll")
-                onClicked: page.app.confirm(
-                    L.tr("Switch to openSUSE Slowroll?"),
-                    L.tr("Slowroll gets updates bundled about once a month instead of every day. A snapshot is taken first, so you can go back. Many packages are downloaded and replaced: this takes a while, keep the computer on and connected. VLC is removed (videos play in Haruna, VLC is available as a Flatpak on the Apps page). Restart the computer afterwards."),
-                    L.tr("Switch"),
-                    () => page.app.runAction("slowroll-switch", []))
-            }
-        }
-
         SectionHeader { text: L.tr("Snapshots and rollback") }
 
         SettingCard {
@@ -158,9 +140,7 @@ Kirigami.ScrollablePage {
         SettingCard {
             iconName: "edit-undo"
             title: L.tr("Switch to plain openSUSE")
-            subtitle: page.st.base === "tumbleweed"
-                      ? L.tr("Turns this computer into plain openSUSE Tumbleweed without reinstalling. Your files, apps and settings stay.")
-                      : L.tr("Turns this computer into plain openSUSE Slowroll without reinstalling. Your files, apps and settings stay.")
+            subtitle: L.tr("Turns this computer into plain openSUSE Slowroll without reinstalling. Your files, apps and settings stay.")
             QQC2.Button {
                 enabled: !backend.busy
                 text: L.tr("Switch to openSUSE")

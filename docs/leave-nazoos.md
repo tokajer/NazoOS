@@ -1,6 +1,6 @@
 # Leaving NazoOS
 
-NazoOS is openSUSE Slowroll with extras, so you can turn it into plain Slowroll without reinstalling (an older NazoOS that still runs on Tumbleweed becomes plain Tumbleweed). Your files, your other apps and your Flatpaks stay. This also works when the NazoOS project is gone and its repositories no longer exist.
+NazoOS is openSUSE Slowroll with extras, so you can turn it into plain Slowroll without reinstalling. Your files, your other apps and your Flatpaks stay. This also works when the NazoOS project is gone and its repositories no longer exist.
 
 ## With NazoOS Welcome
 

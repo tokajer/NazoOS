@@ -61,76 +61,66 @@ def test_parse_drives():
     assert idle["mountpoint"] == "" and idle["size"] == "500.0 GB"
 
 
-def standard(base):
-    return [(r["url"], True) for r in system.standard_repos(base)]
+def standard():
+    return [(r["url"], True) for r in system.standard_repos()]
 
 
-def own_repo(base):
-    return ("https://download.opensuse.org" + system.nazoos_repo_paths(base)[1],
+def own_repo():
+    return ("https://download.opensuse.org" + system.nazoos_repo_paths()[1],
             True)
 
 
-def services(base):
-    return {s["name"]: True for s in system.repo_services(base)}
+def services():
+    return {s["name"]: True for s in system.repo_services()}
 
 
-BASES = pytest.mark.parametrize("base", ["tumbleweed", "slowroll"])
-
-
-@BASES
-def test_repo_problems_all_fine(base):
+def test_repo_problems_all_fine():
     assert repair_checks.repo_problems(
-        standard(base) + [own_repo(base)], services(base), base) == []
+        standard() + [own_repo()], services()) == []
 
 
-@BASES
-def test_repo_problems_disabled_standard_repo(base):
+def test_repo_problems_disabled_standard_repo():
     repos = [(url, enabled and "update" not in url)
-             for url, enabled in standard(base)]
+             for url, enabled in standard()]
     assert repair_checks.repo_problems(
-        repos + [own_repo(base)], services(base), base) == ["repo-update"]
+        repos + [own_repo()], services()) == ["repo-update"]
 
 
-@BASES
-def test_repo_problems_missing_service(base):
-    found = standard(base) + [own_repo(base)]
+def test_repo_problems_missing_service():
+    found = standard() + [own_repo()]
     assert repair_checks.repo_problems(
-        found, dict(services(base), openSUSE=False), base) == ["openSUSE"]
+        found, dict(services(), openSUSE=False)) == ["openSUSE"]
     # No service "nazoos" at all: reported once, not twice
     assert repair_checks.repo_problems(
-        standard(base), {"openSUSE": True}, base) == ["nazoos"]
+        standard(), {"openSUSE": True}) == ["nazoos"]
 
 
-@BASES
-def test_repo_problems_nazoos_repo_missing(base):
-    assert repair_checks.repo_problems(standard(base), services(base),
-                                       base) == ["nazoos"]
+def test_repo_problems_nazoos_repo_missing():
+    assert repair_checks.repo_problems(standard(), services()) == ["nazoos"]
 
 
-def test_the_repos_of_the_other_base_count_as_missing():
-    # A Tumbleweed system with Slowroll repos is not repaired by accident
-    found = standard("slowroll") + [own_repo("slowroll")]
-    assert repair_checks.repo_problems(found, services("tumbleweed"),
-                                       "tumbleweed") == [
-        "repo-oss", "repo-non-oss", "repo-update", "nazoos"]
+def test_tumbleweed_repos_count_as_missing():
+    tw = [(url.replace("/slowroll/", "/tumbleweed/"), True)
+          for url, _on in standard()]
+    assert repair_checks.repo_problems(tw + [own_repo()], services()) == [
+        "repo-oss", "repo-non-oss", "repo-update"]
 
 
-def test_the_sources_of_each_base():
-    assert [r["url"] for r in system.standard_repos("slowroll")] == [
+def test_the_sources():
+    assert [r["url"] for r in system.standard_repos()] == [
         "https://download.opensuse.org/slowroll/repo/oss/",
         "https://download.opensuse.org/slowroll/repo/non-oss/",
         "https://download.opensuse.org/update/slowroll/repo/oss/"]
-    assert system.oss_url("tumbleweed") == (
-        "https://download.opensuse.org/tumbleweed/repo/oss/")
-    assert system.packman_url("slowroll") == (
+    assert system.oss_url() == (
+        "https://download.opensuse.org/slowroll/repo/oss/")
+    assert system.packman_url() == (
         "https://ftp.fau.de/packman/suse/openSUSE_Slowroll/")
-    assert system.channel_repo_paths("slowroll") == {
+    assert system.channel_repo_paths() == {
         "beta": "/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Slowroll/",
         "stable": "/repositories/home:/Tokajer:/nazoos:/release/openSUSE_Slowroll/"}
-    svc = {s["name"]: s for s in system.repo_services("tumbleweed")}
-    assert svc["openSUSE"]["package"] == "openSUSE-repos-Tumbleweed"
-    assert svc["nazoos"]["seed"].endswith("/devel/openSUSE_Tumbleweed/")
-    assert system.base_name("slowroll") == "Slowroll"
+    svc = {s["name"]: s for s in system.repo_services()}
+    assert svc["openSUSE"]["package"] == "openSUSE-repos-Slowroll"
+    assert svc["nazoos"]["seed"].endswith("/devel/openSUSE_Slowroll/")
 
 
 def test_mixed_packman():

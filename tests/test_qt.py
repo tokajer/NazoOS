@@ -529,18 +529,3 @@ def test_tumbleweed_switch_says_what_comes_next(app, monkeypatch, tmp_path,
     b._begin("tumbleweed-switch")
     b._helper_finished("tumbleweed-switch", None, False, "Broken.")
     assert seen[1] == ("tumbleweed-switch", False, "Broken.")
-
-
-def test_slowroll_switch_says_to_restart(app):
-    from nazoos_welcome import backend, i18n
-
-    b = backend.Backend(i18n.translator())
-    b.refresh = lambda: None
-    seen = []
-    b.actionFinished.connect(lambda *a: seen.append(a))
-    b._begin("slowroll-switch")
-    b._helper_finished("slowroll-switch", None, True, "Done.")
-    assert seen[0][1] and "Slowroll" in seen[0][2] and "Restart" in seen[0][2]
-    b._begin("slowroll-switch")
-    b._helper_finished("slowroll-switch", None, False, "Broken.")
-    assert seen[1] == ("slowroll-switch", False, "Broken.")

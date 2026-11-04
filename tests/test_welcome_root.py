@@ -123,21 +123,17 @@ def test_kernel_install_keeps_its_repo_when_the_kernel_is_installed(
 
 
 def disabled_kernel_repo(ks):
-    return [("kernel-repo", ks.kernel.kernel_repo_url("slowroll"), False)]
+    return [("kernel-repo", ks.kernel.kernel_repo_url(), False)]
 
 
-@pytest.mark.parametrize("installed, obs", [
-    (set(), "openSUSE_Slowroll"),
-    ({"openSUSE-repos-Tumbleweed"}, "openSUSE_Tumbleweed")])
-def test_kernel_install_adds_the_kernel_repo_of_the_base(
-        fake_root, monkeypatch, tmp_path, installed, obs):
+def test_kernel_install_adds_the_kernel_repo(fake_root, monkeypatch,
+                                             tmp_path):
     ks = kernel_env(fake_root, monkeypatch, tmp_path)
-    fake_root.installed = set(installed)
     ks.kernel_install([])
     add = zypper_words(fake_root, "addrepo")[0]
     assert add[-2:] == [
         "https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/"
-        f"kernel/{obs}/", ks.kernel.KERNEL_REPO_ALIAS]
+        "kernel/openSUSE_Slowroll/", ks.kernel.KERNEL_REPO_ALIAS]
 
 
 def test_kernel_install_switches_a_disabled_repo_off_again(fake_root,
@@ -1061,38 +1057,26 @@ def test_yast_remove_failure_is_reported(monkeypatch, tmp_path):
         apps.app_remove(["yast"])
 
 
-@pytest.mark.parametrize("installed, base", [
-    ({"openSUSE-repos-Tumbleweed"}, "tumbleweed"), (set(), "slowroll")])
-def test_repair_repos_restores_the_services_of_the_base(
-        monkeypatch, fake_root, tmp_path, installed, base):
-    # Never the other base: on Tumbleweed that would be an unasked switch
-    fake_root.installed = set(installed)
-    found = [(r["alias"], r["url"], True) for r in system.standard_repos(base)]
+def test_repair_repos_restores_the_services(monkeypatch, fake_root,
+                                            tmp_path):
+    found = [(r["alias"], r["url"], True) for r in system.standard_repos()]
     _repos(monkeypatch, found)
     real = system.repo_services
     # Both service packages are gone
-    monkeypatch.setattr(system, "repo_services", lambda b: [
-        dict(s, dir=str(tmp_path / s["name"])) for s in real(b)])
+    monkeypatch.setattr(system, "repo_services", lambda: [
+        dict(s, dir=str(tmp_path / s["name"])) for s in real()])
     repair_fixes.repair_repos([])
     seeds = [(c[c.index("--plus-repo") + 1], c[-1])
              for c in zypper_words(fake_root, "--plus-repo")]
-    obs = {"tumbleweed": "openSUSE_Tumbleweed", "slowroll": "openSUSE_Slowroll"}
     assert seeds == [
-        (f"https://download.opensuse.org/{base}/repo/oss/",
-         f"openSUSE-repos-{base.capitalize()}"),
+        ("https://download.opensuse.org/slowroll/repo/oss/",
+         "openSUSE-repos-Slowroll"),
         ("https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/"
-         f"devel/{obs[base]}/", "nazoos-repos")]
+         "devel/openSUSE_Slowroll/", "nazoos-repos")]
 
 
-def test_codecs_install_adds_packman_for_the_base(monkeypatch, fake_root,
-                                                  tmp_path):
+def test_codecs_install_adds_packman(monkeypatch, fake_root, tmp_path):
     _packman_env(monkeypatch, fake_root, tmp_path)
-    fake_root.installed = {"openSUSE-repos-Tumbleweed"}
-    drivers.codecs_install([])
-    assert zypper_words(fake_root, "addrepo")[0][-2] == (
-        "https://ftp.fau.de/packman/suse/openSUSE_Tumbleweed/")
-    fake_root.calls.clear()
-    fake_root.installed = set()
     drivers.codecs_install([])
     assert zypper_words(fake_root, "addrepo")[0][-2] == (
         "https://ftp.fau.de/packman/suse/openSUSE_Slowroll/")

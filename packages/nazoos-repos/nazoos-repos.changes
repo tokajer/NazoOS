@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Nov  4 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Only built for openSUSE_Slowroll (Tumbleweed builds removed from
+  OBS): requires openSUSE-repos-Slowroll, other repositories fail the
+  build
+
+-------------------------------------------------------------------
 Wed Nov  4 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Built for openSUSE_Tumbleweed and openSUSE_Slowroll: the repo URLs

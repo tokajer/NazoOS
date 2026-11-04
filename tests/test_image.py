@@ -106,18 +106,17 @@ def test_nazoos_repos_urls_follow_the_obs_repository():
     from nazoos_welcome import system
 
     spec = (REPOS_PKG / "nazoos-repos.spec").read_text()
+    # Only Slowroll is built (Tumbleweed builds dropped, ADR 0036)
     allowed = re.search(r"^\s*([\w|]+)\) ;;$", spec, re.M).group(1)
-    assert set(allowed.split("|")) == set(repos.OBS_REPOS.values())
+    assert allowed == repos.OBS_REPO
     assert re.search(r"^sed -i 's\|@REPO@\|%\{obsrepo\}\|g'", spec, re.M)
-    for base, obs in repos.OBS_REPOS.items():
-        found = {}
-        for channel in system.CHANNEL_PROJECTS:
-            text = (REPOS_PKG / f"repo/nazoos-{channel}-repoindex.xml").read_text()
-            assert "openSUSE_" not in text
-            repo = ET.fromstring(text.replace("@REPO@", obs)).find("repo")
-            found[channel] = "/" + repo.get("url").split("/", 3)[3]
-            assert repo.get("gpgkey") == repo.get("url") + "repodata/repomd.xml.key"
-        assert found == system.channel_repo_paths(base)
-        # The build for a base requires that base's service package
-        assert re.search(rf"Requires:\s+{repos.BASE_PACKAGES[base]}$", spec, re.M)
-    assert re.search(r'^%if "%\{obsrepo\}" == "openSUSE_Tumbleweed"$', spec, re.M)
+    found = {}
+    for channel in system.CHANNEL_PROJECTS:
+        text = (REPOS_PKG / f"repo/nazoos-{channel}-repoindex.xml").read_text()
+        assert "openSUSE_" not in text
+        repo = ET.fromstring(text.replace("@REPO@", repos.OBS_REPO)).find("repo")
+        found[channel] = "/" + repo.get("url").split("/", 3)[3]
+        assert repo.get("gpgkey") == repo.get("url") + "repodata/repomd.xml.key"
+    assert found == system.channel_repo_paths()
+    assert re.search(r"^Requires:\s+openSUSE-repos-Slowroll$", spec, re.M)
+    assert "openSUSE-repos-Tumbleweed" not in spec

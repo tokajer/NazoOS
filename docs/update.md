@@ -52,16 +52,6 @@ NazoOS has two update channels for its own packages (Welcome, Update, settings, 
 
 Switch in **NazoOS Welcome → System → Update channel**. A snapshot is taken first. Going back to stable can make some NazoOS packages a bit older again, that is expected. openSUSE itself and the NazoOS kernel are the same in both channels.
 
-## Switching to Slowroll
-
-NazoOS is based on openSUSE Slowroll. Computers installed while it was still based on Tumbleweed show **NazoOS Welcome → System → Switch to openSUSE Slowroll**. Slowroll gets fewer updates, bundled about once a month, that Tumbleweed has already tested.
-
-1. Click **Switch to Slowroll**, read the summary and confirm with your password. You need a working internet connection.
-2. A snapshot is taken (listed as **Before channel switch**). Then the openSUSE and NazoOS repositories are switched to Slowroll, and many packages are downloaded and replaced. This takes a while; keep the computer on.
-3. Restart the computer when NazoOS Welcome tells you.
-
-If the check before the change finds a problem, the repositories are switched back and nothing is changed; try again later. If it stops half-way, go back to the snapshot as described above. The NazoOS kernel, if you use it, keeps running and changes to its Slowroll build with the next kernel update. NazoOS does not use openSUSE's `opensuse-migration-tool`: it would switch off the NazoOS repository and replace NazoOS packages with openSUSE's.
-
 ## For advanced users
 
 - Background check: `nazoos-update-check.timer` (system), result in `/var/lib/nazoos-update/status.json`.

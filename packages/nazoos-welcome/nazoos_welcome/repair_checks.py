@@ -37,23 +37,23 @@ def repo_findings():
     are missing or disabled."""
     found = [(url, on) for _alias, url, on in repos.repos()
              if "opensuse.org" in url]
-    return repo_problems(found, repos.services(), repos.base())
+    return repo_problems(found, repos.services())
 
 
-def repo_problems(repo_list, services, base):
+def repo_problems(repo_list, services):
     """Names of the missing or disabled repo services, standard repos and
-    the NazoOS repo of BASE. REPO_LIST: (baseurl, enabled) of the
+    the NazoOS repo. REPO_LIST: (baseurl, enabled) of the
     opensuse.org repos, SERVICES: {name: enabled}."""
     found = {}
     for url, enabled in repo_list:
         path = repos.url_path(url)
         found[path] = found.get(path, False) or enabled
-    bad = [s["name"] for s in system.repo_services(base)
+    bad = [s["name"] for s in system.repo_services()
            if not services.get(s["name"])]
-    for repo in system.standard_repos(base):
+    for repo in system.standard_repos():
         if found.get(repos.url_path(repo["url"])) is not True:
             bad.append(repo["alias"])
-    if (not any(found.get(p) for p in system.nazoos_repo_paths(base))
+    if (not any(found.get(p) for p in system.nazoos_repo_paths())
             and "nazoos" not in bad):
         bad.append("nazoos")
     return bad
