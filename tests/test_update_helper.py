@@ -357,6 +357,23 @@ def test_check_never_waits(monkeypatch, tmp_path, capfd):
     assert root.ACTIONS["label"] is snapshots.label
 
 
+def test_check_skips_while_another_program_holds_the_zypp_lock(
+        monkeypatch, tmp_path, capfd):
+    # Welcome's base switch held the lock for 45 min, the timer check
+    # then reported "sources not reachable" (VM 2026-11-04)
+    from nazoos_update import root
+
+    monkeypatch.setattr(root, "ACTION_LOCK", str(tmp_path / "action.lock"))
+    ran = []
+    monkeypatch.setattr(root.check, "check", ran.append)
+    timeouts = []
+    monkeypatch.setattr(root.zypper, "wait_for_lock",
+                        lambda t=None: timeouts.append(t) or False)
+    root.ACTIONS["check"]([])
+    assert ran == [] and timeouts == [0]
+    assert "Another program is installing packages" in capfd.readouterr().out
+
+
 def test_check_keeps_the_restart_hint_of_the_update(monkeypatch, tmp_path):
     monkeypatch.setattr(status_mod, "STATUS", tmp_path / "status.json")
     monkeypatch.setattr(status_mod, "STATUS_LOCK", tmp_path / "status.lock")

@@ -6,6 +6,7 @@ import contextlib
 import fcntl
 import time
 
+from nazoos_common import zypper
 from nazoos_common.helper import say
 
 from . import check, snapshots, update
@@ -55,6 +56,12 @@ def _check(args):
     with _one_at_a_time(0) as got:
         if not got:
             say("An update or another check is running: nothing to do")
+            return
+        # Another program installs packages (Welcome's base switch, Myrlyn):
+        # zypper refresh would fail on the lock and the window would show
+        # "sources not reachable". The next timer run checks again
+        if not zypper.wait_for_lock(0):
+            say("Another program is installing packages: nothing to do")
             return
         check.check(args)
 
