@@ -43,8 +43,9 @@ PACKMAN_PRIORITY = "70"
 # adds the repo.
 REPO_KEYS = Path("/usr/share/nazoos-welcome/repo-keys")
 PACKMAN_KEY = REPO_KEYS / "packman.asc"
+# No vlc-codecs: it would pull VLC back in (no RPM VLC since ADR 0036)
 PACKMAN_CODECS = [
-    "vlc-codecs", "gstreamer-plugins-bad-codecs",
+    "gstreamer-plugins-bad-codecs",
     "gstreamer-plugins-ugly-codecs", "libfdk-aac2",
 ]
 OSS_CODECS = [

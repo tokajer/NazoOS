@@ -80,7 +80,7 @@ Kirigami.ScrollablePage {
                 text: L.tr("Switch to Slowroll")
                 onClicked: page.app.confirm(
                     L.tr("Switch to openSUSE Slowroll?"),
-                    L.tr("Slowroll gets updates bundled about once a month instead of every day. A snapshot is taken first, so you can go back. Many packages are downloaded and replaced: this takes a while, keep the computer on and connected. Restart the computer afterwards."),
+                    L.tr("Slowroll gets updates bundled about once a month instead of every day. A snapshot is taken first, so you can go back. Many packages are downloaded and replaced: this takes a while, keep the computer on and connected. VLC is removed (videos play in Haruna, VLC is available as a Flatpak on the Apps page). Restart the computer afterwards."),
                     L.tr("Switch"),
                     () => page.app.runAction("slowroll-switch", []))
             }

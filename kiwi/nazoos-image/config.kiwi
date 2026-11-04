@@ -175,6 +175,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
          System Settings cover its tasks. The lock stays in the installed
          system, nazoos-welcome lifts it on request -->
     <ignore name="yast2"/>
+    <!-- No VLC: libphonon4qt5/qt6 only recommend a backend, phonon-vlc
+         pulls VLC in. Haruna plays videos, VLC is a Flatpak in Welcome;
+         VLC's libavcodec needs blocked the Slowroll move (ADR 0036) -->
+    <ignore name="phonon-vlc-qt5"/>
+    <ignore name="phonon-vlc-qt6"/>
   </packages>
 
   <packages type="image" profiles="test">

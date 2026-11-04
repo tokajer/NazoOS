@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 08:31+0100\n"
+"POT-Creation-Date: 2026-11-04 13:16+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -701,45 +701,45 @@ msgstr ""
 msgid "gaming mode is not installed (nazoos-session)"
 msgstr ""
 
-#: nazoos_welcome/root/slowroll.py:85
+#: nazoos_welcome/root/slowroll.py:140
 msgid ""
 "the switch to Slowroll failed and the Tumbleweed repositories could not be "
 "restored (details in the log); restart and go back to the snapshot in the "
 "boot menu"
 msgstr ""
 
-#: nazoos_welcome/root/slowroll.py:128
+#: nazoos_welcome/root/slowroll.py:183
 msgid "this system already runs on openSUSE Slowroll"
 msgstr ""
 
-#: nazoos_welcome/root/slowroll.py:131 nazoos_welcome/root/tumbleweed.py:222
+#: nazoos_welcome/root/slowroll.py:186 nazoos_welcome/root/tumbleweed.py:222
 msgid "another program is changing software right now; close it and try again"
 msgstr ""
 
-#: nazoos_welcome/root/slowroll.py:135
+#: nazoos_welcome/root/slowroll.py:190
 msgid ""
 "the NazoOS repositories are not set up; repair them on the Repair page first"
 msgstr ""
 
-#: nazoos_welcome/root/slowroll.py:143
+#: nazoos_welcome/root/slowroll.py:201
 msgid "the Slowroll repositories did not appear; nothing was changed"
 msgstr ""
 
-#: nazoos_welcome/root/slowroll.py:153
+#: nazoos_welcome/root/slowroll.py:214
 #, python-brace-format
 msgid ""
 "the switch to Slowroll is not possible right now (zypper exit code {rc}, "
 "details in the log); nothing was changed"
 msgstr ""
 
-#: nazoos_welcome/root/slowroll.py:169
+#: nazoos_welcome/root/slowroll.py:230
 #, python-brace-format
 msgid ""
 "the switch to Slowroll did not start (zypper exit code {rc}, details in the "
 "log); nothing was changed, try again later"
 msgstr ""
 
-#: nazoos_welcome/root/slowroll.py:173
+#: nazoos_welcome/root/slowroll.py:234
 #, python-brace-format
 msgid ""
 "the switch to Slowroll stopped half-way (zypper exit code {rc}, details in "
@@ -1959,8 +1959,9 @@ msgstr ""
 msgid ""
 "Slowroll gets updates bundled about once a month instead of every day. A "
 "snapshot is taken first, so you can go back. Many packages are downloaded "
-"and replaced: this takes a while, keep the computer on and connected. "
-"Restart the computer afterwards."
+"and replaced: this takes a while, keep the computer on and connected. VLC is "
+"removed (videos play in Haruna, VLC is available as a Flatpak on the Apps "
+"page). Restart the computer afterwards."
 msgstr ""
 
 #: qml/pages/SystemPage.qml:89

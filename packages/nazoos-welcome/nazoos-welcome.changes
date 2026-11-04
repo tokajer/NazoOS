@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Wed Nov  4 13:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- "Switch to openSUSE Slowroll" removes VLC (vlc*, libvlc*,
+  phonon-vlc*) first: its libavcodec needs blocked the switch.
+  Installed again if the switch fails. Haruna plays videos, VLC is a
+  Flatpak on the Apps page
+- Packman codecs without vlc-codecs (would pull VLC back in)
+
+-------------------------------------------------------------------
 Wed Nov  4 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - NazoOS is based on openSUSE Slowroll now: repos, Packman, Repair

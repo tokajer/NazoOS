@@ -20,6 +20,11 @@ from . import kernel_switch, maintenance, tumbleweed
 
 FROM, TO = "tumbleweed", "slowroll"
 DOWNLOAD = "https://download.opensuse.org"
+# VLC comes in on Tumbleweed via phonon-vlc (Recommends of libphonon4qt*).
+# Its libavcodec needs can block the move (VM 2026-11-04: Slowroll's batch
+# kpipewire wants libavcodec 8.1.2, vlc-plugins-desktop the 8.1.3 build).
+# NazoOS plays videos with Haruna; VLC stays available as a Flatpak
+VLC = ("vlc", "libvlc", "phonon-vlc")
 
 
 def _swap_repo_packages(base, channel):
@@ -97,13 +102,33 @@ def _move_repo(alias, url, opts):
     helper.run(ZYPPER + ["addrepo"] + args + [url, alias])
 
 
-def _undo(channel, moved):
+def _names():
+    return set(helper.output(["rpm", "-qa", "--qf", "%{NAME}\n"]).split())
+
+
+def _remove_vlc():
+    """Remove VLC before the move; returns the names that went (VLC plus
+    what zypper took along) for the way back."""
+    before = _names()
+    vlc = sorted(n for n in before if n.startswith(VLC))
+    if not vlc:
+        return []
+    say("VLC is removed: it blocks the switch. Haruna plays videos, VLC "
+        "is available as a Flatpak on the Apps page")
+    helper.run(ZYPPER + ["remove"] + vlc)
+    return sorted(before - _names())
+
+
+def _undo(channel, moved, removed=()):
     """Back to the Tumbleweed repos after a failure before the upgrade.
     Every step is tried: one that fails must not leave the rest moved."""
     steps = [lambda a=alias, u=url, o=opts: _move_repo(a, u, o)
              for alias, url, opts in reversed(moved)]
     if proc.rpm_installed(repos.BASE_PACKAGES[TO]):
         steps.append(lambda: _swap_repo_packages(FROM, channel))
+    # Last: needs the Tumbleweed repos back
+    if removed:
+        steps.append(lambda: helper.run(ZYPPER_IN + list(removed)))
     errors = []
     for step in steps:
         try:
@@ -167,7 +192,10 @@ def slowroll_switch(_args):
     maintenance.create_snapshot(maintenance.CHANNEL_SNAPSHOT.format(
         target=system.base_name(TO)))
     moved = []
+    removed = []
     try:
+        # Inside the try: a failure later installs VLC again
+        removed = _remove_vlc()
         _swap_repo_packages(TO, channel)
         if not _swapped(channel):
             raise Fail("the Slowroll repositories did not appear; nothing "
@@ -187,7 +215,7 @@ def slowroll_switch(_args):
                        "(zypper exit code {rc}, details in the log); "
                        "nothing was changed", rc=rc)
     except Exception:
-        _undo(channel, moved)
+        _undo(channel, moved, removed)
         raise
     before = _installed()
     with kernel_switch.efivars_read_only():
@@ -198,7 +226,7 @@ def slowroll_switch(_args):
     elif rc:
         # zypper never started (its lock, a download): no package changed
         if _installed() == before:
-            _undo(channel, moved)
+            _undo(channel, moved, removed)
             raise Fail("the switch to Slowroll did not start (zypper exit "
                        "code {rc}, details in the log); nothing was "
                        "changed, try again later", rc=rc)

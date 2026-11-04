@@ -99,8 +99,10 @@ rpm --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-*.asc
 # <ignore> in config.kiwi is a zypper lock that stays in the installed
 # system. Keep the X11 one and yast2: without it "zypper dup" brings YaST
 # back (nazoos-welcome lifts it on request). Leaving NazoOS installs the
-# PackageKit backend
+# PackageKit backend. phonon-vlc: kept out of the image only, a user may
+# install VLC from the RPM repos
 zypper --non-interactive removelock discover6-backend-packagekit
+zypper --non-interactive removelock phonon-vlc-qt5 phonon-vlc-qt6
 
 # Online repos come from packages (openSUSE-repos-Slowroll, nazoos-repos),
 # so installed systems get URL changes with updates. Test/live keep the

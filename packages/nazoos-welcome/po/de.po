@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 08:31+0100\n"
+"POT-Creation-Date: 2026-11-04 13:16+0100\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -749,7 +749,7 @@ msgstr "schlägt weiterhin fehl: {units}"
 msgid "gaming mode is not installed (nazoos-session)"
 msgstr "der Gaming-Modus ist nicht installiert (nazoos-session)"
 
-#: nazoos_welcome/root/slowroll.py:85
+#: nazoos_welcome/root/slowroll.py:140
 msgid ""
 "the switch to Slowroll failed and the Tumbleweed repositories could not be "
 "restored (details in the log); restart and go back to the snapshot in the "
@@ -759,29 +759,29 @@ msgstr ""
 "konnten nicht wiederhergestellt werden (Details im Protokoll); starten Sie "
 "neu und gehen Sie im Bootmenü zum Snapshot zurück"
 
-#: nazoos_welcome/root/slowroll.py:128
+#: nazoos_welcome/root/slowroll.py:183
 msgid "this system already runs on openSUSE Slowroll"
 msgstr "dieses System läuft bereits auf openSUSE Slowroll"
 
-#: nazoos_welcome/root/slowroll.py:131 nazoos_welcome/root/tumbleweed.py:222
+#: nazoos_welcome/root/slowroll.py:186 nazoos_welcome/root/tumbleweed.py:222
 msgid "another program is changing software right now; close it and try again"
 msgstr ""
 "Ein anderes Programm ändert gerade Software; schließen Sie es und versuchen "
 "Sie es erneut"
 
-#: nazoos_welcome/root/slowroll.py:135
+#: nazoos_welcome/root/slowroll.py:190
 msgid ""
 "the NazoOS repositories are not set up; repair them on the Repair page first"
 msgstr ""
 "die NazoOS-Paketquellen sind nicht eingerichtet; reparieren Sie sie zuerst "
 "auf der Seite Reparieren"
 
-#: nazoos_welcome/root/slowroll.py:143
+#: nazoos_welcome/root/slowroll.py:201
 msgid "the Slowroll repositories did not appear; nothing was changed"
 msgstr ""
 "die Slowroll-Paketquellen sind nicht erschienen; es wurde nichts geändert"
 
-#: nazoos_welcome/root/slowroll.py:153
+#: nazoos_welcome/root/slowroll.py:214
 #, python-brace-format
 msgid ""
 "the switch to Slowroll is not possible right now (zypper exit code {rc}, "
@@ -790,7 +790,7 @@ msgstr ""
 "der Wechsel zu Slowroll ist gerade nicht möglich (zypper-Exit-Code {rc}, "
 "Details im Protokoll); es wurde nichts geändert"
 
-#: nazoos_welcome/root/slowroll.py:169
+#: nazoos_welcome/root/slowroll.py:230
 #, python-brace-format
 msgid ""
 "the switch to Slowroll did not start (zypper exit code {rc}, details in the "
@@ -799,7 +799,7 @@ msgstr ""
 "der Wechsel zu Slowroll hat nicht begonnen (zypper-Exit-Code {rc}, Details "
 "im Protokoll); es wurde nichts geändert, versuchen Sie es später noch einmal"
 
-#: nazoos_welcome/root/slowroll.py:173
+#: nazoos_welcome/root/slowroll.py:234
 #, python-brace-format
 msgid ""
 "the switch to Slowroll stopped half-way (zypper exit code {rc}, details in "
@@ -2206,13 +2206,16 @@ msgstr "Zu openSUSE Slowroll wechseln?"
 msgid ""
 "Slowroll gets updates bundled about once a month instead of every day. A "
 "snapshot is taken first, so you can go back. Many packages are downloaded "
-"and replaced: this takes a while, keep the computer on and connected. "
-"Restart the computer afterwards."
+"and replaced: this takes a while, keep the computer on and connected. VLC is "
+"removed (videos play in Haruna, VLC is available as a Flatpak on the Apps "
+"page). Restart the computer afterwards."
 msgstr ""
 "Slowroll bekommt Updates etwa einmal im Monat gebündelt statt jeden Tag. "
 "Zuerst wird ein Snapshot erstellt, Sie können also zurück. Viele Pakete "
 "werden heruntergeladen und ersetzt: Das dauert eine Weile, lassen Sie den "
-"Computer eingeschaltet und verbunden. Starten Sie den Computer danach neu."
+"Computer eingeschaltet und verbunden. VLC wird entfernt (Videos spielt "
+"Haruna ab, VLC gibt es als Flatpak auf der Seite Apps). Starten Sie den "
+"Computer danach neu."
 
 #: qml/pages/SystemPage.qml:89
 msgid "Snapshots and rollback"

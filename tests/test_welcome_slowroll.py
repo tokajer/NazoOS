@@ -55,6 +55,9 @@ class System:
         self.rpm_db = "a-1-1.x86_64\n"
         self.own = list(OWN)
         self.in_repo = {k: set(v) for k, v in IN_REPO.items()}
+        # rpm -qa names; "remove" also takes the listed dependents along
+        self.names = {"haruna", "sudo"}
+        self.takes_along = {}
         fake.installed = {"openSUSE-repos-Tumbleweed"}
 
     def repos(self):
@@ -74,6 +77,11 @@ class System:
                 self.service = [(a, u, on and a not in off) for a, u, on in
                                 (SR_REPOS if target == "slowroll"
                                  else TW_REPOS)]
+        elif cmd[2] == "remove":
+            for n in cmd[3:]:
+                self.names -= {n, *self.takes_along.get(n, ())}
+        elif cmd[2] == "install" and "--plus-repo" not in cmd:
+            self.names |= {n for n in cmd[3:] if not n.startswith("-")}
         elif "modifyrepo" in cmd:
             self.service = [(a, u, "--enable" in cmd if a == cmd[-1] else on)
                             for a, u, on in self.service]
@@ -87,6 +95,8 @@ class System:
         return 0
 
     def output(self, cmd):
+        if cmd == ["rpm", "-qa", "--qf", "%{NAME}\n"]:
+            return "".join(f"{n}\n" for n in sorted(self.names))
         if "%{NAME}\t%{VENDOR}\n" in cmd:
             return "".join(f"{n}\t{tumbleweed.OWN_VENDOR}\n" for n in self.own) \
                 + "sudo\topenSUSE\n"
@@ -450,3 +460,46 @@ def test_undo_runs_every_step_and_fails_once(sr, monkeypatch):
     assert len(undone(sr)[0]) == 1
     assert sr.fake.installed == {"openSUSE-repos-Tumbleweed"}
     assert sum(s.startswith("Note: ") for s in said) == 1
+
+
+VLC_TW = {"vlc", "vlc-noX", "vlc-qt", "vlc-plugins-desktop", "libvlc5",
+          "libvlccore9", "phonon-vlc-qt6", "phonon-vlc-lang"}
+
+
+def test_vlc_goes_after_the_snapshot_and_before_the_swap(sr, capsys):
+    sr.names |= VLC_TW
+    slowroll.slowroll_switch([])
+    remove = calls(sr, "remove")
+    assert len(remove) == 1 and set(remove[0][3:]) == VLC_TW
+    assert position(sr, "snapper") < position(sr, "remove") \
+        < position(sr, "--plus-repo")
+    assert not sr.names & VLC_TW and "haruna" in sr.names
+    assert "Haruna" in capsys.readouterr().out
+
+
+def test_without_vlc_nothing_is_removed(sr):
+    slowroll.slowroll_switch([])
+    assert not calls(sr, "remove")
+
+
+def test_a_failed_switch_installs_vlc_and_what_went_with_it_again(sr):
+    sr.names |= VLC_TW | {"kdeapp-with-vlc"}
+    sr.takes_along = {"libvlc5": {"kdeapp-with-vlc"}}
+    sr.codes = {("dist-upgrade", "--dry-run"): 4}
+    with pytest.raises(helper.Fail, match="nothing was changed"):
+        slowroll.slowroll_switch([])
+    back = [c for c in calls(sr, "install") if "--plus-repo" not in c]
+    assert len(back) == 1
+    assert set(back[0][4:]) == VLC_TW | {"kdeapp-with-vlc"}
+    # After the Tumbleweed repos are back
+    assert position(sr, "--plus-repo", "openSUSE-repos-Tumbleweed") \
+        < sr.fake.calls.index(back[0])
+    assert "kdeapp-with-vlc" in sr.names
+
+
+def test_a_failed_vlc_removal_changes_nothing_else(sr):
+    sr.names |= {"vlc"}
+    sr.codes = {("remove", "vlc"): 8}
+    with pytest.raises(helper.Fail):
+        slowroll.slowroll_switch([])
+    assert not swaps(sr) and not calls(sr, "dist-upgrade")
