@@ -47,9 +47,6 @@ One time:
 osc meta prj -e home:Tokajer:nazoos:kernel   # repository openSUSE_Slowroll,
                                              # path openSUSE:Slowroll/standard, arch x86_64,
                                              # debuginfo disabled
-                                             # (while Tumbleweed installs still migrate:
-                                             # also openSUSE_Tumbleweed with
-                                             # openSUSE:Factory/snapshot)
 osc co home:Tokajer:nazoos:kernel && cd home:Tokajer:nazoos:kernel
 osc mkpac kernel-source
 # No links needed: kernel-source carries a _multibuild (written by

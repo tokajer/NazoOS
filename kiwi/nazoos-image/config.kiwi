@@ -180,6 +180,10 @@ SPDX-License-Identifier: GPL-3.0-or-later
          VLC's libavcodec needs blocked the Slowroll move (ADR 0036) -->
     <ignore name="phonon-vlc-qt5"/>
     <ignore name="phonon-vlc-qt6"/>
+    <!-- Factory leak (Factory:NonFree → Factory/standard, steam): Factory's
+         mokutil 0.7.3 split off this subpackage, Slowroll's batch has 0.7.2
+         with the file inside → file conflict. Image only (config.sh) -->
+    <ignore name="mokutil-bash-completion"/>
   </packages>
 
   <packages type="image" profiles="test">
