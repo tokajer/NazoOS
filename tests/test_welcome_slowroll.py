@@ -164,8 +164,11 @@ def test_repo_packages_come_from_the_slowroll_seeds_of_the_channel(sr):
     seeds = [swap[i + 1] for i, a in enumerate(swap) if a == "--plus-repo"]
     assert seeds == ["https://download.opensuse.org/slowroll/repo/oss/",
                      OBS + "release/openSUSE_Slowroll/"]
-    assert swap[-4:] == ["--force", "--auto-agree-with-licenses",
-                         "openSUSE-repos-Slowroll", "nazoos-repos"]
+    # The other repos package goes in the same transaction: zypper does not
+    # resolve the conflict by itself (VM 2026-11-04)
+    assert swap[-5:] == ["--force", "--auto-agree-with-licenses",
+                         "openSUSE-repos-Slowroll", "nazoos-repos",
+                         "-openSUSE-repos-Tumbleweed"]
 
 
 def test_the_beta_channel_seeds_the_devel_repo(sr, tmp_path):
@@ -244,6 +247,7 @@ def test_dry_run_failure_undoes_the_swap_and_changes_nothing(sr):
     assert e.value.params == {"rc": 4}
     back, plain = undone(sr)
     assert len(back) == 1
+    assert back[0][-1] == "-openSUSE-repos-Slowroll"
     seeds = [back[0][i + 1] for i, a in enumerate(back[0]) if a == "--plus-repo"]
     assert seeds == ["https://download.opensuse.org/tumbleweed/repo/oss/",
                      OBS + "release/openSUSE_Tumbleweed/"]

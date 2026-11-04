@@ -7,7 +7,9 @@ Wed Nov  4 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 - New "Switch to openSUSE Slowroll" on the System page (only on a
   Tumbleweed base): snapshot, Slowroll repos, a dry run first, then
   zypper dup and the Slowroll builds of the NazoOS packages; nothing
-  is changed if the dry run fails
+  is changed if the dry run fails. openSUSE-repos-Tumbleweed is
+  removed in the same transaction (zypper does not resolve that
+  conflict by itself, VM test)
 - "Leave NazoOS" goes to plain openSUSE of the running base
 - Texts and help link name Slowroll as the base; the bug report names
   the base (os-release is the same on both)

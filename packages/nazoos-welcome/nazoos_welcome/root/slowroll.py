@@ -26,8 +26,14 @@ def _swap_repo_packages(base, channel):
     """openSUSE-repos-<Base> and the nazoos-repos build for BASE in one
     transaction, both from seed repos (the service repos of BASE are not
     there yet), then the services list the repos of BASE."""
-    old = repos.with_path(
-        system.channel_repo_paths(TO if base == FROM else FROM)[channel])
+    other = TO if base == FROM else FROM
+    old = repos.with_path(system.channel_repo_paths(other)[channel])
+    # The openSUSE-repos packages conflict, and a non-interactive install
+    # does not remove the other one by itself (VM 2026-11-04: zypper
+    # stopped at the conflict). Same transaction: its %postun drops the
+    # service, the new one's %posttrans adds it back
+    remove = ([f"-{repos.BASE_PACKAGES[other]}"]
+              if proc.rpm_installed(repos.BASE_PACKAGES[other]) else [])
     # The installed nazoos-repos is also in our old channel repo, priority
     # 90 beats the seeds' 99 and the solver may stick to it: off for the
     # install
@@ -42,7 +48,7 @@ def _swap_repo_packages(base, channel):
             "--plus-repo", system.oss_url(base),
             "--plus-repo", DOWNLOAD + system.channel_repo_paths(base)[channel],
             "install", "--force", "--auto-agree-with-licenses",
-            repos.BASE_PACKAGES[base], "nazoos-repos"])
+            repos.BASE_PACKAGES[base], "nazoos-repos"] + remove)
     except Exception:
         if old is not None:
             helper.run(ZYPPER + ["modifyrepo", "--enable", old], check=False)
