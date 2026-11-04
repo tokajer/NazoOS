@@ -142,9 +142,36 @@ def test_show_passes_the_activation_token(monkeypatch):
         os.write(fd, b"tok123\n")
         return subprocess.CompletedProcess(cmd, 0, "open\n", "")
 
+    monkeypatch.setattr(notify, "_token_fd", lambda: True)
     monkeypatch.setattr(notify.subprocess, "run", run)
     notify._show(ITEM)
     assert launched == ["tok123"]
+
+
+def test_show_without_token_option(monkeypatch):
+    """libnotify 0.8.8 (Slowroll's base): no unknown option, no token."""
+    launched, sent = [], []
+    monkeypatch.setattr(notify, "_launch",
+                        lambda cmd, token="": launched.append(token))
+
+    def run(cmd, **kw):
+        if cmd == ["notify-send", "--help"]:
+            return subprocess.CompletedProcess(cmd, 0, "  --action=...\n", "")
+        sent.append(cmd)
+        return subprocess.CompletedProcess(cmd, 0, "open\n", "")
+
+    monkeypatch.setattr(notify.subprocess, "run", run)
+    notify._show(ITEM)
+    assert not any(a.startswith("--activation-token-fd") for a in sent[0])
+    assert launched == [""]
+
+
+def test_token_fd_reads_the_help(monkeypatch):
+    def run(cmd, **kw):
+        return subprocess.CompletedProcess(
+            cmd, 0, "  --activation-token-fd   File descriptor ...\n", "")
+    monkeypatch.setattr(notify.subprocess, "run", run)
+    assert notify._token_fd()
 
 
 def test_launch_sets_the_token_in_the_unit(monkeypatch):

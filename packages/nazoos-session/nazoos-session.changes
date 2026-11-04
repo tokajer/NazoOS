@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Nov  4 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- The "gaming mode failed" notice also works with libnotify 0.8.8
+  (Slowroll's base): the focus token only if notify-send supports it
+
+-------------------------------------------------------------------
 Mon Nov  2 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The login screen comes back by itself after switching to a text

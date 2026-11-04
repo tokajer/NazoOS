@@ -64,16 +64,27 @@ def _save(data):
     write_atomic(STATE / "notified.json", json.dumps(data))
 
 
+def _token_fd():
+    """notify-send knows --activation-token-fd (libnotify 0.8.9). Slowroll's
+    base can be older (0.8.8 in 2026-10, 0.8.9 only as an update): there
+    an unknown option would fail the whole notification, so it goes
+    without the token and the window may open without focus."""
+    r = subprocess.run(["notify-send", "--help"], capture_output=True,
+                       text=True)
+    return "--activation-token-fd" in r.stdout
+
+
 def _show(n):
     """Show the notification and wait for its button (blocks until it is
     closed); on click start the GUI on its page or command."""
     rd, wr = os.pipe()
+    token_arg = [f"--activation-token-fd={wr}"] if _token_fd() else []
     with os.fdopen(rd) as tokens:
         try:
             r = subprocess.run(
                 ["notify-send", f"--app-name={_('NazoOS Update')}",
                  f"--icon={n['icon']}", f"--urgency={n['urgency']}",
-                 f"--action=open={n['action']}", f"--activation-token-fd={wr}",
+                 f"--action=open={n['action']}", *token_arg,
                  "--hint=string:desktop-entry:org.nazoos.update",
                  n["title"], n["body"]],
                 capture_output=True, text=True, pass_fds=(wr,))

@@ -29,7 +29,7 @@ Requires:       util-linux
 Recommends:     steam
 # Performance overlay in gaming mode (Steam's "Performance" menu)
 Recommends:     mangoapp
-Recommends:     libnotify-tools >= 0.8.9
+Recommends:     libnotify-tools
 %{?systemd_ordering}
 
 %description

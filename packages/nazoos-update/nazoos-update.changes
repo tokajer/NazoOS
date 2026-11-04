@@ -3,6 +3,8 @@ Wed Nov  4 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Texts say openSUSE instead of Tumbleweed (NazoOS now runs on
   Slowroll, the snapshot check works the same)
+- Works with libnotify 0.8.8 (Slowroll's base): the notification
+  button only passes the focus token if notify-send supports it
 
 -------------------------------------------------------------------
 Sat Oct 31 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>

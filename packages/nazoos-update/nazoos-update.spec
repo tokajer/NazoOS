@@ -25,7 +25,7 @@ Requires:       qt6-declarative-imports
 # Helper frame, error messages, MOK check, kernel opt-in state (ADR 0030)
 Requires:       nazoos-common(api) >= 15
 # Notifications with an "Update now" button
-Requires:       libnotify-tools >= 0.8.9
+Requires:       libnotify-tools
 Requires:       polkit
 Requires:       snapper
 # Snapshot pair before and after every zypper run

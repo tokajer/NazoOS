@@ -80,11 +80,17 @@ report_failed() {
   command -v notify-send >/dev/null || return 0
   # Blocks until the notification is closed (Type=exec, ends with the session)
   # The activation token (fd 3) lets the window take focus under Wayland
+  # (libnotify 0.8.9; Slowroll's base can be older and would reject it)
   tok=$(mktemp -p "${XDG_RUNTIME_DIR:-/tmp}" 2>/dev/null)
+  # No pipe into grep -q: with pipefail its early exit fails the test
+  tokarg=""
+  case $(notify-send --help 2>/dev/null) in
+    *--activation-token-fd*) tokarg=--activation-token-fd=3 ;;
+  esac
   action=$(notify-send --app-name="NazoOS" --icon=dialog-warning \
     --urgency=critical --action=repair="$(msg "Fix" "Beheben")" \
     --hint=string:desktop-entry:org.nazoos.welcome \
-    --activation-token-fd=3 "$title" "$body" 2>/dev/null 3>"${tok:-/dev/null}")
+    ${tokarg:+"$tokarg"} "$title" "$body" 2>/dev/null 3>"${tok:-/dev/null}")
   token=""
   if [ -n "$tok" ]; then token=$(cat "$tok"); rm -f "$tok"; fi
   if [ "$action" = repair ]; then
