@@ -69,8 +69,14 @@ class System:
                       else "tumbleweed")
             self.fake.installed = {repos.BASE_PACKAGES[target]}
             if self.swap_lists_repos:
-                self.service = list(SR_REPOS if target == "slowroll"
-                                    else TW_REPOS)
+                # The service refresh keeps the state of an alias it knows
+                off = {a for a, _u, on in self.service if not on}
+                self.service = [(a, u, on and a not in off) for a, u, on in
+                                (SR_REPOS if target == "slowroll"
+                                 else TW_REPOS)]
+        elif "modifyrepo" in cmd:
+            self.service = [(a, u, "--enable" in cmd if a == cmd[-1] else on)
+                            for a, u, on in self.service]
         elif "removerepo" in cmd:
             self.plain = [r for r in self.plain if r[0] != cmd[-1]]
         elif "addrepo" in cmd:
@@ -144,9 +150,9 @@ def test_happy_path_order(sr, capsys):
     slowroll.slowroll_switch([])
     verbs = [c[2] if c[0] == "zypper" and c[2] != "--plus-repo" else
              "swap" if "--plus-repo" in c else c[0] for c in sr.fake.calls]
-    assert verbs == ["snapper", "swap", "refresh-services",
-                     "removerepo", "addrepo", "removerepo", "addrepo",
-                     "dist-upgrade", "dist-upgrade", "install"]
+    assert verbs == ["snapper", "modifyrepo", "swap", "refresh-services",
+                     "modifyrepo", "removerepo", "addrepo", "removerepo",
+                     "addrepo", "dist-upgrade", "dist-upgrade", "install"]
     assert "nazoos-welcome: before switching to Slowroll" in sr.fake.calls[0]
     out = capsys.readouterr().out
     assert "@@reboot" in out and "runs on openSUSE Slowroll" in out
@@ -365,3 +371,78 @@ def test_nothing_is_imported_inside_a_function():
         if isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
             assert not any(isinstance(n, (ast.Import, ast.ImportFrom))
                            for n in ast.walk(fn)), fn.name
+
+
+def test_the_old_channel_repo_is_off_for_the_swap_and_the_new_one_on(sr):
+    slowroll.slowroll_switch([])
+    zypper = [c[2:] for c in sr.fake.calls[1:5]]
+    assert zypper[0] == ["modifyrepo", "--disable", "nazoos:nazoos"]
+    assert "--plus-repo" in zypper[1] and "openSUSE-repos-Slowroll" in zypper[1]
+    assert zypper[2] == ["refresh-services"]
+    assert zypper[3] == ["modifyrepo", "--enable", "nazoos:nazoos"]
+    # The Slowroll repo would stay off without the explicit enable
+    assert ("nazoos:nazoos", OBS + "release/openSUSE_Slowroll/", True) \
+        in sr.service
+
+
+def test_a_failed_swap_install_switches_the_old_channel_repo_on_again(sr):
+    sr.codes = {("--plus-repo",): 8}
+    with pytest.raises(helper.Fail):
+        slowroll.slowroll_switch([])
+    assert calls(sr, "modifyrepo")[-1][2:] == ["modifyrepo", "--enable",
+                                                "nazoos:nazoos"]
+    assert sr.service == TW_REPOS
+
+
+def test_the_way_back_also_swaps_the_channel_repos(sr):
+    sr.codes = {("dist-upgrade", "--dry-run"): 4}
+    with pytest.raises(helper.Fail):
+        slowroll.slowroll_switch([])
+    back = sr.fake.calls.index(undone(sr)[0][0])
+    assert sr.fake.calls[back - 1][2:] == ["modifyrepo", "--disable",
+                                           "nazoos:nazoos"]
+    assert sr.fake.calls[back + 2][2:] == ["modifyrepo", "--enable",
+                                           "nazoos:nazoos"]
+    assert sr.service == TW_REPOS
+
+
+def test_a_half_moved_repo_comes_back_with_its_settings(sr):
+    # removerepo worked, addrepo did not: the repo is gone until the undo
+    def rc(cmd):
+        if "addrepo" in cmd and "openSUSE_Slowroll" in cmd[-2]:
+            return 4
+        return System.run(sr, cmd)
+    sr.fake.rc = rc
+    with pytest.raises(helper.Fail):
+        slowroll.slowroll_switch([])
+    # The first plain repo (packman) failed: only it is put back
+    readd = calls(sr, "addrepo")[-1]
+    assert readd[-2:] == [PLAIN[0][1], "packman"]
+    assert readd[readd.index("--priority") + 1] == "70"
+    assert readd[readd.index("--name") + 1] == "Packman"
+    assert ("packman", PLAIN[0][1], True) in sr.plain
+    assert not calls(sr, "addrepo", "nazoos-kernel")
+    assert len(undone(sr)[0]) == 1
+
+
+def test_undo_runs_every_step_and_fails_once(sr, monkeypatch):
+    said = []
+    monkeypatch.setattr(slowroll, "say", said.append)
+
+    def rc(cmd):
+        if "--dry-run" in cmd:
+            return 4
+        # The first restore step: the kernel repo back on Tumbleweed
+        if "addrepo" in cmd and cmd[-1] == "nazoos-kernel" \
+                and "openSUSE_Tumbleweed" in cmd[-2]:
+            return 4
+        return System.run(sr, cmd)
+    sr.fake.rc = rc
+    with pytest.raises(helper.Fail, match="could not be restored") as e:
+        slowroll.slowroll_switch([])
+    assert isinstance(e.value.__cause__, helper.Fail)
+    # Packman and the repo packages are still restored after it
+    assert ("packman", PLAIN[0][1], True) in sr.plain
+    assert len(undone(sr)[0]) == 1
+    assert sr.fake.installed == {"openSUSE-repos-Tumbleweed"}
+    assert sum(s.startswith("Note: ") for s in said) == 1

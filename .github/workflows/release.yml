@@ -67,6 +67,9 @@ jobs:
       # Never release a half-rebuilt :devel (e.g. right after a push, which
       # starts services and builds): wait until every package is finished,
       # stop on failures. Reading needs a login; any account can read.
+      # Both package repos: the release copies every repository, and until
+      # Tumbleweed installs are migrated (ADR 0036) both are in use.
+      # Not "images": it rebuilds on its own (block="never")
       - name: Wait until :devel has finished building
         env:
           OBS_USER: ${{ secrets.OBS_USER }}
@@ -76,7 +79,7 @@ jobs:
             { echo "::error::secrets OBS_USER / OBS_PASSWORD missing"; exit 1; }
           for _ in $(seq 60); do
             .github/scripts/obs-curl.sh -sS --fail-with-body -o result.xml \
-              "https://api.opensuse.org/build/$SOURCE/_result?repository=openSUSE_Slowroll"
+              "https://api.opensuse.org/build/$SOURCE/_result?repository=openSUSE_Slowroll&repository=openSUSE_Tumbleweed"
             state=$(python3 - <<'EOF'
           import xml.etree.ElementTree as ET
           ok = {"succeeded", "disabled", "excluded"}

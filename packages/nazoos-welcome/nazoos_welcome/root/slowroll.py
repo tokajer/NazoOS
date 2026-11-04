@@ -26,16 +26,33 @@ def _swap_repo_packages(base, channel):
     """openSUSE-repos-<Base> and the nazoos-repos build for BASE in one
     transaction, both from seed repos (the service repos of BASE are not
     there yet), then the services list the repos of BASE."""
+    old = repos.with_path(
+        system.channel_repo_paths(TO if base == FROM else FROM)[channel])
+    # The installed nazoos-repos is also in our old channel repo, priority
+    # 90 beats the seeds' 99 and the solver may stick to it: off for the
+    # install
+    if old is not None:
+        helper.run(ZYPPER + ["modifyrepo", "--disable", old])
     # --force: both builds of nazoos-repos have the same version-release.
     # Only the build for BASE can stay next to openSUSE-repos-<Base>
     # (Requires, and the openSUSE-repos packages conflict), so the solver
     # cannot keep the old one
-    helper.run(ZYPPER + [
-        "--plus-repo", system.oss_url(base),
-        "--plus-repo", DOWNLOAD + system.channel_repo_paths(base)[channel],
-        "install", "--force", "--auto-agree-with-licenses",
-        repos.BASE_PACKAGES[base], "nazoos-repos"])
+    try:
+        helper.run(ZYPPER + [
+            "--plus-repo", system.oss_url(base),
+            "--plus-repo", DOWNLOAD + system.channel_repo_paths(base)[channel],
+            "install", "--force", "--auto-agree-with-licenses",
+            repos.BASE_PACKAGES[base], "nazoos-repos"])
+    except Exception:
+        if old is not None:
+            helper.run(ZYPPER + ["modifyrepo", "--enable", old], check=False)
+        raise
     helper.run(ZYPPER + ["refresh-services"])
+    # Both builds name the repo alike (nazoos, nazoos-devel): the service
+    # refresh keeps the disabled state of the same alias
+    new = repos.with_path(system.channel_repo_paths(base)[channel])
+    if new is not None:
+        helper.run(ZYPPER + ["modifyrepo", "--enable", new])
 
 
 def _swapped(channel):
@@ -55,12 +72,11 @@ def _base_repos():
             if old in url and ("/packman/" in url or alias == kernel_alias)]
 
 
-def _move_repo(alias, url):
+def _move_repo(alias, url, opts):
     """Point repo ALIAS at URL. zypper cannot change a URL in place: the
-    repo is added again with its name, priority, enabled, refresh and
-    signature check settings. Its key stays imported (same key for both
-    bases)."""
-    opts = repos.options(alias)
+    repo is added again with the name, priority, enabled, refresh and
+    signature check settings OPTS (repos.options(), read before the first
+    move). Its key stays imported (same key for both bases)."""
     args = ["--name", opts.get("name", alias).strip()]
     if "priority" in opts:
         args += ["--priority", opts["priority"].strip()]
@@ -70,22 +86,30 @@ def _move_repo(alias, url):
         args.append("--refresh")
     if not repos.flag(opts, "gpgcheck", "1"):
         args.append("--no-gpgcheck")
-    helper.run(ZYPPER + ["removerepo", alias])
+    # Gone already (an earlier half move): fine. Still there: addrepo fails
+    helper.run(ZYPPER + ["removerepo", alias], check=False)
     helper.run(ZYPPER + ["addrepo"] + args + [url, alias])
 
 
 def _undo(channel, moved):
-    """Back to the Tumbleweed repos after a failure before the upgrade."""
-    try:
-        for alias, url in reversed(moved):
-            _move_repo(alias, url)
-        if proc.rpm_installed(repos.BASE_PACKAGES[TO]):
-            _swap_repo_packages(FROM, channel)
-    except (Fail, OSError) as e:
+    """Back to the Tumbleweed repos after a failure before the upgrade.
+    Every step is tried: one that fails must not leave the rest moved."""
+    steps = [lambda a=alias, u=url, o=opts: _move_repo(a, u, o)
+             for alias, url, opts in reversed(moved)]
+    if proc.rpm_installed(repos.BASE_PACKAGES[TO]):
+        steps.append(lambda: _swap_repo_packages(FROM, channel))
+    errors = []
+    for step in steps:
+        try:
+            step()
+        except (Fail, OSError) as e:
+            say(f"Note: {e}")
+            errors.append(e)
+    if errors:
         raise Fail("the switch to Slowroll failed and the Tumbleweed "
                    "repositories could not be restored (details in the "
                    "log); restart and go back to the snapshot in the boot "
-                   "menu") from e
+                   "menu") from errors[0]
 
 
 def _installed():
@@ -144,8 +168,11 @@ def slowroll_switch(_args):
                        "was changed")
         new = f"/{repos.OBS_REPOS[TO]}/"
         for alias, url in _base_repos():
-            _move_repo(alias, url.replace(f"/{repos.OBS_REPOS[FROM]}/", new))
-            moved.append((alias, url))
+            opts = repos.options(alias)
+            # Recorded first: a failed addrepo after removerepo is undone too
+            moved.append((alias, url, opts))
+            _move_repo(alias, url.replace(f"/{repos.OBS_REPOS[FROM]}/", new),
+                       opts)
         # No --allow-vendor-change: our packages and Packman's stay theirs
         rc = helper.run(ZYPPER + ["dist-upgrade", "--dry-run",
                                   "--auto-agree-with-licenses"], check=False)
