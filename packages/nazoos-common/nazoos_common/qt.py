@@ -267,6 +267,10 @@ class ActionRunner(QObject):
     def copyLog(self):
         QGuiApplication.clipboard().setText(self._log)
 
+    @Slot()
+    def reboot(self):
+        launcher.request_reboot()
+
     @Slot(str)
     def launch(self, launcher_id):
         entry = self._launchers.get(launcher_id)

@@ -51,10 +51,11 @@ Kirigami.ApplicationWindow {
         mokDialog.open()
     }
 
-    function confirm(title, text, okText, callback) {
+    function confirm(title, text, okText, callback, cancelText) {
         confirmDialog.title = title
         confirmDialog.text = text
         confirmDialog.okText = okText
+        confirmDialog.cancelText = cancelText || ""
         confirmDialog.callback = callback
         confirmDialog.open()
     }
@@ -125,7 +126,8 @@ Kirigami.ApplicationWindow {
             if (ok && (action === "tumbleweed-switch" || action === "slowroll-switch")) {
                 // A passive notification would go away, and the next step
                 // is up to the user
-                root.confirm(L.tr("Restart the computer"), message, L.tr("OK"), null)
+                root.confirm(L.tr("Restart the computer"), message,
+                             L.tr("Restart now"), () => backend.reboot(), L.tr("Later"))
             } else if (ok) {
                 root.showPassiveNotification(message)
             } else {
@@ -142,6 +144,7 @@ Kirigami.ApplicationWindow {
         id: confirmDialog
         property string text: ""
         property string okText: ""
+        property string cancelText: ""
         property var callback: null
         subtitle: text
         standardButtons: Kirigami.Dialog.NoButton
@@ -155,7 +158,7 @@ Kirigami.ApplicationWindow {
                 }
             },
             Kirigami.Action {
-                text: L.tr("Cancel")
+                text: confirmDialog.cancelText || L.tr("Cancel")
                 icon.name: "dialog-cancel"
                 onTriggered: confirmDialog.close()
             }

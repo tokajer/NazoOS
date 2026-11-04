@@ -49,3 +49,17 @@ COMMON_LAUNCHERS = {
     "btrfs-assistant": (["*btrfs-assistant*.desktop"],
                         ["btrfs-assistant-launcher"]),
 }
+
+
+def request_reboot():
+    """Plasma's own restart dialog (saves the session), else logind."""
+    if shutil.which("qdbus6"):
+        try:
+            if subprocess.run(
+                    ["qdbus6", "org.kde.LogoutPrompt", "/LogoutPrompt",
+                     "promptReboot"], capture_output=True,
+                    timeout=10).returncode == 0:
+                return
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+    subprocess.Popen(["systemctl", "reboot"], start_new_session=True)

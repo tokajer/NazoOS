@@ -607,3 +607,27 @@ def test_wait_for_lock_missing_file(tmp_path):
 def test_wait_for_lock_held_by_another_process(lock_holder):
     assert zypper.wait_for_lock(timeout=1, path=lock_holder) is False
     assert lock_holder.read_text() == "1234\n"
+
+
+def test_request_reboot_prefers_plasma_prompt(monkeypatch):
+    from nazoos_common import launcher
+    calls = []
+    monkeypatch.setattr(launcher.shutil, "which", lambda c: "/usr/bin/" + c)
+    monkeypatch.setattr(launcher.subprocess, "run",
+                        lambda cmd, **kw: calls.append(cmd) or
+                        launcher.subprocess.CompletedProcess(cmd, 0))
+    monkeypatch.setattr(launcher.subprocess, "Popen",
+                        lambda cmd, **kw: calls.append(cmd))
+    launcher.request_reboot()
+    assert calls == [["qdbus6", "org.kde.LogoutPrompt", "/LogoutPrompt",
+                      "promptReboot"]]
+
+
+def test_request_reboot_falls_back_to_logind(monkeypatch):
+    from nazoos_common import launcher
+    calls = []
+    monkeypatch.setattr(launcher.shutil, "which", lambda c: None)
+    monkeypatch.setattr(launcher.subprocess, "Popen",
+                        lambda cmd, **kw: calls.append(cmd))
+    launcher.request_reboot()
+    assert calls == [["systemctl", "reboot"]]

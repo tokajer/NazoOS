@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 13:16+0100\n"
+"POT-Creation-Date: 2026-11-04 13:35+0100\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -73,7 +73,7 @@ msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
 msgid "Something went wrong."
 msgstr "Etwas ist schiefgelaufen."
 
-#: ../nazoos-common/nazoos_common/qt.py:277
+#: ../nazoos-common/nazoos_common/qt.py:281
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
@@ -90,7 +90,7 @@ msgstr "Kopieren"
 msgid "Copied to the clipboard."
 msgstr "In die Zwischenablage kopiert."
 
-#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:249
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:252
 msgid "Close"
 msgstr "Schließen"
 
@@ -914,27 +914,31 @@ msgstr "Reparieren"
 msgid "Help"
 msgstr "Hilfe"
 
-#: qml/Main.qml:128
-msgid "OK"
-msgstr "OK"
-
-#: qml/Main.qml:128
+#: qml/Main.qml:129
 msgid "Restart the computer"
 msgstr "Computer neu starten"
 
-#: qml/Main.qml:150 qml/Main.qml:207
+#: qml/Main.qml:130
+msgid "Later"
+msgstr "Später"
+
+#: qml/Main.qml:130
+msgid "Restart now"
+msgstr "Jetzt neu starten"
+
+#: qml/Main.qml:153 qml/Main.qml:210
 msgid "Continue"
 msgstr "Weiter"
 
-#: qml/Main.qml:158 qml/Main.qml:218
+#: qml/Main.qml:161 qml/Main.qml:221
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: qml/Main.qml:183
+#: qml/Main.qml:186
 msgid "Password for the NazoOS key"
 msgstr "Passwort für den NazoOS-Schlüssel"
 
-#: qml/Main.qml:184
+#: qml/Main.qml:187
 msgid ""
 "After the restart a blue screen (MokManager) asks once for this password to "
 "enroll the NazoOS key. Suggested: \"nazoos\". 4 to 16 letters or digits."
@@ -943,11 +947,11 @@ msgstr ""
 "diesem Passwort, um den NazoOS-Schlüssel einzutragen. Vorschlag: „nazoos“. 4 "
 "bis 16 Buchstaben oder Ziffern."
 
-#: qml/Main.qml:191
+#: qml/Main.qml:194
 msgid "Password (4 to 16 letters or digits)"
 msgstr "Passwort (4 bis 16 Buchstaben oder Ziffern)"
 
-#: qml/Main.qml:200
+#: qml/Main.qml:203
 msgid ""
 "Z and Y are swapped in the blue screen on a German keyboard: type \"%1\" "
 "there."
@@ -955,15 +959,15 @@ msgstr ""
 "Im blauen Bildschirm sind Z und Y auf einer deutschen Tastatur vertauscht: "
 "Geben Sie dort „%1“ ein."
 
-#: qml/Main.qml:231
+#: qml/Main.qml:234
 msgid "That did not work"
 msgstr "Das hat nicht geklappt"
 
-#: qml/Main.qml:235
+#: qml/Main.qml:238
 msgid "Try again"
 msgstr "Erneut versuchen"
 
-#: qml/Main.qml:244 qml/components/BusyBar.qml:31
+#: qml/Main.qml:247 qml/components/BusyBar.qml:31
 msgid "Show details"
 msgstr "Details anzeigen"
 
@@ -2451,6 +2455,9 @@ msgstr "Mehr erfahren"
 #: qml/pages/WelcomePage.qml:174
 msgid "Show this window at login"
 msgstr "Dieses Fenster bei der Anmeldung anzeigen"
+
+#~ msgid "OK"
+#~ msgstr "OK"
 
 #~ msgid ""
 #~ "The openSUSE kernel is ready. Restart the computer, then click \"Switch "

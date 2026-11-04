@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 13:16+0100\n"
+"POT-Creation-Date: 2026-11-04 13:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -74,7 +74,7 @@ msgstr ""
 msgid "Something went wrong."
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/qt.py:277
+#: ../nazoos-common/nazoos_common/qt.py:281
 msgid "This program is not installed."
 msgstr ""
 
@@ -91,7 +91,7 @@ msgstr ""
 msgid "Copied to the clipboard."
 msgstr ""
 
-#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:249
+#: ../nazoos-common/qml/org/nazoos/common/LogDialog.qml:27 qml/Main.qml:252
 msgid "Close"
 msgstr ""
 
@@ -839,51 +839,55 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: qml/Main.qml:128
-msgid "OK"
-msgstr ""
-
-#: qml/Main.qml:128
+#: qml/Main.qml:129
 msgid "Restart the computer"
 msgstr ""
 
-#: qml/Main.qml:150 qml/Main.qml:207
+#: qml/Main.qml:130
+msgid "Later"
+msgstr ""
+
+#: qml/Main.qml:130
+msgid "Restart now"
+msgstr ""
+
+#: qml/Main.qml:153 qml/Main.qml:210
 msgid "Continue"
 msgstr ""
 
-#: qml/Main.qml:158 qml/Main.qml:218
+#: qml/Main.qml:161 qml/Main.qml:221
 msgid "Cancel"
 msgstr ""
 
-#: qml/Main.qml:183
+#: qml/Main.qml:186
 msgid "Password for the NazoOS key"
 msgstr ""
 
-#: qml/Main.qml:184
+#: qml/Main.qml:187
 msgid ""
 "After the restart a blue screen (MokManager) asks once for this password to "
 "enroll the NazoOS key. Suggested: \"nazoos\". 4 to 16 letters or digits."
 msgstr ""
 
-#: qml/Main.qml:191
+#: qml/Main.qml:194
 msgid "Password (4 to 16 letters or digits)"
 msgstr ""
 
-#: qml/Main.qml:200
+#: qml/Main.qml:203
 msgid ""
 "Z and Y are swapped in the blue screen on a German keyboard: type \"%1\" "
 "there."
 msgstr ""
 
-#: qml/Main.qml:231
+#: qml/Main.qml:234
 msgid "That did not work"
 msgstr ""
 
-#: qml/Main.qml:235
+#: qml/Main.qml:238
 msgid "Try again"
 msgstr ""
 
-#: qml/Main.qml:244 qml/components/BusyBar.qml:31
+#: qml/Main.qml:247 qml/components/BusyBar.qml:31
 msgid "Show details"
 msgstr ""
 

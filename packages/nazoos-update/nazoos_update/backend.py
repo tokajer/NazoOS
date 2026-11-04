@@ -4,7 +4,6 @@
 
 import os
 import shutil
-import subprocess
 
 from nazoos_common import helper
 from nazoos_common.launcher import COMMON_LAUNCHERS
@@ -129,19 +128,3 @@ class Backend(ActionRunner):
         self._end_busy()
         # The GUI reads the new status when it hears of the end
         self._request(lambda: self.actionFinished.emit(action, ok, message))
-
-    # --- user actions -----------------------------------------------------
-
-    @Slot()
-    def reboot(self):
-        # Plasma's own restart dialog (saves the session), else logind
-        if shutil.which("qdbus6"):
-            try:
-                if subprocess.run(
-                        ["qdbus6", "org.kde.LogoutPrompt", "/LogoutPrompt",
-                         "promptReboot"], capture_output=True,
-                        timeout=10).returncode == 0:
-                    return
-            except (OSError, subprocess.TimeoutExpired):
-                pass
-        subprocess.Popen(["systemctl", "reboot"], start_new_session=True)
