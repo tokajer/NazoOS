@@ -17,7 +17,7 @@ its `kernel-default.spec`; a commit of branch `stable` = OBS
 | `fetch-patches.sh` | Downloads the patches of `patches.list` |
 | `make-obs-package.sh` | Builds the OBS source package of `kernel-nazoos` |
 | `upload-obs.sh` | Commits that package to OBS |
-| `check-update.sh` | Compares Slowroll's kernel-source with the version in OBS |
+| `check-update.sh` | Compares Slowroll's kernel-source commit with the one kernel-nazoos in OBS was made from |
 | [`../.github/workflows/kernel-update.yml`](../.github/workflows/kernel-update.yml) | Does all of it automatically |
 
 ## Build the OBS package
@@ -66,7 +66,7 @@ osc mkpac acpi_call && cp <NazoOS repo>/packages/acpi_call/_service acpi_call/
 Every kernel update (by hand; normally the workflow below does it):
 
 ```sh
-./check-update.sh          # upstream=7.2.10 obs=7.2.9 → Slowroll has a new kernel
+./check-update.sh          # commit=… obs_commit=… differ → Slowroll has a new kernel or fixes
 ./make-obs-package.sh
 ./upload-obs.sh            # osc checkout in ~/nazoos-kernel/obs/, rsync, osc ci
 ```
@@ -79,11 +79,15 @@ project's certificate. The certificate ends up in `/etc/uefi/certs/` and
 the kernel's install script queues it for MokManager
 (`mokutil --import … --root-pw`).
 
+`make-obs-package.sh` adds `# NazoOS base: kernel-source <commit> (openSUSE:Slowroll)`
+as the second line of `kernel-nazoos.spec`: the spec's own `git_commit` is our
+local branch, `check-update.sh` reads Slowroll's commit from this line.
+
 ## Automatic updates (GitHub workflow `kernel-update.yml`)
 
 | When | What happens |
 |---|---|
-| Daily 04:17 UTC, Slowroll ships a new kernel (7.2.9 → 7.2.10) | build + upload, OBS builds kernel and KMPs |
+| Daily 04:17 UTC, Slowroll's kernel-source is another commit (new version, or backports/CVE fixes under the same one) | build + upload, OBS builds kernel and KMPs |
 | Daily, Slowroll's kernel moved to a new series | issue "Kernel 7.3: update patches.list", nothing uploaded |
 | Push to `main` that changes `kernel/` | build + upload |
 | Actions → Kernel update → Run workflow | build + upload if newer (`force`: always) |

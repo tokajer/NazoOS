@@ -13,6 +13,8 @@
 #   upstream=7.3.1 kernel version of Slowroll's kernel-source
 #   commit=8815…   SUSE/kernel-source commit it was made from
 #   obs=7.3.1      version of kernel-nazoos in OBS
+#   obs_commit=8815…  Slowroll commit kernel-nazoos in OBS was made from
+#                  (empty for packages from before this line existed)
 set -euo pipefail
 
 PROJECT=home:Tokajer:nazoos:kernel
@@ -25,8 +27,9 @@ series=$(sed -nE 's/^%define srcversion ([0-9.]+)$/\1/p' <<<"$spec")
 upstream=$(sed -nE 's/^%define patchversion ([0-9.]+)$/\1/p' <<<"$spec")
 commit=$(sed -nE 's/^%define git_commit ([0-9a-f]{40})$/\1/p' <<<"$spec")
 pinned=$(sed -nE 's/^KERNEL_SERIES=([0-9.]+).*/\1/p' "$here/make-obs-package.sh")
-obs=$(osc cat "$PROJECT" kernel-source kernel-nazoos.spec |
-  sed -nE 's/^%define patchversion ([0-9.]+)$/\1/p')
+obs_spec=$(osc cat "$PROJECT" kernel-source kernel-nazoos.spec)
+obs=$(sed -nE 's/^%define patchversion ([0-9.]+)$/\1/p' <<<"$obs_spec")
+obs_commit=$(sed -nE 's/^# NazoOS base: kernel-source ([0-9a-f]{40}) .*/\1/p' <<<"$obs_spec")
 
 [ -n "$series" ] && [ -n "$upstream" ] && [ -n "$commit" ] && [ -n "$pinned" ] && [ -n "$obs" ] ||
   { echo "error: could not read a version (series=$series upstream=$upstream commit=$commit pinned=$pinned obs=$obs)" >&2; exit 1; }
@@ -36,3 +39,4 @@ echo "pinned=$pinned"
 echo "upstream=$upstream"
 echo "commit=$commit"
 echo "obs=$obs"
+echo "obs_commit=$obs_commit"

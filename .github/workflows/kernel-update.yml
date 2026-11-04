@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Keeps kernel-nazoos up to date in home:Tokajer:nazoos:kernel:
-# - daily: openSUSE:Slowroll ships a new kernel (7.2.9 → 7.2.10)
-#   → build the OBS package from the same kernel-source commit and commit
-#   it; OBS builds kernel + KMPs
+# - daily: openSUSE:Slowroll's kernel-source moved to another commit (new
+#   version, or fixes under the same one) → build the OBS package from
+#   that commit and commit it; OBS builds kernel + KMPs
 # - new kernel series (7.2 → 7.3): only an issue, the patches need a human
 # - push to main that changes kernel/: build and commit
 # - by hand: Actions → Kernel update → Run workflow (force = even if
@@ -77,14 +77,16 @@ jobs:
           . ./versions
           if [ "$series" != "$pinned" ]; then
             action=series
-          elif [ "$EVENT" = push ] || [ "$FORCE" = true ] || [ "$upstream" != "$obs" ]; then
+          # By commit, not version: Slowroll also ships fixes (backports,
+          # CVEs) under the same kernel version
+          elif [ "$EVENT" = push ] || [ "$FORCE" = true ] || [ "$commit" != "$obs_commit" ]; then
             action=build
           else
             action=none
           fi
           echo "action=$action"
           { cat versions; echo "action=$action"; } >> "$GITHUB_OUTPUT"
-          echo "Slowroll: Linux $upstream (series $series, kernel-source $commit), OBS: $obs, patches for $pinned → **$action**" >> "$GITHUB_STEP_SUMMARY"
+          echo "Slowroll: Linux $upstream (series $series, kernel-source $commit), OBS: $obs (${obs_commit:-commit unknown}), patches for $pinned → **$action**" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Report new kernel series
         if: steps.check.outputs.action == 'series'

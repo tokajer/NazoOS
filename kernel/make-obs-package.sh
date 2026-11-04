@@ -175,6 +175,11 @@ cat > "$out/_multibuild" <<MB
 </multibuild>
 MB
 rm -f "$out"/kernel-docs.spec "$out"/kernel-obs-build.spec "$out"/kernel-obs-qa.spec
+# The spec's git_commit is our local branch: note Slowroll's commit, so
+# check-update.sh also sees fixes Slowroll ships under the same version
+sed -i "1a # NazoOS base: kernel-source $commit (openSUSE:Slowroll)" \
+  "$out/kernel-$FLAVOR.spec"
+grep -q "^# NazoOS base: kernel-source $commit " "$out/kernel-$FLAVOR.spec"
 echo
 echo "OBS package files: $out"
 echo "Next: copy them into an osc checkout of home:Tokajer:nazoos:kernel/kernel-source,"
