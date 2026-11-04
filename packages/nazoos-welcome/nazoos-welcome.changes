@@ -1,4 +1,18 @@
 -------------------------------------------------------------------
+Wed Nov  4 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- NazoOS is based on openSUSE Slowroll now: repos, Packman, Repair
+  page, update channel and the NazoOS kernel repo follow the base of
+  the system (Tumbleweed or Slowroll)
+- New "Switch to openSUSE Slowroll" on the System page (only on a
+  Tumbleweed base): snapshot, Slowroll repos, a dry run first, then
+  zypper dup and the Slowroll builds of the NazoOS packages; nothing
+  is changed if the dry run fails
+- "Leave NazoOS" goes to plain openSUSE of the running base
+- Texts and help link name Slowroll as the base; the bug report names
+  the base (os-release is the same on both)
+
+-------------------------------------------------------------------
 Mon Nov  2 16:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Switch to Tumbleweed: remove v4l2loopback-autoload and -utils if

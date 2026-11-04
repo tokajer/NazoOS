@@ -122,7 +122,7 @@ Kirigami.ApplicationWindow {
             root.askMok(action, args)
         }
         function onActionFinished(action, ok, message) {
-            if (ok && action === "tumbleweed-switch") {
+            if (ok && (action === "tumbleweed-switch" || action === "slowroll-switch")) {
                 // A passive notification would go away, and the next step
                 // is up to the user
                 root.confirm(L.tr("Restart the computer"), message, L.tr("OK"), null)

@@ -12,9 +12,17 @@ License:        GPL-3.0-or-later
 URL:            https://github.com/tokajer/NazoOS
 Source0:        %{name}-%{version}.tar.xz
 BuildArch:      noarch
+# OBS repo name of this build (openSUSE_Tumbleweed or openSUSE_Slowroll):
+# the URLs in repo/ and the base below follow it
+%define obsrepo %{?_repository}%{!?_repository:openSUSE_Slowroll}
 # Manages repo-oss/non-oss/update as zypp service "openSUSE"; replaces the
-# repo files the old images added
+# repo files the old images added. The openSUSE-repos packages conflict,
+# so each build of nazoos-repos only installs on its own base
+%if "%{obsrepo}" == "openSUSE_Tumbleweed"
 Requires:       openSUSE-repos-Tumbleweed
+%else
+Requires:       openSUSE-repos-Slowroll
+%endif
 Requires(post): coreutils
 Requires(posttrans): coreutils
 Requires(posttrans): zypper
@@ -30,6 +38,12 @@ repoindex.xml. Switch with: ln -sf nazoos-stable-repoindex.xml
 %autosetup
 
 %install
+case "%{obsrepo}" in
+  openSUSE_Tumbleweed|openSUSE_Slowroll) ;;
+  *) echo "error: no NazoOS repos for OBS repository %{obsrepo}" >&2; exit 1 ;;
+esac
+sed -i 's|@REPO@|%{obsrepo}|g' repo/nazoos-beta-repoindex.xml \
+  repo/nazoos-stable-repoindex.xml
 install -Dm0644 -t %{buildroot}%{servicedir}/repo \
   repo/nazoos-beta-repoindex.xml repo/nazoos-stable-repoindex.xml
 ln -s nazoos-beta-repoindex.xml %{buildroot}%{servicedir}/repo/repoindex.xml

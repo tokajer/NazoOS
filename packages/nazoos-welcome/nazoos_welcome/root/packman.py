@@ -71,7 +71,7 @@ def packman_switch(alias):
     if rc == 0:
         return
     # Packman often rebuilds its 32-bit libraries days after the 64-bit
-    # ones; until then they need sonames Tumbleweed no longer has. Keep the
+    # ones; until then they need sonames openSUSE no longer has. Keep the
     # 32-bit family at openSUSE (a 32-bit/64-bit mix is harmless). The same
     # goes for any package the solver reports as unresolvable.
     # A lock the user set stays: only add (and later remove) our own

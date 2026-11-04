@@ -20,7 +20,7 @@ def codecs_install(_args):
     with repo_in_use(
             "/packman/", system.PACKMAN_ALIAS,
             ["--refresh", "--priority", system.PACKMAN_PRIORITY,
-             "--name", "Packman", system.PACKMAN_URL],
+             "--name", "Packman", system.packman_url()],
             _packman_installed, system.PACKMAN_KEY) as alias:
         packman_switch(alias)
         helper.install(["--from", alias] + system.PACKMAN_CODECS)

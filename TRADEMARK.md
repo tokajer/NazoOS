@@ -39,7 +39,7 @@ Packages can keep the `nazoos-` prefix internally where renaming would be imprac
 
 ## Other trademarks
 
-NazoOS is based on openSUSE Tumbleweed. "openSUSE" and "SUSE" are trademarks of SUSE LLC; NazoOS is not affiliated with or endorsed by them. Other names mentioned in this project (e.g. Steam, NVIDIA, KDE) belong to their respective owners. See [`DISCLAIMER.md`](DISCLAIMER.md).
+NazoOS is based on openSUSE Slowroll. "openSUSE" and "SUSE" are trademarks of SUSE LLC; NazoOS is not affiliated with or endorsed by them. Other names mentioned in this project (e.g. Steam, NVIDIA, KDE) belong to their respective owners. See [`DISCLAIMER.md`](DISCLAIMER.md).
 
 ## Questions
 

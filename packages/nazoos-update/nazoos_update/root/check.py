@@ -11,7 +11,8 @@ from nazoos_common.helper import FLATPAK, Fail, capture, say
 from .. import status
 from . import snapshots
 
-# Package whose version is the Tumbleweed snapshot (YYYYMMDD)
+# Package whose version is the openSUSE snapshot (YYYYMMDD; Slowroll's
+# openSUSE-release counts the same way)
 RELEASE_PKG = "openSUSE-release"
 # Characters of zypper's refresh error kept in the status
 DETAIL_MAX = 600
@@ -63,7 +64,7 @@ def own_repos():
 
 def own_update_cmd():
     """While the mirrors are behind: update only packages from our repos.
-    "dup --from" would also replace Tumbleweed packages our kernel repo
+    "dup --from" would also replace openSUSE packages our kernel repo
     rebuilds (xone, xpadneo); "update -r" keeps the vendor
     (notes/update.md)."""
     aliases = own_repos()
@@ -136,7 +137,7 @@ def dup_preview(cmd=("dist-upgrade", "--auto-agree-with-licenses")):
 
 
 def mirrors_behind(pkgs):
-    """The repos still have an older Tumbleweed snapshot than the installed
+    """The repos still have an older openSUSE snapshot than the installed
     system (image built before the mirrors got the new snapshot): a dup
     would only downgrade. Returns (installed, mirror) or None."""
     for p in pkgs:
@@ -204,7 +205,7 @@ def check(_args=None):
         result["error"] = status.ERROR_CONFLICT
         result["problems"] = problems
     elif behind:
-        # Tumbleweed waits until the mirrors have the snapshot, our own
+        # openSUSE waits until the mirrors have the snapshot, our own
         # packages (branding, tweaks, ...) do not depend on it
         result["behind"] = list(behind)
         cmd = own_update_cmd()

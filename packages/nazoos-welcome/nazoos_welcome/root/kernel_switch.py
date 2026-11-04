@@ -5,7 +5,8 @@
 import contextlib
 import os
 
-from nazoos_common import grub, helper, kernel, kernelstate, kmp_sync, proc, zypper
+from nazoos_common import (grub, helper, kernel, kernelstate, kmp_sync, proc,
+                           repos, zypper)
 from nazoos_common.helper import Fail, say
 from nazoos_common.kernel import running_nazoos
 from nazoos_common.zypper import ZYPPER, ZYPPER_IN
@@ -61,10 +62,11 @@ def kernel_install(_args):
     if blockers:
         raise Fail("the closed NVIDIA driver (G06) only exists for the "
                    "openSUSE kernel; switch to the open driver first")
-    with repo_in_use(kernel.KERNEL_REPO_PATH,
+    base = repos.base()
+    with repo_in_use(kernel.kernel_repo_path(base),
                      kernel.KERNEL_REPO_ALIAS,
                      ["--refresh", "--priority", KERNEL_REPO_PRIORITY,
-                      kernel.KERNEL_REPO_URL],
+                      kernel.kernel_repo_url(base)],
                      lambda: proc.rpm_installed(kernel.KERNEL_PACKAGE),
                      KERNEL_REPO_KEY) as alias:
         pkgs = [kernel.KERNEL_PACKAGE] + nazoos_kmps(alias)

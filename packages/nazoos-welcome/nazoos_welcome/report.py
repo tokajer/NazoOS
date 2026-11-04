@@ -49,6 +49,8 @@ def sysinfo(state=None):
     for g in state["gpus"] if "gpus" in state else query.gpus():
         lines.append(f"GPU: {g['name']}")
     if state:
+        # os-release is the same on Tumbleweed and Slowroll
+        lines.append(f"Base: {state.get('base') or 'unknown'}")
         lines.append(f"NVIDIA driver: {state.get('nvidiaDriver') or '-'}"
                      f" (loaded: {state.get('nvidiaLoaded')})")
         lines.append(f"Packman codecs: {state.get('codecs')}")

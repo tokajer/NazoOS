@@ -39,7 +39,7 @@ Kirigami.ScrollablePage {
                 QQC2.Label {
                     text: page.app.live
                           ? L.tr("You are running NazoOS from the live medium. Try it out, then install it on your computer.")
-                          : L.tr("A gaming desktop based on openSUSE Tumbleweed. This app sets up the rest in a few clicks: drivers, codecs, apps and gaming tweaks. Everything that needs administrator rights asks for your password first.")
+                          : L.tr("A gaming desktop based on openSUSE Slowroll. This app sets up the rest in a few clicks: drivers, codecs, apps and gaming tweaks. Everything that needs administrator rights asks for your password first.")
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
                 }

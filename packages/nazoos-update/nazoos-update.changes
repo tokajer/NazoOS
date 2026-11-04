@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Nov  4 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Texts say openSUSE instead of Tumbleweed (NazoOS now runs on
+  Slowroll, the snapshot check works the same)
+
+-------------------------------------------------------------------
 Sat Oct 31 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - After an update, remove Discover's PackageKit backend from older

@@ -11,6 +11,29 @@ from . import proc
 REPOS_DIR = Path("/etc/zypp/repos.d")
 SERVICES_DIR = Path("/etc/zypp/services.d")
 
+# The openSUSE bases NazoOS is built for: their OBS repository name and the
+# package that owns the zypp service "openSUSE" (repo-oss, non-oss, update)
+OBS_REPOS = {"tumbleweed": "openSUSE_Tumbleweed",
+             "slowroll": "openSUSE_Slowroll"}
+BASE_PACKAGES = {"tumbleweed": "openSUSE-repos-Tumbleweed",
+                 "slowroll": "openSUSE-repos-Slowroll"}
+# Shipped by both builds of nazoos-repos; its URLs name the base
+NAZOOS_BETA_INDEX = Path(
+    "/usr/share/zypp/local/service/nazoos/repo/nazoos-beta-repoindex.xml")
+
+
+def base():
+    """"tumbleweed" or "slowroll". Slowroll has Tumbleweed's os-release
+    (ID=opensuse-tumbleweed); the service package tells them apart."""
+    for name, package in BASE_PACKAGES.items():
+        if proc.rpm_installed(package):
+            return name
+    # Service package gone (the Repair page reinstalls it): a Tumbleweed
+    # system read as Slowroll would be migrated by that repair
+    if OBS_REPOS["tumbleweed"] in proc.read(NAZOOS_BETA_INDEX):
+        return "tumbleweed"
+    return "slowroll"
+
 
 def _sections(directory, pattern):
     for f in sorted(Path(directory).glob(pattern)):
@@ -23,9 +46,14 @@ def _sections(directory, pattern):
             yield alias, cp[alias]
 
 
-def _enabled(section):
-    return section.get("enabled", "1").strip().lower() in (
+def flag(section, key, default):
+    """Boolean KEY of a repo or service section (zypp writes 0/1)."""
+    return section.get(key, default).strip().lower() in (
         "1", "yes", "true", "on")
+
+
+def _enabled(section):
+    return flag(section, "enabled", "1")
 
 
 def repos():
@@ -47,6 +75,15 @@ def alias_of(label):
         if sec.get("name", alias).strip() == label:
             return alias
     return None
+
+
+def options(alias):
+    """{key: value} of repo ALIAS as its .repo file has them, {} if there
+    is none."""
+    for found, sec in _sections(REPOS_DIR, "*.repo"):
+        if found == alias:
+            return dict(sec)
+    return {}
 
 
 def services():

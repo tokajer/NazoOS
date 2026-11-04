@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-29 21:52+0100\n"
+"POT-Creation-Date: 2026-11-04 08:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr ""
 
 #: ../nazoos-common/nazoos_common/helper.py:101
-#: ../nazoos-common/nazoos_common/mok.py:37 nazoos_update/root/update.py:135
+#: ../nazoos-common/nazoos_common/mok.py:37 nazoos_update/root/update.py:143
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr ""
@@ -195,37 +195,37 @@ msgstr[1] ""
 msgid "Updates available"
 msgstr ""
 
-#: nazoos_update/root/check.py:107
+#: nazoos_update/root/check.py:108
 msgid "zypper returned no readable answer"
-msgstr ""
-
-#: nazoos_update/root/check.py:119
-#, python-brace-format
-msgid "zypper reported: {detail}"
 msgstr ""
 
 #: nazoos_update/root/check.py:120
 #, python-brace-format
+msgid "zypper reported: {detail}"
+msgstr ""
+
+#: nazoos_update/root/check.py:121
+#, python-brace-format
 msgid "zypper failed (exit code {rc})"
 msgstr ""
 
-#: nazoos_update/root/check.py:192
+#: nazoos_update/root/check.py:193
 #, python-brace-format
 msgid "the signing key of repository {repo} is unknown or has changed"
 msgstr ""
 
-#: nazoos_update/root/check.py:195 nazoos_update/root/update.py:131
+#: nazoos_update/root/check.py:196 nazoos_update/root/update.py:139
 #, python-brace-format
 msgid ""
 "the package source {repo} does not respond; updates wait until it works "
 "again or it is switched off"
 msgstr ""
 
-#: nazoos_update/root/check.py:199
+#: nazoos_update/root/check.py:200
 msgid "the package sources could not be refreshed (no internet connection?)"
 msgstr ""
 
-#: nazoos_update/root/check.py:224 nazoos_update/root/update.py:143
+#: nazoos_update/root/check.py:225 nazoos_update/root/update.py:151
 #, python-brace-format
 msgid "the update needs a decision: {problem}"
 msgstr ""
@@ -275,12 +275,12 @@ msgstr ""
 msgid "the system was not started from a snapshot"
 msgstr ""
 
-#: nazoos_update/root/update.py:115
+#: nazoos_update/root/update.py:123
 #, python-brace-format
 msgid "the system update failed (zypper exit code {rc})"
 msgstr ""
 
-#: nazoos_update/root/update.py:162
+#: nazoos_update/root/update.py:170
 msgid ""
 "the update is installed, but the NazoOS kernel key is not enrolled: open "
 "NazoOS Welcome, page Kernel, \"Enroll key\""
@@ -399,8 +399,8 @@ msgstr ""
 
 #: qml/Main.qml:169
 msgid ""
-"The download servers do not have the newest Tumbleweed version yet (system: "
-"%1, servers: %2). Tumbleweed updates will appear as soon as they have it, "
+"The download servers do not have the newest openSUSE version yet (system: "
+"%1, servers: %2). openSUSE updates will appear as soon as they have it, "
 "usually within a day. NazoOS's own packages can be updated now."
 msgstr ""
 

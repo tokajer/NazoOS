@@ -6,9 +6,10 @@
 # with the NazoOS name, logo and links. /etc/os-release wins over
 # /usr/lib/os-release (os-release(5)). Called by nazoos-branding on
 # install and after every openSUSE-release update (rpm trigger), so
-# VERSION_ID keeps following the Tumbleweed snapshot.
+# VERSION_ID keeps following the openSUSE snapshot.
 #
-# ID/ID_LIKE stay openSUSE's on purpose: zypper plugins, opi, NVIDIA's
+# ID/ID_LIKE stay openSUSE's on purpose (Slowroll's openSUSE-release has
+# Tumbleweed's ID=opensuse-tumbleweed too): zypper plugins, opi, NVIDIA's
 # and other installers, distrobox and Steam check them. VARIANT_ID=nazoos
 # lets scripts tell NazoOS apart. ADR 0019.
 #   nazoos-os-release           write /etc/os-release

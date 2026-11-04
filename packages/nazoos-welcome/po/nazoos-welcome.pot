@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-01 19:11+0100\n"
+"POT-Creation-Date: 2026-11-04 08:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgstr ""
 
 #: ../nazoos-common/nazoos_common/helper.py:101
 #: ../nazoos-common/nazoos_common/mok.py:37
-#: nazoos_welcome/root/kernel_switch.py:29 nazoos_welcome/root/packman.py:112
+#: nazoos_welcome/root/kernel_switch.py:30 nazoos_welcome/root/packman.py:112
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr ""
@@ -34,7 +34,7 @@ msgid "missing argument"
 msgstr ""
 
 #: ../nazoos-common/nazoos_common/helper.py:133
-#: nazoos_welcome/root/repair_fixes.py:118
+#: nazoos_welcome/root/repair_fixes.py:120
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr ""
@@ -62,7 +62,7 @@ msgid "pkexec could not be started."
 msgstr ""
 
 #: ../nazoos-common/nazoos_common/qt.py:160 nazoos_welcome/backend.py:177
-#: nazoos_welcome/backend.py:295
+#: nazoos_welcome/backend.py:298
 msgid "Done."
 msgstr ""
 
@@ -112,14 +112,18 @@ msgstr ""
 #: nazoos_welcome/backend.py:254
 msgid ""
 "The openSUSE kernel is ready. Restart the computer, then click \"Switch to "
-"Tumbleweed\" again to finish."
+"openSUSE\" again to finish."
 msgstr ""
 
 #: nazoos_welcome/backend.py:257
-msgid "NazoOS is removed. Restart the computer to start openSUSE Tumbleweed."
+msgid "NazoOS is removed. Restart the computer to start plain openSUSE."
 msgstr ""
 
-#: nazoos_welcome/backend.py:315
+#: nazoos_welcome/backend.py:260
+msgid "NazoOS now runs on openSUSE Slowroll. Restart the computer to finish."
+msgstr ""
+
+#: nazoos_welcome/backend.py:318
 msgid "The autostart setting could not be changed: %1"
 msgstr ""
 
@@ -477,7 +481,11 @@ msgid "Switching the update channel"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
-msgid "Switching to openSUSE Tumbleweed"
+msgid "Switching to openSUSE Slowroll"
+msgstr ""
+
+#: nazoos_welcome/catalog.py
+msgid "Switching to plain openSUSE"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -569,44 +577,44 @@ msgid ""
 "{rc})"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:44
+#: nazoos_welcome/root/kernel_switch.py:45
 #, python-brace-format
 msgid ""
 "the NazoOS kernel has no build of your NVIDIA driver ({packages}); switch to "
 "the open NVIDIA driver on the Drivers page first"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:62
+#: nazoos_welcome/root/kernel_switch.py:63
 msgid ""
 "the closed NVIDIA driver (G06) only exists for the openSUSE kernel; switch "
 "to the open driver first"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:95
+#: nazoos_welcome/root/kernel_switch.py:97
 msgid "start the NazoOS kernel first"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:98
+#: nazoos_welcome/root/kernel_switch.py:100
 #, python-brace-format
 msgid ""
 "the openSUSE kernel can be removed after {count} clean starts of the NazoOS "
 "kernel"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:102
+#: nazoos_welcome/root/kernel_switch.py:104
 msgid ""
 "the openSUSE kernel is already removed or was chosen again on the Kernel page"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:125
+#: nazoos_welcome/root/kernel_switch.py:127
 msgid "the openSUSE kernel is not in /boot"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:132
+#: nazoos_welcome/root/kernel_switch.py:134
 msgid "start the openSUSE kernel first (boot menu)"
 msgstr ""
 
-#: nazoos_welcome/root/kernel_switch.py:134
+#: nazoos_welcome/root/kernel_switch.py:136
 msgid "the openSUSE kernel is not installed"
 msgstr ""
 
@@ -654,37 +662,37 @@ msgid ""
 "Packman is rebuilding some packages ({packages}); try again in a few days"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:52
+#: nazoos_welcome/root/repair_fixes.py:54
 #, python-brace-format
 msgid "still missing after restoring the services: {repos}"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:125
+#: nazoos_welcome/root/repair_fixes.py:127
 #, python-brace-format
 msgid "the package source {repo} could not be refreshed"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:130
+#: nazoos_welcome/root/repair_fixes.py:132
 #, python-brace-format
 msgid ""
 "the package source {repo} now offers a different key ({fingerprint}); check "
 "again"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:136
+#: nazoos_welcome/root/repair_fixes.py:138
 #, python-brace-format
 msgid "the key file of {repo} does not match the fingerprint"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:157
+#: nazoos_welcome/root/repair_fixes.py:159
 msgid "Packman is not set up; install the codecs first"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:181
+#: nazoos_welcome/root/repair_fixes.py:183
 msgid "no NVIDIA driver is installed"
 msgstr ""
 
-#: nazoos_welcome/root/repair_fixes.py:192
+#: nazoos_welcome/root/repair_fixes.py:194
 #, python-brace-format
 msgid "still failing: {units}"
 msgstr ""
@@ -693,34 +701,73 @@ msgstr ""
 msgid "gaming mode is not installed (nazoos-session)"
 msgstr ""
 
-#: nazoos_welcome/root/tumbleweed.py:64
+#: nazoos_welcome/root/slowroll.py:85
 msgid ""
-"the openSUSE Tumbleweed repository is missing; add it with the Repair page "
-"first"
+"the switch to Slowroll failed and the Tumbleweed repositories could not be "
+"restored (details in the log); restart and go back to the snapshot in the "
+"boot menu"
 msgstr ""
 
-#: nazoos_welcome/root/tumbleweed.py:81
-#, python-brace-format
-msgid ""
-"the switch to Tumbleweed is not possible right now (zypper exit code {rc}, "
-"details in the log); nothing was changed"
+#: nazoos_welcome/root/slowroll.py:128
+msgid "this system already runs on openSUSE Slowroll"
 msgstr ""
 
-#: nazoos_welcome/root/tumbleweed.py:177
+#: nazoos_welcome/root/slowroll.py:131 nazoos_welcome/root/tumbleweed.py:222
 msgid "another program is changing software right now; close it and try again"
 msgstr ""
 
-#: nazoos_welcome/root/tumbleweed.py:214
-#, python-brace-format
+#: nazoos_welcome/root/slowroll.py:135
 msgid ""
-"the switch to Tumbleweed did not start (zypper exit code {rc}, details in "
-"the log); the NazoOS packages were not changed, try again later"
+"the NazoOS repositories are not set up; repair them on the Repair page first"
 msgstr ""
 
-#: nazoos_welcome/root/tumbleweed.py:219
+#: nazoos_welcome/root/slowroll.py:143
+msgid "the Slowroll repositories did not appear; nothing was changed"
+msgstr ""
+
+#: nazoos_welcome/root/slowroll.py:153
 #, python-brace-format
 msgid ""
-"the switch to Tumbleweed stopped half-way (zypper exit code {rc}, details in "
+"the switch to Slowroll is not possible right now (zypper exit code {rc}, "
+"details in the log); nothing was changed"
+msgstr ""
+
+#: nazoos_welcome/root/slowroll.py:169
+#, python-brace-format
+msgid ""
+"the switch to Slowroll did not start (zypper exit code {rc}, details in the "
+"log); nothing was changed, try again later"
+msgstr ""
+
+#: nazoos_welcome/root/slowroll.py:173
+#, python-brace-format
+msgid ""
+"the switch to Slowroll stopped half-way (zypper exit code {rc}, details in "
+"the log); restart and go back to the snapshot in the boot menu"
+msgstr ""
+
+#: nazoos_welcome/root/tumbleweed.py:87
+msgid "the openSUSE repository is missing; add it with the Repair page first"
+msgstr ""
+
+#: nazoos_welcome/root/tumbleweed.py:105
+#, python-brace-format
+msgid ""
+"the switch to openSUSE is not possible right now (zypper exit code {rc}, "
+"details in the log); nothing was changed"
+msgstr ""
+
+#: nazoos_welcome/root/tumbleweed.py:260
+#, python-brace-format
+msgid ""
+"the switch to openSUSE did not start (zypper exit code {rc}, details in the "
+"log); the NazoOS packages were not changed, try again later"
+msgstr ""
+
+#: nazoos_welcome/root/tumbleweed.py:265
+#, python-brace-format
+msgid ""
+"the switch to openSUSE stopped half-way (zypper exit code {rc}, details in "
 "the log); restart and go back to the snapshot in the boot menu"
 msgstr ""
 
@@ -784,7 +831,7 @@ msgid "System"
 msgstr ""
 
 #: qml/Main.qml:35 qml/pages/RepairPage.qml:19 qml/pages/RepairPage.qml:38
-#: qml/pages/RepairPage.qml:166 qml/pages/SystemPage.qml:121
+#: qml/pages/RepairPage.qml:166 qml/pages/SystemPage.qml:139
 msgid "Repair"
 msgstr ""
 
@@ -1083,8 +1130,8 @@ msgstr ""
 
 #: qml/pages/DrivesPage.qml:56 qml/pages/HelpPage.qml:31
 #: qml/pages/HelpPage.qml:40 qml/pages/HelpPage.qml:49
-#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:124
-#: qml/pages/SystemPage.qml:133 qml/pages/WelcomePage.qml:128
+#: qml/pages/HelpPage.qml:58 qml/pages/SystemPage.qml:142
+#: qml/pages/SystemPage.qml:151 qml/pages/WelcomePage.qml:128
 #: qml/pages/WelcomePage.qml:137 qml/pages/WelcomePage.qml:146
 #: qml/pages/WelcomePage.qml:155
 msgid "Open"
@@ -1129,7 +1176,7 @@ msgstr ""
 msgid "Active: %1"
 msgstr ""
 
-#: qml/pages/GamingPage.qml:31 qml/pages/SystemPage.qml:103
+#: qml/pages/GamingPage.qml:31 qml/pages/SystemPage.qml:121
 msgid "Enabled, but not running"
 msgstr ""
 
@@ -1329,11 +1376,13 @@ msgid "How well a Windows game runs with Proton, with tips from other players."
 msgstr ""
 
 #: qml/pages/HelpPage.qml:55
-msgid "openSUSE Tumbleweed"
+msgid "openSUSE Slowroll"
 msgstr ""
 
 #: qml/pages/HelpPage.qml:56
-msgid "NazoOS is based on Tumbleweed; most of its documentation applies."
+msgid ""
+"NazoOS is based on Slowroll; most of its documentation and that of "
+"Tumbleweed applies."
 msgstr ""
 
 #: qml/pages/HelpPage.qml:64
@@ -1842,7 +1891,7 @@ msgstr ""
 #: qml/pages/SystemPage.qml:53
 msgid ""
 "Stable gets NazoOS updates after they were tested. Beta gets them right "
-"away: newest changes, but things can break. Tumbleweed and the NazoOS kernel "
+"away: newest changes, but things can break. openSUSE and the NazoOS kernel "
 "are the same in both."
 msgstr ""
 
@@ -1882,19 +1931,47 @@ msgid ""
 "snapshot is taken first."
 msgstr ""
 
-#: qml/pages/SystemPage.qml:65 qml/pages/SystemPage.qml:150
+#: qml/pages/SystemPage.qml:65 qml/pages/SystemPage.qml:84
+#: qml/pages/SystemPage.qml:170
 msgid "Switch"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:71
+#: qml/pages/SystemPage.qml:76
+msgid "Switch to openSUSE Slowroll"
+msgstr ""
+
+#: qml/pages/SystemPage.qml:77
+msgid ""
+"NazoOS is now based on openSUSE Slowroll: fewer updates, bundled and tested "
+"longer. This computer still runs on Tumbleweed. Your files, apps and "
+"settings stay."
+msgstr ""
+
+#: qml/pages/SystemPage.qml:80
+msgid "Switch to Slowroll"
+msgstr ""
+
+#: qml/pages/SystemPage.qml:82
+msgid "Switch to openSUSE Slowroll?"
+msgstr ""
+
+#: qml/pages/SystemPage.qml:83
+msgid ""
+"Slowroll gets updates bundled about once a month instead of every day. A "
+"snapshot is taken first, so you can go back. Many packages are downloaded "
+"and replaced: this takes a while, keep the computer on and connected. "
+"Restart the computer afterwards."
+msgstr ""
+
+#: qml/pages/SystemPage.qml:89
 msgid "Snapshots and rollback"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:75
+#: qml/pages/SystemPage.qml:93
 msgid "Snapshots"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:76
+#: qml/pages/SystemPage.qml:94
 msgid ""
 "If the system does not start or misbehaves after an update: restart, choose "
 "\"Start bootloader from a read-only snapshot\" in the boot menu and pick the "
@@ -1902,64 +1979,70 @@ msgid ""
 "permanent."
 msgstr ""
 
-#: qml/pages/SystemPage.qml:79
+#: qml/pages/SystemPage.qml:97
 msgid "Create snapshot"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:90
+#: qml/pages/SystemPage.qml:108
 msgid "Services"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:101
+#: qml/pages/SystemPage.qml:119
 msgid "Not installed – switching on installs it"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:102
+#: qml/pages/SystemPage.qml:120
 msgid "Running"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:117
+#: qml/pages/SystemPage.qml:135
 msgid "Maintenance"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:122
+#: qml/pages/SystemPage.qml:140
 msgid ""
 "Checks the system for common problems and fixes them. Also: refresh "
 "repositories, clean caches, repair Flatpak, bug report."
 msgstr ""
 
-#: qml/pages/SystemPage.qml:130
+#: qml/pages/SystemPage.qml:148
 msgid "System settings"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:131
+#: qml/pages/SystemPage.qml:149
 msgid ""
 "Displays, sound, network, appearance and everything else of the desktop."
 msgstr ""
 
-#: qml/pages/SystemPage.qml:138
+#: qml/pages/SystemPage.qml:156
 msgid "Leave NazoOS"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:142
-msgid "Switch to openSUSE Tumbleweed"
+#: qml/pages/SystemPage.qml:160
+msgid "Switch to plain openSUSE"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:143
+#: qml/pages/SystemPage.qml:162
 msgid ""
 "Turns this computer into plain openSUSE Tumbleweed without reinstalling. "
 "Your files, apps and settings stay."
 msgstr ""
 
-#: qml/pages/SystemPage.qml:146
-msgid "Switch to Tumbleweed"
+#: qml/pages/SystemPage.qml:163
+msgid ""
+"Turns this computer into plain openSUSE Slowroll without reinstalling. Your "
+"files, apps and settings stay."
 msgstr ""
 
-#: qml/pages/SystemPage.qml:148
-msgid "Switch to openSUSE Tumbleweed?"
+#: qml/pages/SystemPage.qml:166
+msgid "Switch to openSUSE"
 msgstr ""
 
-#: qml/pages/SystemPage.qml:149
+#: qml/pages/SystemPage.qml:168
+msgid "Switch to plain openSUSE?"
+msgstr ""
+
+#: qml/pages/SystemPage.qml:169
 msgid ""
 "A snapshot is taken first, so you can go back. NazoOS apps and Waydroid are "
 "removed, NazoOS Welcome and NazoOS Update disappear. Your other apps and "
@@ -1979,8 +2062,8 @@ msgstr ""
 
 #: qml/pages/WelcomePage.qml:42
 msgid ""
-"A gaming desktop based on openSUSE Tumbleweed. This app sets up the rest in "
-"a few clicks: drivers, codecs, apps and gaming tweaks. Everything that needs "
+"A gaming desktop based on openSUSE Slowroll. This app sets up the rest in a "
+"few clicks: drivers, codecs, apps and gaming tweaks. Everything that needs "
 "administrator rights asks for your password first."
 msgstr ""
 

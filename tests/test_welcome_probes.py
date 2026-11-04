@@ -61,32 +61,76 @@ def test_parse_drives():
     assert idle["mountpoint"] == "" and idle["size"] == "500.0 GB"
 
 
-STANDARD = [(r["url"], True) for r in system.STANDARD_REPOS]
-NAZOOS = ("https://download.opensuse.org" + system.NAZOOS_REPO_PATHS[1],
-          True)
-SERVICES = {s["name"]: True for s in system.REPO_SERVICES}
+def standard(base):
+    return [(r["url"], True) for r in system.standard_repos(base)]
 
 
-def test_repo_problems_all_fine():
-    assert repair_checks.repo_problems(STANDARD + [NAZOOS], SERVICES) == []
+def own_repo(base):
+    return ("https://download.opensuse.org" + system.nazoos_repo_paths(base)[1],
+            True)
 
 
-def test_repo_problems_disabled_standard_repo():
+def services(base):
+    return {s["name"]: True for s in system.repo_services(base)}
+
+
+BASES = pytest.mark.parametrize("base", ["tumbleweed", "slowroll"])
+
+
+@BASES
+def test_repo_problems_all_fine(base):
+    assert repair_checks.repo_problems(
+        standard(base) + [own_repo(base)], services(base), base) == []
+
+
+@BASES
+def test_repo_problems_disabled_standard_repo(base):
     repos = [(url, enabled and "update" not in url)
-             for url, enabled in STANDARD]
-    assert repair_checks.repo_problems(repos + [NAZOOS], SERVICES) == ["repo-update"]
+             for url, enabled in standard(base)]
+    assert repair_checks.repo_problems(
+        repos + [own_repo(base)], services(base), base) == ["repo-update"]
 
 
-def test_repo_problems_missing_service():
-    services = dict(SERVICES, openSUSE=False)
-    assert repair_checks.repo_problems(STANDARD + [NAZOOS], services) == ["openSUSE"]
+@BASES
+def test_repo_problems_missing_service(base):
+    found = standard(base) + [own_repo(base)]
+    assert repair_checks.repo_problems(
+        found, dict(services(base), openSUSE=False), base) == ["openSUSE"]
     # No service "nazoos" at all: reported once, not twice
-    services = {"openSUSE": True}
-    assert repair_checks.repo_problems(STANDARD, services) == ["nazoos"]
+    assert repair_checks.repo_problems(
+        standard(base), {"openSUSE": True}, base) == ["nazoos"]
 
 
-def test_repo_problems_nazoos_repo_missing():
-    assert repair_checks.repo_problems(STANDARD, SERVICES) == ["nazoos"]
+@BASES
+def test_repo_problems_nazoos_repo_missing(base):
+    assert repair_checks.repo_problems(standard(base), services(base),
+                                       base) == ["nazoos"]
+
+
+def test_the_repos_of_the_other_base_count_as_missing():
+    # A Tumbleweed system with Slowroll repos is not repaired by accident
+    found = standard("slowroll") + [own_repo("slowroll")]
+    assert repair_checks.repo_problems(found, services("tumbleweed"),
+                                       "tumbleweed") == [
+        "repo-oss", "repo-non-oss", "repo-update", "nazoos"]
+
+
+def test_the_sources_of_each_base():
+    assert [r["url"] for r in system.standard_repos("slowroll")] == [
+        "https://download.opensuse.org/slowroll/repo/oss/",
+        "https://download.opensuse.org/slowroll/repo/non-oss/",
+        "https://download.opensuse.org/update/slowroll/repo/oss/"]
+    assert system.oss_url("tumbleweed") == (
+        "https://download.opensuse.org/tumbleweed/repo/oss/")
+    assert system.packman_url("slowroll") == (
+        "https://ftp.fau.de/packman/suse/openSUSE_Slowroll/")
+    assert system.channel_repo_paths("slowroll") == {
+        "beta": "/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Slowroll/",
+        "stable": "/repositories/home:/Tokajer:/nazoos:/release/openSUSE_Slowroll/"}
+    svc = {s["name"]: s for s in system.repo_services("tumbleweed")}
+    assert svc["openSUSE"]["package"] == "openSUSE-repos-Tumbleweed"
+    assert svc["nazoos"]["seed"].endswith("/devel/openSUSE_Tumbleweed/")
+    assert system.base_name("slowroll") == "Slowroll"
 
 
 def test_mixed_packman():

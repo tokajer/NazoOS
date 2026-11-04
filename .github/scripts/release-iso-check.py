@@ -4,13 +4,13 @@
 """What should happen with the release ISO in :release now? (ADR 0025)
 
 The build of repository "images" stays disabled, so the last built ISO
-stays as it is ("frozen"). An ISO built against openSUSE:Factory/snapshot
+stays as it is ("frozen"). An ISO built against the OBS openSUSE project
 is often one snapshot ahead of the mirrors; if OBS kept rebuilding it on
 every snapshot, it would never be publishable (2026-10-24). A frozen ISO
 does not move, so the mirrors catch up with it.
 
 - No ISO, or it is stale (its nazoos-* packages differ from :release, or
-  its Tumbleweed snapshot is REFRESH_DAYS behind the mirrors): build=enable
+  its openSUSE snapshot is REFRESH_DAYS behind the mirrors): build=enable
   (the workflow enables the build and starts a rebuild).
 - Build enabled and finished: build=disable (freeze it again).
 - Frozen ISO not published yet and the mirrors have its snapshot or a
@@ -35,10 +35,10 @@ API = "https://api.opensuse.org"
 PROJECT = "home:Tokajer:nazoos:release"
 PACKAGE = "nazoos-image:release"
 BINARIES = f"{API}/build/{PROJECT}/images/x86_64/{PACKAGE}"
-PACKAGES = f"{API}/build/{PROJECT}/openSUSE_Tumbleweed/x86_64"
+PACKAGES = f"{API}/build/{PROJECT}/openSUSE_Slowroll/x86_64"
 PUBLISHED = ("https://download.opensuse.org/repositories/home:/Tokajer:/"
              "nazoos:/release/images/iso/NazoOS.x86_64-release.iso.sha256")
-MIRROR = "https://download.opensuse.org/tumbleweed/repo/oss/media.1/products"
+MIRROR = "https://download.opensuse.org/slowroll/repo/oss/media.1/products"
 REFRESH_DAYS = 7
 # Build states that end by themselves; "disabled" = frozen
 RUNNING = {"scheduled", "dispatching", "building", "signing", "finished",
@@ -140,14 +140,14 @@ def decide(s):
         return "enable", False, ("ISO has older NazoOS packages than "
                                  f":release ({', '.join(old)}), rebuilding")
     if days_between(image, mirror) >= REFRESH_DAYS:
-        return "enable", False, (f"ISO has Tumbleweed {image}, mirrors "
+        return "enable", False, (f"ISO has openSUSE {image}, mirrors "
                                  f"{mirror}: refreshing")
     if s["sha"] == s["published"]:
         return build, False, f"{s['iso']} is already published"
     if image > mirror:
-        return build, False, (f"{s['iso']} has Tumbleweed {image}, mirrors "
+        return build, False, (f"{s['iso']} has openSUSE {image}, mirrors "
                               f"only {mirror}: waiting")
-    return build, True, f"{s['iso']} (Tumbleweed {image}, mirrors {mirror})"
+    return build, True, f"{s['iso']} (openSUSE {image}, mirrors {mirror})"
 
 
 def main():

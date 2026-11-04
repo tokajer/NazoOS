@@ -39,8 +39,8 @@ Desktop defaults for NazoOS: the NazoOS global theme for KDE Plasma
 screen), Breeze cursors (also as system default cursor theme), the
 NazoOS website in System Settings, tearing allowed for fullscreen games
 and file indexing limited to file names. /etc/os-release names the
-system NazoOS (based on openSUSE-release, ID stays opensuse-tumbleweed),
-so does the console login banner.
+system NazoOS (based on openSUSE-release, ID stays opensuse-tumbleweed,
+also on Slowroll), so does the console login banner.
 
 %package plymouth
 Summary:        NazoOS boot splash (Plymouth theme)

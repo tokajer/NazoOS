@@ -49,18 +49,19 @@ jobs:
             name: OBS
             key: packages/nazoos-tweaks/rpm-keys/gpg-pubkey-a686e7d6-6ac40415.asc
             fpr: 8E0FEEE8D51E8476708B732FB75EA6B0A686E7D6
-            url: https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/repodata/repomd.xml.key
+            url: https://download.opensuse.org/repositories/home:/Tokajer:/nazoos:/devel/openSUSE_Slowroll/repodata/repomd.xml.key
             package: nazoos-tweaks
           - id: packman
             name: Packman
             key: packages/nazoos-welcome/repo-keys/packman.asc
             fpr: F8875B880D518B6B8C530D1345A1D0671ABD1AFB
-            url: https://ftp.fau.de/packman/suse/openSUSE_Tumbleweed/repodata/repomd.xml.key
+            url: https://ftp.fau.de/packman/suse/openSUSE_Slowroll/repodata/repomd.xml.key
             package: nazoos-welcome
           - id: nvidia
             name: NVIDIA
             key: packages/nazoos-welcome/repo-keys/nvidia.asc
             fpr: 2FB03195DECD49492BD1C17AB1D0D788DB27FD5A
+            # NVIDIA has no Slowroll repo: Slowroll uses the Tumbleweed one
             url: https://download.nvidia.com/opensuse/tumbleweed/repodata/repomd.xml.key
             package: nazoos-welcome
     defaults:

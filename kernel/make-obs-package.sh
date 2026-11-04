@@ -3,7 +3,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Builds the OBS source package of kernel-nazoos (ADR 0007/0008):
-#   1. clone SUSE's kernel-source git (branch of Kernel:stable)
+#   1. clone SUSE's kernel-source git at the commit openSUSE:Slowroll's
+#      kernel-source was made from (kernel-nazoos = Slowroll's kernel)
 #   2. add our patches (patches/) as patches.addon/nazoos-*.patch
 #   3. add the flavor x86_64/nazoos: default config + config/nazoos.fragment,
 #      new options from the patches via "make olddefconfig"
@@ -17,10 +18,14 @@
 #   bc perl xz python3 perl-Text-Glob)
 set -euo pipefail
 
-BRANCH=stable                 # SUSE/kernel-source branch = Kernel:stable
+# Slowroll's kernel-source is a commit of branch stable (Kernel:stable),
+# not of branch slowroll (a longterm series Slowroll does not ship)
+BRANCH=stable
 KERNEL_SERIES=7.3             # series patches.list is made for
 FLAVOR=nazoos
 REPO=https://github.com/SUSE/kernel-source.git
+# Anonymous OBS API: works without secrets (the GitHub build job has none)
+SLOWROLL_SPEC='https://api.opensuse.org/public/source/openSUSE:Slowroll/kernel-source/kernel-default.spec?expand=1'
 
 here=$(cd "$(dirname "$0")" && pwd)
 check=false
@@ -30,22 +35,29 @@ src=$WORK/kernel-source
 mkdir -p "$WORK"
 
 # --- 1. kernel-source git ---------------------------------------------------
+commit=$(curl -fsSL --retry 3 "$SLOWROLL_SPEC" |
+  sed -nE 's/^%define git_commit ([0-9a-f]{40})$/\1/p')
+[ -n "$commit" ] ||
+  { echo "error: no git_commit in openSUSE:Slowroll's kernel-default.spec" >&2; exit 1; }
 # Partial clone: full history (tar-up writes the .changes from it), file
 # contents are fetched on demand
 if [ ! -d "$src/.git" ]; then
   git clone --filter=blob:none --branch "$BRANCH" --single-branch "$REPO" "$src"
 fi
 git -C "$src" fetch origin "$BRANCH"
+# Normally on the branch already; a commit that left it (rebase) by name
+git -C "$src" cat-file -e "$commit^{commit}" 2>/dev/null ||
+  git -C "$src" fetch origin "$commit"
 # Our changes live on a local branch that is rebuilt from scratch every
 # time: -f and clean drop what an earlier run left behind
-git -C "$src" checkout -q -f -B "$FLAVOR" "origin/$BRANCH"
+git -C "$src" checkout -q -f -B "$FLAVOR" "$commit"
 git -C "$src" clean -q -fd -- patches.addon config
 . "$src/rpm/config.sh"        # SRCVERSION, e.g. 7.2
-echo "kernel-source $BRANCH: Linux $SRCVERSION"
+echo "kernel-source $commit (openSUSE:Slowroll): Linux $SRCVERSION"
 # A new series needs new patches (README "New kernel series"): stop early
 # instead of failing somewhere in sequence-patch
 if [ "$SRCVERSION" != "$KERNEL_SERIES" ]; then
-  echo "error: kernel-source $BRANCH is Linux $SRCVERSION, patches.list is for $KERNEL_SERIES" >&2
+  echo "error: openSUSE:Slowroll's kernel-source is Linux $SRCVERSION, patches.list is for $KERNEL_SERIES" >&2
   exit 1
 fi
 

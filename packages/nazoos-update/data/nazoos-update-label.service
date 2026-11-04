@@ -18,7 +18,7 @@ Nice=19
 IOSchedulingClass=idle
 # Sandboxing. No ProtectSystem needed: snapper works only through snapperd
 # (D-Bus). No NoNewPrivileges: it blocks the SELinux domain transitions of
-# snapper on Tumbleweed (needs a VM test first).
+# snapper on openSUSE (needs a VM test first).
 PrivateTmp=yes
 ProtectHome=yes
 ProtectKernelTunables=yes

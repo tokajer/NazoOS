@@ -41,7 +41,7 @@ def nazoos_key_missing():
 
 def only_trusted_certs(failed):
     """All failed scripts were the key import of *-ueficert packages whose
-    key needs no MokManager: Tumbleweed's KMP keys are signed by the
+    key needs no MokManager: openSUSE's KMP keys are signed by the
     openSUSE CA in shim, but cert-post still imports them with
     "--root-pw", which cannot read Calamares' yescrypt root hash
     (ADR 0024). Nothing is missing then."""
@@ -153,7 +153,7 @@ def update(args):
     behind = check.mirrors_behind(pkgs)
     cmd = ["dist-upgrade", "--auto-agree-with-licenses"]
     if behind:
-        say(f"Mirrors have Tumbleweed {behind[1]}, the system has "
+        say(f"Mirrors have openSUSE {behind[1]}, the system has "
             f"{behind[0]}: only NazoOS packages until they catch up")
         cmd = check.own_update_cmd()
     key_missing = run_dup(cmd) if cmd else False

@@ -252,10 +252,13 @@ class Backend(ActionRunner):
             # kernel-default, on a kernel that is not kernel-nazoos
             message = (self._gettext(
                 "The openSUSE kernel is ready. Restart the computer, then "
-                "click \"Switch to Tumbleweed\" again to finish.")
+                "click \"Switch to openSUSE\" again to finish.")
                 if os.path.exists(__file__) else self._gettext(
                     "NazoOS is removed. Restart the computer to start "
-                    "openSUSE Tumbleweed."))
+                    "plain openSUSE."))
+        elif ok and action == "slowroll-switch":
+            message = self._gettext("NazoOS now runs on openSUSE Slowroll. "
+                                    "Restart the computer to finish.")
         on_finish, self._on_finish = self._on_finish, None
         if on_finish:
             on_finish(ok, message)

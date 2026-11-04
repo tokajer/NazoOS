@@ -104,7 +104,7 @@ def run(cmd, check=True, on_line=None):
 
 def install(args):
     """zypper install ARGS. A failure is retried once after a forced
-    refresh: after a Tumbleweed snapshot an old package file is gone
+    refresh: after an openSUSE snapshot an old package file is gone
     (download error 404) or a mirror is not synced yet."""
     if run(zypper.ZYPPER_IN + args, check=False) == 0:
         return

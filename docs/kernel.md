@@ -57,7 +57,7 @@ After the NazoOS kernel has started cleanly three times in a row, a notification
 
 ## Updates
 
-The NazoOS kernel follows new Linux stable releases within about a day, like Tumbleweed itself. It is not part of the tested NazoOS release channel: it is built from SUSE's newest stable kernel (before Tumbleweed's own tests) plus the gaming patches above, and goes out without a waiting period, so security fixes arrive fast. If a new version causes problems, choose the previous NazoOS kernel in the boot menu (**Advanced options**), use the openSUSE kernel, or roll back a snapshot. Please report it as a GitHub issue.
+The NazoOS kernel is built from exactly the kernel openSUSE Slowroll ships, plus the gaming patches above, usually within a day after Slowroll updates it. It is not part of the tested NazoOS release channel: it goes out without a waiting period, so security fixes arrive as fast as in Slowroll. If a new version causes problems, choose the previous NazoOS kernel in the boot menu (**Advanced options**), use the openSUSE kernel, or roll back a snapshot. Please report it as a GitHub issue.
 
 ## Going back
 

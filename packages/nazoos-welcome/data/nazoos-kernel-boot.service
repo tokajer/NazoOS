@@ -17,7 +17,7 @@ Type=simple
 ExecStart=/usr/libexec/nazoos-welcome/nazoos-kernel-boot
 # Sandboxing. No ProtectSystem: grub2-mkconfig writes /boot and
 # /etc/default/grub. No NoNewPrivileges: it blocks the SELinux domain
-# transitions of grub2 on Tumbleweed (needs a VM test first).
+# transitions of grub2 on openSUSE (needs a VM test first).
 PrivateTmp=yes
 ProtectHome=yes
 ProtectKernelTunables=yes

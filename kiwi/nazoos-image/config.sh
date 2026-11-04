@@ -22,7 +22,7 @@ echo nazoos > /etc/hostname
 
 # Services
 systemctl set-default graphical.target
-# No "enable sddm": Tumbleweed starts it via display-manager-legacy.service,
+# No "enable sddm": openSUSE starts it via display-manager-legacy.service,
 # sddm-qt6 registers itself through update-alternatives
 systemctl enable NetworkManager.service
 # wicked would fight NetworkManager over the interfaces
@@ -102,7 +102,7 @@ rpm --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-*.asc
 # PackageKit backend
 zypper --non-interactive removelock discover6-backend-packagekit
 
-# Online repos come from packages (openSUSE-repos-Tumbleweed, nazoos-repos),
+# Online repos come from packages (openSUSE-repos-Slowroll, nazoos-repos),
 # so installed systems get URL changes with updates. Test/live keep the
 # default channel beta (:devel); the release ISO switches to stable (:release)
 if has_profile release; then

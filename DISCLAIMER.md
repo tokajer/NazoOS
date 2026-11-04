@@ -19,7 +19,7 @@ Recommendations:
 
 ## Independence
 
-NazoOS is based on openSUSE Tumbleweed but is **not** an official openSUSE product. It is not affiliated with, endorsed by or supported by the openSUSE Project or SUSE LLC. Please report NazoOS problems to [NazoOS](https://github.com/tokajer/NazoOS/issues), not to openSUSE.
+NazoOS is based on openSUSE Slowroll but is **not** an official openSUSE product. It is not affiliated with, endorsed by or supported by the openSUSE Project or SUSE LLC. Please report NazoOS problems to [NazoOS](https://github.com/tokajer/NazoOS/issues), not to openSUSE.
 
 NazoOS is also not affiliated with Valve, NVIDIA, AMD, KDE or any other vendor whose software it ships or supports. All trademarks belong to their respective owners.
 

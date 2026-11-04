@@ -17,9 +17,8 @@ from . import grub, kernelstate, mok, proc, repos
 # Stage 1 installs kernel-nazoos next to kernel-default, stage 2 removes
 # kernel-default with the conflict package nazoos-kernel-only.
 KERNEL_REPO_ALIAS = "nazoos-kernel"
-KERNEL_REPO_URL = ("https://download.opensuse.org/repositories/"
-                   "home:/Tokajer:/nazoos:/kernel/openSUSE_Tumbleweed/")
-KERNEL_REPO_PATH = KERNEL_REPO_URL.split("/repositories/")[1]
+# The kernel project's repo of either base (repos.OBS_REPOS)
+KERNEL_PROJECT_PATH = "home:/Tokajer:/nazoos:/kernel/"
 KERNEL_PACKAGE = "kernel-nazoos"
 KERNEL_DEFAULT = "kernel-default"
 # Every package stage 2 removes (kernel-default, -base, -devel, ... and the
@@ -27,7 +26,7 @@ KERNEL_DEFAULT = "kernel-default"
 # the same names
 DEFAULT_KERNEL_GLOBS = ["kernel-default*", "*-kmp-default"]
 KERNEL_ONLY_PACKAGE = "nazoos-kernel-only"
-# Kernel module packages: <base>-kmp-default from Tumbleweed/NVIDIA,
+# Kernel module packages: <base>-kmp-default from openSUSE/NVIDIA,
 # <base>-kmp-nazoos from our kernel project. G06 open has no nazoos build
 # (ADR 0018); it stays listed so kernel_install stops with a clear error
 KMP_BASES = ["nvidia-open-driver-G07-signed", "nvidia-open-driver-G06-signed",
@@ -119,6 +118,17 @@ def keep_default(log=print):
     return flavor
 
 
+def kernel_repo_url(base=None):
+    """URL of the kernel repo for BASE, default the running system's."""
+    return ("https://download.opensuse.org/repositories/"
+            f"{KERNEL_PROJECT_PATH}{repos.OBS_REPOS[base or repos.base()]}/")
+
+
+def kernel_repo_path(base=None):
+    return kernel_repo_url(base).split("/repositories/")[1]
+
+
 def kernel_repo():
-    """Alias of the NazoOS kernel repository, None if not configured."""
-    return repos.with_url(KERNEL_REPO_PATH)
+    """Alias of the NazoOS kernel repository of either base (the switch to
+    Slowroll moves its URL), None if not configured."""
+    return repos.with_url(KERNEL_PROJECT_PATH)

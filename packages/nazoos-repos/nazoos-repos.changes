@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Nov  4 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Built for openSUSE_Tumbleweed and openSUSE_Slowroll: the repo URLs
+  follow the OBS repository the package is built in, the build
+  requires openSUSE-repos-Slowroll or -Tumbleweed to match; other
+  repositories fail the build
+
+-------------------------------------------------------------------
 Sat Oct 17 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - First version: the NazoOS OBS repos as zypp service "nazoos"

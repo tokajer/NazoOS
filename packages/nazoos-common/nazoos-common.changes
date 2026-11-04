@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Nov  4 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- repos.base(): tells a Slowroll system from a Tumbleweed one by the
+  installed openSUSE-repos package (both have the same os-release)
+- The kernel repo URL follows the base; kernel_repo() finds the
+  kernel repo of either base
+
+-------------------------------------------------------------------
 Sat Oct 31 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - zypper.wait_for_lock(): waits for the zypp lock (zypper ignores

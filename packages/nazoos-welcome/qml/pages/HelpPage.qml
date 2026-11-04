@@ -52,11 +52,11 @@ Kirigami.ScrollablePage {
             }
             SettingCard {
                 iconName: "opensuse"
-                title: L.tr("openSUSE Tumbleweed")
-                subtitle: L.tr("NazoOS is based on Tumbleweed; most of its documentation applies.")
+                title: L.tr("openSUSE Slowroll")
+                subtitle: L.tr("NazoOS is based on Slowroll; most of its documentation and that of Tumbleweed applies.")
                 QQC2.Button {
                     text: L.tr("Open")
-                    onClicked: page.app.openUrl("https://en.opensuse.org/Portal:Tumbleweed")
+                    onClicked: page.app.openUrl("https://en.opensuse.org/Portal:Slowroll")
                 }
             }
         }

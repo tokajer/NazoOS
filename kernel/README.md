@@ -4,8 +4,10 @@ Sources of the optional NazoOS kernel flavor (decisions: ADR 0007/0008,
 user docs: [`docs/kernel.md`](../docs/kernel.md)).
 
 The kernel is **not** a fork. It is SUSE's
-[kernel-source](https://github.com/SUSE/kernel-source) (branch `stable` =
-OBS `Kernel:stable`) plus:
+[kernel-source](https://github.com/SUSE/kernel-source) at the commit
+openSUSE:Slowroll's kernel-source was made from (`%define git_commit` in
+its `kernel-default.spec`; a commit of branch `stable` = OBS
+`Kernel:stable`, not of branch `slowroll`) plus:
 
 | File | Purpose |
 |---|---|
@@ -15,13 +17,13 @@ OBS `Kernel:stable`) plus:
 | `fetch-patches.sh` | Downloads the patches of `patches.list` |
 | `make-obs-package.sh` | Builds the OBS source package of `kernel-nazoos` |
 | `upload-obs.sh` | Commits that package to OBS |
-| `check-update.sh` | Compares kernel-source `stable` with the version in OBS |
+| `check-update.sh` | Compares Slowroll's kernel-source with the version in OBS |
 | [`../.github/workflows/kernel-update.yml`](../.github/workflows/kernel-update.yml) | Does all of it automatically |
 
 ## Build the OBS package
 
 ```sh
-# Tumbleweed (e.g. distrobox): build tools
+# openSUSE Tumbleweed or Slowroll (e.g. distrobox): build tools
 sudo zypper in git curl quilt make gcc flex bison bc perl xz python3 perl-Text-Glob
 
 ./fetch-patches.sh                  # only after changing patches.list
@@ -29,7 +31,10 @@ sudo zypper in git curl quilt make gcc flex bison bc perl xz python3 perl-Text-G
 ./make-obs-package.sh               # -> ~/nazoos-kernel/kernel-source-nazoos/
 ```
 
-`make-obs-package.sh` clones kernel-source into `~/nazoos-kernel/`, adds the
+`make-obs-package.sh` reads the commit from
+<https://api.opensuse.org/public/source/openSUSE:Slowroll/kernel-source/kernel-default.spec?expand=1>
+(anonymous, no OBS account needed), clones kernel-source into
+`~/nazoos-kernel/`, checks out that commit, adds the
 patches as `patches.addon/nazoos-*.patch`, creates `config/x86_64/nazoos`
 (default config + fragment + `make olddefconfig` with SUSE's dummy tools for
 options the patches add) and runs `scripts/tar-up` for that flavor only.
@@ -39,18 +44,21 @@ options the patches add) and runs `scripts/tar-up` for that flavor only.
 One time:
 
 ```sh
-osc meta prj -e home:Tokajer:nazoos:kernel   # repository openSUSE_Tumbleweed,
-                                             # path openSUSE:Factory/snapshot, arch x86_64,
+osc meta prj -e home:Tokajer:nazoos:kernel   # repository openSUSE_Slowroll,
+                                             # path openSUSE:Slowroll/standard, arch x86_64,
                                              # debuginfo disabled
+                                             # (while Tumbleweed installs still migrate:
+                                             # also openSUSE_Tumbleweed with
+                                             # openSUSE:Factory/snapshot)
 osc co home:Tokajer:nazoos:kernel && cd home:Tokajer:nazoos:kernel
 osc mkpac kernel-source
 # No links needed: kernel-source carries a _multibuild (written by
 # make-obs-package.sh) that builds kernel-nazoos and kernel-syms as flavors
 # Kernel modules: built for every flavor in kernel-syms -> *-kmp-nazoos
-osc linkpac openSUSE:Factory nvidia-open-driver-G07-signed home:Tokajer:nazoos:kernel
-osc linkpac openSUSE:Factory xone home:Tokajer:nazoos:kernel
-osc linkpac openSUSE:Factory xpadneo home:Tokajer:nazoos:kernel
-# Our own KMP (not in Tumbleweed, kernel-nazoos only): spec from GitHub
+osc linkpac openSUSE:Slowroll nvidia-open-driver-G07-signed home:Tokajer:nazoos:kernel
+osc linkpac openSUSE:Slowroll xone home:Tokajer:nazoos:kernel
+osc linkpac openSUSE:Slowroll xpadneo home:Tokajer:nazoos:kernel
+# Our own KMP (not in openSUSE, kernel-nazoos only): spec from GitHub
 osc mkpac acpi_call && cp <NazoOS repo>/packages/acpi_call/_service acpi_call/
 (cd acpi_call && osc add _service && osc ci -m "acpi_call: obs_scm")
 ```
@@ -58,7 +66,7 @@ osc mkpac acpi_call && cp <NazoOS repo>/packages/acpi_call/_service acpi_call/
 Every kernel update (by hand; normally the workflow below does it):
 
 ```sh
-./check-update.sh          # upstream=7.2.10 obs=7.2.9 → update available
+./check-update.sh          # upstream=7.2.10 obs=7.2.9 → Slowroll has a new kernel
 ./make-obs-package.sh
 ./upload-obs.sh            # osc checkout in ~/nazoos-kernel/obs/, rsync, osc ci
 ```
@@ -75,8 +83,8 @@ the kernel's install script queues it for MokManager
 
 | When | What happens |
 |---|---|
-| Daily 04:17 UTC, new stable release (7.2.9 → 7.2.10) | build + upload, OBS builds kernel and KMPs |
-| Daily, kernel-source `stable` moved to a new series | issue "Kernel 7.3: update patches.list", nothing uploaded |
+| Daily 04:17 UTC, Slowroll ships a new kernel (7.2.9 → 7.2.10) | build + upload, OBS builds kernel and KMPs |
+| Daily, Slowroll's kernel moved to a new series | issue "Kernel 7.3: update patches.list", nothing uploaded |
 | Push to `main` that changes `kernel/` | build + upload |
 | Actions → Kernel update → Run workflow | build + upload if newer (`force`: always) |
 | A step fails (patch does not apply, OBS login …) | issue "Kernel update failed", later failures comment on it |

@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""The way back to plain Tumbleweed (root/tumbleweed.py)."""
+"""The way back to plain openSUSE (root/tumbleweed.py)."""
 
 import ast
 from pathlib import Path
@@ -19,7 +19,8 @@ OWN_KERNEL = ("nazoos-kernel", "https://download.opensuse.org/repositories/"
               "home:/Tokajer:/nazoos:/kernel/openSUSE_Tumbleweed/", True)
 OWN_OFF = ("nazoos-old", "https://download.opensuse.org/repositories/home:/"
            "Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/", False)
-PACKMAN = ("packman", system.PACKMAN_URL, True)
+PACKMAN = ("packman", system.packman_url("tumbleweed"), True)
+TW_OSS_PATH = "/tumbleweed/repo/oss/"
 VENDORS = {
     "nazoos-welcome": tumbleweed.OWN_VENDOR,
     "nazoos-tweaks": tumbleweed.OWN_VENDOR,
@@ -34,13 +35,14 @@ VENDORS = {
 
 @pytest.fixture
 def switch(fake_root, monkeypatch, tmp_path):
-    """A NazoOS on the openSUSE kernel; every test sees the calls in order,
-    with writes of the admin files as ["write", path]."""
+    """A NazoOS on Tumbleweed and the openSUSE kernel; every test sees the
+    calls in order, with writes of the admin files as ["write", path]."""
     listed = [OSS, OWN_CHANNEL, OWN_KERNEL, OWN_OFF, PACKMAN]
     fake_root.listed = listed
     monkeypatch.setattr(repos, "repos", lambda: fake_root.listed)
+    monkeypatch.setattr(repos, "base", lambda: "tumbleweed")
     monkeypatch.setattr(repos, "with_path", lambda path: "openSUSE:repo-oss"
-                        if path == tumbleweed.OSS_PATH else None)
+                        if path == TW_OSS_PATH else None)
     monkeypatch.setattr(kernel, "running_nazoos", lambda: False)
     fake_root.installed = {kernel.KERNEL_DEFAULT, "waydroid"}
     fake_root.out = lambda cmd: "".join(f"{n}\t{v}\n"
@@ -197,7 +199,20 @@ def test_a_failing_package_list_is_only_a_note(switch, monkeypatch):
 
 
 def test_the_oss_path_is_the_one_repos_reads():
-    assert repos.url_path(system.STANDARD_REPOS[0]["url"]) == tumbleweed.OSS_PATH
+    assert repos.url_path(system.oss_url("tumbleweed")) == TW_OSS_PATH
+
+
+def test_on_slowroll_the_target_is_plain_slowroll(switch, monkeypatch):
+    seen = []
+    monkeypatch.setattr(repos, "base", lambda: "slowroll")
+    monkeypatch.setattr(repos, "with_path", lambda path: seen.append(path)
+                        or "openSUSE:repo-oss")
+    tumbleweed.tumbleweed_switch([])
+    assert seen == ["/slowroll/repo/oss/"]
+    assert "nazoos-welcome: before switching to Slowroll" in \
+        switch.calls[position(switch, "snapper")]
+    assert switch.calls[position(switch, "--oldpackage")][-3:] == [
+        "--from", "openSUSE:repo-oss", "xone"]
 
 
 def test_stage_b_order(switch):
@@ -318,7 +333,7 @@ def test_a_failure_while_disabling_restores_those_already_off(switch):
 
 def test_no_repo_oss_fails_clearly(switch, monkeypatch):
     monkeypatch.setattr(repos, "with_path", lambda path: None)
-    with pytest.raises(helper.Fail, match="Tumbleweed repository is missing"):
+    with pytest.raises(helper.Fail, match="openSUSE repository is missing"):
         tumbleweed.tumbleweed_switch([])
     assert switch.calls == []
 

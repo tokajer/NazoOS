@@ -3,18 +3,18 @@
 #
 # Builds and publishes the release ISO (ADR 0025). Build and publishing of
 # repository "images" in home:Tokajer:nazoos:release stay disabled, so the
-# last built ISO is frozen: built against openSUSE:Factory/snapshot it is
-# often one snapshot ahead of the mirrors, and an ISO OBS rebuilt on every
+# last built ISO is frozen: built against openSUSE:Slowroll it can be
+# ahead of the mirrors, and an ISO OBS rebuilt on every
 # snapshot never became publishable (2026-10-24).
 # Every hour (.github/scripts/release-iso-check.py decides):
 # - ISO missing or stale (older NazoOS packages than :release, or its
-#   Tumbleweed snapshot a week behind the mirrors): enable the build and
+#   openSUSE snapshot a week behind the mirrors): enable the build and
 #   start a rebuild; a later run disables the build again when it is done.
 # - Frozen ISO not published yet and the mirrors have its snapshot:
 #   enable publishing, wait until download.opensuse.org serves that ISO,
 #   disable publishing again.
-# Tumbleweed is rolling, so the ISO may follow it; only our packages go
-# through the release gate (release.yml).
+# openSUSE Slowroll is rolling, so the ISO may follow it; only our packages
+# go through the release gate (release.yml).
 # Secrets: OBS_USER/OBS_PASSWORD – tokajer-bot, maintainer of
 # home:Tokajer:nazoos:release (set_flag and rebuild need maintainer rights).
 # Doku: https://openbuildservice.org/help/manuals/obs-user-guide/ (flags)

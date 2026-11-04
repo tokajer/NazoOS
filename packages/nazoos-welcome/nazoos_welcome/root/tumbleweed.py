@@ -1,7 +1,9 @@
 # SPDX-FileCopyrightText: 2026 The NazoOS Contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Leave NazoOS: back to plain openSUSE Tumbleweed without reinstalling,
-also when our OBS repos no longer exist (docs/leave-nazoos.md).
+"""Leave NazoOS: back to plain openSUSE without reinstalling, also when
+our OBS repos no longer exist (docs/leave-nazoos.md). The target is the
+base NazoOS runs on (repos.base()): Tumbleweed or Slowroll. Action id and
+module name date from the time NazoOS only ran on Tumbleweed.
 
 The transaction removes this code under the running helper: everything
 used after it has to be imported here at the top, never inside a function.
@@ -19,7 +21,6 @@ from . import apps, kernel_switch, maintenance
 
 OWN_VENDOR = "obs://build.opensuse.org/home:Tokajer"
 OWN_REPO = "home:/Tokajer"
-OSS_PATH = "/tumbleweed/repo/oss/"
 # zypper's list of packages it installed as dependencies (one name per
 # line, # comments)
 AUTO_INSTALLED = Path("/var/lib/zypp/AutoInstalled")
@@ -38,7 +39,7 @@ KEEP = [
     "grub2-branding-openSUSE",
     # Root is locked (ADR 0032): without this nobody can get admin rights
     "sudo-policy-wheel-auth-self",
-    # ADR 0029 removed it; plain Tumbleweed has no other GUI updater once
+    # ADR 0029 removed it; plain openSUSE has no other GUI updater once
     # nazoos-update is gone
     "discover6-backend-packagekit",
 ]
@@ -78,37 +79,37 @@ def _auto_installed():
     return [n for n in V4L2_AUTO if n in listed and proc.rpm_installed(n)]
 
 
-def _oss():
-    """Alias of repo-oss; checked before the snapshot so a missing repo
-    leaves nothing behind."""
-    oss = repos.with_path(OSS_PATH)
+def _oss(base):
+    """Alias of repo-oss of BASE; checked before the snapshot so a missing
+    repo leaves nothing behind."""
+    oss = repos.with_path(repos.url_path(system.oss_url(base)))
     if oss is None:
-        raise Fail("the openSUSE Tumbleweed repository is missing; add it "
-                   "with the Repair page first")
+        raise Fail("the openSUSE repository is missing; add it with the "
+                   "Repair page first")
     return oss
 
 
 def _plan(oss):
     """Everything up to the dry run, with the repos off. Returns (packages
-    Tumbleweed has too, the arguments of the transaction)."""
+    openSUSE has too, the arguments of the transaction)."""
     helper.run(ZYPPER + ["refresh", oss])
     names = own_packages()
     shared = [n for n in names if kernel_switch.in_repo(oss, n)]
     # No --clean-deps: it would also take what the pattern pulled in, like
     # sudo-policy-wheel-auth-self. xone-kmp-default needs xone: what
-    # Tumbleweed has too stays and changes to its build afterwards
+    # openSUSE has too stays and changes to its build afterwards
     args = KEEP + [f"-{n}" for n in names if n not in shared]
     args += [f"-{n}" for n in _auto_installed()]
     rc = helper.run(ZYPPER_IN + ["--dry-run"] + args, check=False)
     if rc:
-        raise Fail("the switch to Tumbleweed is not possible right now "
+        raise Fail("the switch to openSUSE is not possible right now "
                    "(zypper exit code {rc}, details in the log); nothing "
                    "was changed", rc=rc)
     return shared, args
 
 
 def _set_default_zone():
-    """Public, Tumbleweed's default, before the transaction: our zone file
+    """Public, openSUSE's default, before the transaction: our zone file
     goes with nazoos-tweaks and firewalld does not start with a default
     zone that is gone."""
     # No --permanent: firewall-cmd refuses it next to this option, which
@@ -135,7 +136,7 @@ def _undo_settings():
 
 
 def _try(cmd, note):
-    """The system is Tumbleweed already: a failure here is only worth a
+    """The system is plain openSUSE already: a failure here is only worth a
     NOTE, the action has to end with the restart hint."""
     if helper.run(cmd, check=False):
         say(f"Note: {note}")
@@ -223,9 +224,10 @@ def tumbleweed_switch(_args):
     if openSUSE_kernel:
         # Before the repos go off: a rollback to this snapshot must still
         # get updates
-        oss = _oss()
-        maintenance.create_snapshot(
-            maintenance.CHANNEL_SNAPSHOT.format(target="Tumbleweed"))
+        base = repos.base()
+        oss = _oss(base)
+        maintenance.create_snapshot(maintenance.CHANNEL_SNAPSHOT.format(
+            target=system.base_name(base)))
     try:
         # A deleted OBS repo must not stop anything below. Packman stays:
         # it is the user's and has nothing to do with the end of NazoOS
@@ -243,7 +245,7 @@ def tumbleweed_switch(_args):
         raise
     if not openSUSE_kernel:
         _enable(off)
-        say("Restart the computer, then click \"Switch to Tumbleweed\" "
+        say("Restart the computer, then click \"Switch to openSUSE\" "
             "again to finish.")
         helper.reboot()
         return
@@ -255,12 +257,12 @@ def tumbleweed_switch(_args):
         # All still there: zypper never started (its lock, a download)
         if all(proc.rpm_installed(a[1:]) for a in args if a.startswith("-")):
             _enable(off)
-            raise Fail("the switch to Tumbleweed did not start (zypper exit "
+            raise Fail("the switch to openSUSE did not start (zypper exit "
                        "code {rc}, details in the log); the NazoOS packages "
                        "were not changed, try again later", rc=rc)
         # Point of no return: the repos stay off and the snapshot is the
         # way back
-        raise Fail("the switch to Tumbleweed stopped half-way (zypper exit "
+        raise Fail("the switch to openSUSE stopped half-way (zypper exit "
                    "code {rc}, details in the log); restart and go back to "
                    "the snapshot in the boot menu", rc=rc)
     _clean_up(oss, shared)

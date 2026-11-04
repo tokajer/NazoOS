@@ -161,12 +161,12 @@ Kirigami.ApplicationWindow {
                 ]
             }
 
-            // --- mirrors still have an older Tumbleweed snapshot -------------
+            // --- mirrors still have an older openSUSE snapshot ---------------
             Kirigami.InlineMessage {
                 Layout.fillWidth: true
                 visible: root.snapshot === 0 && !!root.st.behind
                 type: Kirigami.MessageType.Information
-                text: L.tr("The download servers do not have the newest Tumbleweed version yet (system: %1, servers: %2). Tumbleweed updates will appear as soon as they have it, usually within a day. NazoOS's own packages can be updated now.")
+                text: L.tr("The download servers do not have the newest openSUSE version yet (system: %1, servers: %2). openSUSE updates will appear as soon as they have it, usually within a day. NazoOS's own packages can be updated now.")
                       .replace("%1", (root.st.behind || [])[0]).replace("%2", (root.st.behind || [])[1])
             }
 

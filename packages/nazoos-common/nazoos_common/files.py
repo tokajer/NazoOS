@@ -30,7 +30,7 @@ def write_atomic(path, text, mode=0o644):
             os.fsync(f.fileno())
         os.chmod(tmp, mode)
         if label is not None:
-            # Tumbleweed uses SELinux; a new inode would get the
+            # openSUSE uses SELinux; a new inode would get the
             # directory's default label
             try:
                 os.setxattr(tmp, "security.selinux", label)

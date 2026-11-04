@@ -50,7 +50,7 @@ Kirigami.ScrollablePage {
             readonly property bool beta: page.st.channel === "beta"
             iconName: "server-database"
             title: L.tr("Update channel")
-            subtitle: L.tr("Stable gets NazoOS updates after they were tested. Beta gets them right away: newest changes, but things can break. Tumbleweed and the NazoOS kernel are the same in both.")
+            subtitle: L.tr("Stable gets NazoOS updates after they were tested. Beta gets them right away: newest changes, but things can break. openSUSE and the NazoOS kernel are the same in both.")
             status: beta ? L.tr("Beta (test versions)") : L.tr("Stable")
             statusType: beta ? SettingCard.Neutral : SettingCard.Positive
             QQC2.Button {
@@ -65,6 +65,24 @@ Kirigami.ScrollablePage {
                         L.tr("Switch"),
                         () => page.app.runAction("channel", [toBeta ? "beta" : "stable"]))
                 }
+            }
+        }
+
+        SettingCard {
+            // NazoOS on Tumbleweed (installed before the move to Slowroll)
+            visible: !page.st.live && page.st.base === "tumbleweed"
+            iconName: "system-upgrade"
+            fallbackIcon: "system-software-update"
+            title: L.tr("Switch to openSUSE Slowroll")
+            subtitle: L.tr("NazoOS is now based on openSUSE Slowroll: fewer updates, bundled and tested longer. This computer still runs on Tumbleweed. Your files, apps and settings stay.")
+            QQC2.Button {
+                enabled: !backend.busy
+                text: L.tr("Switch to Slowroll")
+                onClicked: page.app.confirm(
+                    L.tr("Switch to openSUSE Slowroll?"),
+                    L.tr("Slowroll gets updates bundled about once a month instead of every day. A snapshot is taken first, so you can go back. Many packages are downloaded and replaced: this takes a while, keep the computer on and connected. Restart the computer afterwards."),
+                    L.tr("Switch"),
+                    () => page.app.runAction("slowroll-switch", []))
             }
         }
 
@@ -139,13 +157,15 @@ Kirigami.ScrollablePage {
 
         SettingCard {
             iconName: "edit-undo"
-            title: L.tr("Switch to openSUSE Tumbleweed")
-            subtitle: L.tr("Turns this computer into plain openSUSE Tumbleweed without reinstalling. Your files, apps and settings stay.")
+            title: L.tr("Switch to plain openSUSE")
+            subtitle: page.st.base === "tumbleweed"
+                      ? L.tr("Turns this computer into plain openSUSE Tumbleweed without reinstalling. Your files, apps and settings stay.")
+                      : L.tr("Turns this computer into plain openSUSE Slowroll without reinstalling. Your files, apps and settings stay.")
             QQC2.Button {
                 enabled: !backend.busy
-                text: L.tr("Switch to Tumbleweed")
+                text: L.tr("Switch to openSUSE")
                 onClicked: page.app.confirm(
-                    L.tr("Switch to openSUSE Tumbleweed?"),
+                    L.tr("Switch to plain openSUSE?"),
                     L.tr("A snapshot is taken first, so you can go back. NazoOS apps and Waydroid are removed, NazoOS Welcome and NazoOS Update disappear. Your other apps and your kernel options stay. If the NazoOS kernel is running, this first moves to the openSUSE kernel: restart and click this button again."),
                     L.tr("Switch"),
                     () => page.app.runAction("tumbleweed-switch", []))

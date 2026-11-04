@@ -6,7 +6,7 @@ import subprocess
 
 import pytest
 
-from nazoos_common import grub, helper, proc
+from nazoos_common import grub, helper, proc, repos
 
 
 class FakeRoot:
@@ -61,6 +61,13 @@ def fake_root(monkeypatch, tmp_path):
     monkeypatch.setattr(grub, "GRUB_LOCK", tmp_path / "grub.lock")
     monkeypatch.setattr(grub, "GRUB_CFG", tmp_path / "grub.cfg")
     return fake
+
+
+@pytest.fixture(autouse=True)
+def no_base_index(monkeypatch, tmp_path):
+    """repos.base() never reads the nazoos-repos file of the machine the
+    tests run on: Slowroll unless openSUSE-repos-Tumbleweed is installed."""
+    monkeypatch.setattr(repos, "NAZOOS_BETA_INDEX", tmp_path / "no-index.xml")
 
 
 # zypper's refresh output for a repo with an untrusted key (real, shortened)

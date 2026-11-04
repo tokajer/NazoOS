@@ -8,7 +8,7 @@ paths and the package lists the user does not pick are in system.py.
 """
 
 # Optional apps (ADR 0003). Flatpaks come from Flathub (system-wide),
-# RPMs from the Tumbleweed repos. "refs" are installed together.
+# RPMs from the openSUSE repos. "refs" are installed together.
 # "appstream": component id of the icon in the AppStream caches when
 # neither "icon" nor a ref matches it (appicons.py)
 APPS = [
@@ -247,7 +247,8 @@ SCX_SCHEDULERS = ["scx_lavd", "scx_bpfland", "scx_rusty", "scx_flash"]
 # Lasting steps that ask for the password every time: their own helper path
 # and Polkit actions (data/org.nazoos.welcome.policy)
 STRICT_ACTIONS = ("repair-key", "kernel-install", "kernel-only",
-                  "kernel-remove", "mok-import", "tumbleweed-switch")
+                  "kernel-remove", "mok-import", "tumbleweed-switch",
+                  "slowroll-switch")
 
 # Root actions of the helper, with the text shown while they run
 ACTION_LABELS = {
@@ -265,7 +266,8 @@ ACTION_LABELS = {
     "kernel-only": "Removing the openSUSE kernel",
     "kernel-restore": "Switching back to the openSUSE kernel",
     "kernel-remove": "Removing the NazoOS kernel",
-    "tumbleweed-switch": "Switching to openSUSE Tumbleweed",
+    "tumbleweed-switch": "Switching to plain openSUSE",
+    "slowroll-switch": "Switching to openSUSE Slowroll",
     "mok-import": "Preparing the Secure Boot key",
     "app-install": "Installing",
     "app-remove": "Removing",

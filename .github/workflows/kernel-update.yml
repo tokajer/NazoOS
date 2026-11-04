@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Keeps kernel-nazoos up to date in home:Tokajer:nazoos:kernel:
-# - daily: new stable release on SUSE's kernel-source (7.2.9 → 7.2.10)
-#   → build the OBS package and commit it; OBS builds kernel + KMPs
+# - daily: openSUSE:Slowroll ships a new kernel (7.2.9 → 7.2.10)
+#   → build the OBS package from the same kernel-source commit and commit
+#   it; OBS builds kernel + KMPs
 # - new kernel series (7.2 → 7.3): only an issue, the patches need a human
 # - push to main that changes kernel/: build and commit
 # - by hand: Actions → Kernel update → Run workflow (force = even if
@@ -83,7 +84,7 @@ jobs:
           fi
           echo "action=$action"
           { cat versions; echo "action=$action"; } >> "$GITHUB_OUTPUT"
-          echo "Linux $upstream (series $series), OBS: $obs, patches for $pinned → **$action**" >> "$GITHUB_STEP_SUMMARY"
+          echo "Slowroll: Linux $upstream (series $series, kernel-source $commit), OBS: $obs, patches for $pinned → **$action**" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Report new kernel series
         if: steps.check.outputs.action == 'series'
@@ -96,7 +97,7 @@ jobs:
         run: |
           title="Kernel $SERIES: update patches.list (now $PINNED)"
           if [ "$(gh issue list --state open --search "\"$title\" in:title" --json number --jq length)" = 0 ]; then
-            gh issue create --title "$title" --body "SUSE's kernel-source \`stable\` is now Linux $SERIES, our patches are for $PINNED. kernel-nazoos stays on the last $PINNED build until the patches are updated.
+            gh issue create --title "$title" --body "openSUSE Slowroll's kernel-source is now Linux $SERIES, our patches are for $PINNED. kernel-nazoos stays on the last $PINNED build until the patches are updated.
 
           Steps: kernel/README.md → \"New kernel series\", then set \`KERNEL_SERIES=$SERIES\` in kernel/make-obs-package.sh. The push builds and uploads.
 

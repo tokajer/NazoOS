@@ -4,14 +4,14 @@
 
 # NazoOS
 
-**A gaming desktop built on openSUSE Tumbleweed. You never need a terminal.**
+**A gaming desktop built on openSUSE Slowroll. You never need a terminal.**
 
 KDE Plasma on Wayland · Steam gaming mode · optional gaming kernel · one-click drivers and codecs · a snapshot before every update
 
 [![Build](https://build.opensuse.org/projects/home:Tokajer:nazoos:devel/packages/nazoos-image/badge.svg?type=default)](https://build.opensuse.org/project/show/home:Tokajer:nazoos:devel)
 [![REUSE](https://img.shields.io/badge/REUSE-compliant-green)](https://reuse.software)
 [![License](https://img.shields.io/badge/license-GPL--3.0--or--later-blue)](LICENSES/GPL-3.0-or-later.txt)
-[![Base](https://img.shields.io/badge/base-openSUSE%20Tumbleweed-73ba25)](https://get.opensuse.org/tumbleweed/)
+[![Base](https://img.shields.io/badge/base-openSUSE%20Slowroll-73ba25)](https://en.opensuse.org/Portal:Slowroll)
 
 <img src="docs/images/desktop.jpg" alt="NazoOS desktop with the Welcome app" width="900">
 
@@ -22,11 +22,11 @@ KDE Plasma on Wayland · Steam gaming mode · optional gaming kernel · one-clic
 
 ## Why NazoOS?
 
-Tumbleweed is a fast, well-tested rolling release with Btrfs snapshots built in. NazoOS keeps that base and adds what a gamer would otherwise set up by hand: Steam, Proton tools, controller drivers, codecs, performance tweaks, and graphical tools for anything that needs root.
+Slowroll is openSUSE's calmer rolling release: it takes the packages Tumbleweed has tested and ships them as fewer, bundled updates, with Btrfs snapshots built in. NazoOS keeps that base and adds what a gamer would otherwise set up by hand: Steam, Proton tools, controller drivers, codecs, performance tweaks, and graphical tools for anything that needs root.
 
 - **No terminal needed.** Drivers, codecs, kernel, updates, repairs and rollbacks all have a button. Admin actions ask for your password in a normal dialog.
 - **You can always go back.** A Btrfs snapshot is taken before every update and software change. Older states can be picked from the boot menu.
-- **Close to upstream.** It uses the standard Tumbleweed repositories plus one NazoOS repository. Packman (codecs) and NVIDIA are opt-in.
+- **Close to upstream.** It uses the standard openSUSE Slowroll repositories plus one NazoOS repository. Packman (codecs) and NVIDIA are opt-in.
 
 ## Features
 

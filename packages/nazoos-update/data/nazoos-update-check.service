@@ -22,7 +22,7 @@ SuccessExitStatus=3
 # Sandboxing. No ProtectSystem: zypper refresh and the dry run write
 # /var/cache/zypp and /var/lib; snapper works through snapperd (D-Bus).
 # No NoNewPrivileges: it blocks the SELinux domain transitions of
-# zypper/snapper on Tumbleweed (needs a VM test first).
+# zypper/snapper on openSUSE (needs a VM test first).
 PrivateTmp=yes
 ProtectHome=yes
 ProtectKernelTunables=yes

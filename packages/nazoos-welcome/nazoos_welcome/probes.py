@@ -2,14 +2,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Reads the system state without root rights."""
 
-import os
 import platform
 import re
 import traceback
 from pathlib import Path
 
-from nazoos_common import (grub, kernel, kernelstate, mok, proc, shellconf,
-                           zypper)
+from nazoos_common import (grub, kernel, kernelstate, mok, proc, repos,
+                           shellconf, zypper)
 
 from . import (appicons, autostart, catalog, hw, pollrate, query, report,
                system)
@@ -147,15 +146,7 @@ def session_state():
 
 
 def update_channel():
-    """"stable", "beta" or "" (nazoos-repos missing or link unknown)."""
-    try:
-        target = os.readlink(system.CHANNEL_LINK)
-    except OSError:
-        return ""
-    for name in system.CHANNEL_REPO_PATHS:
-        if target == f"nazoos-{name}-repoindex.xml":
-            return name
-    return ""
+    return system.current_channel()
 
 
 # Seconds the pattern search may take (15-20 s normally, slower when the
@@ -318,6 +309,7 @@ def collect():
         "drives": _part([], hw.drives),
         "kernel": _part({}, kernel_state),
         "channel": _part("", update_channel),
+        "base": _part("", repos.base),
         "appIcons": _part({}, lambda: appicons.collect(catalog.APPS)),
         **drivers,
         **_part({}, lambda: _gaming(rpms, system_units)),

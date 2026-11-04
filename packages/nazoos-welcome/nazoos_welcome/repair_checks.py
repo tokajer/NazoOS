@@ -33,27 +33,27 @@ def _finding(fid, items=(), fix="", user_fix=False, args=()):
 
 
 def repo_findings():
-    """Repo services, standard Tumbleweed repos and the NazoOS repo that
+    """Repo services, standard openSUSE repos and the NazoOS repo that
     are missing or disabled."""
     found = [(url, on) for _alias, url, on in repos.repos()
              if "opensuse.org" in url]
-    return repo_problems(found, repos.services())
+    return repo_problems(found, repos.services(), repos.base())
 
 
-def repo_problems(repo_list, services):
+def repo_problems(repo_list, services, base):
     """Names of the missing or disabled repo services, standard repos and
-    the NazoOS repo. REPO_LIST: (baseurl, enabled) of the opensuse.org repos,
-    SERVICES: {name: enabled}."""
+    the NazoOS repo of BASE. REPO_LIST: (baseurl, enabled) of the
+    opensuse.org repos, SERVICES: {name: enabled}."""
     found = {}
     for url, enabled in repo_list:
         path = repos.url_path(url)
         found[path] = found.get(path, False) or enabled
-    bad = [s["name"] for s in system.REPO_SERVICES
+    bad = [s["name"] for s in system.repo_services(base)
            if not services.get(s["name"])]
-    for repo in system.STANDARD_REPOS:
+    for repo in system.standard_repos(base):
         if found.get(repos.url_path(repo["url"])) is not True:
             bad.append(repo["alias"])
-    if (not any(found.get(p) for p in system.NAZOOS_REPO_PATHS)
+    if (not any(found.get(p) for p in system.nazoos_repo_paths(base))
             and "nazoos" not in bad):
         bad.append("nazoos")
     return bad

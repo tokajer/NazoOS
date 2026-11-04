@@ -50,7 +50,17 @@ NazoOS has two update channels for its own packages (Welcome, Update, settings, 
 - **Stable** (default): updates arrive after they were tested.
 - **Beta**: updates arrive right away. You get new features first and help find problems, but something can break.
 
-Switch in **NazoOS Welcome → System → Update channel**. A snapshot is taken first. Going back to stable can make some NazoOS packages a bit older again, that is expected. Tumbleweed itself and the NazoOS kernel are the same in both channels.
+Switch in **NazoOS Welcome → System → Update channel**. A snapshot is taken first. Going back to stable can make some NazoOS packages a bit older again, that is expected. openSUSE itself and the NazoOS kernel are the same in both channels.
+
+## Switching to Slowroll
+
+NazoOS is based on openSUSE Slowroll. Computers installed while it was still based on Tumbleweed show **NazoOS Welcome → System → Switch to openSUSE Slowroll**. Slowroll gets fewer updates, bundled about once a month, that Tumbleweed has already tested.
+
+1. Click **Switch to Slowroll**, read the summary and confirm with your password. You need a working internet connection.
+2. A snapshot is taken (listed as **Before channel switch**). Then the openSUSE and NazoOS repositories are switched to Slowroll, and many packages are downloaded and replaced. This takes a while; keep the computer on.
+3. Restart the computer when NazoOS Welcome tells you.
+
+If the check before the change finds a problem, the repositories are switched back and nothing is changed; try again later. If it stops half-way, go back to the snapshot as described above. The NazoOS kernel, if you use it, keeps running and changes to its Slowroll build with the next kernel update. NazoOS does not use openSUSE's `opensuse-migration-tool`: it would switch off the NazoOS repository and replace NazoOS packages with openSUSE's.
 
 ## For advanced users
 
@@ -58,6 +68,6 @@ Switch in **NazoOS Welcome → System → Update channel**. A snapshot is taken 
 - Notifications: `nazoos-update-notify.timer` (user).
 - "Make permanent" runs `snapper --ambit classic rollback`.
 - The boot menu names come from the snapper userdata `bootloader`, set by `nazoos-update-label.path` as soon as a snapshot appears and by NazoOS Update after each update (`snapper list` shows the original descriptions).
-- When the download servers still have an older Tumbleweed snapshot than the installed system (right after installing from a new image), no system update is offered: `zypper dup` would only go back to the older versions.
-- In a terminal, `sudo zypper dup` does not have this check: in the first hours after installing it may list many packages going *down* a version (compare `VERSION_ID` in `/etc/os-release` with `curl -sL https://download.opensuse.org/tumbleweed/repo/oss/media.1/products`). That is harmless – the system just matches the servers again and the next update moves forward – but you can also simply wait. `zypper up` never downgrades, but on Tumbleweed `dup` is the right command. Do not set `solver.dupAllowDowngrade = false`: Tumbleweed sometimes goes back a version on purpose when a new one was broken.
+- When the download servers still have an older openSUSE snapshot than the installed system (right after installing from a new image), no system update is offered: `zypper dup` would only go back to the older versions.
+- In a terminal, `sudo zypper dup` does not have this check: in the first hours after installing it may list many packages going *down* a version (compare `VERSION_ID` in `/etc/os-release` with `curl -sL https://download.opensuse.org/slowroll/repo/oss/media.1/products`). That is harmless – the system just matches the servers again and the next update moves forward – but you can also simply wait. `zypper up` never downgrades, but on Slowroll, like on Tumbleweed, `dup` is the right command. Do not set `solver.dupAllowDowngrade = false`: openSUSE sometimes goes back a version on purpose when a new one was broken.
 - Update channel: `/usr/share/zypp/local/service/nazoos/repo/repoindex.xml` (from `nazoos-repos`) links to `nazoos-stable-repoindex.xml` or `nazoos-beta-repoindex.xml`. The switch changes the link, runs `zypper refresh-services` (repo `nazoos:nazoos` ↔ `nazoos:nazoos-devel`) and `zypper dup --from <that repo>`. The link survives package updates.

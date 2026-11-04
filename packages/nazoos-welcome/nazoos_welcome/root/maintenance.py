@@ -27,7 +27,7 @@ def service(args):
 
 def system_update(_args):
     # nazoos-update knows more: no dup while the mirrors have an older
-    # Tumbleweed snapshot (would only downgrade), boot menu names for the
+    # openSUSE snapshot (would only downgrade), boot menu names for the
     # snapshots, restart hint, its status file. A plain dup here
     # downgraded a fresh install (VM 2026-10-12)
     if not os.access(helper.UPDATE_HELPER, os.X_OK):
@@ -84,9 +84,9 @@ def channel(args):
     The service swaps the repo instead of adding a second one (same
     priority would mix versions). "dup --from" then moves only our
     packages to the new channel's versions, also downwards (beta →
-    stable); Tumbleweed and the kernel repo stay untouched.
+    stable); openSUSE and the kernel repo stay untouched.
     """
-    target = arg(args, 0, system.CHANNEL_REPO_PATHS)
+    target = arg(args, 0, system.CHANNEL_PROJECTS)
     link = Path(system.CHANNEL_LINK)
     if not link.parent.is_dir():
         raise Fail("nazoos-repos is not installed")
@@ -97,7 +97,7 @@ def channel(args):
     _point(link, f"nazoos-{target}-repoindex.xml")
     try:
         helper.run(ZYPPER + ["refresh-services"])
-        alias = repos.with_path(system.CHANNEL_REPO_PATHS[target])
+        alias = repos.with_path(system.channel_repo_paths()[target])
         if alias is None:
             raise Fail("the {channel} repository did not appear after "
                        "refreshing the services", channel=target)

@@ -271,6 +271,71 @@ def test_services_with_their_state(monkeypatch, tmp_path):
     assert repos.services() == {"openSUSE": True, "nazoos": False}
 
 
+@pytest.fixture
+def base_of(monkeypatch, tmp_path):
+    """repos.base() with INSTALLED packages and the nazoos-repos file
+    holding INDEX (None: no file)."""
+    def setup(installed=(), index=None):
+        monkeypatch.setattr(proc, "rpm_installed", lambda p: p in installed)
+        path = tmp_path / "nazoos-beta-repoindex.xml"
+        if index is not None:
+            path.write_text(index)
+        monkeypatch.setattr(repos, "NAZOOS_BETA_INDEX", path)
+        return repos.base()
+    return setup
+
+
+TW_INDEX = ('<repo url="https://download.opensuse.org/repositories/home:/'
+            'Tokajer:/nazoos:/devel/openSUSE_Tumbleweed/"/>')
+
+
+def test_base_by_the_installed_service_package(base_of):
+    assert base_of({"openSUSE-repos-Tumbleweed"}) == "tumbleweed"
+    # The package wins over a nazoos-repos file of the other base
+    assert base_of({"openSUSE-repos-Slowroll"}, TW_INDEX) == "slowroll"
+
+
+def test_without_service_package_tumbleweed_repos_mean_tumbleweed(base_of):
+    # Repair must not migrate a Tumbleweed system whose openSUSE-repos
+    # package is gone
+    assert base_of((), TW_INDEX) == "tumbleweed"
+    assert base_of((), TW_INDEX.replace("Tumbleweed", "Slowroll")) == "slowroll"
+
+
+def test_without_any_hint_the_base_is_slowroll(base_of):
+    assert base_of() == "slowroll"
+
+
+def test_repo_options_and_flags(repo_dir):
+    (repo_dir / "k.repo").write_text(
+        "[nazoos-kernel]\nname=Kernel\nenabled=0\nautorefresh=1\n"
+        "priority=90\nbaseurl=https://example.org/k/\n")
+    opts = repos.options("nazoos-kernel")
+    assert opts["priority"] == "90" and opts["name"] == "Kernel"
+    assert not repos.flag(opts, "enabled", "1")
+    assert repos.flag(opts, "autorefresh", "0")
+    assert repos.flag(opts, "gpgcheck", "1")
+    assert repos.options("missing") == {}
+
+
+@pytest.mark.parametrize("base, obs", [("tumbleweed", "openSUSE_Tumbleweed"),
+                                       ("slowroll", "openSUSE_Slowroll")])
+def test_kernel_repo_url_per_base(base, obs):
+    url = kernel.kernel_repo_url(base)
+    assert url == ("https://download.opensuse.org/repositories/home:/"
+                   f"Tokajer:/nazoos:/kernel/{obs}/")
+    assert kernel.kernel_repo_path(base) == url.split("/repositories/")[1]
+
+
+@pytest.mark.parametrize("obs", ["openSUSE_Tumbleweed", "openSUSE_Slowroll"])
+def test_kernel_repo_is_found_for_either_base(repo_dir, obs):
+    # Half-way through the switch to Slowroll it may be either one
+    (repo_dir / "k.repo").write_text(
+        "[nazoos-kernel]\nbaseurl=https://download.opensuse.org/"
+        f"repositories/home:/Tokajer:/nazoos:/kernel/{obs}/\n")
+    assert kernel.kernel_repo() == "nazoos-kernel"
+
+
 def test_write_atomic_keeps_the_mode_of_an_existing_file(tmp_path):
     f = tmp_path / "conf"
     f.write_text("old")

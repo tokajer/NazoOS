@@ -76,7 +76,7 @@ jobs:
             { echo "::error::secrets OBS_USER / OBS_PASSWORD missing"; exit 1; }
           for _ in $(seq 60); do
             .github/scripts/obs-curl.sh -sS --fail-with-body -o result.xml \
-              "https://api.opensuse.org/build/$SOURCE/_result?repository=openSUSE_Tumbleweed"
+              "https://api.opensuse.org/build/$SOURCE/_result?repository=openSUSE_Slowroll"
             state=$(python3 - <<'EOF'
           import xml.etree.ElementTree as ET
           ok = {"succeeded", "disabled", "excluded"}
