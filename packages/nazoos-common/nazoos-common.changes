@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Nov  9 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- kernel: nvidia_closed_only() finds NVIDIA cards older than Turing
+  (Maxwell, Pascal, Volta) from sysfs; their driver (G06 closed) only
+  exists for kernel-default, so removing kernel-default (stage 2) is
+  not offered for them, also not as a notification
+
+-------------------------------------------------------------------
 Wed Nov  4 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Drop repos.base(): NazoOS only runs on openSUSE Slowroll (no

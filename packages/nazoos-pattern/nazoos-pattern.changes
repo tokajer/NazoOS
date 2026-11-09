@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Nov  9 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend sof-firmware and alsa-ucm-conf: Intel laptops with
+  digital microphones use the SOF audio driver and had no sound card
+  without its firmware (ThinkPad T15 Gen 1)
+
+-------------------------------------------------------------------
 Sat Oct 31 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Drop the Obsoletes of discover6-backend-packagekit: it made

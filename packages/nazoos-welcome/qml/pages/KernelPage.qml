@@ -51,6 +51,7 @@ Kirigami.ScrollablePage {
                 onClicked: page.app.confirm(
                     L.tr("Install the NazoOS kernel?"),
                     L.tr("The NazoOS kernel becomes the default in the boot menu. The openSUSE kernel stays installed: if something does not work, pick it under \"Advanced options\" in the boot menu.")
+                    + (page.k.closedGpu ? "\n\n" + L.tr("Your NVIDIA graphics card is older than the GTX 16 series. Its NVIDIA driver only exists for the openSUSE kernel: with the NazoOS kernel it runs on the slow open-source driver (nouveau), games should use the other graphics chip. To use the NVIDIA driver, stay on the openSUSE kernel.") : "")
                     + (page.k.uefi ? "\n\n" + L.tr("After the restart a blue screen (MokManager) asks to enroll the NazoOS key. Choose \"Enroll MOK\", \"Continue\", \"Yes\" and type the password from the next step (suggested: nazoos).") : ""),
                     L.tr("Install"),
                     () => page.k.uefi && page.k.mok !== "enrolled"

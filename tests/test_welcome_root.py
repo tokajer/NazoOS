@@ -95,6 +95,7 @@ def kernel_env(fake_root, monkeypatch, tmp_path, repos=()):
     monkeypatch.setattr(ks.kernelstate, "STATE", tmp_path)
     monkeypatch.setattr(ks.kernelstate, "PREFER", tmp_path / "prefer")
     monkeypatch.setattr(ks.kernelstate, "write_boots", lambda data: None)
+    monkeypatch.setattr(ks.kernel, "nvidia_closed_only", lambda: False)
     return ks
 
 
@@ -188,9 +189,43 @@ def test_in_repo_raises_when_the_search_fails(monkeypatch):
         kernel_switch.in_repo("a", "p")
 
 
+def test_kernel_only_keeps_the_default_kernel_for_a_closed_only_card(
+        fake_root, monkeypatch):
+    ks = kernel_switch
+    monkeypatch.setattr(ks, "running_nazoos", lambda: True)
+    monkeypatch.setattr(ks.kernel, "nvidia_closed_only", lambda: True)
+    monkeypatch.setattr(ks.kernel, "stage2_now", lambda: "ready")
+    fake_root.installed = {kernel.KERNEL_DEFAULT}
+    with pytest.raises(ks.Fail, match="only gets its driver"):
+        ks.kernel_only([])
+    assert not fake_root.calls
+
+
+def test_kernel_only_closed_only_card_without_default_kernel(
+        fake_root, monkeypatch):
+    # kernel-default is gone already: the stage 2 answer, not "keep it"
+    ks = kernel_switch
+    monkeypatch.setattr(ks, "running_nazoos", lambda: True)
+    monkeypatch.setattr(ks.kernel, "nvidia_closed_only", lambda: True)
+    monkeypatch.setattr(ks.kernel, "stage2_now", lambda: "")
+    with pytest.raises(ks.Fail, match="already removed"):
+        ks.kernel_only([])
+    assert not fake_root.calls
+
+
+def test_nvidia_install_legacy_needs_the_nazoos_kernel_gone(
+        monkeypatch, fake_root):
+    _repos(monkeypatch, [])
+    fake_root.installed = {kernel.KERNEL_PACKAGE}
+    with pytest.raises(base.Fail, match="older NVIDIA cards"):
+        drivers.nvidia_install(["legacy"])
+    assert not fake_root.calls
+
+
 def test_kernel_only_waits_for_the_clean_starts(fake_root, monkeypatch):
     ks = kernel_switch
     monkeypatch.setattr(ks, "running_nazoos", lambda: True)
+    monkeypatch.setattr(ks.kernel, "nvidia_closed_only", lambda: False)
     monkeypatch.setattr(ks.kernel, "stage2_now", lambda: "waiting")
     with pytest.raises(ks.Fail, match="clean starts"):
         ks.kernel_only([])
@@ -200,6 +235,7 @@ def test_kernel_only_waits_for_the_clean_starts(fake_root, monkeypatch):
 def test_kernel_only_refuses_when_not_offered(fake_root, monkeypatch):
     ks = kernel_switch
     monkeypatch.setattr(ks, "running_nazoos", lambda: True)
+    monkeypatch.setattr(ks.kernel, "nvidia_closed_only", lambda: False)
     monkeypatch.setattr(ks.kernel, "stage2_now", lambda: "")
     with pytest.raises(ks.Fail, match="already removed"):
         ks.kernel_only([])
@@ -988,6 +1024,7 @@ KERNEL_RPMS = ["kernel-default", "kernel-default-devel",
 def test_kernel_only_removes_the_default_kernel(fake_root, monkeypatch):
     ks = kernel_switch
     monkeypatch.setattr(ks, "running_nazoos", lambda: True)
+    monkeypatch.setattr(ks.kernel, "nvidia_closed_only", lambda: False)
     monkeypatch.setattr(ks.kernel, "stage2_now", lambda: "ready")
 
     def rpm(cmd):

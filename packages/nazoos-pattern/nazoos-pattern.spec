@@ -98,6 +98,12 @@ Recommends:     plasma-foreground-booster
 # Scheduler, toggled by nazoos-welcome (ADR 0002)
 Recommends:     scx
 # Audio
+# Sound Open Firmware: Intel laptops with digital microphones (DMIC) load
+# the SOF driver instead of plain HDA; without its firmware and topology
+# there is no sound card at all (ThinkPad T15 Gen 1: only a dummy output).
+# UCM profiles map the SOF devices to speakers, headphones and mics
+Recommends:     sof-firmware
+Recommends:     alsa-ucm-conf
 Recommends:     pipewire-config-upmix
 Recommends:     rtkit
 # First steps after installation (drivers, codecs, apps)

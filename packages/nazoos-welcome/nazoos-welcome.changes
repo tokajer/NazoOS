@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Mon Nov  9 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- NVIDIA cards older than the GTX 16 series: the NazoOS kernel install
+  warns that they keep the nouveau driver there, "Remove the openSUSE
+  kernel" is not offered and refused by the helper, the Drivers page
+  preselects the driver for older cards and refuses it while the
+  NazoOS kernel is installed (G06 has no build for it)
+
+-------------------------------------------------------------------
 Wed Nov  4 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Drop the "Switch to openSUSE Slowroll" action and the base

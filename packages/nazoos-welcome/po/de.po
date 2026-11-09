@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 17:17+0100\n"
+"POT-Creation-Date: 2026-11-09 20:50+0100\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -573,6 +573,14 @@ msgstr ""
 msgid "unknown user"
 msgstr "unbekannter Benutzer"
 
+#: nazoos_welcome/root/drivers.py:34
+msgid ""
+"the driver for older NVIDIA cards only exists for the openSUSE kernel; "
+"remove the NazoOS kernel on the Kernel page first"
+msgstr ""
+"den Treiber für ältere NVIDIA-Karten gibt es nur für den openSUSE-Kernel; "
+"entfernen Sie zuerst den NazoOS-Kernel auf der Seite Kernel"
+
 #: nazoos_welcome/root/drives.py:113
 msgid "this drive cannot be added here (removable or system drive)"
 msgstr ""
@@ -621,6 +629,14 @@ msgid "start the NazoOS kernel first"
 msgstr "starten Sie zuerst den NazoOS-Kernel"
 
 #: nazoos_welcome/root/kernel_switch.py:99
+msgid ""
+"this NVIDIA graphics card only gets its driver with the openSUSE kernel; "
+"keep it installed"
+msgstr ""
+"diese NVIDIA-Grafikkarte bekommt ihren Treiber nur mit dem openSUSE-Kernel; "
+"behalten Sie ihn installiert"
+
+#: nazoos_welcome/root/kernel_switch.py:103
 #, python-brace-format
 msgid ""
 "the openSUSE kernel can be removed after {count} clean starts of the NazoOS "
@@ -629,22 +645,22 @@ msgstr ""
 "der openSUSE-Kernel kann nach {count} fehlerfreien Starts des NazoOS-Kernels "
 "entfernt werden"
 
-#: nazoos_welcome/root/kernel_switch.py:103
+#: nazoos_welcome/root/kernel_switch.py:107
 msgid ""
 "the openSUSE kernel is already removed or was chosen again on the Kernel page"
 msgstr ""
 "der openSUSE-Kernel ist bereits entfernt oder wurde auf der Seite Kernel "
 "wieder gewählt"
 
-#: nazoos_welcome/root/kernel_switch.py:126
+#: nazoos_welcome/root/kernel_switch.py:130
 msgid "the openSUSE kernel is not in /boot"
 msgstr "der openSUSE-Kernel ist nicht in /boot"
 
-#: nazoos_welcome/root/kernel_switch.py:133
+#: nazoos_welcome/root/kernel_switch.py:137
 msgid "start the openSUSE kernel first (boot menu)"
 msgstr "starten Sie zuerst den openSUSE-Kernel (Startmenü)"
 
-#: nazoos_welcome/root/kernel_switch.py:135
+#: nazoos_welcome/root/kernel_switch.py:139
 msgid "the openSUSE kernel is not installed"
 msgstr "der openSUSE-Kernel ist nicht installiert"
 
@@ -923,8 +939,8 @@ msgstr "Braucht den NazoOS-Kernel (Seite „Kernel“)"
 msgid "Website"
 msgstr "Website"
 
-#: qml/pages/AppsPage.qml:99 qml/pages/DriversPage.qml:86
-#: qml/pages/DriversPage.qml:114 qml/pages/GamingPage.qml:220
+#: qml/pages/AppsPage.qml:99 qml/pages/DriversPage.qml:98
+#: qml/pages/DriversPage.qml:126 qml/pages/GamingPage.qml:220
 #: qml/pages/GamingPage.qml:243
 msgid "Installed"
 msgstr "Installiert"
@@ -937,18 +953,18 @@ msgstr "Software-Rendering (langsamer)"
 msgid "Open website"
 msgstr "Website öffnen"
 
-#: qml/pages/AppsPage.qml:111 qml/pages/DriversPage.qml:55
-#: qml/pages/DriversPage.qml:65 qml/pages/DriversPage.qml:91
-#: qml/pages/DriversPage.qml:121 qml/pages/GamingPage.qml:228
+#: qml/pages/AppsPage.qml:111 qml/pages/DriversPage.qml:67
+#: qml/pages/DriversPage.qml:77 qml/pages/DriversPage.qml:103
+#: qml/pages/DriversPage.qml:133 qml/pages/GamingPage.qml:228
 #: qml/pages/GamingPage.qml:247 qml/pages/KernelPage.qml:49
-#: qml/pages/KernelPage.qml:55 qml/pages/WelcomePage.qml:103
+#: qml/pages/KernelPage.qml:56 qml/pages/WelcomePage.qml:103
 msgid "Install"
 msgstr "Installieren"
 
 #: qml/pages/AppsPage.qml:111 qml/pages/AppsPage.qml:119
-#: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
-#: qml/pages/GamingPage.qml:247 qml/pages/KernelPage.qml:73
-#: qml/pages/KernelPage.qml:78 qml/pages/KernelPage.qml:102
+#: qml/pages/DriversPage.qml:110 qml/pages/DriversPage.qml:115
+#: qml/pages/GamingPage.qml:247 qml/pages/KernelPage.qml:74
+#: qml/pages/KernelPage.qml:79 qml/pages/KernelPage.qml:103
 msgid "Remove"
 msgstr "Entfernen"
 
@@ -985,7 +1001,7 @@ msgstr ""
 "Installiert den Treiber aus der Paketquelle von NVIDIA. Nötig für gute "
 "Spieleleistung auf NVIDIA-Karten."
 
-#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:117
+#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:129
 msgid "Not installed"
 msgstr "Nicht installiert"
 
@@ -997,19 +1013,29 @@ msgstr "Installiert und aktiv"
 msgid "Installed – restart the computer to activate it"
 msgstr "Installiert – Computer neu starten, um ihn zu aktivieren"
 
-#: qml/pages/DriversPage.qml:47
+#: qml/pages/DriversPage.qml:53
 msgid "GeForce GTX 16, RTX 20 and newer (recommended)"
 msgstr "GeForce GTX 16, RTX 20 und neuer (empfohlen)"
 
-#: qml/pages/DriversPage.qml:48
+#: qml/pages/DriversPage.qml:54
 msgid "GeForce GTX 750 to GTX 10 series (older cards)"
 msgstr "GeForce GTX 750 bis GTX-10-Serie (ältere Karten)"
 
-#: qml/pages/DriversPage.qml:60
+#: qml/pages/DriversPage.qml:59
+msgid ""
+"The driver for older cards only exists for the openSUSE kernel. On the "
+"Kernel page switch back to the openSUSE kernel, restart and remove the "
+"NazoOS kernel."
+msgstr ""
+"Den Treiber für ältere Karten gibt es nur für den openSUSE-Kernel. "
+"Wechseln Sie auf der Seite Kernel zurück zum openSUSE-Kernel, starten Sie "
+"neu und entfernen Sie den NazoOS-Kernel."
+
+#: qml/pages/DriversPage.qml:72
 msgid "Install the NVIDIA driver?"
 msgstr "NVIDIA-Treiber installieren?"
 
-#: qml/pages/DriversPage.qml:61
+#: qml/pages/DriversPage.qml:73
 msgid ""
 "This adds NVIDIA's repository. NVIDIA's drivers are subject to NVIDIA's own "
 "license terms. After the installation, restart the computer."
@@ -1018,7 +1044,7 @@ msgstr ""
 "NVIDIAs eigene Lizenzbedingungen. Starten Sie den Computer nach der "
 "Installation neu."
 
-#: qml/pages/DriversPage.qml:63
+#: qml/pages/DriversPage.qml:75
 msgid ""
 "The driver for older cards is not signed for Secure Boot. If Secure Boot is "
 "on, it will not load."
@@ -1026,11 +1052,11 @@ msgstr ""
 "Der Treiber für ältere Karten ist nicht für Secure Boot signiert. Ist Secure "
 "Boot eingeschaltet, wird er nicht geladen."
 
-#: qml/pages/DriversPage.qml:75
+#: qml/pages/DriversPage.qml:87
 msgid "AMD and Intel graphics"
 msgstr "AMD- und Intel-Grafik"
 
-#: qml/pages/DriversPage.qml:76
+#: qml/pages/DriversPage.qml:88
 msgid ""
 "The open-source Mesa drivers are already included and kept up to date with "
 "the system. Nothing to do."
@@ -1038,15 +1064,15 @@ msgstr ""
 "Die quelloffenen Mesa-Treiber sind bereits enthalten und werden mit dem "
 "System aktualisiert. Nichts zu tun."
 
-#: qml/pages/DriversPage.qml:77
+#: qml/pages/DriversPage.qml:89
 msgid "Ready"
 msgstr "Bereit"
 
-#: qml/pages/DriversPage.qml:84
+#: qml/pages/DriversPage.qml:96
 msgid "ROCm for AMD graphics (optional)"
 msgstr "ROCm für AMD-Grafik (optional)"
 
-#: qml/pages/DriversPage.qml:85
+#: qml/pages/DriversPage.qml:97
 msgid ""
 "Lets programs compute on the graphics card: Blender (HIP), DaVinci Resolve "
 "(OpenCL) and local AI tools. Not needed for games. Officially supported are "
@@ -1056,11 +1082,11 @@ msgstr ""
 "(OpenCL) und lokale KI-Werkzeuge. Für Spiele nicht nötig. Offiziell "
 "unterstützt werden Radeon RX 6000 (RDNA 2) und neuer."
 
-#: qml/pages/DriversPage.qml:101
+#: qml/pages/DriversPage.qml:113
 msgid "Remove ROCm?"
 msgstr "ROCm entfernen?"
 
-#: qml/pages/DriversPage.qml:102
+#: qml/pages/DriversPage.qml:114
 msgid ""
 "Programs that compute on the graphics card fall back to the CPU. Games are "
 "not affected."
@@ -1068,15 +1094,15 @@ msgstr ""
 "Programme, die auf der Grafikkarte rechnen, nutzen dann den Prozessor. "
 "Spiele sind nicht betroffen."
 
-#: qml/pages/DriversPage.qml:108
+#: qml/pages/DriversPage.qml:120
 msgid "Multimedia"
 msgstr "Multimedia"
 
-#: qml/pages/DriversPage.qml:112
+#: qml/pages/DriversPage.qml:124
 msgid "Multimedia codecs (Packman)"
 msgstr "Multimedia-Codecs (Packman)"
 
-#: qml/pages/DriversPage.qml:113
+#: qml/pages/DriversPage.qml:125
 msgid ""
 "Full FFmpeg and GStreamer codecs, e.g. for H.264/H.265 videos, streaming and "
 "video editing. They come from Packman, a community repository outside of "
@@ -1086,25 +1112,25 @@ msgstr ""
 "Streaming und Videoschnitt. Sie stammen von Packman, einer Community-"
 "Paketquelle außerhalb von NazoOS und openSUSE."
 
-#: qml/pages/DriversPage.qml:115
+#: qml/pages/DriversPage.qml:127
 msgid "Packman is enabled, codecs are not installed yet"
 msgstr "Packman ist eingerichtet, die Codecs sind noch nicht installiert"
 
-#: qml/pages/DriversPage.qml:116
+#: qml/pages/DriversPage.qml:128
 msgid "Packman is set up but switched off. Install switches it on again."
 msgstr ""
 "Packman ist eingerichtet, aber ausgeschaltet. „Installieren“ schaltet es "
 "wieder ein."
 
-#: qml/pages/DriversPage.qml:121 qml/pages/RepairPage.qml:50
+#: qml/pages/DriversPage.qml:133 qml/pages/RepairPage.qml:50
 msgid "Reinstall"
 msgstr "Neu installieren"
 
-#: qml/pages/DriversPage.qml:124
+#: qml/pages/DriversPage.qml:136
 msgid "Enable Packman codecs?"
 msgstr "Packman-Codecs einrichten?"
 
-#: qml/pages/DriversPage.qml:125
+#: qml/pages/DriversPage.qml:137
 msgid ""
 "Packman is run by an independent community, not by NazoOS or openSUSE. Some "
 "codecs may be subject to software patents in certain countries. You are "
@@ -1120,19 +1146,19 @@ msgstr ""
 "Bereits installierte Multimedia-Pakete werden auf die Versionen von Packman "
 "umgestellt."
 
-#: qml/pages/DriversPage.qml:126
+#: qml/pages/DriversPage.qml:138
 msgid "Enable"
 msgstr "Einrichten"
 
-#: qml/pages/DriversPage.qml:131
+#: qml/pages/DriversPage.qml:143
 msgid "Firmware"
 msgstr "Firmware"
 
-#: qml/pages/DriversPage.qml:135
+#: qml/pages/DriversPage.qml:147
 msgid "Firmware updates"
 msgstr "Firmware-Updates"
 
-#: qml/pages/DriversPage.qml:136
+#: qml/pages/DriversPage.qml:148
 msgid ""
 "BIOS/UEFI, SSD and device firmware updates from the vendors (LVFS) appear in "
 "Discover together with the other updates."
@@ -1140,7 +1166,7 @@ msgstr ""
 "Firmware-Updates der Hersteller (LVFS) für BIOS/UEFI, SSDs und Geräte "
 "erscheinen in Discover zusammen mit den anderen Updates."
 
-#: qml/pages/DriversPage.qml:138
+#: qml/pages/DriversPage.qml:150
 msgid "Open Discover"
 msgstr "Discover öffnen"
 
@@ -1576,6 +1602,18 @@ msgstr ""
 
 #: qml/pages/KernelPage.qml:54
 msgid ""
+"Your NVIDIA graphics card is older than the GTX 16 series. Its NVIDIA driver "
+"only exists for the openSUSE kernel: with the NazoOS kernel it runs on the "
+"slow open-source driver (nouveau), games should use the other graphics chip. "
+"To use the NVIDIA driver, stay on the openSUSE kernel."
+msgstr ""
+"Ihre NVIDIA-Grafikkarte ist älter als die GTX-16-Serie. Ihren NVIDIA-Treiber "
+"gibt es nur für den openSUSE-Kernel: mit dem NazoOS-Kernel läuft sie mit dem "
+"langsamen Open-Source-Treiber (nouveau), Spiele sollten den anderen "
+"Grafikchip nutzen. Für den NVIDIA-Treiber bleiben Sie beim openSUSE-Kernel."
+
+#: qml/pages/KernelPage.qml:55
+msgid ""
 "After the restart a blue screen (MokManager) asks to enroll the NazoOS key. "
 "Choose \"Enroll MOK\", \"Continue\", \"Yes\" and type the password from the "
 "next step (suggested: nazoos)."
@@ -1585,11 +1623,11 @@ msgstr ""
 "„Yes“ und geben Sie das Passwort aus dem nächsten Schritt ein (Vorschlag: "
 "nazoos)."
 
-#: qml/pages/KernelPage.qml:67
+#: qml/pages/KernelPage.qml:68
 msgid "Remove the openSUSE kernel"
 msgstr "openSUSE-Kernel entfernen"
 
-#: qml/pages/KernelPage.qml:68
+#: qml/pages/KernelPage.qml:69
 msgid ""
 "Once the NazoOS kernel has started cleanly %1 times in a row, the openSUSE "
 "kernel can be removed. Updates then never install it again. Older NazoOS "
@@ -1599,15 +1637,15 @@ msgstr ""
 "kann der openSUSE-Kernel entfernt werden. Updates installieren ihn dann "
 "nicht wieder. Ältere NazoOS-Kernel und Snapshots bleiben als Rückfalloption."
 
-#: qml/pages/KernelPage.qml:69
+#: qml/pages/KernelPage.qml:70
 msgid "Clean starts in a row: %1 of %2"
 msgstr "Fehlerfreie Starts hintereinander: %1 von %2"
 
-#: qml/pages/KernelPage.qml:76
+#: qml/pages/KernelPage.qml:77
 msgid "Remove the openSUSE kernel?"
 msgstr "openSUSE-Kernel entfernen?"
 
-#: qml/pages/KernelPage.qml:77
+#: qml/pages/KernelPage.qml:78
 msgid ""
 "Only the NazoOS kernel stays installed. You can bring the openSUSE kernel "
 "back here at any time."
@@ -1615,11 +1653,11 @@ msgstr ""
 "Nur der NazoOS-Kernel bleibt installiert. Sie können den openSUSE-Kernel "
 "hier jederzeit zurückholen."
 
-#: qml/pages/KernelPage.qml:86
+#: qml/pages/KernelPage.qml:87
 msgid "Back to the openSUSE kernel"
 msgstr "Zurück zum openSUSE-Kernel"
 
-#: qml/pages/KernelPage.qml:87
+#: qml/pages/KernelPage.qml:88
 msgid ""
 "Makes the openSUSE kernel the default again and installs it if it was "
 "removed. The NazoOS kernel can then be removed while the openSUSE kernel is "
@@ -1629,19 +1667,19 @@ msgstr ""
 "entfernt wurde. Der NazoOS-Kernel kann dann entfernt werden, während der "
 "openSUSE-Kernel läuft."
 
-#: qml/pages/KernelPage.qml:91
+#: qml/pages/KernelPage.qml:92
 msgid "Use openSUSE kernel"
 msgstr "openSUSE-Kernel verwenden"
 
-#: qml/pages/KernelPage.qml:97
+#: qml/pages/KernelPage.qml:98
 msgid "Remove NazoOS kernel"
 msgstr "NazoOS-Kernel entfernen"
 
-#: qml/pages/KernelPage.qml:100
+#: qml/pages/KernelPage.qml:101
 msgid "Remove the NazoOS kernel?"
 msgstr "NazoOS-Kernel entfernen?"
 
-#: qml/pages/KernelPage.qml:101
+#: qml/pages/KernelPage.qml:102
 msgid ""
 "The NazoOS kernel and its driver modules are removed. You can install it "
 "again later."
@@ -1649,15 +1687,15 @@ msgstr ""
 "Der NazoOS-Kernel und seine Treibermodule werden entfernt. Sie können ihn "
 "später wieder installieren."
 
-#: qml/pages/KernelPage.qml:109
+#: qml/pages/KernelPage.qml:110
 msgid "Secure Boot"
 msgstr "Secure Boot"
 
-#: qml/pages/KernelPage.qml:115
+#: qml/pages/KernelPage.qml:116
 msgid "NazoOS key (MOK)"
 msgstr "NazoOS-Schlüssel (MOK)"
 
-#: qml/pages/KernelPage.qml:117
+#: qml/pages/KernelPage.qml:118
 msgid ""
 "With Secure Boot the computer only starts kernels with a trusted key. The "
 "NazoOS key is added once in the blue MokManager screen that appears after a "
@@ -1671,7 +1709,7 @@ msgstr ""
 "„Yes“, dann das gewählte Passwort (Vorschlag: nazoos). Bis dahin startet der "
 "NazoOS-Kernel nicht; wählen Sie im Startmenü den openSUSE-Kernel."
 
-#: qml/pages/KernelPage.qml:118
+#: qml/pages/KernelPage.qml:119
 msgid ""
 "Secure Boot is off, the NazoOS kernel starts without the key. Enroll it "
 "anyway: kernel updates expect it, and Secure Boot can be turned on later. It "
@@ -1685,19 +1723,19 @@ msgstr ""
 "Bildschirm nach einem Neustart eingetragen: „Enroll MOK“ → „Continue“ → "
 "„Yes“, dann das gewählte Passwort (Vorschlag: nazoos)."
 
-#: qml/pages/KernelPage.qml:119
+#: qml/pages/KernelPage.qml:120
 msgid "Key enrolled"
 msgstr "Schlüssel eingetragen"
 
-#: qml/pages/KernelPage.qml:120
+#: qml/pages/KernelPage.qml:121
 msgid "Waiting for MokManager – restart the computer"
 msgstr "Wartet auf MokManager – starten Sie den Computer neu"
 
-#: qml/pages/KernelPage.qml:121
+#: qml/pages/KernelPage.qml:122
 msgid "Key not enrolled"
 msgstr "Schlüssel nicht eingetragen"
 
-#: qml/pages/KernelPage.qml:126
+#: qml/pages/KernelPage.qml:127
 msgid "Enroll key"
 msgstr "Schlüssel eintragen"
 
@@ -2345,6 +2383,15 @@ msgstr "Mehr erfahren"
 #: qml/pages/WelcomePage.qml:174
 msgid "Show this window at login"
 msgstr "Dieses Fenster bei der Anmeldung anzeigen"
+
+#~ msgid ""
+#~ "The driver for older cards only exists for the openSUSE kernel. On the "
+#~ "Kernel page choose \"Use openSUSE kernel\", restart and remove the NazoOS "
+#~ "kernel first."
+#~ msgstr ""
+#~ "Den Treiber für ältere Karten gibt es nur für den openSUSE-Kernel. Wählen "
+#~ "Sie auf der Seite Kernel „openSUSE-Kernel verwenden“, starten Sie neu und "
+#~ "entfernen Sie zuerst den NazoOS-Kernel."
 
 #~ msgid ""
 #~ "NazoOS now runs on openSUSE Slowroll. Restart the computer to finish."

@@ -10,6 +10,7 @@ key: mok, module sync as root: kmp_sync. No Qt imports here.
 """
 
 import os
+from pathlib import Path
 
 from . import grub, kernelstate, mok, proc, repos
 
@@ -38,10 +39,36 @@ KMP_DEFAULT_ONLY = ["nvidia-driver-G06-kmp-default"]
 # nazoos): acpi_call for handheld TDP tools (Handheld Daemon, SimpleDeckyTDP)
 KMP_NAZOOS_ONLY = ["acpi_call"]
 
+PCI_DEVICES = Path("/sys/bus/pci/devices")
+# Turing (TU102, 0x1e02) has the lowest PCI device ID the open module
+# supports; Maxwell, Pascal and Volta are all below it
+NVIDIA_OPEN_FIRST_DEVICE = 0x1e00
+
 
 def running_nazoos():
     """The running kernel is kernel-nazoos."""
     return os.uname().release.endswith("-nazoos")
+
+
+def nvidia_closed_only(devices=None):
+    """An NVIDIA display controller the open module (G07, the only NVIDIA
+    driver of kernel-nazoos) does not support: Maxwell, Pascal, Volta
+    (GTX 750 to GTX 10, Quadro P) and older. Their driver (G06 closed)
+    exists for kernel-default only."""
+    try:
+        dirs = list((devices or PCI_DEVICES).iterdir())
+    except OSError:
+        return False
+    for d in dirs:
+        try:
+            vendor, cls, device = (int((d / f).read_text().strip(), 16)
+                                   for f in ("vendor", "class", "device"))
+        except (OSError, ValueError):
+            continue
+        if (vendor == 0x10de and cls >> 16 == 0x03
+                and device < NVIDIA_OPEN_FIRST_DEVICE):
+            return True
+    return False
 
 
 def kmp(base, flavor):
@@ -61,11 +88,13 @@ STAGE2_READY = "ready"
 STAGE2_WAITING = "waiting"
 
 
-def stage2_state(preferred, boots, default_installed, only):
+def stage2_state(preferred, boots, default_installed, only,
+                 closed_gpu=False):
     """Removing kernel-default (stage 2): "" (not offered: the user went
-    back to the openSUSE kernel, or it is gone already), "waiting" (fewer
-    than STABLE_BOOTS clean boots) or "ready"."""
-    if not (preferred and default_installed and not only):
+    back to the openSUSE kernel, it is gone already, or the NVIDIA card
+    needs it), "waiting" (fewer than STABLE_BOOTS clean boots) or
+    "ready"."""
+    if not (preferred and default_installed and not only) or closed_gpu:
         return ""
     return (STAGE2_READY if boots >= kernelstate.STABLE_BOOTS
             else STAGE2_WAITING)
@@ -93,7 +122,8 @@ def stage2_now():
         return ""
     return stage2_state(True, kernelstate.read_boots().get("count", 0),
                         proc.rpm_installed(KERNEL_DEFAULT),
-                        proc.rpm_installed(KERNEL_ONLY_PACKAGE))
+                        proc.rpm_installed(KERNEL_ONLY_PACKAGE),
+                        nvidia_closed_only())
 
 
 def stage2_due():

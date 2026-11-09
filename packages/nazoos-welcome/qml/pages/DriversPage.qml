@@ -39,19 +39,31 @@ Kirigami.ScrollablePage {
             extraContent: [
                 QQC2.ComboBox {
                     id: nvVariant
+                    readonly property bool legacyBlocked: currentValue === "legacy"
+                        && !!page.st.kernel && page.st.kernel.installed === true
                     visible: !page.st.nvidiaDriver
                     Layout.fillWidth: true
                     textRole: "text"
                     valueRole: "value"
+                    currentIndex: page.st.kernel && page.st.kernel.closedGpu ? 1 : 0
+                    // A literal index replaces the binding: a state refresh
+                    // must not undo the user's choice
+                    onActivated: index => currentIndex = index
                     model: [
                         { value: "open", text: L.tr("GeForce GTX 16, RTX 20 and newer (recommended)") },
                         { value: "legacy", text: L.tr("GeForce GTX 750 to GTX 10 series (older cards)") }
                     ]
+                },
+                QQC2.Label {
+                    visible: !page.st.nvidiaDriver && nvVariant.legacyBlocked
+                    text: L.tr("The driver for older cards only exists for the openSUSE kernel. On the Kernel page switch back to the openSUSE kernel, restart and remove the NazoOS kernel.")
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
                 }
             ]
             QQC2.Button {
                 visible: !page.st.nvidiaDriver
-                enabled: !backend.busy
+                enabled: !backend.busy && !nvVariant.legacyBlocked
                 text: L.tr("Install")
                 icon.name: "download"
                 onClicked: {

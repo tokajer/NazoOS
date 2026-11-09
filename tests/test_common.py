@@ -106,6 +106,8 @@ def state(monkeypatch, tmp_path):
     monkeypatch.setattr(kernelstate, "STATE", tmp_path)
     monkeypatch.setattr(kernelstate, "PREFER", tmp_path / "kernel-prefer")
     monkeypatch.setattr(kernelstate, "BOOTS", tmp_path / "boots.json")
+    # The real /sys of the dev machine must not decide a test
+    monkeypatch.setattr(kernel, "PCI_DEVICES", tmp_path / "no-pci")
     return tmp_path
 
 
@@ -136,12 +138,61 @@ def test_stage2_now_counts_the_clean_starts(monkeypatch, state, count,
     assert kernel.stage2_due() is (expected == "ready")
 
 
+def test_stage2_now_is_not_offered_with_a_closed_only_nvidia_card(
+        monkeypatch, state):
+    kernelstate.PREFER.touch()
+    kernelstate.write_boots({"count": 3})
+    monkeypatch.setattr(kernel.proc, "rpm_installed",
+                        lambda n: n == "kernel-default")
+    monkeypatch.setattr(kernel, "nvidia_closed_only", lambda: True)
+    assert kernel.stage2_now() == ""
+    assert kernel.stage2_due() is False
+
+
+def pci(root, name, vendor, cls, device):
+    d = root / name
+    d.mkdir()
+    for f, v in (("vendor", vendor), ("class", cls), ("device", device)):
+        (d / f).write_text(v + "\n")
+
+
+@pytest.mark.parametrize("dev, expected", [
+    (("10de", "0x030200", "0x1d34"), True),    # Pascal, 3D controller
+    (("10de", "0x030000", "0x1f82"), False),   # Turing
+    (("10de", "0x040300", "0x10fa"), False),   # NVIDIA audio function
+    (("8086", "0x030000", "0x9b41"), False),   # Intel GPU
+])
+def test_nvidia_closed_only(tmp_path, dev, expected):
+    vendor, cls, device = dev
+    pci(tmp_path, "0000:01:00.0", "0x" + vendor, cls, device)
+    assert kernel.nvidia_closed_only(tmp_path) is expected
+
+
+def test_nvidia_closed_only_finds_the_card_among_others(tmp_path):
+    pci(tmp_path, "0000:00:02.0", "0x8086", "0x030000", "0x9b41")
+    pci(tmp_path, "0000:01:00.0", "0x10de", "0x030200", "0x1d34")
+    assert kernel.nvidia_closed_only(tmp_path) is True
+
+
+def test_nvidia_closed_only_skips_unreadable_devices(tmp_path):
+    bad = tmp_path / "0000:00:01.0"
+    bad.mkdir()
+    (bad / "vendor").write_text("0x10de\n")   # class and device missing
+    pci(tmp_path, "0000:00:02.0", "0x10de", "0x030000", "garbage")
+    assert kernel.nvidia_closed_only(tmp_path) is False
+
+
+def test_nvidia_closed_only_without_pci_dir(tmp_path):
+    assert kernel.nvidia_closed_only(tmp_path / "missing") is False
+
+
 @pytest.mark.parametrize("args, expected", [
     ((True, 3, True, False), "ready"),
     ((True, 2, True, False), "waiting"),
     ((True, 9, True, True), ""),
     ((False, 9, True, False), ""),
     ((True, 3, False, False), ""),
+    ((True, 3, True, False, True), ""),
 ])
 def test_stage2_state(args, expected):
     assert kernel.stage2_state(*args) == expected

@@ -107,6 +107,7 @@ def kernel_state():
     preferred = kernelstate.PREFER.exists()
     default_installed = kernel.KERNEL_DEFAULT in rpms
     only = kernel.KERNEL_ONLY_PACKAGE in rpms
+    closed_gpu = kernel.nvidia_closed_only()
     state = {
         "release": release,
         "running": running,
@@ -116,8 +117,9 @@ def kernel_state():
         "preferred": preferred,
         "boots": boots,
         "stableBoots": kernelstate.STABLE_BOOTS,
+        "closedGpu": closed_gpu,
         "stage2": (kernel.stage2_state(preferred, boots, default_installed,
-                                       only) if running else ""),
+                                       only, closed_gpu) if running else ""),
         "blocked": any(p in rpms for p in kernel.KMP_DEFAULT_ONLY),
         "secureBoot": secure_boot,
         "uefi": uefi,

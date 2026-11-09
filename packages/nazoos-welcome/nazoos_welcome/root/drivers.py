@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Drivers, codecs and handheld support."""
 
-from nazoos_common import helper, proc
-from nazoos_common.helper import arg, say
+from nazoos_common import helper, kernel, proc
+from nazoos_common.helper import Fail, arg, say
 from nazoos_common.zypper import ZYPPER
 
 from .. import system
@@ -30,6 +30,10 @@ def codecs_install(_args):
 def nvidia_install(args):
     variant = arg(args, 0, system.NVIDIA_DRIVERS)
     drivers = system.NVIDIA_DRIVERS[variant]["packages"]
+    if variant == "legacy" and proc.rpm_installed(kernel.KERNEL_PACKAGE):
+        raise Fail("the driver for older NVIDIA cards only exists for the "
+                   "openSUSE kernel; remove the NazoOS kernel on the Kernel "
+                   "page first")
     with repo_in_use(
             "://download.nvidia.com/", system.NVIDIA_REPO_ALIAS,
             ["--refresh", "--name", "NVIDIA", system.NVIDIA_REPO_URL],

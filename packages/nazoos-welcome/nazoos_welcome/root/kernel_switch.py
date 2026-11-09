@@ -94,6 +94,10 @@ def kernel_only(_args):
     """Stage 2: remove kernel-default for good (nazoos-kernel-only)."""
     if not running_nazoos():
         raise Fail("start the NazoOS kernel first")
+    if (kernel.nvidia_closed_only()
+            and proc.rpm_installed(kernel.KERNEL_DEFAULT)):
+        raise Fail("this NVIDIA graphics card only gets its driver with the "
+                   "openSUSE kernel; keep it installed")
     stage2 = kernel.stage2_now()
     if stage2 == kernel.STAGE2_WAITING:
         raise Fail("the openSUSE kernel can be removed after {count} clean "
