@@ -39,6 +39,9 @@ Recommends:     game-devices-udev
 Recommends:     lutris
 Recommends:     gamemode
 Recommends:     mangohud
+# 32-bit Vulkan layer: without it MANGOHUD=1 shows nothing in 32-bit games
+# (e.g. Dark Age of Camelot under Proton/DXVK)
+Recommends:     mangohud-32bit
 Recommends:     gamescope
 # Steam's gaming mode (Steam Deck interface) as a login session, with a
 # "Gaming Mode" switch in the menu and Steam's "Switch to Desktop"

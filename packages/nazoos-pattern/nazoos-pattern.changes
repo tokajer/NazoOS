@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Nov 14 21:01:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend mangohud-32bit: the MangoHud overlay (MANGOHUD=1) stays
+  invisible in 32-bit games without the 32-bit Vulkan layer
+
+-------------------------------------------------------------------
 Sat Nov 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend ProtonPlus (+ -lang), umu-launcher, vkbasalt and
