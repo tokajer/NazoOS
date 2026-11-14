@@ -22,7 +22,11 @@ APPS = [
      "icon": "com.vysp3r.ProtonPlus",
      "summary": "Alternative manager for Proton and Wine versions"},
     {"id": "heroic", "name": "Heroic Games Launcher", "category": "gaming",
-     "kind": "flatpak", "refs": ["com.heroicgameslauncher.hgl"],
+     # The sandbox cannot see the MangoHud RPM; Heroic needs the Vulkan
+     # layer extension for its runtime branch (picked by _install_flatpak)
+     "kind": "flatpak",
+     "refs": ["com.heroicgameslauncher.hgl",
+              "org.freedesktop.Platform.VulkanLayer.MangoHud"],
      "icon": "com.heroicgameslauncher.hgl",
      "summary": "Epic Games, GOG and Amazon Prime Gaming"},
     {"id": "bottles", "name": "Bottles", "category": "gaming",

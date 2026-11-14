@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Sun Nov 15 13:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Optional apps: Heroic now also installs the Flatpak MangoHud layer
+  (org.freedesktop.Platform.VulkanLayer.MangoHud) in the branch of its
+  runtime. The sandbox cannot use the MangoHud RPM, so Heroic said
+  "mangohud executable could not be found" with MangoHud enabled.
+
+-------------------------------------------------------------------
 Sun Nov 15 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Drivers page: the NVIDIA video acceleration switch now covers
