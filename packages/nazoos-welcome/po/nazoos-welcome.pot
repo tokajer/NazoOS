@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-14 23:48+0100\n"
+"POT-Creation-Date: 2026-11-15 00:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -150,10 +150,6 @@ msgid "Adding drive"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
-msgid "Alternative manager for Proton and Wine versions"
-msgstr ""
-
-#: nazoos_welcome/catalog.py
 msgid ""
 "Android apps and games in a window. The first start downloads Android (about "
 "1 GB)"
@@ -289,10 +285,6 @@ msgstr ""
 
 #: nazoos_welcome/catalog.py
 msgid "Image editor"
-msgstr ""
-
-#: nazoos_welcome/catalog.py
-msgid "Install and update Proton-GE and other compatibility tools"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -2140,7 +2132,7 @@ msgid "3. Apps"
 msgstr ""
 
 #: qml/pages/WelcomePage.qml:144
-msgid "Discord, OBS Studio, Heroic, ProtonUp-Qt and more with one click."
+msgid "Discord, OBS Studio, Heroic, Bottles and more with one click."
 msgstr ""
 
 #: qml/pages/WelcomePage.qml:152

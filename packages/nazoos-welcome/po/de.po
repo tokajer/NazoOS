@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-14 23:48+0100\n"
+"POT-Creation-Date: 2026-11-15 00:46+0100\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -157,10 +157,6 @@ msgid "Adding drive"
 msgstr "Laufwerk wird hinzugefügt"
 
 #: nazoos_welcome/catalog.py
-msgid "Alternative manager for Proton and Wine versions"
-msgstr "Alternative Verwaltung für Proton- und Wine-Versionen"
-
-#: nazoos_welcome/catalog.py
 msgid ""
 "Android apps and games in a window. The first start downloads Android (about "
 "1 GB)"
@@ -303,11 +299,6 @@ msgstr ""
 #: nazoos_welcome/catalog.py
 msgid "Image editor"
 msgstr "Bildbearbeitung"
-
-#: nazoos_welcome/catalog.py
-msgid "Install and update Proton-GE and other compatibility tools"
-msgstr ""
-"Proton-GE und andere Kompatibilitätswerkzeuge installieren und aktualisieren"
 
 #: nazoos_welcome/catalog.py
 msgid "Installing"
@@ -1078,10 +1069,10 @@ msgid ""
 msgstr ""
 "Firefox, Google Chrome und Brave dekodieren Web-Videos auf der NVIDIA-Karte "
 "statt auf dem Prozessor: weniger Last und Wärme. Dafür wird die Sandbox des "
-"Video-Decoder-Prozesses von Firefox abgeschaltet, Chrome und Brave ignorieren "
-"ihre GPU-Sperrliste, und der Zusatztreiber kann nach einem NVIDIA-Update "
-"ausfallen, bis er ebenfalls aktualisiert ist. Andere Programme sind nicht "
-"betroffen."
+"Video-Decoder-Prozesses von Firefox abgeschaltet, Chrome und Brave "
+"ignorieren ihre GPU-Sperrliste, und der Zusatztreiber kann nach einem NVIDIA-"
+"Update ausfallen, bis er ebenfalls aktualisiert ist. Andere Programme sind "
+"nicht betroffen."
 
 #: qml/pages/DriversPage.qml:90
 msgid "Browser not included yet"
@@ -1112,10 +1103,10 @@ msgid ""
 msgstr ""
 "Dies installiert nvidia-vaapi-driver und schaltet die Sandbox des Video-"
 "Decoder-Prozesses von Firefox ab (ein Kompromiss bei der Sicherheit). Die "
-"Firefox-Einstellungen werden über eine Systemrichtlinie gesetzt; in about:"
-"config kannst du sie weiterhin ändern. Google Chrome und Brave bekommen "
-"Startoptionen in ihren Menüeinträgen, auch später installierte Browser "
-"(„Erneut anwenden“).\n"
+"Firefox-Einstellungen werden über eine Systemrichtlinie gesetzt; in "
+"about:config kannst du sie weiterhin ändern. Google Chrome und Brave "
+"bekommen Startoptionen in ihren Menüeinträgen, auch später installierte "
+"Browser („Erneut anwenden“).\n"
 "\n"
 "Melde dich danach ab und wieder an."
 
@@ -2421,8 +2412,8 @@ msgid "3. Apps"
 msgstr "3. Apps"
 
 #: qml/pages/WelcomePage.qml:144
-msgid "Discord, OBS Studio, Heroic, ProtonUp-Qt and more with one click."
-msgstr "Discord, OBS Studio, Heroic, ProtonUp-Qt und mehr mit einem Klick."
+msgid "Discord, OBS Studio, Heroic, Bottles and more with one click."
+msgstr "Discord, OBS Studio, Heroic, Bottles und mehr mit einem Klick."
 
 #: qml/pages/WelcomePage.qml:152
 msgid "4. Drives"
@@ -2454,6 +2445,17 @@ msgstr "Mehr erfahren"
 #: qml/pages/WelcomePage.qml:174
 msgid "Show this window at login"
 msgstr "Dieses Fenster bei der Anmeldung anzeigen"
+
+#~ msgid "Alternative manager for Proton and Wine versions"
+#~ msgstr "Alternative Verwaltung für Proton- und Wine-Versionen"
+
+#~ msgid "Install and update Proton-GE and other compatibility tools"
+#~ msgstr ""
+#~ "Proton-GE und andere Kompatibilitätswerkzeuge installieren und "
+#~ "aktualisieren"
+
+#~ msgid "Discord, OBS Studio, Heroic, ProtonUp-Qt and more with one click."
+#~ msgstr "Discord, OBS Studio, Heroic, ProtonUp-Qt und mehr mit einem Klick."
 
 #~ msgid "Disabling video acceleration in Firefox"
 #~ msgstr "Video-Beschleunigung in Firefox wird abgeschaltet"

@@ -35,7 +35,8 @@ Slowroll is openSUSE's calmer rolling release: it takes the packages Tumbleweed 
 - **Steam gaming mode** (the Steam Deck interface) as a session on the login screen, or one click from the desktop. It can also start like a console when the computer boots. Back to the desktop through Steam → Power → *Switch to Desktop*
 - **Controllers:** Xbox wireless (xone, xpadneo), PlayStation, wheels and flight sticks (game-devices-udev), adjustable USB poll rate up to 1000 Hz
 - **One image for desktops and handhelds.** On a Steam Deck, ROG Ally, Legion Go, MSI Claw and similar devices the installer picks *Handheld* by itself and installs InputPlumber, Deck fan control and audio DSP
-- **One-click apps:** ProtonUp-Qt, ProtonPlus, Heroic, Bottles, Prism Launcher, RetroArch, Moonlight, Discord, OBS Studio, Waydroid and more
+- **One-click apps:** Heroic, Bottles, Prism Launcher, RetroArch, Moonlight, Discord, OBS Studio, Waydroid and more
+- **ProtonPlus** preinstalled to add Proton-GE and Wine-GE versions
 - **Hardware tools:** LACT (GPU clocks and fans), CoolerControl, OpenRGB
 
 ### ⚡ Performance tweaks

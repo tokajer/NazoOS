@@ -141,7 +141,7 @@ Kirigami.ScrollablePage {
             SettingCard {
                 iconName: "plasmadiscover"
                 title: L.tr("3. Apps")
-                subtitle: L.tr("Discord, OBS Studio, Heroic, ProtonUp-Qt and more with one click.")
+                subtitle: L.tr("Discord, OBS Studio, Heroic, Bottles and more with one click.")
                 QQC2.Button {
                     text: L.tr("Open")
                     onClicked: page.app.showPage("apps")

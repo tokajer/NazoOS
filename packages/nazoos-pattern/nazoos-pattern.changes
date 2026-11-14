@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sun Nov 15 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Comment only: ProtonPlus is the only Proton manager, Welcome no
+  longer offers the ProtonUp-Qt Flatpak
+
+-------------------------------------------------------------------
 Sat Nov 14 21:01:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend mangohud-32bit: the MangoHud overlay (MANGOHUD=1) stays

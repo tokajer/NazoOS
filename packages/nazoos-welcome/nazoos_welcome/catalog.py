@@ -13,14 +13,7 @@ paths and the package lists the user does not pick are in system.py.
 # neither "icon" nor a ref matches it (appicons.py)
 APPS = [
     # Gaming
-    {"id": "protonupqt", "name": "ProtonUp-Qt", "category": "gaming",
-     "kind": "flatpak", "refs": ["net.davidotek.pupgui2"],
-     "icon": "net.davidotek.pupgui2",
-     "summary": "Install and update Proton-GE and other compatibility tools"},
-    {"id": "protonplus", "name": "ProtonPlus", "category": "gaming",
-     "kind": "flatpak", "refs": ["com.vysp3r.ProtonPlus"],
-     "icon": "com.vysp3r.ProtonPlus",
-     "summary": "Alternative manager for Proton and Wine versions"},
+    # No Proton manager here: ProtonPlus is preinstalled as RPM (nazoos-pattern)
     {"id": "heroic", "name": "Heroic Games Launcher", "category": "gaming",
      # The sandbox cannot see the MangoHud RPM; Heroic needs the Vulkan
      # layer extension for its runtime branch (picked by _install_flatpak)

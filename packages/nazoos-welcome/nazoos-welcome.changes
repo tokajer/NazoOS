@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Sun Nov 15 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Optional apps: drop the ProtonUp-Qt and ProtonPlus Flatpak cards.
+  ProtonPlus is preinstalled as RPM by nazoos-pattern, so Welcome no
+  longer offers a second Proton manager. Apps card text names Bottles
+  instead of ProtonUp-Qt.
+
+-------------------------------------------------------------------
 Sun Nov 15 13:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Optional apps: Heroic now also installs the Flatpak MangoHud layer

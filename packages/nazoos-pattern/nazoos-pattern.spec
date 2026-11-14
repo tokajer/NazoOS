@@ -56,7 +56,7 @@ Recommends:     goverlay
 Recommends:     vkbasalt
 Recommends:     vkbasalt-32bit
 # Installs and updates Proton-GE, Wine-GE and friends for Steam, Lutris
-# and Heroic (RPM in repo-oss, the ProtonUp-Qt Flatpak stays in Welcome)
+# and Heroic (RPM in repo-oss; the only Proton manager, Welcome offers none)
 Recommends:     ProtonPlus
 # Runs non-Steam games with Proton in the Steam Linux Runtime (Lutris,
 # Heroic); own package, not in Slowroll
