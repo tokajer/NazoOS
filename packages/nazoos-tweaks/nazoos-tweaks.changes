@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sat Nov 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- modprobe.d/nvidia.conf: drop NVreg_UsePageAttributeTable, the open
+  kernel module has no such option and logged "unknown parameter
+  ignored" on an RTX 4080 (closed driver only, PAT is always used)
+
+-------------------------------------------------------------------
 Sun Nov  1 20:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Add nazoos-yast-cleanup.service: removes YaST once and locks yast2,
