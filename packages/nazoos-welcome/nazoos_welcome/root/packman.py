@@ -23,7 +23,7 @@ _NEEDED_BY = re.compile(r"needed by the to be installed (\S+)")
 _REQUIRES = re.compile(r"the to be installed (\S+) requires .*cannot be "
                        r"provided")
 # Matches: libfoo1-1.2-3.1.x86_64
-_NEVRA = re.compile(r"([A-Za-z0-9].*)-[^-]+-[^-]+\.(?:x86_64|i586|i686|noarch)")
+_NEVRA = re.compile(r"([A-Za-z0-9].*)-[^-]+-[^-]+\.(x86_64|i586|i686|noarch)")
 
 
 def unresolvable(text):
@@ -37,15 +37,25 @@ def unresolvable(text):
         m = _NEEDED_BY.search(line) or _REQUIRES.search(line)
         n = m and _NEVRA.fullmatch(m.group(1).rstrip(".,;"))
         if n:
-            names.add(n.group(1))
+            name, arch = n.groups()
+            # zypper offers the i586 build as the 32-bit candidate; it
+            # installs as NAME-32bit, so that is what to hold back. Locking
+            # NAME would hold the 64-bit package instead
+            if arch in ("i586", "i686") and not name.endswith("-32bit"):
+                name += "-32bit"
+            names.add(name)
     return sorted(names)
 
 
 def _lock_names(name):
-    """NAME and its other word size: Packman may lack either build."""
-    other = name.removesuffix("-32bit") if name.endswith("-32bit") \
-        else name + "-32bit"
-    return [name, other]
+    """NAME and, for a 64-bit NAME, its 32-bit build: a 32-bit library
+    must not move to Packman while its 64-bit twin stays. The other way
+    round is fine (and needed): Packman's 32-bit builds often lag, and
+    holding the 64-bit twin with them breaks the 64-bit set, whose
+    packages require each other's exact version."""
+    if name.endswith("-32bit"):
+        return [name]
+    return [name, name + "-32bit"]
 
 
 def held_32bit(names):

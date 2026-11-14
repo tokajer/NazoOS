@@ -1012,6 +1012,48 @@ def test_packman_switch_other_failure_is_not_a_rebuild(monkeypatch,
     assert e.value.template.startswith("'{cmd}' failed")
 
 
+# First dup on the ThinkPad L13 (Slowroll, 2026-11-14): Packman's 32-bit
+# ffmpeg needs a libbluray soname Slowroll lacks; zypper also lists the
+# i586 builds and openSUSE's build-only ffmpeg-8-mini-libs
+L13_SLOWROLL = (
+    "- nothing provides 'libbluray.so.3' needed by the to be installed "
+    "libavformat62-32bit-8.1.2-1699.3.0.5.pm.4.x86_64\n"
+    "- nothing provides 'libbluray.so.3' needed by the to be installed "
+    "libavformat62-8.1.2-1699.3.0.5.pm.4.i586\n"
+    "- nothing provides 'this-is-only-for-build-envs' needed by the to be "
+    "installed ffmpeg-8-mini-libs-8.1.3-5.1.sr20261101.i586\n"
+    "- the installed libavfilter11-32bit-8.1.3-5.1.sr20261101.x86_64 "
+    "requires 'libswresample.so.6(LIBSWRESAMPLE_6)', but this requirement "
+    "cannot be provided\n")
+
+
+def test_unresolvable_i586_is_the_32bit_build():
+    assert packman.unresolvable(L13_SLOWROLL) == [
+        "ffmpeg-8-mini-libs-32bit", "libavformat62-32bit"]
+
+
+def test_packman_switch_never_holds_64bit_for_a_32bit_problem(monkeypatch,
+                                                               tmp_path):
+    monkeypatch.setattr(packman, "ZYPP_LOCKS", tmp_path / "locks")
+    calls, codes = [], iter([0, 4, 0, 0, 0])
+
+    def fake_run(cmd, check=True, on_line=None):
+        calls.append(cmd)
+        rc = next(codes)
+        if on_line and rc:
+            on_line(L13_SLOWROLL)
+        return rc
+    monkeypatch.setattr(helper, "run", fake_run)
+    monkeypatch.setattr(helper, "output", lambda cmd: (
+        "libavformat62\nlibavformat62-32bit\nlibavfilter11\n"
+        "libavfilter11-32bit\nMesa-32bit\n"))
+    packman.packman_switch("packman")
+    held = calls[2][3:]
+    assert held == ["Mesa-32bit", "ffmpeg-8-mini-libs-32bit",
+                    "libavfilter11-32bit", "libavformat62-32bit"]
+    assert all(n.endswith("-32bit") for n in held)
+
+
 def test_unresolvable_name_cannot_be_an_option():
     assert packman.unresolvable("needed by the to be installed "
                              "--help-1-2.noarch\n") == []

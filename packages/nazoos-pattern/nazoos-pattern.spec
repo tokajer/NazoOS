@@ -47,6 +47,12 @@ Recommends:     wine
 Recommends:     protontricks
 Recommends:     winetricks
 Recommends:     goverlay
+# Post-processing (sharpening, CAS) for Vulkan games, set up in goverlay.
+# Only the 64-bit build exists in Slowroll, 32-bit games do not load it
+Recommends:     vkbasalt
+# Installs and updates Proton-GE, Wine-GE and friends for Steam, Lutris
+# and Heroic (RPM in repo-oss, the ProtonUp-Qt Flatpak stays in Welcome)
+Recommends:     ProtonPlus
 # Voice chat (non-oss like steam)
 Recommends:     discord
 # Both CPU vendors, the image is built without knowing the hardware. The
@@ -411,6 +417,7 @@ Recommends:     plymouth-lang
 Recommends:     polkit-kde-agent-6-lang
 Recommends:     powerdevil6-lang
 Recommends:     procps-lang
+Recommends:     ProtonPlus-lang
 Recommends:     psmisc-lang
 Recommends:     qqc2-desktop-style-lang
 Recommends:     qrca-lang

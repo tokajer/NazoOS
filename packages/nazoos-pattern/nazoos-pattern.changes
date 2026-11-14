@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sat Nov 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Recommend ProtonPlus (+ -lang) and vkbasalt: Proton-GE manager and
+  Vulkan post-processing by default, like Nobara
+
+-------------------------------------------------------------------
 Mon Nov  9 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Recommend sof-firmware and alsa-ucm-conf: Intel laptops with

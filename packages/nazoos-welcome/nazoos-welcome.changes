@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Sat Nov 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Packman codecs: the retry held the 64-bit ffmpeg libraries back
+  when only Packman's 32-bit builds were broken, so the switch
+  failed on Slowroll. i586 candidates now count as -32bit, and a
+  32-bit problem never holds the 64-bit package
+
+-------------------------------------------------------------------
 Mon Nov  9 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - NVIDIA cards older than the GTX 16 series: the NazoOS kernel install
