@@ -81,9 +81,10 @@ NVIDIA_DRIVERS = {
                             "nvidia-compute-utils-G06"]},
 }
 
-# VA-API on NVIDIA for Firefox (ADR 0037): nvidia-vaapi-driver, built in
-# our OBS as a link to X11:XOrg/libva-nvidia-driver (not in Slowroll). Its
-# NVDEC libraries come with nvidia-video-G0x. Firefox needs two environment
+# VA-API on NVIDIA for Firefox and Chromium browsers (ADR 0037):
+# nvidia-vaapi-driver, built in our OBS as a link to
+# X11:XOrg/libva-nvidia-driver (not in Slowroll). Its NVDEC libraries come
+# with nvidia-video-G0x. Firefox needs two environment
 # variables (upstream README): the RDD sandbox off (the decoder runs in that
 # process) and libva pinned to this driver; and three preferences, set as a
 # system policy with Status "default" so about:config can still override
@@ -105,6 +106,58 @@ NVIDIA_VAAPI_PREFS = {
     "media.rdd-ffmpeg.enabled": True,
     "gfx.x11-egl.force-enabled": True,
 }
+
+# The same for Chromium browsers (ADR 0037). Their vendor RPMs read no
+# flags file (/etc/default/<browser> only feeds the repo cron job), so we
+# write patched copies of their .desktop files to /usr/local/share/
+# applications, which comes before /usr/share in XDG_DATA_DIRS: menu, task
+# bar and links opened by other programs start the browser with the flags.
+# Both files of each browser: the menu entry and the hidden one named after
+# the Wayland app id. VaapiOnNvidiaGPUs lifts Chromium's NVIDIA block;
+# tested on an RTX 4080 with Chrome and Brave.
+SYSTEM_APPS = Path("/usr/share/applications")
+LOCAL_APPS = Path("/usr/local/share/applications")
+CHROMIUM_BROWSERS = {
+    "/usr/bin/google-chrome-stable": ("google-chrome.desktop",
+                                      "com.google.Chrome.desktop"),
+    "/usr/bin/brave-browser-stable": ("brave-browser.desktop",
+                                      "com.brave.Browser.desktop"),
+}
+CHROMIUM_VAAPI_FLAGS = ("--enable-features=AcceleratedVideoDecodeLinuxGL,"
+                        "VaapiOnNvidiaGPUs --ignore-gpu-blocklist "
+                        "--use-gl=angle --use-angle=gl "
+                        "--ozone-platform=wayland")
+DESKTOP_MARKER = ("# Written by NazoOS Welcome (Drivers page, video "
+                  "acceleration); removed by the same page.")
+
+
+def chromium_desktop(text, binary):
+    """A browser's .desktop TEXT with our marker on top and the VA-API
+    flags after BINARY in every Exec line."""
+    lines = [DESKTOP_MARKER]
+    for line in text.splitlines():
+        if line.startswith("Exec=" + binary):
+            line = line.replace(binary, binary + " " + CHROMIUM_VAAPI_FLAGS, 1)
+        lines.append(line)
+    return "\n".join(lines) + "\n"
+
+
+def chromium_entries():
+    """(source, target, wanted text) for every installed Chromium browser
+    .desktop file we patch."""
+    for binary, names in CHROMIUM_BROWSERS.items():
+        for name in names:
+            source = SYSTEM_APPS / name
+            if source.exists():
+                yield (source, LOCAL_APPS / name,
+                       chromium_desktop(source.read_text(), binary))
+
+
+def desktop_is_ours(path):
+    try:
+        return path.read_text().startswith(DESKTOP_MARKER)
+    except OSError:
+        return False
 
 # ROCm: AMD GPU compute (HIP, OpenCL) for Blender, DaVinci Resolve and local
 # AI tools, not needed for games. All from openSUSE oss (ADR 0012).

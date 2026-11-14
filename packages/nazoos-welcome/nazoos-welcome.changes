@@ -1,4 +1,14 @@
 -------------------------------------------------------------------
+Sun Nov 15 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Drivers page: the NVIDIA video acceleration switch now covers
+  Google Chrome and Brave too (ADR 0037): patched copies of their
+  .desktop files in /usr/local/share/applications start them with
+  VaapiOnNvidiaGPUs and the ANGLE/GL flags; only our marked copies are
+  rewritten or removed. A browser installed or updated later shows
+  "Browser not included yet" with "Apply again"
+
+-------------------------------------------------------------------
 Sat Nov 14 22:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Drivers page: "Video acceleration in Firefox" on NVIDIA-only systems

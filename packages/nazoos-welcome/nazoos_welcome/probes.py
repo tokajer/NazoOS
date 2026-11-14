@@ -182,6 +182,19 @@ _DRIVERS_RPMS = (["gstreamer-plugins-bad-codecs"]
                  + system.ROCM_PACKAGES)
 
 
+def _chromium_vaapi_stale():
+    """A Chromium browser lacks our .desktop copy or the copy no longer
+    matches its RPM's file: installed after enabling, or updated since.
+    A copy the user wrote counts as fine."""
+    try:
+        return any(not target.exists()
+                   or (system.desktop_is_ours(target)
+                       and target.read_text() != text)
+                   for _source, target, text in system.chromium_entries())
+    except OSError:
+        return False
+
+
 def _drivers(rpms, gpu_list):
     vendors = {g["vendor"] for g in gpu_list}
     nvidia_variant = ""
@@ -201,6 +214,7 @@ def _drivers(rpms, gpu_list):
         "nvidiaOnly": vendors == {"nvidia"},
         "nvidiaVaapi": (system.NVIDIA_VAAPI_PACKAGE in rpms
                         and system.NVIDIA_VAAPI_ENV.exists()),
+        "nvidiaVaapiStale": _chromium_vaapi_stale(),
         "rocm": system.ROCM_PACKAGES[0] in rpms,
         "packmanRepo": query.packman_repo(),
         # gstreamer-plugins-bad-codecs only exists in Packman

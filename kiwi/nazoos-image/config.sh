@@ -101,7 +101,8 @@ rpm --import /usr/lib/rpm/gnupg/keys/gpg-pubkey-*.asc
 # back (nazoos-welcome lifts it on request). Leaving NazoOS installs the
 # PackageKit backend. phonon-vlc: kept out of the image only, a user may
 # install VLC from the RPM repos. mokutil-bash-completion: only a Factory
-# leak at build time, Slowroll brings it with mokutil 0.7.3
+# leak at build time, Slowroll brings it with mokutil 0.7.3.
+# typelib-1_0-GnomeDesktop-3_0 keeps its lock: it crashes Lutris
 zypper --non-interactive removelock discover6-backend-packagekit
 zypper --non-interactive removelock phonon-vlc-qt5 phonon-vlc-qt6
 zypper --non-interactive removelock mokutil-bash-completion

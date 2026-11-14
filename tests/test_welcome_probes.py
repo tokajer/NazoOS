@@ -364,3 +364,22 @@ def test_drivers_firefox_vaapi_only_on_nvidia_only_systems(monkeypatch,
     assert st["nvidiaVaapi"] is False
     (tmp_path / "env.conf").write_text("x")
     assert probes._drivers(rpms, only)["nvidiaVaapi"] is True
+
+
+def test_chromium_vaapi_stale(monkeypatch, tmp_path):
+    src, dst = tmp_path / "share", tmp_path / "local"
+    src.mkdir()
+    dst.mkdir()
+    monkeypatch.setattr(system, "SYSTEM_APPS", src)
+    monkeypatch.setattr(system, "LOCAL_APPS", dst)
+    assert probes._chromium_vaapi_stale() is False      # no browser
+    chrome = "[Desktop Entry]\nExec=/usr/bin/google-chrome-stable %U\n"
+    (src / "google-chrome.desktop").write_text(chrome)
+    assert probes._chromium_vaapi_stale() is True       # installed later
+    ((_s, target, text),) = system.chromium_entries()
+    target.write_text(text)
+    assert probes._chromium_vaapi_stale() is False
+    (src / "google-chrome.desktop").write_text(chrome + "Name=New\n")
+    assert probes._chromium_vaapi_stale() is True       # browser updated
+    target.write_text("[Desktop Entry]\nmine\n")
+    assert probes._chromium_vaapi_stale() is False      # user's own file

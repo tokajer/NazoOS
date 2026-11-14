@@ -1169,6 +1169,9 @@ def _vaapi_env(monkeypatch, tmp_path):
     policies = tmp_path / "firefox" / "policies" / "policies.json"
     monkeypatch.setattr(system, "NVIDIA_VAAPI_ENV", env)
     monkeypatch.setattr(system, "FIREFOX_POLICIES", policies)
+    # No Chromium browser unless a test adds one (_apps)
+    monkeypatch.setattr(system, "SYSTEM_APPS", tmp_path / "no-apps")
+    monkeypatch.setattr(system, "LOCAL_APPS", tmp_path / "no-local-apps")
     return env, policies
 
 
@@ -1252,3 +1255,66 @@ def test_nvidia_vaapi_disable_without_anything_runs_nothing(
     _vaapi_env(monkeypatch, tmp_path)
     drivers.nvidia_vaapi_disable([])
     assert fake_root.calls == []
+
+
+CHROME_DESKTOP = """\
+[Desktop Entry]
+Name=Google Chrome
+Exec=/usr/bin/google-chrome-stable %U
+
+[Desktop Action new-private-window]
+Exec=/usr/bin/google-chrome-stable --incognito
+"""
+
+
+def _apps(monkeypatch, tmp_path):
+    src, dst = tmp_path / "share", tmp_path / "local"
+    src.mkdir()
+    monkeypatch.setattr(system, "SYSTEM_APPS", src)
+    monkeypatch.setattr(system, "LOCAL_APPS", dst)
+    return src, dst
+
+
+def test_chromium_desktop_adds_flags_to_every_exec_line():
+    text = system.chromium_desktop(CHROME_DESKTOP,
+                                   "/usr/bin/google-chrome-stable")
+    assert text.startswith(system.DESKTOP_MARKER + "\n[Desktop Entry]")
+    execs = [line for line in text.splitlines() if line.startswith("Exec=")]
+    assert execs == [
+        "Exec=/usr/bin/google-chrome-stable "
+        + system.CHROMIUM_VAAPI_FLAGS + " %U",
+        "Exec=/usr/bin/google-chrome-stable "
+        + system.CHROMIUM_VAAPI_FLAGS + " --incognito"]
+    assert "Name=Google Chrome" in text
+
+
+def test_chromium_vaapi_write_only_installed_browsers(monkeypatch, tmp_path):
+    src, dst = _apps(monkeypatch, tmp_path)
+    (src / "google-chrome.desktop").write_text(CHROME_DESKTOP)
+    drivers.chromium_vaapi_write()
+    assert [p.name for p in dst.iterdir()] == ["google-chrome.desktop"]
+    assert system.desktop_is_ours(dst / "google-chrome.desktop")
+    assert "VaapiOnNvidiaGPUs" in (dst / "google-chrome.desktop").read_text()
+
+
+def test_chromium_vaapi_keeps_the_users_own_file(monkeypatch, tmp_path):
+    src, dst = _apps(monkeypatch, tmp_path)
+    (src / "google-chrome.desktop").write_text(CHROME_DESKTOP)
+    dst.mkdir()
+    (dst / "google-chrome.desktop").write_text("[Desktop Entry]\nmine\n")
+    drivers.chromium_vaapi_write()
+    drivers.chromium_vaapi_remove()
+    assert (dst / "google-chrome.desktop").read_text().endswith("mine\n")
+
+
+def test_nvidia_vaapi_enable_and_disable_chromium_copies(
+        monkeypatch, fake_root, tmp_path):
+    _vaapi_env(monkeypatch, tmp_path)
+    src, dst = _apps(monkeypatch, tmp_path)
+    (src / "brave-browser.desktop").write_text(
+        CHROME_DESKTOP.replace("google-chrome", "brave-browser"))
+    fake_root.installed = {"nvidia-video-G07"}
+    drivers.nvidia_vaapi_enable([])
+    assert system.desktop_is_ours(dst / "brave-browser.desktop")
+    drivers.nvidia_vaapi_disable([])
+    assert not (dst / "brave-browser.desktop").exists()

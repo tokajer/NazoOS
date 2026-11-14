@@ -84,20 +84,33 @@ Kirigami.ScrollablePage {
             // Only on NVIDIA-only systems: the libva pin is global (system.py)
             visible: page.st.nvidiaOnly === true && !!page.st.nvidiaDriver
             iconName: "video-x-generic"
-            title: L.tr("Video acceleration in Firefox (optional)")
-            subtitle: L.tr("Lets Firefox decode web videos on the NVIDIA card instead of the CPU: less CPU load and heat. For this, the sandbox of Firefox's video decoder process is switched off, and the add-on driver may stop working after an NVIDIA driver update until it is updated too. Other programs are not affected.")
-            status: page.st.nvidiaVaapi ? L.tr("Enabled") : ""
-            statusType: page.st.nvidiaVaapi ? SettingCard.Positive : SettingCard.Normal
+            title: L.tr("Video acceleration in the browser (optional)")
+            subtitle: L.tr("Lets Firefox, Google Chrome and Brave decode web videos on the NVIDIA card instead of the CPU: less CPU load and heat. For this, the sandbox of Firefox's video decoder process is switched off, Chrome and Brave ignore their GPU blocklist, and the add-on driver may stop working after an NVIDIA driver update until it is updated too. Other programs are not affected.")
+            status: !page.st.nvidiaVaapi ? ""
+                    : page.st.nvidiaVaapiStale ? L.tr("Browser not included yet")
+                    : L.tr("Enabled")
+            statusType: !page.st.nvidiaVaapi ? SettingCard.Normal
+                        : page.st.nvidiaVaapiStale ? SettingCard.Neutral
+                        : SettingCard.Positive
             QQC2.Button {
                 visible: !page.st.nvidiaVaapi
                 enabled: !backend.busy
                 text: L.tr("Enable")
                 icon.name: "download"
                 onClicked: page.app.confirm(
-                    L.tr("Enable video acceleration in Firefox?"),
-                    L.tr("This installs nvidia-vaapi-driver and switches off the sandbox of Firefox's video decoder process (a security trade-off). Firefox settings are changed through a system policy; you can still override them in about:config.\n\nLog out and in again afterwards."),
+                    L.tr("Enable video acceleration in the browser?"),
+                    L.tr("This installs nvidia-vaapi-driver and switches off the sandbox of Firefox's video decoder process (a security trade-off). Firefox settings are changed through a system policy; you can still override them in about:config. Google Chrome and Brave get start options in their menu entries, also for browsers installed later (\"Apply again\").\n\nLog out and in again afterwards."),
                     L.tr("Enable"),
                     () => page.app.runAction("nvidia-vaapi-enable", []))
+            }
+            QQC2.Button {
+                // A Chromium browser installed or updated after enabling
+                visible: page.st.nvidiaVaapi === true
+                         && page.st.nvidiaVaapiStale === true
+                enabled: !backend.busy
+                text: L.tr("Apply again")
+                icon.name: "view-refresh"
+                onClicked: page.app.runAction("nvidia-vaapi-enable", [])
             }
             QQC2.Button {
                 visible: page.st.nvidiaVaapi === true

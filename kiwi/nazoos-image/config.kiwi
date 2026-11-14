@@ -184,6 +184,11 @@ SPDX-License-Identifier: GPL-3.0-or-later
          mokutil 0.7.3 split off this subpackage, Slowroll's batch has 0.7.2
          with the file inside → file conflict. Image only (config.sh) -->
     <ignore name="mokutil-bash-completion"/>
+    <!-- Lutris crashes at start with this typelib: gnome-desktop 51 dropped
+         RRScreen from GnomeDesktop-3.0, Lutris only catches a missing
+         typelib. Without it Lutris uses its fallback display manager.
+         Nothing requires it, lutris only recommends it -->
+    <ignore name="typelib-1_0-GnomeDesktop-3_0"/>
   </packages>
 
   <packages type="image" profiles="test">

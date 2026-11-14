@@ -89,6 +89,24 @@ def _read(path):
     return path.read_text() if path.exists() else ""
 
 
+def chromium_vaapi_write():
+    """Our patched .desktop copies for every installed Chromium browser;
+    a file there that we did not write stays untouched."""
+    for _source, target, text in system.chromium_entries():
+        if target.exists() and not system.desktop_is_ours(target):
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        write_atomic(target, text)
+
+
+def chromium_vaapi_remove():
+    for names in system.CHROMIUM_BROWSERS.values():
+        for name in names:
+            target = system.LOCAL_APPS / name
+            if system.desktop_is_ours(target):
+                target.unlink()
+
+
 def nvidia_vaapi_enable(_args):
     if not any(proc.rpm_installed(d["video"])
                for d in system.NVIDIA_DRIVERS.values()):
@@ -99,11 +117,13 @@ def nvidia_vaapi_enable(_args):
     system.FIREFOX_POLICIES.parent.mkdir(parents=True, exist_ok=True)
     write_atomic(system.FIREFOX_POLICIES,
                  vaapi_policies(_read(system.FIREFOX_POLICIES)))
-    say("Log out and in again, then restart Firefox.")
+    chromium_vaapi_write()
+    say("Log out and in again, then restart the browser.")
 
 
 def nvidia_vaapi_disable(_args):
     system.NVIDIA_VAAPI_ENV.unlink(missing_ok=True)
+    chromium_vaapi_remove()
     if system.FIREFOX_POLICIES.exists():
         rest = vaapi_policies_without(_read(system.FIREFOX_POLICIES))
         if rest is None:
@@ -113,7 +133,7 @@ def nvidia_vaapi_disable(_args):
     if proc.rpm_installed(system.NVIDIA_VAAPI_PACKAGE):
         helper.run(ZYPPER + ["remove", "--clean-deps",
                              system.NVIDIA_VAAPI_PACKAGE])
-    say("Log out and in again, then restart Firefox.")
+    say("Log out and in again, then restart the browser.")
 
 
 def rocm_install(_args):

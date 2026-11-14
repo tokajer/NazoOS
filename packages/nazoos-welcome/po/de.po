@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 20:56+0100\n"
+"POT-Creation-Date: 2026-11-14 23:48+0100\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -241,8 +241,8 @@ msgid "Disabling the scheduler"
 msgstr "Scheduler wird abgeschaltet"
 
 #: nazoos_welcome/catalog.py
-msgid "Disabling video acceleration in Firefox"
-msgstr "Video-Beschleunigung in Firefox wird abgeschaltet"
+msgid "Disabling video acceleration in the browser"
+msgstr "Video-Beschleunigung im Browser wird abgeschaltet"
 
 #: nazoos_welcome/catalog.py
 msgid "Discord client with working screen sharing on Wayland"
@@ -265,8 +265,8 @@ msgid "Enabling the scheduler"
 msgstr "Scheduler wird eingeschaltet"
 
 #: nazoos_welcome/catalog.py
-msgid "Enabling video acceleration in Firefox"
-msgstr "Video-Beschleunigung in Firefox wird eingerichtet"
+msgid "Enabling video acceleration in the browser"
+msgstr "Video-Beschleunigung im Browser wird eingerichtet"
 
 #: nazoos_welcome/catalog.py
 msgid "Epic Games, GOG and Amazon Prime Gaming"
@@ -589,7 +589,7 @@ msgstr ""
 "den Treiber für ältere NVIDIA-Karten gibt es nur für den openSUSE-Kernel; "
 "entfernen Sie zuerst den NazoOS-Kernel auf der Seite Kernel"
 
-#: nazoos_welcome/root/drivers.py:95
+#: nazoos_welcome/root/drivers.py:113
 msgid "install the NVIDIA driver first"
 msgstr "installieren Sie zuerst den NVIDIA-Treiber"
 
@@ -951,8 +951,8 @@ msgstr "Braucht den NazoOS-Kernel (Seite „Kernel“)"
 msgid "Website"
 msgstr "Website"
 
-#: qml/pages/AppsPage.qml:99 qml/pages/DriversPage.qml:126
-#: qml/pages/DriversPage.qml:154 qml/pages/GamingPage.qml:220
+#: qml/pages/AppsPage.qml:99 qml/pages/DriversPage.qml:139
+#: qml/pages/DriversPage.qml:167 qml/pages/GamingPage.qml:220
 #: qml/pages/GamingPage.qml:243
 msgid "Installed"
 msgstr "Installiert"
@@ -966,15 +966,15 @@ msgid "Open website"
 msgstr "Website öffnen"
 
 #: qml/pages/AppsPage.qml:111 qml/pages/DriversPage.qml:67
-#: qml/pages/DriversPage.qml:77 qml/pages/DriversPage.qml:131
-#: qml/pages/DriversPage.qml:161 qml/pages/GamingPage.qml:228
+#: qml/pages/DriversPage.qml:77 qml/pages/DriversPage.qml:144
+#: qml/pages/DriversPage.qml:174 qml/pages/GamingPage.qml:228
 #: qml/pages/GamingPage.qml:247 qml/pages/KernelPage.qml:49
 #: qml/pages/KernelPage.qml:56 qml/pages/WelcomePage.qml:103
 msgid "Install"
 msgstr "Installieren"
 
 #: qml/pages/AppsPage.qml:111 qml/pages/AppsPage.qml:119
-#: qml/pages/DriversPage.qml:138 qml/pages/DriversPage.qml:143
+#: qml/pages/DriversPage.qml:151 qml/pages/DriversPage.qml:156
 #: qml/pages/GamingPage.qml:247 qml/pages/KernelPage.qml:74
 #: qml/pages/KernelPage.qml:79 qml/pages/KernelPage.qml:103
 msgid "Remove"
@@ -1013,7 +1013,7 @@ msgstr ""
 "Installiert den Treiber aus der Paketquelle von NVIDIA. Nötig für gute "
 "Spieleleistung auf NVIDIA-Karten."
 
-#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:157
+#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:170
 msgid "Not installed"
 msgstr "Nicht installiert"
 
@@ -1065,58 +1065,73 @@ msgstr ""
 "Boot eingeschaltet, wird er nicht geladen."
 
 #: qml/pages/DriversPage.qml:87
-msgid "Video acceleration in Firefox (optional)"
-msgstr "Video-Beschleunigung in Firefox (optional)"
+msgid "Video acceleration in the browser (optional)"
+msgstr "Video-Beschleunigung im Browser (optional)"
 
 #: qml/pages/DriversPage.qml:88
 msgid ""
-"Lets Firefox decode web videos on the NVIDIA card instead of the CPU: less "
-"CPU load and heat. For this, the sandbox of Firefox's video decoder process "
-"is switched off, and the add-on driver may stop working after an NVIDIA "
+"Lets Firefox, Google Chrome and Brave decode web videos on the NVIDIA card "
+"instead of the CPU: less CPU load and heat. For this, the sandbox of "
+"Firefox's video decoder process is switched off, Chrome and Brave ignore "
+"their GPU blocklist, and the add-on driver may stop working after an NVIDIA "
 "driver update until it is updated too. Other programs are not affected."
 msgstr ""
-"Firefox dekodiert Web-Videos auf der NVIDIA-Karte statt auf der CPU: weniger "
-"CPU-Last und Wärme. Dafür wird die Sandbox des Video-Decoder-Prozesses von "
-"Firefox abgeschaltet, und der Zusatztreiber kann nach einem "
-"NVIDIA-Treiber-Update ausfallen, bis er selbst aktualisiert ist. Andere "
-"Programme sind nicht betroffen."
+"Firefox, Google Chrome und Brave dekodieren Web-Videos auf der NVIDIA-Karte "
+"statt auf dem Prozessor: weniger Last und Wärme. Dafür wird die Sandbox des "
+"Video-Decoder-Prozesses von Firefox abgeschaltet, Chrome und Brave ignorieren "
+"ihre GPU-Sperrliste, und der Zusatztreiber kann nach einem NVIDIA-Update "
+"ausfallen, bis er ebenfalls aktualisiert ist. Andere Programme sind nicht "
+"betroffen."
 
-#: qml/pages/DriversPage.qml:89
+#: qml/pages/DriversPage.qml:90
+msgid "Browser not included yet"
+msgstr "Browser noch nicht eingebunden"
+
+#: qml/pages/DriversPage.qml:91
 msgid "Enabled"
 msgstr "Eingerichtet"
 
-#: qml/pages/DriversPage.qml:94 qml/pages/DriversPage.qml:99
-#: qml/pages/DriversPage.qml:166
+#: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
+#: qml/pages/DriversPage.qml:179
 msgid "Enable"
 msgstr "Einrichten"
 
-#: qml/pages/DriversPage.qml:97
-msgid "Enable video acceleration in Firefox?"
-msgstr "Video-Beschleunigung in Firefox einrichten?"
+#: qml/pages/DriversPage.qml:101
+msgid "Enable video acceleration in the browser?"
+msgstr "Video-Beschleunigung im Browser einrichten?"
 
-#: qml/pages/DriversPage.qml:98
+#: qml/pages/DriversPage.qml:102
 msgid ""
 "This installs nvidia-vaapi-driver and switches off the sandbox of Firefox's "
 "video decoder process (a security trade-off). Firefox settings are changed "
-"through a system policy; you can still override them in about:config.\n"
+"through a system policy; you can still override them in about:config. Google "
+"Chrome and Brave get start options in their menu entries, also for browsers "
+"installed later (\"Apply again\").\n"
 "\n"
 "Log out and in again afterwards."
 msgstr ""
-"Das installiert nvidia-vaapi-driver und schaltet die Sandbox des "
-"Video-Decoder-Prozesses von Firefox ab (ein Sicherheits-Kompromiss). "
-"Firefox-Einstellungen werden über eine Systemrichtlinie geändert; Sie können "
-"sie in about:config weiterhin überschreiben.\n\nMelden Sie sich danach ab "
-"und wieder an."
+"Dies installiert nvidia-vaapi-driver und schaltet die Sandbox des Video-"
+"Decoder-Prozesses von Firefox ab (ein Kompromiss bei der Sicherheit). Die "
+"Firefox-Einstellungen werden über eine Systemrichtlinie gesetzt; in about:"
+"config kannst du sie weiterhin ändern. Google Chrome und Brave bekommen "
+"Startoptionen in ihren Menüeinträgen, auch später installierte Browser "
+"(„Erneut anwenden“).\n"
+"\n"
+"Melde dich danach ab und wieder an."
 
-#: qml/pages/DriversPage.qml:105
+#: qml/pages/DriversPage.qml:111
+msgid "Apply again"
+msgstr "Erneut anwenden"
+
+#: qml/pages/DriversPage.qml:118
 msgid "Disable"
 msgstr "Abschalten"
 
-#: qml/pages/DriversPage.qml:115
+#: qml/pages/DriversPage.qml:128
 msgid "AMD and Intel graphics"
 msgstr "AMD- und Intel-Grafik"
 
-#: qml/pages/DriversPage.qml:116
+#: qml/pages/DriversPage.qml:129
 msgid ""
 "The open-source Mesa drivers are already included and kept up to date with "
 "the system. Nothing to do."
@@ -1124,15 +1139,15 @@ msgstr ""
 "Die quelloffenen Mesa-Treiber sind bereits enthalten und werden mit dem "
 "System aktualisiert. Nichts zu tun."
 
-#: qml/pages/DriversPage.qml:117
+#: qml/pages/DriversPage.qml:130
 msgid "Ready"
 msgstr "Bereit"
 
-#: qml/pages/DriversPage.qml:124
+#: qml/pages/DriversPage.qml:137
 msgid "ROCm for AMD graphics (optional)"
 msgstr "ROCm für AMD-Grafik (optional)"
 
-#: qml/pages/DriversPage.qml:125
+#: qml/pages/DriversPage.qml:138
 msgid ""
 "Lets programs compute on the graphics card: Blender (HIP), DaVinci Resolve "
 "(OpenCL) and local AI tools. Not needed for games. Officially supported are "
@@ -1142,11 +1157,11 @@ msgstr ""
 "(OpenCL) und lokale KI-Werkzeuge. Für Spiele nicht nötig. Offiziell "
 "unterstützt werden Radeon RX 6000 (RDNA 2) und neuer."
 
-#: qml/pages/DriversPage.qml:141
+#: qml/pages/DriversPage.qml:154
 msgid "Remove ROCm?"
 msgstr "ROCm entfernen?"
 
-#: qml/pages/DriversPage.qml:142
+#: qml/pages/DriversPage.qml:155
 msgid ""
 "Programs that compute on the graphics card fall back to the CPU. Games are "
 "not affected."
@@ -1154,15 +1169,15 @@ msgstr ""
 "Programme, die auf der Grafikkarte rechnen, nutzen dann den Prozessor. "
 "Spiele sind nicht betroffen."
 
-#: qml/pages/DriversPage.qml:148
+#: qml/pages/DriversPage.qml:161
 msgid "Multimedia"
 msgstr "Multimedia"
 
-#: qml/pages/DriversPage.qml:152
+#: qml/pages/DriversPage.qml:165
 msgid "Multimedia codecs (Packman)"
 msgstr "Multimedia-Codecs (Packman)"
 
-#: qml/pages/DriversPage.qml:153
+#: qml/pages/DriversPage.qml:166
 msgid ""
 "Full FFmpeg and GStreamer codecs, e.g. for H.264/H.265 videos, streaming and "
 "video editing. They come from Packman, a community repository outside of "
@@ -1172,25 +1187,25 @@ msgstr ""
 "Streaming und Videoschnitt. Sie stammen von Packman, einer Community-"
 "Paketquelle außerhalb von NazoOS und openSUSE."
 
-#: qml/pages/DriversPage.qml:155
+#: qml/pages/DriversPage.qml:168
 msgid "Packman is enabled, codecs are not installed yet"
 msgstr "Packman ist eingerichtet, die Codecs sind noch nicht installiert"
 
-#: qml/pages/DriversPage.qml:156
+#: qml/pages/DriversPage.qml:169
 msgid "Packman is set up but switched off. Install switches it on again."
 msgstr ""
 "Packman ist eingerichtet, aber ausgeschaltet. „Installieren“ schaltet es "
 "wieder ein."
 
-#: qml/pages/DriversPage.qml:161 qml/pages/RepairPage.qml:50
+#: qml/pages/DriversPage.qml:174 qml/pages/RepairPage.qml:50
 msgid "Reinstall"
 msgstr "Neu installieren"
 
-#: qml/pages/DriversPage.qml:164
+#: qml/pages/DriversPage.qml:177
 msgid "Enable Packman codecs?"
 msgstr "Packman-Codecs einrichten?"
 
-#: qml/pages/DriversPage.qml:165
+#: qml/pages/DriversPage.qml:178
 msgid ""
 "Packman is run by an independent community, not by NazoOS or openSUSE. Some "
 "codecs may be subject to software patents in certain countries. You are "
@@ -1206,15 +1221,15 @@ msgstr ""
 "Bereits installierte Multimedia-Pakete werden auf die Versionen von Packman "
 "umgestellt."
 
-#: qml/pages/DriversPage.qml:171
+#: qml/pages/DriversPage.qml:184
 msgid "Firmware"
 msgstr "Firmware"
 
-#: qml/pages/DriversPage.qml:175
+#: qml/pages/DriversPage.qml:188
 msgid "Firmware updates"
 msgstr "Firmware-Updates"
 
-#: qml/pages/DriversPage.qml:176
+#: qml/pages/DriversPage.qml:189
 msgid ""
 "BIOS/UEFI, SSD and device firmware updates from the vendors (LVFS) appear in "
 "Discover together with the other updates."
@@ -1222,7 +1237,7 @@ msgstr ""
 "Firmware-Updates der Hersteller (LVFS) für BIOS/UEFI, SSDs und Geräte "
 "erscheinen in Discover zusammen mit den anderen Updates."
 
-#: qml/pages/DriversPage.qml:178
+#: qml/pages/DriversPage.qml:191
 msgid "Open Discover"
 msgstr "Discover öffnen"
 
@@ -2439,6 +2454,46 @@ msgstr "Mehr erfahren"
 #: qml/pages/WelcomePage.qml:174
 msgid "Show this window at login"
 msgstr "Dieses Fenster bei der Anmeldung anzeigen"
+
+#~ msgid "Disabling video acceleration in Firefox"
+#~ msgstr "Video-Beschleunigung in Firefox wird abgeschaltet"
+
+#~ msgid "Enabling video acceleration in Firefox"
+#~ msgstr "Video-Beschleunigung in Firefox wird eingerichtet"
+
+#~ msgid "Video acceleration in Firefox (optional)"
+#~ msgstr "Video-Beschleunigung in Firefox (optional)"
+
+#~ msgid ""
+#~ "Lets Firefox decode web videos on the NVIDIA card instead of the CPU: "
+#~ "less CPU load and heat. For this, the sandbox of Firefox's video decoder "
+#~ "process is switched off, and the add-on driver may stop working after an "
+#~ "NVIDIA driver update until it is updated too. Other programs are not "
+#~ "affected."
+#~ msgstr ""
+#~ "Firefox dekodiert Web-Videos auf der NVIDIA-Karte statt auf der CPU: "
+#~ "weniger CPU-Last und Wärme. Dafür wird die Sandbox des Video-Decoder-"
+#~ "Prozesses von Firefox abgeschaltet, und der Zusatztreiber kann nach einem "
+#~ "NVIDIA-Treiber-Update ausfallen, bis er selbst aktualisiert ist. Andere "
+#~ "Programme sind nicht betroffen."
+
+#~ msgid "Enable video acceleration in Firefox?"
+#~ msgstr "Video-Beschleunigung in Firefox einrichten?"
+
+#~ msgid ""
+#~ "This installs nvidia-vaapi-driver and switches off the sandbox of "
+#~ "Firefox's video decoder process (a security trade-off). Firefox settings "
+#~ "are changed through a system policy; you can still override them in "
+#~ "about:config.\n"
+#~ "\n"
+#~ "Log out and in again afterwards."
+#~ msgstr ""
+#~ "Das installiert nvidia-vaapi-driver und schaltet die Sandbox des Video-"
+#~ "Decoder-Prozesses von Firefox ab (ein Sicherheits-Kompromiss). Firefox-"
+#~ "Einstellungen werden über eine Systemrichtlinie geändert; Sie können sie "
+#~ "in about:config weiterhin überschreiben.\n"
+#~ "\n"
+#~ "Melden Sie sich danach ab und wieder an."
 
 #~ msgid ""
 #~ "The driver for older cards only exists for the openSUSE kernel. On the "

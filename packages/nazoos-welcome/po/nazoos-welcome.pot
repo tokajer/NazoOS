@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-09 20:56+0100\n"
+"POT-Creation-Date: 2026-11-14 23:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -230,7 +230,7 @@ msgid "Disabling the scheduler"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
-msgid "Disabling video acceleration in Firefox"
+msgid "Disabling video acceleration in the browser"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -254,7 +254,7 @@ msgid "Enabling the scheduler"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
-msgid "Enabling video acceleration in Firefox"
+msgid "Enabling video acceleration in the browser"
 msgstr ""
 
 #: nazoos_welcome/catalog.py
@@ -563,7 +563,7 @@ msgid ""
 "remove the NazoOS kernel on the Kernel page first"
 msgstr ""
 
-#: nazoos_welcome/root/drivers.py:95
+#: nazoos_welcome/root/drivers.py:113
 msgid "install the NVIDIA driver first"
 msgstr ""
 
@@ -880,8 +880,8 @@ msgstr ""
 msgid "Website"
 msgstr ""
 
-#: qml/pages/AppsPage.qml:99 qml/pages/DriversPage.qml:126
-#: qml/pages/DriversPage.qml:154 qml/pages/GamingPage.qml:220
+#: qml/pages/AppsPage.qml:99 qml/pages/DriversPage.qml:139
+#: qml/pages/DriversPage.qml:167 qml/pages/GamingPage.qml:220
 #: qml/pages/GamingPage.qml:243
 msgid "Installed"
 msgstr ""
@@ -895,15 +895,15 @@ msgid "Open website"
 msgstr ""
 
 #: qml/pages/AppsPage.qml:111 qml/pages/DriversPage.qml:67
-#: qml/pages/DriversPage.qml:77 qml/pages/DriversPage.qml:131
-#: qml/pages/DriversPage.qml:161 qml/pages/GamingPage.qml:228
+#: qml/pages/DriversPage.qml:77 qml/pages/DriversPage.qml:144
+#: qml/pages/DriversPage.qml:174 qml/pages/GamingPage.qml:228
 #: qml/pages/GamingPage.qml:247 qml/pages/KernelPage.qml:49
 #: qml/pages/KernelPage.qml:56 qml/pages/WelcomePage.qml:103
 msgid "Install"
 msgstr ""
 
 #: qml/pages/AppsPage.qml:111 qml/pages/AppsPage.qml:119
-#: qml/pages/DriversPage.qml:138 qml/pages/DriversPage.qml:143
+#: qml/pages/DriversPage.qml:151 qml/pages/DriversPage.qml:156
 #: qml/pages/GamingPage.qml:247 qml/pages/KernelPage.qml:74
 #: qml/pages/KernelPage.qml:79 qml/pages/KernelPage.qml:103
 msgid "Remove"
@@ -939,7 +939,7 @@ msgid ""
 "performance on NVIDIA cards."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:157
+#: qml/pages/DriversPage.qml:35 qml/pages/DriversPage.qml:170
 msgid "Not installed"
 msgstr ""
 
@@ -983,110 +983,121 @@ msgid ""
 msgstr ""
 
 #: qml/pages/DriversPage.qml:87
-msgid "Video acceleration in Firefox (optional)"
+msgid "Video acceleration in the browser (optional)"
 msgstr ""
 
 #: qml/pages/DriversPage.qml:88
 msgid ""
-"Lets Firefox decode web videos on the NVIDIA card instead of the CPU: less "
-"CPU load and heat. For this, the sandbox of Firefox's video decoder process "
-"is switched off, and the add-on driver may stop working after an NVIDIA "
+"Lets Firefox, Google Chrome and Brave decode web videos on the NVIDIA card "
+"instead of the CPU: less CPU load and heat. For this, the sandbox of "
+"Firefox's video decoder process is switched off, Chrome and Brave ignore "
+"their GPU blocklist, and the add-on driver may stop working after an NVIDIA "
 "driver update until it is updated too. Other programs are not affected."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:89
+#: qml/pages/DriversPage.qml:90
+msgid "Browser not included yet"
+msgstr ""
+
+#: qml/pages/DriversPage.qml:91
 msgid "Enabled"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:94 qml/pages/DriversPage.qml:99
-#: qml/pages/DriversPage.qml:166
+#: qml/pages/DriversPage.qml:98 qml/pages/DriversPage.qml:103
+#: qml/pages/DriversPage.qml:179
 msgid "Enable"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:97
-msgid "Enable video acceleration in Firefox?"
+#: qml/pages/DriversPage.qml:101
+msgid "Enable video acceleration in the browser?"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:98
+#: qml/pages/DriversPage.qml:102
 msgid ""
 "This installs nvidia-vaapi-driver and switches off the sandbox of Firefox's "
 "video decoder process (a security trade-off). Firefox settings are changed "
-"through a system policy; you can still override them in about:config.\n"
+"through a system policy; you can still override them in about:config. Google "
+"Chrome and Brave get start options in their menu entries, also for browsers "
+"installed later (\"Apply again\").\n"
 "\n"
 "Log out and in again afterwards."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:105
+#: qml/pages/DriversPage.qml:111
+msgid "Apply again"
+msgstr ""
+
+#: qml/pages/DriversPage.qml:118
 msgid "Disable"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:115
+#: qml/pages/DriversPage.qml:128
 msgid "AMD and Intel graphics"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:116
+#: qml/pages/DriversPage.qml:129
 msgid ""
 "The open-source Mesa drivers are already included and kept up to date with "
 "the system. Nothing to do."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:117
+#: qml/pages/DriversPage.qml:130
 msgid "Ready"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:124
+#: qml/pages/DriversPage.qml:137
 msgid "ROCm for AMD graphics (optional)"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:125
+#: qml/pages/DriversPage.qml:138
 msgid ""
 "Lets programs compute on the graphics card: Blender (HIP), DaVinci Resolve "
 "(OpenCL) and local AI tools. Not needed for games. Officially supported are "
 "Radeon RX 6000 (RDNA 2) and newer."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:141
+#: qml/pages/DriversPage.qml:154
 msgid "Remove ROCm?"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:142
+#: qml/pages/DriversPage.qml:155
 msgid ""
 "Programs that compute on the graphics card fall back to the CPU. Games are "
 "not affected."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:148
+#: qml/pages/DriversPage.qml:161
 msgid "Multimedia"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:152
+#: qml/pages/DriversPage.qml:165
 msgid "Multimedia codecs (Packman)"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:153
+#: qml/pages/DriversPage.qml:166
 msgid ""
 "Full FFmpeg and GStreamer codecs, e.g. for H.264/H.265 videos, streaming and "
 "video editing. They come from Packman, a community repository outside of "
 "NazoOS and openSUSE."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:155
+#: qml/pages/DriversPage.qml:168
 msgid "Packman is enabled, codecs are not installed yet"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:156
+#: qml/pages/DriversPage.qml:169
 msgid "Packman is set up but switched off. Install switches it on again."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:161 qml/pages/RepairPage.qml:50
+#: qml/pages/DriversPage.qml:174 qml/pages/RepairPage.qml:50
 msgid "Reinstall"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:164
+#: qml/pages/DriversPage.qml:177
 msgid "Enable Packman codecs?"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:165
+#: qml/pages/DriversPage.qml:178
 msgid ""
 "Packman is run by an independent community, not by NazoOS or openSUSE. Some "
 "codecs may be subject to software patents in certain countries. You are "
@@ -1095,21 +1106,21 @@ msgid ""
 "Installed multimedia packages will be switched to Packman's versions."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:171
+#: qml/pages/DriversPage.qml:184
 msgid "Firmware"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:175
+#: qml/pages/DriversPage.qml:188
 msgid "Firmware updates"
 msgstr ""
 
-#: qml/pages/DriversPage.qml:176
+#: qml/pages/DriversPage.qml:189
 msgid ""
 "BIOS/UEFI, SSD and device firmware updates from the vendors (LVFS) appear in "
 "Discover together with the other updates."
 msgstr ""
 
-#: qml/pages/DriversPage.qml:178
+#: qml/pages/DriversPage.qml:191
 msgid "Open Discover"
 msgstr ""
 
