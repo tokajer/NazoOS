@@ -23,6 +23,10 @@ BuildRequires:  python3-build
 BuildRequires:  python3-devel
 BuildRequires:  python3-hatchling
 BuildRequires:  python3-installer
+# %%check imports umu: these two are imported at the top level (the
+# other Python dependencies only when used)
+BuildRequires:  python3-python-xlib >= 0.33
+BuildRequires:  python3-urllib3 >= 2.0.0
 BuildRequires:  python3-wheel
 BuildRequires:  scdoc
 BuildRequires:  zstd
