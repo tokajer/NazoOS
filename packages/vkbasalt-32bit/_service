@@ -1,0 +1,25 @@
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<services>
+  <!-- Take .spec and .changes from our GitHub repo -->
+  <service name="obs_scm">
+    <param name="url">https://github.com/tokajer/NazoOS.git</param>
+    <param name="scm">git</param>
+    <param name="revision">main</param>
+    <param name="subdir">packages/vkbasalt-32bit</param>
+    <param name="filename">vkbasalt-32bit-packaging</param>
+    <param name="extract">vkbasalt-32bit.spec</param>
+    <param name="extract">vkbasalt-32bit.changes</param>
+  </service>
+  <!-- Upstream release tarball: downloaded from the Source0 URL of the spec -->
+  <service name="download_files"/>
+  <!-- A git tag can move: the tarball must match this checksum. On a
+       version update change Version in the spec and the checksum here -->
+  <service name="verify_file">
+    <param name="file">_service:download_files:vkBasalt-0.3.2.10.tar.gz</param>
+    <param name="verifier">sha256</param>
+    <param name="checksum">22f0d44518361b12cf51f30fc9931423977af32a396e746ebf6d726c05788de6</param>
+  </service>
+</services>

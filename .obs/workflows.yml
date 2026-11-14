@@ -59,6 +59,12 @@ devel_build:
         package: nazoos-deck
     - trigger_services:
         project: home:Tokajer:nazoos:devel
+        package: vkbasalt-32bit
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
+        package: umu-launcher
+    - trigger_services:
+        project: home:Tokajer:nazoos:devel
         package: nazoos-image
     # Kernel module for kernel-nazoos only: built in :kernel (kernel-syms
     # with the nazoos flavor)

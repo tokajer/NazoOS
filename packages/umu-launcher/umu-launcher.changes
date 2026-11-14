@@ -1,0 +1,5 @@
+-------------------------------------------------------------------
+Sat Nov 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New package: umu-launcher 1.4.4 with the system urllib3 and pyzstd;
+  the umu_delta Rust module from vendored crates

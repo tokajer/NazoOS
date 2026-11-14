@@ -48,11 +48,16 @@ Recommends:     protontricks
 Recommends:     winetricks
 Recommends:     goverlay
 # Post-processing (sharpening, CAS) for Vulkan games, set up in goverlay.
-# Only the 64-bit build exists in Slowroll, 32-bit games do not load it
+# Slowroll has the 64-bit layer only; the 32-bit one for 32-bit games
+# (32-bit DXVK in Proton) is our own -m32 build
 Recommends:     vkbasalt
+Recommends:     vkbasalt-32bit
 # Installs and updates Proton-GE, Wine-GE and friends for Steam, Lutris
 # and Heroic (RPM in repo-oss, the ProtonUp-Qt Flatpak stays in Welcome)
 Recommends:     ProtonPlus
+# Runs non-Steam games with Proton in the Steam Linux Runtime (Lutris,
+# Heroic); own package, not in Slowroll
+Recommends:     umu-launcher
 # Voice chat (non-oss like steam)
 Recommends:     discord
 # Both CPU vendors, the image is built without knowing the hardware. The

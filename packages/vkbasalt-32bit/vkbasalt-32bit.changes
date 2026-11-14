@@ -1,0 +1,5 @@
+-------------------------------------------------------------------
+Sat Nov 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- New package: 32-bit vkBasalt layer 0.3.2.10 for 32-bit Vulkan
+  games, built with -m32 (Slowroll ships the 64-bit layer only)

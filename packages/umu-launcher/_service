@@ -1,0 +1,35 @@
+<!--
+SPDX-FileCopyrightText: 2026 The NazoOS Contributors
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<services>
+  <!-- Take .spec and .changes from our GitHub repo -->
+  <service name="obs_scm">
+    <param name="url">https://github.com/tokajer/NazoOS.git</param>
+    <param name="scm">git</param>
+    <param name="revision">main</param>
+    <param name="subdir">packages/umu-launcher</param>
+    <param name="filename">umu-launcher-packaging</param>
+    <param name="extract">umu-launcher.spec</param>
+    <param name="extract">umu-launcher.changes</param>
+  </service>
+  <!-- Upstream release tarball: downloaded from the Source0 URL of the spec -->
+  <service name="download_files"/>
+  <!-- A git tag can move: the tarball must match this checksum. On a
+       version update change Version in the spec and the checksum here -->
+  <service name="verify_file">
+    <param name="file">_service:download_files:umu-launcher-1.4.4.tar.gz</param>
+    <param name="verifier">sha256</param>
+    <param name="checksum">19767e226b0b937b1dcdcd00282eb31d1a7bb42ee01d54f6dae78e44ab8e3284</param>
+  </service>
+  <!-- Rust crates for the offline build (OBS has no network while building):
+       vendor.tar.zst. update=false keeps the versions of Cargo.lock.
+       mode="manual": build.opensuse.org does not run cargo_vendor on the
+       server. Run it locally on every version update and commit
+       vendor.tar.zst with osc (see NazoOS-dev notes/umu.md) -->
+  <service name="cargo_vendor" mode="manual">
+    <param name="src">umu-launcher-1.4.4.tar.gz</param>
+    <param name="compression">zst</param>
+    <param name="update">false</param>
+  </service>
+</services>
