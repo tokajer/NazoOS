@@ -2,7 +2,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Drivers, codecs and handheld support."""
 
+import json
+
 from nazoos_common import helper, kernel, proc
+from nazoos_common.files import write_atomic
 from nazoos_common.helper import Fail, arg, say
 from nazoos_common.zypper import ZYPPER
 
@@ -41,6 +44,76 @@ def nvidia_install(args):
             system.NVIDIA_KEY):
         helper.install(drivers)
     say("Restart the computer to load the NVIDIA driver.")
+
+
+def _policies(text):
+    """The policies object of a Firefox policies.json text; a missing,
+    empty or broken file counts as no policies."""
+    try:
+        data = json.loads(text) if text.strip() else {}
+    except ValueError:
+        data = {}
+    if not isinstance(data, dict) or not isinstance(data.get("policies"), dict):
+        data = {"policies": {}}
+    return data
+
+
+def vaapi_policies(text):
+    """policies.json text with our Firefox preferences added; everything
+    else in the file stays."""
+    data = _policies(text)
+    prefs = data["policies"].setdefault("Preferences", {})
+    if not isinstance(prefs, dict):
+        prefs = data["policies"]["Preferences"] = {}
+    for key, value in system.NVIDIA_VAAPI_PREFS.items():
+        prefs[key] = {"Value": value, "Status": "default"}
+    return json.dumps(data, indent=2) + "\n"
+
+
+def vaapi_policies_without(text):
+    """policies.json text without our preferences, or None when nothing
+    else is left in the file."""
+    data = _policies(text)
+    prefs = data["policies"].get("Preferences")
+    if isinstance(prefs, dict):
+        for key in system.NVIDIA_VAAPI_PREFS:
+            prefs.pop(key, None)
+        if not prefs:
+            del data["policies"]["Preferences"]
+    if not data["policies"] and len(data) == 1:
+        return None
+    return json.dumps(data, indent=2) + "\n"
+
+
+def _read(path):
+    return path.read_text() if path.exists() else ""
+
+
+def nvidia_vaapi_enable(_args):
+    if not any(proc.rpm_installed(d["video"])
+               for d in system.NVIDIA_DRIVERS.values()):
+        raise Fail("install the NVIDIA driver first")
+    helper.install([system.NVIDIA_VAAPI_PACKAGE])
+    system.NVIDIA_VAAPI_ENV.parent.mkdir(parents=True, exist_ok=True)
+    write_atomic(system.NVIDIA_VAAPI_ENV, system.NVIDIA_VAAPI_ENV_TEXT)
+    system.FIREFOX_POLICIES.parent.mkdir(parents=True, exist_ok=True)
+    write_atomic(system.FIREFOX_POLICIES,
+                 vaapi_policies(_read(system.FIREFOX_POLICIES)))
+    say("Log out and in again, then restart Firefox.")
+
+
+def nvidia_vaapi_disable(_args):
+    system.NVIDIA_VAAPI_ENV.unlink(missing_ok=True)
+    if system.FIREFOX_POLICIES.exists():
+        rest = vaapi_policies_without(_read(system.FIREFOX_POLICIES))
+        if rest is None:
+            system.FIREFOX_POLICIES.unlink()
+        else:
+            write_atomic(system.FIREFOX_POLICIES, rest)
+    if proc.rpm_installed(system.NVIDIA_VAAPI_PACKAGE):
+        helper.run(ZYPPER + ["remove", "--clean-deps",
+                             system.NVIDIA_VAAPI_PACKAGE])
+    say("Log out and in again, then restart Firefox.")
 
 
 def rocm_install(_args):

@@ -27,6 +27,16 @@ Choose the driver that matches your card:
 
 Restart after the installation.
 
+### Video acceleration in Firefox
+
+On computers with only an NVIDIA card, the Drivers page offers **Video acceleration in Firefox** once the NVIDIA driver is installed. It installs `nvidia-vaapi-driver`, so Firefox decodes web videos on the graphics card instead of the CPU. Before you enable it, read the notice in the dialog:
+
+- The sandbox of Firefox's video decoder process is switched off. This add-on driver does not work with it.
+- The add-on driver uses an internal NVIDIA interface and may stop working after an NVIDIA driver update until it is updated too. Videos then play on the CPU as before.
+- Three Firefox settings are set through a system policy (visible in `about:policies`). You can still change them in `about:config`.
+
+Log out and in again afterwards. **Disable** removes the driver, the policy and the environment settings again. Other programs are not affected; video players like Haruna use the NVIDIA decoder directly.
+
 ## Codecs (Packman)
 
 Packman is a community repository outside of NazoOS and openSUSE. It provides the full FFmpeg and GStreamer codecs. Read the notice in the dialog before you enable it. Installed multimedia packages are switched to Packman's versions.

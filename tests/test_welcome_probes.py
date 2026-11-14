@@ -348,3 +348,19 @@ def test_key_finding_carries_repo_and_fingerprint(monkeypatch):
     assert finding["id"] == "key" and finding["fix"] == "repair-key"
     assert finding["args"] == ["r", "ABCD" * 10]
     assert finding["items"] == ["R (x): " + " ".join(["ABCD"] * 10)]
+
+
+def test_drivers_firefox_vaapi_only_on_nvidia_only_systems(monkeypatch,
+                                                           tmp_path):
+    monkeypatch.setattr(system, "NVIDIA_VAAPI_ENV", tmp_path / "env.conf")
+    hybrid = [{"vendor": "intel", "name": "i"}, {"vendor": "nvidia", "name": "n"}]
+    only = [{"vendor": "nvidia", "name": "n"}]
+    rpms = {"nvidia-video-G07", system.NVIDIA_VAAPI_PACKAGE}
+    monkeypatch.setattr(query, "packman_repo", lambda: "")
+    assert probes._drivers(rpms, hybrid)["nvidiaOnly"] is False
+    st = probes._drivers(rpms, only)
+    assert st["nvidiaOnly"] is True
+    # Package alone is not "enabled": the environment file does the work
+    assert st["nvidiaVaapi"] is False
+    (tmp_path / "env.conf").write_text("x")
+    assert probes._drivers(rpms, only)["nvidiaVaapi"] is True

@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Sat Nov 14 22:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Drivers page: "Video acceleration in Firefox" on NVIDIA-only systems
+  (ADR 0037): installs libva-nvidia-driver from our repo, writes
+  /etc/environment.d/80-nazoos-nvidia-vaapi.conf (RDD sandbox off,
+  LIBVA_DRIVER_NAME=nvidia) and the Firefox preferences as a system
+  policy; Disable removes all three again
+
+-------------------------------------------------------------------
 Sat Nov 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Packman codecs: the retry held the 64-bit ffmpeg libraries back

@@ -81,6 +81,34 @@ Kirigami.ScrollablePage {
         }
 
         SettingCard {
+            // Only on NVIDIA-only systems: the libva pin is global (system.py)
+            visible: page.st.nvidiaOnly === true && !!page.st.nvidiaDriver
+            iconName: "video-x-generic"
+            title: L.tr("Video acceleration in Firefox (optional)")
+            subtitle: L.tr("Lets Firefox decode web videos on the NVIDIA card instead of the CPU: less CPU load and heat. For this, the sandbox of Firefox's video decoder process is switched off, and the add-on driver may stop working after an NVIDIA driver update until it is updated too. Other programs are not affected.")
+            status: page.st.nvidiaVaapi ? L.tr("Enabled") : ""
+            statusType: page.st.nvidiaVaapi ? SettingCard.Positive : SettingCard.Normal
+            QQC2.Button {
+                visible: !page.st.nvidiaVaapi
+                enabled: !backend.busy
+                text: L.tr("Enable")
+                icon.name: "download"
+                onClicked: page.app.confirm(
+                    L.tr("Enable video acceleration in Firefox?"),
+                    L.tr("This installs nvidia-vaapi-driver and switches off the sandbox of Firefox's video decoder process (a security trade-off). Firefox settings are changed through a system policy; you can still override them in about:config.\n\nLog out and in again afterwards."),
+                    L.tr("Enable"),
+                    () => page.app.runAction("nvidia-vaapi-enable", []))
+            }
+            QQC2.Button {
+                visible: page.st.nvidiaVaapi === true
+                enabled: !backend.busy
+                text: L.tr("Disable")
+                icon.name: "edit-delete"
+                onClicked: page.app.runAction("nvidia-vaapi-disable", [])
+            }
+        }
+
+        SettingCard {
             visible: page.st.hasAmd === true
                      || (page.st.gpus || []).some(g => g.vendor === "intel")
             iconName: "preferences-desktop-display"

@@ -178,6 +178,7 @@ def deck_in_repos():
 _DRIVERS_RPMS = (["gstreamer-plugins-bad-codecs"]
                  + [p for v in system.NVIDIA_DRIVERS.values()
                     for p in v["packages"]]
+                 + [system.NVIDIA_VAAPI_PACKAGE]
                  + system.ROCM_PACKAGES)
 
 
@@ -196,6 +197,10 @@ def _drivers(rpms, gpu_list):
                                proc.read("/proc/cpuinfo"), re.M) is not None,
         "nvidiaDriver": nvidia_variant,
         "nvidiaLoaded": Path("/sys/module/nvidia").exists(),
+        # Firefox VA-API (ADR 0037) only on NVIDIA-only systems, see system.py
+        "nvidiaOnly": vendors == {"nvidia"},
+        "nvidiaVaapi": (system.NVIDIA_VAAPI_PACKAGE in rpms
+                        and system.NVIDIA_VAAPI_ENV.exists()),
         "rocm": system.ROCM_PACKAGES[0] in rpms,
         "packmanRepo": query.packman_repo(),
         # gstreamer-plugins-bad-codecs only exists in Packman

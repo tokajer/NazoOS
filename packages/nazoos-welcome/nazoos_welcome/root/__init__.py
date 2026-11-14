@@ -14,6 +14,8 @@ from . import (apps, drivers, drives, kernel_switch, maintenance,
 _ALL = {
     "codecs-install": drivers.codecs_install,
     "nvidia-install": drivers.nvidia_install,
+    "nvidia-vaapi-enable": drivers.nvidia_vaapi_enable,
+    "nvidia-vaapi-disable": drivers.nvidia_vaapi_disable,
     "rocm-install": drivers.rocm_install,
     "rocm-remove": drivers.rocm_remove,
     "deck-install": drivers.deck_install,

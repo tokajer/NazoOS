@@ -10,7 +10,8 @@
 # Package list = the :devel packages in .obs/workflows.yml (read by
 # .github/scripts/release-packages.py, without nazoos-image: the ISO has
 # its own package in :release), plus OBS_ONLY:
-# packages that live only in OBS (Waydroid stack). New OBS-only package
+# packages that live only in OBS (Waydroid stack, libva-nvidia-driver as
+# _link to X11:XOrg). New OBS-only package
 # in :devel → add it there, else :release misses it.
 # OBS allows release tokens only per package, not per project. No
 # "repository" parameter: with release targets OBS *skips* the target
@@ -52,7 +53,7 @@ jobs:
         shell: bash
     env:
       SOURCE: home:Tokajer:nazoos:devel
-      OBS_ONLY: libgbinder1 libglibutil1 python-gbinder python-pyclip waydroid
+      OBS_ONLY: libgbinder1 libglibutil1 python-gbinder python-pyclip waydroid libva-nvidia-driver
     steps:
       - name: Check input
         if: ${{ !inputs.checklist }}

@@ -81,6 +81,31 @@ NVIDIA_DRIVERS = {
                             "nvidia-compute-utils-G06"]},
 }
 
+# VA-API on NVIDIA for Firefox (ADR 0037): nvidia-vaapi-driver, built in
+# our OBS as a link to X11:XOrg/libva-nvidia-driver (not in Slowroll). Its
+# NVDEC libraries come with nvidia-video-G0x. Firefox needs two environment
+# variables (upstream README): the RDD sandbox off (the decoder runs in that
+# process) and libva pinned to this driver; and three preferences, set as a
+# system policy with Status "default" so about:config can still override
+# them. Only offered on NVIDIA-only systems: LIBVA_DRIVER_NAME=nvidia is
+# global and would break VA-API on an Intel/AMD iGPU next to the card.
+NVIDIA_VAAPI_PACKAGE = "libva-nvidia-driver"
+NVIDIA_VAAPI_ENV = Path("/etc/environment.d/80-nazoos-nvidia-vaapi.conf")
+NVIDIA_VAAPI_ENV_TEXT = """\
+# Written by NazoOS Welcome (Drivers page, "Video acceleration in Firefox").
+# Removed again by the same page. Firefox decodes web video on the NVIDIA
+# card through nvidia-vaapi-driver; its decoder process runs without the
+# RDD sandbox, which that driver needs.
+MOZ_DISABLE_RDD_SANDBOX=1
+LIBVA_DRIVER_NAME=nvidia
+"""
+FIREFOX_POLICIES = Path("/etc/firefox/policies/policies.json")
+NVIDIA_VAAPI_PREFS = {
+    "media.hardware-video-decoding.force-enabled": True,
+    "media.rdd-ffmpeg.enabled": True,
+    "gfx.x11-egl.force-enabled": True,
+}
+
 # ROCm: AMD GPU compute (HIP, OpenCL) for Blender, DaVinci Resolve and local
 # AI tools, not needed for games. All from openSUSE oss (ADR 0012).
 # /dev/kfd gets systemd's uaccess tag: no "render" group for the user.

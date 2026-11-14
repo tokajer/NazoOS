@@ -4,6 +4,7 @@
 
 import fnmatch
 import io
+import json
 import re
 import subprocess
 import types
@@ -1159,3 +1160,95 @@ def test_codecs_install_adds_packman(monkeypatch, fake_root, tmp_path):
     drivers.codecs_install([])
     assert zypper_words(fake_root, "addrepo")[0][-2] == (
         "https://ftp.fau.de/packman/suse/openSUSE_Slowroll/")
+
+
+# --- Firefox VA-API on NVIDIA (ADR 0037)
+
+def _vaapi_env(monkeypatch, tmp_path):
+    env = tmp_path / "environment.d" / "80-nazoos-nvidia-vaapi.conf"
+    policies = tmp_path / "firefox" / "policies" / "policies.json"
+    monkeypatch.setattr(system, "NVIDIA_VAAPI_ENV", env)
+    monkeypatch.setattr(system, "FIREFOX_POLICIES", policies)
+    return env, policies
+
+
+def test_vaapi_policies_from_nothing():
+    data = json.loads(drivers.vaapi_policies(""))
+    prefs = data["policies"]["Preferences"]
+    assert set(prefs) == set(system.NVIDIA_VAAPI_PREFS)
+    assert prefs["media.rdd-ffmpeg.enabled"] == {"Value": True,
+                                                 "Status": "default"}
+
+
+def test_vaapi_policies_keeps_foreign_policies_and_prefs():
+    text = json.dumps({"policies": {
+        "DisableTelemetry": True,
+        "Preferences": {"browser.tabs.warnOnClose": {"Value": False,
+                                                     "Status": "locked"}}}})
+    data = json.loads(drivers.vaapi_policies(text))
+    assert data["policies"]["DisableTelemetry"] is True
+    prefs = data["policies"]["Preferences"]
+    assert prefs["browser.tabs.warnOnClose"]["Status"] == "locked"
+    assert prefs["gfx.x11-egl.force-enabled"]["Value"] is True
+    # Removing ours leaves the foreign ones untouched
+    rest = json.loads(drivers.vaapi_policies_without(json.dumps(data)))
+    assert rest["policies"] == {
+        "DisableTelemetry": True,
+        "Preferences": {"browser.tabs.warnOnClose": {"Value": False,
+                                                     "Status": "locked"}}}
+
+
+def test_vaapi_policies_without_ours_is_none_when_nothing_is_left():
+    text = drivers.vaapi_policies("")
+    assert drivers.vaapi_policies_without(text) is None
+    assert drivers.vaapi_policies_without("") is None
+
+
+def test_vaapi_policies_replaces_a_broken_file():
+    data = json.loads(drivers.vaapi_policies("{not json"))
+    assert "Preferences" in data["policies"]
+    data = json.loads(drivers.vaapi_policies('{"policies": "oops"}'))
+    assert "Preferences" in data["policies"]
+
+
+def test_nvidia_vaapi_enable_needs_the_driver(monkeypatch, fake_root,
+                                              tmp_path):
+    _vaapi_env(monkeypatch, tmp_path)
+    with pytest.raises(base.Fail):
+        drivers.nvidia_vaapi_enable([])
+    assert fake_root.calls == []
+
+
+def test_nvidia_vaapi_enable_installs_and_writes_both_files(
+        monkeypatch, fake_root, tmp_path):
+    env, policies = _vaapi_env(monkeypatch, tmp_path)
+    fake_root.installed = {"nvidia-video-G07"}
+    drivers.nvidia_vaapi_enable([])
+    assert any("install" in c and system.NVIDIA_VAAPI_PACKAGE in c
+               for c in fake_root.calls)
+    assert "MOZ_DISABLE_RDD_SANDBOX=1" in env.read_text()
+    assert "LIBVA_DRIVER_NAME=nvidia" in env.read_text()
+    prefs = json.loads(policies.read_text())["policies"]["Preferences"]
+    assert prefs["media.hardware-video-decoding.force-enabled"]["Value"]
+
+
+def test_nvidia_vaapi_disable_removes_files_and_the_package(
+        monkeypatch, fake_root, tmp_path):
+    env, policies = _vaapi_env(monkeypatch, tmp_path)
+    env.parent.mkdir(parents=True)
+    env.write_text(system.NVIDIA_VAAPI_ENV_TEXT)
+    policies.parent.mkdir(parents=True)
+    policies.write_text(drivers.vaapi_policies(""))
+    fake_root.installed = {system.NVIDIA_VAAPI_PACKAGE}
+    drivers.nvidia_vaapi_disable([])
+    assert not env.exists()
+    assert not policies.exists()
+    assert any("remove" in c and system.NVIDIA_VAAPI_PACKAGE in c
+               for c in fake_root.calls)
+
+
+def test_nvidia_vaapi_disable_without_anything_runs_nothing(
+        monkeypatch, fake_root, tmp_path):
+    _vaapi_env(monkeypatch, tmp_path)
+    drivers.nvidia_vaapi_disable([])
+    assert fake_root.calls == []
