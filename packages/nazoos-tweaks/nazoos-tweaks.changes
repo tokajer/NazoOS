@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Sun Nov 15 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Load nct6775 at boot: the Nuvoton Super-I/O is not autoloaded, so
+  CoolerControl showed no mainboard fans (ASRock Z790 PG Lightning)
+
+-------------------------------------------------------------------
 Sat Nov 14 21:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - modprobe.d/nvidia.conf: drop NVreg_UsePageAttributeTable, the open

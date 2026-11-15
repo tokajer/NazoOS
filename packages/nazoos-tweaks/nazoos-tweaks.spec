@@ -27,7 +27,8 @@ Requires:       zram-generator
 %description
 Default kernel parameters (sysctl), zram swap configuration,
 udev rules (I/O schedulers, audio and SATA power management),
-ntsync module loading for Wine/Proton, MGLRU working set protection,
+ntsync module loading for Wine/Proton, mainboard fan sensors (nct6775),
+MGLRU working set protection,
 TCP BBR, transparent huge page defrag tuning, Nvidia driver options,
 a journal size limit, the i2c group for DDC/CI and RGB devices,
 larger shader caches, GameMode defaults, a lower PipeWire default
@@ -51,6 +52,7 @@ install -Dm0644 zram-generator.conf.d/70-nazoos.conf \
 install -Dm0644 tmpfiles.d/70-nazoos.conf %{buildroot}%{_tmpfilesdir}/nazoos-tweaks.conf
 install -Dm0644 -t %{buildroot}%{_udevrulesdir} udev/*.rules
 install -Dm0644 modules-load.d/ntsync.conf %{buildroot}%{_modulesloaddir}/nazoos-ntsync.conf
+install -Dm0644 modules-load.d/nct6775.conf %{buildroot}%{_modulesloaddir}/nazoos-nct6775.conf
 install -Dm0644 modprobe.d/nvidia.conf %{buildroot}%{_modprobedir}/70-nazoos-nvidia.conf
 install -Dm0644 journald.conf.d/70-nazoos.conf \
   %{buildroot}%{_prefix}/lib/systemd/journald.conf.d/70-nazoos.conf
@@ -137,6 +139,7 @@ fi
 %{_udevrulesdir}/*-nazoos-*.rules
 %dir %{_modulesloaddir}
 %{_modulesloaddir}/nazoos-ntsync.conf
+%{_modulesloaddir}/nazoos-nct6775.conf
 %dir %{_modprobedir}
 %{_modprobedir}/70-nazoos-nvidia.conf
 %dir %{_prefix}/lib/systemd/journald.conf.d
