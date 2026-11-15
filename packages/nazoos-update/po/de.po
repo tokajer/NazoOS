@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-update\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 08:32+0100\n"
+"POT-Creation-Date: 2026-11-04 08:42+0100\n"
 "PO-Revision-Date: 2026-10-10 15:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -21,35 +21,41 @@ msgstr ""
 msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr "GRUB_CMDLINE_LINUX_DEFAULT nicht in {file} gefunden"
 
-#: ../nazoos-common/nazoos_common/helper.py:101
+#: ../nazoos-common/nazoos_common/helper.py:91
+msgid "another program is changing software right now; close it and try again"
+msgstr ""
+"Ein anderes Programm ändert gerade Software; schließen Sie es und versuchen "
+"Sie es erneut"
+
+#: ../nazoos-common/nazoos_common/helper.py:106
 #: ../nazoos-common/nazoos_common/mok.py:37 nazoos_update/root/update.py:143
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr "„{cmd}“ ist fehlgeschlagen (Exit-Code {rc})"
 
-#: ../nazoos-common/nazoos_common/helper.py:131
+#: ../nazoos-common/nazoos_common/helper.py:136
 msgid "missing argument"
 msgstr "Angabe fehlt"
 
-#: ../nazoos-common/nazoos_common/helper.py:133
+#: ../nazoos-common/nazoos_common/helper.py:138
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr "ungültige Angabe: {arg}"
 
-#: ../nazoos-common/nazoos_common/helper.py:142
+#: ../nazoos-common/nazoos_common/helper.py:147
 msgid "must run as root (via pkexec)"
 msgstr "muss mit Administratorrechten laufen (über pkexec)"
 
-#: ../nazoos-common/nazoos_common/helper.py:146
+#: ../nazoos-common/nazoos_common/helper.py:151
 msgid "unknown action"
 msgstr "unbekannte Aktion"
 
-#: ../nazoos-common/nazoos_common/helper.py:159
+#: ../nazoos-common/nazoos_common/helper.py:164
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr "Systemfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/helper.py:163
+#: ../nazoos-common/nazoos_common/helper.py:168
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr "Programmfehler: {detail}"
@@ -70,7 +76,7 @@ msgstr "Abgebrochen: Es wurde kein Administrator-Passwort eingegeben."
 msgid "Something went wrong."
 msgstr "Etwas ist schiefgelaufen."
 
-#: ../nazoos-common/nazoos_common/qt.py:277
+#: ../nazoos-common/nazoos_common/qt.py:281
 msgid "This program is not installed."
 msgstr "Dieses Programm ist nicht installiert."
 
@@ -106,11 +112,11 @@ msgstr "Updates werden installiert"
 msgid "Making the snapshot permanent"
 msgstr "Snapshot wird dauerhaft übernommen"
 
-#: nazoos_update/notify.py:134
+#: nazoos_update/notify.py:145
 msgid "Started from a snapshot"
 msgstr "Von einem Snapshot gestartet"
 
-#: nazoos_update/notify.py:135
+#: nazoos_update/notify.py:146
 msgid ""
 "The system runs from an older, read-only snapshot. If everything works, you "
 "can make this state permanent."
@@ -118,19 +124,19 @@ msgstr ""
 "Das System läuft von einem älteren, schreibgeschützten Snapshot. Wenn alles "
 "funktioniert, können Sie diesen Stand dauerhaft übernehmen."
 
-#: nazoos_update/notify.py:144
+#: nazoos_update/notify.py:155
 msgid "Restart required"
 msgstr "Neustart erforderlich"
 
-#: nazoos_update/notify.py:147 nazoos_update/notify.py:155
+#: nazoos_update/notify.py:158 nazoos_update/notify.py:166
 msgid "Open"
 msgstr "Öffnen"
 
-#: nazoos_update/notify.py:152
+#: nazoos_update/notify.py:163
 msgid "NazoOS kernel runs stable"
 msgstr "NazoOS-Kernel läuft stabil"
 
-#: nazoos_update/notify.py:153
+#: nazoos_update/notify.py:164
 msgid ""
 "The NazoOS kernel started cleanly several times in a row. Remove the "
 "openSUSE kernel now?"
@@ -138,26 +144,26 @@ msgstr ""
 "Der NazoOS-Kernel ist mehrmals hintereinander sauber gestartet. Den openSUSE-"
 "Kernel jetzt entfernen?"
 
-#: nazoos_update/notify.py:162
+#: nazoos_update/notify.py:173
 msgid "Update needs your decision"
 msgstr "Update braucht Ihre Entscheidung"
 
-#: nazoos_update/notify.py:163
+#: nazoos_update/notify.py:174
 msgid ""
 "The update cannot be installed automatically because of a package conflict."
 msgstr ""
 "Das Update kann wegen eines Paketkonflikts nicht automatisch installiert "
 "werden."
 
-#: nazoos_update/notify.py:165 nazoos_update/notify.py:190
+#: nazoos_update/notify.py:176 nazoos_update/notify.py:201
 msgid "Fix"
 msgstr "Beheben"
 
-#: nazoos_update/notify.py:170
+#: nazoos_update/notify.py:181
 msgid "Repository key needs your decision"
 msgstr "Schlüssel einer Paketquelle braucht Ihre Entscheidung"
 
-#: nazoos_update/notify.py:171
+#: nazoos_update/notify.py:182
 msgid ""
 "A package source offers a signing key that is not trusted yet. Updates from "
 "it are blocked until you check the key."
@@ -165,15 +171,15 @@ msgstr ""
 "Eine Paketquelle bietet einen Signaturschlüssel an, dem noch nicht vertraut "
 "wird. Updates von dort sind gesperrt, bis Sie den Schlüssel geprüft haben."
 
-#: nazoos_update/notify.py:174
+#: nazoos_update/notify.py:185
 msgid "Check key"
 msgstr "Schlüssel prüfen"
 
-#: nazoos_update/notify.py:180
+#: nazoos_update/notify.py:191
 msgid "A package source does not respond"
 msgstr "Eine Paketquelle antwortet nicht"
 
-#: nazoos_update/notify.py:181
+#: nazoos_update/notify.py:192
 #, python-format
 msgid ""
 "The package source %s has not responded for several days, so updates are on "
@@ -183,11 +189,11 @@ msgstr ""
 "Updates. Wenn Sie sie nicht mehr brauchen, schalten Sie sie in Myrlyn "
 "(Paketquellen) aus."
 
-#: nazoos_update/notify.py:186
+#: nazoos_update/notify.py:197
 msgid "Update check does not work"
 msgstr "Update-Prüfung funktioniert nicht"
 
-#: nazoos_update/notify.py:187
+#: nazoos_update/notify.py:198
 msgid ""
 "NazoOS could not check for updates for several days. Is the computer "
 "connected to the internet?"
@@ -195,14 +201,14 @@ msgstr ""
 "NazoOS konnte seit mehreren Tagen nicht nach Updates suchen. Ist der "
 "Computer mit dem Internet verbunden?"
 
-#: nazoos_update/notify.py:194
+#: nazoos_update/notify.py:205
 #, python-format
 msgid "%d update is ready to install."
 msgid_plural "%d updates are ready to install."
 msgstr[0] "%d Update ist bereit zur Installation."
 msgstr[1] "%d Updates sind bereit zur Installation."
 
-#: nazoos_update/notify.py:197
+#: nazoos_update/notify.py:208
 msgid "Updates available"
 msgstr "Updates verfügbar"
 

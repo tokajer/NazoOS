@@ -3,6 +3,7 @@
 """nazoos_common.mok and kernelstate without mokutil or rpm."""
 
 import fcntl
+import os
 import subprocess
 import sys
 import types
@@ -587,29 +588,31 @@ def test_install_fails_when_the_retry_fails(monkeypatch):
 
 @pytest.fixture
 def lock_holder(tmp_path):
-    """A second process holding the lock zypper reports as "System
-    management is locked"; a lock of this process would not conflict."""
+    """zypp.pid naming a second, running process: libzypp's lock is the
+    PID of a live process, not a kernel file lock."""
+    proc_ = subprocess.Popen([sys.executable, "-c",
+                              "import time; time.sleep(60)"])
     path = tmp_path / "zypp.pid"
-    path.write_text("1234\n")
-    proc_ = subprocess.Popen(
-        [sys.executable, "-c",
-         "import fcntl, sys, time\n"
-         "f = open(sys.argv[1], 'r+')\n"
-         "fcntl.lockf(f, fcntl.LOCK_EX)\n"
-         "print('locked', flush=True)\n"
-         "time.sleep(60)", str(path)],
-        stdout=subprocess.PIPE, text=True)
-    assert proc_.stdout.readline() == "locked\n"
+    path.write_text(f"{proc_.pid}\n")
     yield path
     proc_.kill()
     proc_.wait()
 
 
-def test_wait_for_lock_free_file(tmp_path):
+def _dead_pid():
+    proc_ = subprocess.Popen([sys.executable, "-c", "pass"])
+    proc_.wait()
+    return proc_.pid
+
+
+@pytest.mark.parametrize("text", ["", "\n", "garbage\n", "{dead}\n",
+                                  "{own}\n"])
+def test_wait_for_lock_free_file(tmp_path, text):
     path = tmp_path / "zypp.pid"
-    path.write_text("1234\n")
+    text = text.format(dead=_dead_pid(), own=os.getpid())
+    path.write_text(text)
     assert zypper.wait_for_lock(timeout=1, path=path) is True
-    assert path.read_text() == "1234\n"
+    assert path.read_text() == text
 
 
 def test_wait_for_lock_missing_file(tmp_path):
@@ -617,8 +620,10 @@ def test_wait_for_lock_missing_file(tmp_path):
 
 
 def test_wait_for_lock_held_by_another_process(lock_holder):
+    text = lock_holder.read_text()
+    assert zypper.lock_holder(lock_holder) == int(text)
     assert zypper.wait_for_lock(timeout=1, path=lock_holder) is False
-    assert lock_holder.read_text() == "1234\n"
+    assert lock_holder.read_text() == text
 
 
 def test_request_reboot_prefers_plasma_prompt(monkeypatch):

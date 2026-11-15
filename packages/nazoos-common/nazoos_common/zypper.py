@@ -3,8 +3,6 @@
 """zypper command lines and exit codes shared by the GUIs' root helpers
 and the kernel code (no Qt here)."""
 
-import errno
-import fcntl
 import os
 import re
 import time
@@ -33,6 +31,25 @@ REPO_HAS_TIMEOUT = 360
 NOT_FOUND = 104
 
 
+def lock_holder(path="/run/zypp.pid"):
+    """PID of the running process that holds the zypp lock, else None.
+    libzypp writes its PID into PATH and counts the lock as held while
+    that process lives; its fcntl lock only guards reading and writing
+    the file (seen on Slowroll 2026-11-15: Myrlyn open, /proc/locks
+    empty). An empty file, a stale PID or our own PID mean free."""
+    try:
+        with open(path) as f:
+            text = f.read().strip()
+    except FileNotFoundError:
+        return None
+    if not text.isdigit():
+        return None
+    pid = int(text)
+    if pid == os.getpid() or not os.path.exists(f"/proc/{pid}"):
+        return None
+    return pid
+
+
 def wait_for_lock(timeout=None, path="/run/zypp.pid"):
     """True once nobody holds the zypp lock, False after TIMEOUT seconds
     (default: the helper's ZYPP_LOCK_TIMEOUT)."""
@@ -42,19 +59,11 @@ def wait_for_lock(timeout=None, path="/run/zypp.pid"):
     if timeout is None:
         timeout = int(os.environ.get("ZYPP_LOCK_TIMEOUT", 120))
     deadline = time.monotonic() + timeout
-    while True:
-        try:
-            with open(path) as f:
-                fcntl.lockf(f, fcntl.LOCK_SH | fcntl.LOCK_NB)
-            return True
-        except FileNotFoundError:
-            return True
-        except OSError as e:
-            if e.errno not in (errno.EACCES, errno.EAGAIN):
-                raise
+    while lock_holder(path) is not None:
         if time.monotonic() >= deadline:
             return False
         time.sleep(1)
+    return True
 
 
 def repo_search(alias, name):

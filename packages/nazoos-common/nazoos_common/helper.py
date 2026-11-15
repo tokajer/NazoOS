@@ -84,7 +84,12 @@ def run(cmd, check=True, on_line=None):
     count as success (a note is logged). ON_LINE(text), if given, also
     sees every output line.
     The output always goes through us, never straight to the GUI's pipe:
-    if the GUI goes away, the command must not get SIGPIPE (_drop_output)."""
+    if the GUI goes away, the command must not get SIGPIPE (_drop_output).
+    zypper first waits for its lock (up to ZYPP_LOCK_TIMEOUT): refresh,
+    modifyrepo and friends would block on it forever, past SIGTERM."""
+    if cmd[0] == "zypper" and not zypper.wait_for_lock():
+        raise Fail("another program is changing software right now; close "
+                   "it and try again")
     say("$ " + " ".join(cmd))
     with subprocess.Popen(cmd, stdin=subprocess.DEVNULL,
                           stdout=subprocess.PIPE,

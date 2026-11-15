@@ -131,6 +131,22 @@ def test_run_failure(monkeypatch):
     assert helper.run(["false"], check=False) == 4
 
 
+def test_run_zypper_fails_on_a_held_lock(monkeypatch):
+    def popen(*a, **k):
+        raise AssertionError("zypper must not start")
+    monkeypatch.setattr(helper.subprocess, "Popen", popen)
+    monkeypatch.setattr(helper.zypper, "wait_for_lock", lambda: False)
+    with pytest.raises(helper.Fail) as e:
+        helper.run(["zypper", "refresh"], check=False)
+    assert "another program" in e.value.template
+
+
+def test_run_other_commands_ignore_the_lock(monkeypatch):
+    fake_popen(monkeypatch, 0)
+    monkeypatch.setattr(helper.zypper, "wait_for_lock", lambda: False)
+    assert helper.run(["snapper", "list"]) == 0
+
+
 def test_run_passes_the_output_on(monkeypatch, capsys):
     fake_popen(monkeypatch, 0, b"one\ntwo\n")
     seen = []

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-15 00:46+0100\n"
+"POT-Creation-Date: 2026-11-15 00:48+0100\n"
 "PO-Revision-Date: 2026-10-10 10:00+0200\n"
 "Last-Translator: NazoOS Contributors\n"
 "Language-Team: German\n"
@@ -21,37 +21,44 @@ msgstr ""
 msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr "GRUB_CMDLINE_LINUX_DEFAULT nicht in {file} gefunden"
 
-#: ../nazoos-common/nazoos_common/helper.py:101
+#: ../nazoos-common/nazoos_common/helper.py:91
+#: nazoos_welcome/root/tumbleweed.py:222
+msgid "another program is changing software right now; close it and try again"
+msgstr ""
+"Ein anderes Programm ändert gerade Software; schließen Sie es und versuchen "
+"Sie es erneut"
+
+#: ../nazoos-common/nazoos_common/helper.py:106
 #: ../nazoos-common/nazoos_common/mok.py:37
 #: nazoos_welcome/root/kernel_switch.py:30 nazoos_welcome/root/packman.py:122
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr "„{cmd}“ ist fehlgeschlagen (Exit-Code {rc})"
 
-#: ../nazoos-common/nazoos_common/helper.py:131
+#: ../nazoos-common/nazoos_common/helper.py:136
 msgid "missing argument"
 msgstr "Angabe fehlt"
 
-#: ../nazoos-common/nazoos_common/helper.py:133
+#: ../nazoos-common/nazoos_common/helper.py:138
 #: nazoos_welcome/root/repair_fixes.py:119
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr "ungültige Angabe: {arg}"
 
-#: ../nazoos-common/nazoos_common/helper.py:142
+#: ../nazoos-common/nazoos_common/helper.py:147
 msgid "must run as root (via pkexec)"
 msgstr "muss mit Administratorrechten laufen (über pkexec)"
 
-#: ../nazoos-common/nazoos_common/helper.py:146
+#: ../nazoos-common/nazoos_common/helper.py:151
 msgid "unknown action"
 msgstr "unbekannte Aktion"
 
-#: ../nazoos-common/nazoos_common/helper.py:159
+#: ../nazoos-common/nazoos_common/helper.py:164
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr "Systemfehler: {detail}"
 
-#: ../nazoos-common/nazoos_common/helper.py:163
+#: ../nazoos-common/nazoos_common/helper.py:168
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr "Programmfehler: {detail}"
@@ -772,12 +779,6 @@ msgid ""
 msgstr ""
 "der Wechsel zu openSUSE ist gerade nicht möglich (zypper-Exit-Code {rc}, "
 "Details im Protokoll); es wurde nichts geändert"
-
-#: nazoos_welcome/root/tumbleweed.py:222
-msgid "another program is changing software right now; close it and try again"
-msgstr ""
-"Ein anderes Programm ändert gerade Software; schließen Sie es und versuchen "
-"Sie es erneut"
 
 #: nazoos_welcome/root/tumbleweed.py:259
 #, python-brace-format

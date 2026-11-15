@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nazoos-welcome\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-15 00:46+0100\n"
+"POT-Creation-Date: 2026-11-15 00:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,37 +22,42 @@ msgstr ""
 msgid "GRUB_CMDLINE_LINUX_DEFAULT not found in {file}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:101
+#: ../nazoos-common/nazoos_common/helper.py:91
+#: nazoos_welcome/root/tumbleweed.py:222
+msgid "another program is changing software right now; close it and try again"
+msgstr ""
+
+#: ../nazoos-common/nazoos_common/helper.py:106
 #: ../nazoos-common/nazoos_common/mok.py:37
 #: nazoos_welcome/root/kernel_switch.py:30 nazoos_welcome/root/packman.py:122
 #, python-brace-format
 msgid "'{cmd}' failed (exit code {rc})"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:131
+#: ../nazoos-common/nazoos_common/helper.py:136
 msgid "missing argument"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:133
+#: ../nazoos-common/nazoos_common/helper.py:138
 #: nazoos_welcome/root/repair_fixes.py:119
 #, python-brace-format
 msgid "invalid argument: {arg}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:142
+#: ../nazoos-common/nazoos_common/helper.py:147
 msgid "must run as root (via pkexec)"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:146
+#: ../nazoos-common/nazoos_common/helper.py:151
 msgid "unknown action"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:159
+#: ../nazoos-common/nazoos_common/helper.py:164
 #, python-brace-format
 msgid "system error: {detail}"
 msgstr ""
 
-#: ../nazoos-common/nazoos_common/helper.py:163
+#: ../nazoos-common/nazoos_common/helper.py:168
 #, python-brace-format
 msgid "program error: {detail}"
 msgstr ""
@@ -718,10 +723,6 @@ msgstr ""
 msgid ""
 "the switch to openSUSE is not possible right now (zypper exit code {rc}, "
 "details in the log); nothing was changed"
-msgstr ""
-
-#: nazoos_welcome/root/tumbleweed.py:222
-msgid "another program is changing software right now; close it and try again"
 msgstr ""
 
 #: nazoos_welcome/root/tumbleweed.py:259
