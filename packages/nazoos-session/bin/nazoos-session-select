@@ -16,6 +16,11 @@ set -uo pipefail
 readonly SWITCH=/usr/libexec/nazoos-session/nazoos-session-switch
 # Written when gaming mode failed to start; contains the reason
 readonly FAILED_MARK=${XDG_STATE_HOME:-$HOME/.local/state}/nazoos-session/gaming-failed
+# Written right before a requested switch ends the gaming session. Its
+# teardown can exit != 0 anyway (gamescope-session-plus ends with a failed
+# "kill -9" of the already stopped mangoapp loop), which is no start failure.
+# Runtime dir: gone after a reboot, so a stale mark cannot hide a real failure.
+readonly SWITCH_MARK=${XDG_RUNTIME_DIR:-/tmp}/nazoos-session-switching
 
 usage() {
   echo "usage: nazoos-session-select gaming|desktop" >&2
@@ -48,7 +53,12 @@ notify_error() {
 stopped() {
   local unit=$1 reason=other log
   # Clean stop (logout, "Switch to Desktop", shutdown) = success
-  [ "${SERVICE_RESULT:-success}" = success ] && return 0
+  [ "${SERVICE_RESULT:-success}" = success ] && { rm -f "$SWITCH_MARK"; return 0; }
+  # Requested switch: the session was up, whatever the exit code says
+  if [ -e "$SWITCH_MARK" ]; then
+    rm -f "$SWITCH_MARK"
+    return 0
+  fi
   log=$(journalctl --user --unit="$unit" --boot -n 80 -o cat 2>/dev/null)
   case $log in
     *"Failed to initialize Vulkan"*|*"not a valid physical device"*) reason=vulkan ;;
@@ -124,6 +134,7 @@ end_session() {
 
 if [ "${1-}" = --started ]; then
   case ${2-} in gaming|desktop) ;; *) usage ;; esac
+  rm -f "$SWITCH_MARK"
   exec pkexec "$SWITCH" started "$2"
 fi
 
@@ -156,4 +167,8 @@ if ! err=$(pkexec "$SWITCH" switch "$target" 2>&1); then
   notify_error "$(msg "Could not switch: " "Wechsel nicht möglich: ")${err##*: }"
   exit 1
 fi
+# Steam's "Switch to Desktop" lands here with XDG_CURRENT_DESKTOP=KDE (the
+# user unit inherits the manager's environment), so mark it for every
+# switch to the desktop, not only in the gamescope branch below
+[ "$target" = desktop ] && { : > "$SWITCH_MARK" 2>/dev/null || :; }
 end_session

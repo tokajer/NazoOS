@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Sun Nov 15 09:30:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- "Switch to Desktop" from gaming mode no longer shows "Gaming mode
+  could not start": gamescope-session-plus can end with exit code 1
+  on a normal teardown, a requested switch now counts as clean
+
+-------------------------------------------------------------------
 Wed Nov  4 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - The "gaming mode failed" notice also works with libnotify 0.8.8
