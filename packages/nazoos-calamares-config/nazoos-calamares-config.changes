@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Sun Nov 15 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- "Log in automatically" on the users page works: without the
+  displaymanager module the checkbox only added the user to the
+  autologin group; nazoos-postinstall now sets SDDM's autologin user
+  for desktop installs
+
+-------------------------------------------------------------------
 Sun Nov  1 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - fbcon=nodefer on the kernel command line: on i915 GRUB's picture

@@ -98,6 +98,15 @@ case $device in
         rpm -e "$p" || echo "kept $p (needed by another package)"
       fi
     done
+    # "Log in automatically" on the users page: Calamares only adds the
+    # user to autologinGroup (users.conf); without the displaymanager
+    # module nothing else happens. openSUSE's SDDM takes the autologin
+    # user from sysconfig, and nazoos-session-ctl keeps this value as the
+    # desktop autologin when the boot mode changes.
+    if [ -n "$user" ] && id -nG "$user" | tr ' ' '\n' | grep -qx autologin; then
+      sed -i "s/^DISPLAYMANAGER_AUTOLOGIN=.*/DISPLAYMANAGER_AUTOLOGIN=\"$user\"/" \
+        /etc/sysconfig/displaymanager
+    fi
     ;;
 esac
 
