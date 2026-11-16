@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Nov 16 22:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- D-Bus policy nazoos-ratbag.conf: every user may use ratbagd. openSUSE
+  limits it to group games, so Piper failed with "Connection to
+  ratbagd failed" (G502 HERO on Game-Linux)
+
+-------------------------------------------------------------------
 Sun Nov 15 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Load nct6775 at boot: the Nuvoton Super-I/O is not autoloaded, so

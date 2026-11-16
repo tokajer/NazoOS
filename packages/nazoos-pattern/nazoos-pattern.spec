@@ -101,6 +101,8 @@ Recommends:     xpadneo
 Recommends:     joycond
 # Hardware
 Recommends:     OpenRGB
+# Gaming mice: DPI, buttons, LEDs (ratbagd for all users: nazoos-tweaks)
+Recommends:     piper
 Recommends:     lact
 Recommends:     coolercontrol
 Recommends:     fwupd

@@ -31,6 +31,7 @@ ntsync module loading for Wine/Proton, mainboard fan sensors (nct6775),
 MGLRU working set protection,
 TCP BBR, transparent huge page defrag tuning, Nvidia driver options,
 a journal size limit, the i2c group for DDC/CI and RGB devices,
+ratbagd (Piper) access for all users,
 larger shader caches, GameMode defaults, a lower PipeWire default
 latency, the SDDM greeter on Wayland, the NazoOS firewall zone and the
 signing key of the NazoOS package repository, a polkit rule that lets
@@ -76,6 +77,8 @@ install -Dm0644 -t %{buildroot}%{_prefix}/lib/sddm/sddm.conf.d \
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/environment.d \
   environment.d/70-nazoos-shader-cache.conf
 install -Dm0644 sysusers.d/nazoos-i2c.conf %{buildroot}%{_sysusersdir}/nazoos-i2c.conf
+# Piper/ratbagd for all users, not only group games (openSUSE build option)
+install -Dm0644 -t %{buildroot}%{_datadir}/dbus-1/system.d dbus/nazoos-ratbag.conf
 # Firewall zone, made the default zone by kiwi config.sh (ADR 0021), and the
 # zone + policy of Waydroid's bridge
 install -Dm0644 -t %{buildroot}%{_prefix}/lib/firewalld/zones \
@@ -162,6 +165,9 @@ fi
 %dir %{_prefix}/lib/environment.d
 %{_prefix}/lib/environment.d/70-nazoos-shader-cache.conf
 %{_sysusersdir}/nazoos-i2c.conf
+%dir %{_datadir}/dbus-1
+%dir %{_datadir}/dbus-1/system.d
+%{_datadir}/dbus-1/system.d/nazoos-ratbag.conf
 %dir %{_prefix}/lib/firewalld
 %dir %{_prefix}/lib/firewalld/zones
 %{_prefix}/lib/firewalld/zones/nazoos.xml
