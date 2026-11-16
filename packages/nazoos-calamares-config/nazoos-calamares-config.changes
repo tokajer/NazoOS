@@ -5,8 +5,8 @@ Sun Nov 15 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
   displaymanager module the checkbox only added the user to the
   autologin group; nazoos-postinstall now sets SDDM's autologin user
   for desktop installs
-- users.conf: displayAutologin true, Calamares 3.4 hides the checkbox
-  otherwise (seen in the VM with live-Build148.2)
+- users.conf: displayAutologin true, without it Calamares 3.4.2 did
+  not always show the checkbox (VM, live-Build148.2)
 
 -------------------------------------------------------------------
 Sun Nov  1 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
