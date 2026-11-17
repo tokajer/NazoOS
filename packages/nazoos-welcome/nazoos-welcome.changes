@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Nov 17 12:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
+
+- Kernel page: "Use NazoOS kernel" button when kernel-nazoos is
+  installed but not the default (after "Back to the openSUSE kernel"
+  or the first step of "Switch to openSUSE"). Before, the only way
+  back was removing and reinstalling the kernel.
+
+-------------------------------------------------------------------
 Sun Nov 15 14:00:00 UTC 2026 - tokajer <tokajer@tokajer.at>
 
 - Optional apps: drop the ProtonUp-Qt and ProtonPlus Flatpak cards.

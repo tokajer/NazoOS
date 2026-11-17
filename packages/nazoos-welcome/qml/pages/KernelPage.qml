@@ -58,6 +58,23 @@ Kirigami.ScrollablePage {
                           ? page.app.askMok("kernel-install", [])
                           : page.app.runAction("kernel-install", []))
             }
+            // After "Back to the openSUSE kernel" (also stage 1 of "Switch
+            // to openSUSE"): kernel-install again only sets the marker, the
+            // boot counter and the boot menu default, the packages are there
+            QQC2.Button {
+                visible: page.k.installed === true && !page.k.running
+                         && page.k.preferred !== true
+                enabled: !backend.busy && !page.k.blocked
+                text: L.tr("Use NazoOS kernel")
+                icon.name: "go-next"
+                onClicked: page.app.confirm(
+                    L.tr("Use the NazoOS kernel again?"),
+                    L.tr("The NazoOS kernel becomes the default in the boot menu again. The openSUSE kernel stays installed as a fallback."),
+                    L.tr("Use NazoOS kernel"),
+                    () => page.k.uefi && page.k.mok !== "enrolled"
+                          ? page.app.askMok("kernel-install", [])
+                          : page.app.runAction("kernel-install", []))
+            }
         }
 
         SettingCard {

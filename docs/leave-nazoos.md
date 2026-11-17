@@ -6,7 +6,7 @@ NazoOS is openSUSE Slowroll with extras, so you can turn it into plain Slowroll 
 
 1. Open **NazoOS Welcome → System** and scroll to **Leave NazoOS**.
 2. Click **Switch to openSUSE**, read the summary and confirm with your password. You need a working internet connection.
-3. If the NazoOS kernel is running, this first step only moves to the openSUSE kernel. Restart the computer, open NazoOS Welcome again and click **Switch to openSUSE** a second time.
+3. If the NazoOS kernel is running, this first step only moves to the openSUSE kernel. Restart the computer, open NazoOS Welcome again and click **Switch to openSUSE** a second time. To stay with NazoOS after all, click **Use NazoOS kernel** on the Kernel page instead.
 4. A snapshot is taken, then the NazoOS packages are replaced. When NazoOS Welcome tells you, restart the computer. Other pages of NazoOS Welcome may stay empty until then, because the program itself has been removed.
 
 If the check before the change finds a problem, or the change cannot start, no packages are changed and NazoOS keeps working. A few settings (the default firewall zone, the gaming start mode) may already be back at their openSUSE or desktop values. Try again later, a new openSUSE snapshot often solves it.

@@ -63,4 +63,6 @@ The NazoOS kernel is built from exactly the kernel openSUSE Slowroll ships, plus
 
 **Use openSUSE kernel** makes the openSUSE kernel the default again and reinstalls it if it was removed. Restart, then **Remove NazoOS kernel** removes the NazoOS kernel completely.
 
+Changed your mind? As long as the NazoOS kernel is still installed, **Use NazoOS kernel** makes it the default again (also after the first step of **Switch to openSUSE**).
+
 If the NazoOS kernel does not start at all: choose **NazoOS (openSUSE kernel)** in the boot menu (or **Advanced options** and an entry ending with `-default`).

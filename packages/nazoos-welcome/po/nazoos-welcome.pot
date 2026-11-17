@@ -897,8 +897,8 @@ msgstr ""
 
 #: qml/pages/AppsPage.qml:111 qml/pages/AppsPage.qml:119
 #: qml/pages/DriversPage.qml:151 qml/pages/DriversPage.qml:156
-#: qml/pages/GamingPage.qml:247 qml/pages/KernelPage.qml:74
-#: qml/pages/KernelPage.qml:79 qml/pages/KernelPage.qml:103
+#: qml/pages/GamingPage.qml:247 qml/pages/KernelPage.qml:91
+#: qml/pages/KernelPage.qml:96 qml/pages/KernelPage.qml:120
 msgid "Remove"
 msgstr ""
 
@@ -1509,69 +1509,83 @@ msgid ""
 "next step (suggested: nazoos)."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:68
+#: qml/pages/KernelPage.qml:68 qml/pages/KernelPage.qml:73
+msgid "Use NazoOS kernel"
+msgstr ""
+
+#: qml/pages/KernelPage.qml:71
+msgid "Use the NazoOS kernel again?"
+msgstr ""
+
+#: qml/pages/KernelPage.qml:72
+msgid ""
+"The NazoOS kernel becomes the default in the boot menu again. The openSUSE "
+"kernel stays installed as a fallback."
+msgstr ""
+
+#: qml/pages/KernelPage.qml:85
 msgid "Remove the openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:69
+#: qml/pages/KernelPage.qml:86
 msgid ""
 "Once the NazoOS kernel has started cleanly %1 times in a row, the openSUSE "
 "kernel can be removed. Updates then never install it again. Older NazoOS "
 "kernels and snapshots stay as fallback."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:70
+#: qml/pages/KernelPage.qml:87
 msgid "Clean starts in a row: %1 of %2"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:77
+#: qml/pages/KernelPage.qml:94
 msgid "Remove the openSUSE kernel?"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:78
+#: qml/pages/KernelPage.qml:95
 msgid ""
 "Only the NazoOS kernel stays installed. You can bring the openSUSE kernel "
 "back here at any time."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:87
+#: qml/pages/KernelPage.qml:104
 msgid "Back to the openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:88
+#: qml/pages/KernelPage.qml:105
 msgid ""
 "Makes the openSUSE kernel the default again and installs it if it was "
 "removed. The NazoOS kernel can then be removed while the openSUSE kernel is "
 "running."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:92
+#: qml/pages/KernelPage.qml:109
 msgid "Use openSUSE kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:98
+#: qml/pages/KernelPage.qml:115
 msgid "Remove NazoOS kernel"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:101
+#: qml/pages/KernelPage.qml:118
 msgid "Remove the NazoOS kernel?"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:102
+#: qml/pages/KernelPage.qml:119
 msgid ""
 "The NazoOS kernel and its driver modules are removed. You can install it "
 "again later."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:110
+#: qml/pages/KernelPage.qml:127
 msgid "Secure Boot"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:116
+#: qml/pages/KernelPage.qml:133
 msgid "NazoOS key (MOK)"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:118
+#: qml/pages/KernelPage.qml:135
 msgid ""
 "With Secure Boot the computer only starts kernels with a trusted key. The "
 "NazoOS key is added once in the blue MokManager screen that appears after a "
@@ -1580,7 +1594,7 @@ msgid ""
 "choose the openSUSE kernel in the boot menu."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:119
+#: qml/pages/KernelPage.qml:136
 msgid ""
 "Secure Boot is off, the NazoOS kernel starts without the key. Enroll it "
 "anyway: kernel updates expect it, and Secure Boot can be turned on later. It "
@@ -1589,19 +1603,19 @@ msgid ""
 "(suggested: nazoos)."
 msgstr ""
 
-#: qml/pages/KernelPage.qml:120
+#: qml/pages/KernelPage.qml:137
 msgid "Key enrolled"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:121
+#: qml/pages/KernelPage.qml:138
 msgid "Waiting for MokManager – restart the computer"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:122
+#: qml/pages/KernelPage.qml:139
 msgid "Key not enrolled"
 msgstr ""
 
-#: qml/pages/KernelPage.qml:127
+#: qml/pages/KernelPage.qml:144
 msgid "Enroll key"
 msgstr ""
 
